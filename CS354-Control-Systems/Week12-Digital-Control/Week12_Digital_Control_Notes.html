@@ -108,6 +108,7 @@ window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\
 
 <div class="wrap">
 <nav class="toc" aria-label="Contents">
+  <a href="../../index.html#cs354" style="border-left:0;padding-left:0;margin-bottom:14px;color:var(--genoa)">&larr; All modules</a>
   <div class="k">CS354 · Week 12 · Ch 8</div>
   <ol>
     <li><a href="#why">1. Why go digital</a></li>
@@ -893,7 +894,7 @@ body.chat-open main ::selection{background:rgba(184,116,26,.32)}
   function load(){ try{ const v = JSON.parse(localStorage.getItem(STORE) || '[]'); if (Array.isArray(v)) history = v; }catch(e){} }
 
   // ---------- server status ----------
-  const RUN_HELP = 'The chat needs the local server, which keeps your API key out of the browser. In the Week 12 folder, double-click <code>run_notes.bat</code> (or run <code>python serve_notes.py</code>), then use the page it opens at <code>http://localhost:8765</code>.';
+  const RUN_HELP = 'The chat needs the local server, which keeps your API key out of the browser. In the top folder of the notes repo, double-click <code>run_notes.bat</code> (or run <code>python serve_notes.py</code>), then open these notes from the page it opens at <code>http://localhost:8765</code>.';
   async function checkServer(){
     statusEl.hidden = true;
     if (location.protocol === 'file:'){ setStatus(RUN_HELP); serverOK = false; return; }
@@ -902,7 +903,7 @@ body.chat-open main ::selection{background:rgba(184,116,26,.32)}
       if (!r.ok) throw new Error();
       const h = await r.json();
       $('#modelName').textContent = h.model || '';
-      if (!h.hasKey){ setStatus('No API key yet. Open the <code>.env</code> file in the Week 12 folder, set <code>GEMINI_API_KEY=</code> to your key, and save. No restart needed.'); }
+      if (!h.hasKey){ setStatus('No API key yet. Open the <code>.env</code> file in the top folder of the notes repo (copy <code>.env.example</code> if it is not there), set <code>GEMINI_API_KEY=</code> to your key, and save. No restart needed.'); }
       serverOK = true;
     }catch(e){ setStatus(RUN_HELP); serverOK = false; }
   }

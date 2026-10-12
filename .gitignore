@@ -14,6 +14,8 @@ slprj/
 
 # Course-issued material is not redistributed here
 *.pdf
+# ...except past papers, which the hub lists from each module's papers/ folder
+!*/papers/**/*.pdf
 *.mp4
 *.pptx
 

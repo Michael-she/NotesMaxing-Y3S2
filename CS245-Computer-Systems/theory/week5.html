@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="page">
+
+<div class="topnav">
+  <a href="../../index.html#cs245">CS245 Notes</a>
+  <span class="sep">/</span>
+  <span class="current">Theory</span>
+  <a href="../programming/week5.html">Programming</a>
+  <a href="../../index.html#cs245/papers">Papers</a>
+  <span class="sep">|</span>
+  <a href="week1.html">W1</a>
+  <a href="week2.html">W2</a>
+  <a href="week3.html">W3</a>
+  <a href="week4.html">W4</a>
+  <span class="current">W5</span>
+</div>
+
+<header class="hero">
+  <span class="kicker theory">Theory</span>
+  <h1 class="title">Week 5 — Timers, Counters &amp; Clocks</h1>
+  <p class="subtitle">CS245 · Lectures 12–14 · Timer/counter principles, PWM, SysTick, watchdogs, RTC, clock sources &amp; PLLs</p>
+</header>
+
+<nav class="toc">
+  <span class="toc-label">Contents</span>
+  <ol>
+    <li><a href="#l12a">Timer/Counter Operating Principles</a></li>
+    <li><a href="#l12b">Counter Modes</a></li>
+    <li><a href="#l12c">Output Compare &amp; Input Capture</a></li>
+    <li><a href="#l13a">Pulse-Width Modulation (PWM)</a></li>
+    <li><a href="#l13b">SysTick, Watchdogs &amp; RTC</a></li>
+    <li><a href="#l14a">Clock Sources</a></li>
+    <li><a href="#l14b">Phase-Locked Loop (PLL) &amp; Clock Distribution</a></li>
+  </ol>
+</nav>
+
+<section class="lecture" id="l12a">
+  <h2>Timer/Counter Operating Principles</h2>
+  <p>Embedded systems routinely need to measure elapsed time and count the occurrence of events — a microwave oven, for instance, needs one timer to track time-of-day, another to time the cook cycle, another to pulse the turntable motor, and a fourth to control power level by switching the magnetron on for only a fraction of each second.</p>
+  <ul>
+    <li><strong>Hardware counter:</strong> a register (<code>TIMx_CNT</code>) that increments or decrements on every transition of an input signal.</li>
+    <li><strong>Timer mode:</strong> the input is an internal, periodic clock of known frequency — used to measure elapsed time or trigger actions with controlled timing.</li>
+    <li><strong>Counter mode:</strong> the input is an external, asynchronous signal (e.g. an optical encoder or flow meter) — used to count the number of physical events.</li>
+  </ul>
+  <p>Key registers: <code>TIMx_CNT</code> (current count, 16- or 32-bit — wider registers give a greater counting range before wraparound), <code>TIMx_PSC</code> (16-bit prescaler, dividing the input clock by any factor from 1 to 65536), <code>TIMx_ARR</code> (auto-reload register, defining the counting ceiling), and up to four <code>TIMx_CCRx</code> capture/compare registers per timer. Most timers have 4 independent channels, usable for output compare, input capture, PWM generation, or one-pulse output. Interrupts can be generated on update (overflow/underflow/reset), trigger, output-compare, input-capture, and break-input events.</p>
+</section>
+
+<section class="lecture" id="l12b">
+  <h2>Counter Modes</h2>
+  <ul>
+    <li><strong>Upcounting:</strong> counts 0 → <code>TIMx_ARR</code>, then resets to 0, generating an Update Event (UEV) and setting the Update Interrupt Flag (UIF).</li>
+    <li><strong>Downcounting:</strong> counts <code>TIMx_ARR</code> → 0, then reloads <code>TIMx_ARR</code> and generates a UEV.</li>
+    <li><strong>Center-aligned (up/down):</strong> counts 0 → <code>ARR</code>−1 (overflow UEV), then <code>ARR</code> → 1 (underflow UEV), then restarts from 0. Effective period = 2 × ARR × clock period.</li>
+  </ul>
+</section>
+
+<section class="lecture" id="l12c">
+  <h2>Output Compare &amp; Input Capture</h2>
+  <ul>
+    <li><strong>Output compare:</strong> the counter is continuously compared against <code>TIMx_CCRx</code>; on a match, an output pin's logic level changes (set, clear, or toggle) — without requiring the CPU to be interrupted at all. Used to generate output waveforms, or simply to mark that a period of time has elapsed. Can also raise an interrupt if enabled.</li>
+    <li><strong>Input capture:</strong> the timer free-runs on a known clock; when a configured edge is detected on the corresponding input-capture (ICx) signal, the current counter value is latched into <code>TIMx_CCRx</code>. This measures the time between edges of an external signal, without CPU polling. Extra features include programmable edge sensitivity (rising/falling/both), an event prescaler (capture every 1/2/4/8 events, reducing CPU load for high-frequency signals), and a 4-bit digital noise/debounce filter (able to reject glitches up to 15 sampling periods after the active edge).</li>
+  </ul>
+  <p>Typical uses of counter mode: an LMT01 temperature sensor outputs a number of pulses within a fixed time window that varies with temperature; an optical encoder outputs pulses at a rate proportional to rotation speed. Both are read by feeding the pulse train into a timer/counter's external input.</p>
+</section>
+
+<section class="lecture" id="l13a">
+  <h2>Pulse-Width Modulation (PWM)</h2>
+  <p><strong>PWM</strong> generates a square wave with a programmable pulse width (duty cycle), which — after low-pass filtering, or simply as perceived by an LED/motor — behaves like a varying average DC voltage. Frequency is set by <code>TIMx_ARR</code>; duty cycle is set by <code>TIMx_CCRx</code>. The generated signal is called <strong>OCxREF</strong>.</p>
+  <table>
+    <thead><tr><th></th><th>Upcounting (CNT &lt; CCR)</th><th>Downcounting (CNT &gt; CCR)</th></tr></thead>
+    <tbody>
+      <tr><td><strong>PWM Mode 1</strong></td><td>OCxREF = 1</td><td>OCxREF = 0</td></tr>
+      <tr><td><strong>PWM Mode 2</strong></td><td>OCxREF = 0</td><td>OCxREF = 1</td></tr>
+    </tbody>
+  </table>
+  <p>In edge-aligned Mode 1, OCxREF is high as long as <code>TIMx_CNT &lt; TIMx_CCRx</code>; if the compare value exceeds the auto-reload value, OCxREF is simply held at 1 (100% duty). PWM can also be generated in center-aligned mode, active whenever the CMS bits in <code>TIMx_CR1</code> are non-zero.</p>
+  <figure class="diagram">
+    <div class="diagram-svg">
+      <svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PWM edge-aligned Mode 1 waveform for ARR=6, CCRx=3: counter ramps 0 to 6 then resets, output is high while count is below 3 and low otherwise, giving a duty cycle of 3 in 7">
+        <!-- counter subplot -->
+        <g stroke="currentColor" stroke-width="1" opacity="0.35">
+          <line x1="50" y1="20" x2="470" y2="20"/>
+          <line x1="50" y1="140" x2="470" y2="140"/>
+        </g>
+        <line x1="50" y1="80" x2="470" y2="80" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="45" y="24" text-anchor="end" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">ARR=6</text>
+        <text x="45" y="84" text-anchor="end" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="var(--accent)">CCR=3</text>
+        <text x="45" y="144" text-anchor="end" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">0</text>
+
+        <path d="M50,140 L230,20 L260,20 L260,140 L440,20 L470,20"
+              fill="none" stroke="var(--theory-accent)" stroke-width="2"/>
+        <line x1="260" y1="20" x2="260" y2="140" stroke="var(--theory-accent)" stroke-width="2" stroke-dasharray="2 3"/>
+        <text x="330" y="15" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" opacity="0.8">TIMx_CNT</text>
+
+        <!-- output subplot -->
+        <g stroke="currentColor" stroke-width="1" opacity="0.35">
+          <line x1="50" y1="195" x2="470" y2="195"/>
+          <line x1="50" y1="235" x2="470" y2="235"/>
+        </g>
+        <text x="45" y="199" text-anchor="end" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">1</text>
+        <text x="45" y="239" text-anchor="end" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">0</text>
+
+        <path d="M50,195 L140,195 L140,235 L260,235 L260,195 L350,195 L350,235 L470,235"
+              fill="none" stroke="var(--prog-accent)" stroke-width="2.5"/>
+        <text x="330" y="185" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" opacity="0.8">OCxREF (output)</text>
+
+        <!-- switch markers -->
+        <g stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 3" opacity="0.7">
+          <line x1="140" y1="80" x2="140" y2="235"/>
+          <line x1="350" y1="80" x2="350" y2="235"/>
+        </g>
+
+        <!-- period brackets -->
+        <line x1="50" y1="255" x2="258" y2="255" stroke="currentColor" stroke-width="1"/>
+        <line x1="50" y1="250" x2="50" y2="260" stroke="currentColor" stroke-width="1"/>
+        <line x1="258" y1="250" x2="258" y2="260" stroke="currentColor" stroke-width="1"/>
+        <text x="154" y="270" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.75">Period = ARR+1 = 7 ticks</text>
+
+        <line x1="50" y1="285" x2="140" y2="285" stroke="var(--prog-accent)" stroke-width="1"/>
+        <text x="95" y="297" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9" fill="var(--prog-accent)">HIGH: CCR=3 ticks</text>
+        <line x1="145" y1="285" x2="258" y2="285" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+        <text x="200" y="297" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9" opacity="0.75">LOW: 4 ticks</text>
+      </svg>
+    </div>
+    <figcaption class="diagram-caption">PWM Mode 1, ARR = 6, CCRx = 3 → duty cycle = CCRx / (ARR+1) = 3/7 ≈ 42.9%</figcaption>
+  </figure>
+  <h3>One-pulse mode</h3>
+  <p>Generates a single pulse of programmable length in response to an external trigger event. <code>CCR1</code> defines when the pulse starts (optionally after a delay from the trigger), and <code>ARR</code> defines when it ends — the effective pulse width is <code>ARR − CCR1</code>.</p>
+</section>
+
+<section class="lecture" id="l13b">
+  <h2>SysTick, Watchdogs &amp; RTC</h2>
+  <h3>SysTick timer</h3>
+  <p>A 24-bit downcounter built into the Cortex-M4 core itself (dedicated primarily to RTOS use, but usable as a plain downcounter), with autoreload and maskable interrupt-on-zero. It is normally configured (in <code>HAL_Init()</code>) as a 1 ms tick that simply increments a counter variable on every interrupt; <code>HAL_Delay()</code> spins in a loop waiting for that counter to advance by the requested amount.</p>
+  <div class="note-box"><span class="label">Critical rule</span>Never call <code>HAL_Delay()</code> from inside an interrupt handler unless SysTick has been given a strictly higher preemption priority than that handler — otherwise SysTick can never fire to advance the count, and the system deadlocks.</div>
+
+  <h3>Watchdog timers</h3>
+  <p>A <strong>watchdog timer (WDT)</strong> automatically resets the system if the main program fails to periodically "kick" (service) it — typically used to recover an embedded device that has hung due to a software or hardware fault. It counts down from a reload value; reaching zero triggers a reset. As long as the software is healthy and keeps kicking the watchdog on schedule, the counter never reaches zero.</p>
+  <table>
+    <thead><tr><th></th><th>Independent Watchdog (IWDG)</th><th>Window Watchdog (WWDG)</th></tr></thead>
+    <tbody>
+      <tr><td>Counter</td><td>12-bit downcounter, 8-bit prescaler</td><td>7-bit downcounter</td></tr>
+      <tr><td>Clock source</td><td>Independent ≈32 kHz internal low-speed RC (LSI) — keeps running even if the main clock fails</td><td>Prescaled from the APB1 clock (i.e. depends on the main clock)</td></tr>
+      <tr><td>Typical use</td><td>General-purpose reset-on-hang protection; can also run as a free-running timeout timer; usable in Stop/Standby modes</td><td>Detects a software fault that causes execution to abandon its normal sequence — must be kicked inside a specific time <em>window</em> (neither too early nor too late); can trigger an interrupt instead of a reset</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Real-Time Clock (RTC)</h3>
+  <p>An independent BCD (binary-coded decimal) calendar timer/counter, tracking seconds, minutes, hours (12/24-hour), weekday, date, month, and year — with automatic leap-year and month-length compensation. Provides a programmable alarm and periodic interrupts, and can wake the device from Stop/Standby low-power modes. Normally clocked by an external 32.768 kHz crystal (LSE), though it can fall back to the internal RC oscillator (less accurate) or the HSE divided by 128. It defaults to generating a 1-second time base from the 32.768 kHz source, and continues running across Run mode, low-power modes, and reset, as long as supply voltage stays in range.</p>
+</section>
+
+<section class="lecture" id="l14a">
+  <h2>Clock Sources</h2>
+  <p>Every microcontroller needs a clock input, used by the CPU, memory, bus, and peripherals — it governs instruction execution rate, serial communication rate, and analog-to-digital sampling rate. Microcontrollers implement sequential logic (their output depends on input history, not just present inputs), and every logic gate has a finite <strong>propagation delay</strong>; the time between clock pulses must be long enough for all gate outputs to settle before the next pulse, or the circuit's behaviour becomes unreliable.</p>
+  <table>
+    <thead><tr><th>Source</th><th>Typical frequency</th><th>Trade-off</th></tr></thead>
+    <tbody>
+      <tr><td><strong>HSI</strong> — High-Speed Internal RC oscillator</td><td>16 MHz</td><td>Factory-trimmed to ±1% at 25 °C. Low cost, instant startup, but drifts with temperature and has manufacturing-tolerance imprecision.</td></tr>
+      <tr><td><strong>LSI</strong> — Low-Speed Internal RC oscillator</td><td>≈32 kHz</td><td>Drives the watchdog and basic sleep timing; same drift/imprecision trade-off as HSI.</td></tr>
+      <tr><td><strong>HSE</strong> — High-Speed External crystal/ceramic resonator</td><td>4–26 MHz (8 MHz on this board)</td><td>Much higher stability and accuracy (≈±20 ppm), at higher component cost and slower startup.</td></tr>
+      <tr><td><strong>LSE</strong> — Low-Speed External crystal</td><td>32.768 kHz</td><td>Feeds the RTC; same stability advantage as HSE.</td></tr>
+    </tbody>
+  </table>
+  <p>An RC oscillator's imprecision comes from manufacturing tolerance in the resistor/capacitor values (which directly set the resonant frequency) and thermal drift in those same values. A crystal oscillator instead uses the mechanical (piezoelectric) resonance of a vibrating quartz crystal — deformed by an applied electric field (electrostriction), and generating its own field as it springs back — which is far more stable, though it still needs external circuitry to amplify and feed back the crystal's output.</p>
+  <h3>Frequency error (ppm)</h3>
+  <p>Oscillator accuracy is specified in parts-per-million (ppm):</p>
+  <div class="formula">Δf = f₀ × (ppm / 10⁶)</div>
+  <p>Example: a 32.768 kHz crystal rated ±20 ppm gives Δf = 32,768 × 20 / 1,000,000 ≈ ±0.65536 Hz — the clock may drift by up to ≈20 seconds per million seconds, roughly 52 seconds over a month.</p>
+</section>
+
+<section class="lecture" id="l14b">
+  <h2>Phase-Locked Loop (PLL) &amp; Clock Distribution</h2>
+  <p>Quartz crystals cannot physically resonate at hundreds of MHz, so a <strong>Phase-Locked Loop (PLL)</strong> multiplies a lower crystal (or RC) frequency up to the CPU's operating frequency (168 MHz on this board). A PLL consists of a phase-frequency detector, a charge pump, a low-pass loop filter, a voltage-controlled oscillator (VCO), and feedback frequency dividers (÷M, ×N, ÷P, ÷Q). The VCO output is fed back to the phase detector, forming a negative-feedback loop: if the output phase drifts, the resulting error signal drives the VCO in the opposite direction, locking the output phase to a fixed relationship with the input.</p>
+  <figure class="diagram">
+    <div class="diagram-svg">
+      <svg viewBox="0 0 660 235" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PLL block diagram: input clock divided by M feeds a phase-frequency detector, then charge pump, loop filter and VCO produce the multiplied output clock, which is fed back through a divider by P or Q into the phase-frequency detector">
+        <defs>
+          <marker id="pllarrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <g font-family="Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+          <rect x="10" y="40" width="90" height="50" rx="4" fill="var(--code-bg)" stroke="currentColor" stroke-width="1.5"/>
+          <text x="55" y="61">Input Clock</text>
+          <text x="55" y="76" font-weight="400" opacity="0.75">÷ M</text>
+
+          <rect x="130" y="40" width="110" height="50" rx="4" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+          <text x="185" y="61">Phase-Freq.</text>
+          <text x="185" y="76">Detector</text>
+
+          <rect x="270" y="40" width="80" height="50" rx="4" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+          <text x="310" y="61">Charge</text>
+          <text x="310" y="76">Pump</text>
+
+          <rect x="380" y="40" width="80" height="50" rx="4" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+          <text x="420" y="61">Loop</text>
+          <text x="420" y="76">Filter</text>
+
+          <rect x="490" y="40" width="70" height="50" rx="4" fill="var(--prog-soft)" stroke="var(--prog-accent)" stroke-width="1.5"/>
+          <text x="525" y="70">VCO</text>
+        </g>
+
+        <!-- forward path arrows -->
+        <g stroke="currentColor" stroke-width="1.5" fill="none">
+          <line x1="100" y1="65" x2="126" y2="65" marker-end="url(#pllarrow)"/>
+          <line x1="240" y1="65" x2="266" y2="65" marker-end="url(#pllarrow)"/>
+          <line x1="350" y1="65" x2="376" y2="65" marker-end="url(#pllarrow)"/>
+          <line x1="460" y1="65" x2="486" y2="65" marker-end="url(#pllarrow)"/>
+          <line x1="560" y1="65" x2="610" y2="65" marker-end="url(#pllarrow)"/>
+        </g>
+        <text x="585" y="58" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.75">× N</text>
+        <text x="640" y="69" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" font-weight="700">PLL</text>
+        <text x="640" y="82" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" font-weight="700">Output</text>
+
+        <!-- feedback path -->
+        <path d="M610,65 L610,180 L230,180" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+        <rect x="140" y="160" width="90" height="40" rx="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="185" y="184" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700" fill="var(--accent)">÷ P or ÷ Q</text>
+        <line x1="185" y1="160" x2="185" y2="92" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#pllarrow)"/>
+        <text x="330" y="218" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="var(--accent)" opacity="0.85">negative feedback — locks output phase to the reference input</text>
+      </svg>
+    </div>
+    <figcaption class="diagram-caption">PLL block diagram: the feedback divider makes the VCO lock to a frequency N times the reference input</figcaption>
+  </figure>
+  <p>Adding a frequency divider (successive divide-by-2 counters, using D flip-flops) in the feedback path makes the PLL lock to a frequency N times higher than the reference input — one flip-flop divides by 2, two flip-flops divide by 4, and so on.</p>
+  <h3>Clock distribution ("clock tree")</h3>
+  <p>Clock signals fan out to the CPU, memory, and every peripheral, typically through multiplexers that select the source and dividers/multipliers that scale it. The primary clock is the <strong>system clock (SYSCLK)</strong>, sourced from HSI, HSE, or the main PLL (itself driven by HSI or HSE). Secondary clocks — LSI and LSE — independently drive the watchdog and RTC. Each clock source can be independently switched off when unused, to save power. On reset, the 16 MHz HSI is always selected by default; software can then switch to HSE or the PLL, with automatic fallback to HSI (plus an optional interrupt) if the selected external clock fails.</p>
+  <p>Prescalers configure the two AHB buses and the two APB domains independently: APB2 is the high-speed peripheral bus, APB1 the low-speed one. On this board, SYSCLK/AHB can reach 168 MHz, APB2 up to 84 MHz, and APB1 up to 42 MHz (see the AMBA bus diagram in Week 4).</p>
+  <p>Higher clock speed means faster transistor switching, which means higher power consumption and higher operating temperature — this is why modern microcontrollers allow individual peripheral clocks to be gated off, and support various low-power sleep states with wake-up capability.</p>
+</section>
+
+<footer class="pagefoot">
+  <span>CS245 — Computer Systems 245</span>
+  <span><a href="../programming/week5.html">See the Programming notes for Week 5 →</a></span>
+</footer>
+
+</div>
+</body>
+</html>

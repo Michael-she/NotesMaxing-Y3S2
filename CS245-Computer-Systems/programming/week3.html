@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="page">
+
+<div class="topnav">
+  <a href="../../index.html#cs245">CS245 Notes</a>
+  <span class="sep">/</span>
+  <a href="../theory/week3.html">Theory</a>
+  <span class="current">Programming</span>
+  <a href="../../index.html#cs245/papers">Papers</a>
+  <span class="sep">|</span>
+  <a href="week1.html">W1</a>
+  <a href="week2.html">W2</a>
+  <span class="current">W3</span>
+  <a href="week4.html">W4</a>
+  <a href="week5.html">W5</a>
+</div>
+
+<header class="hero">
+  <span class="kicker programming">Programming</span>
+  <h1 class="title">Week 3 — GPIO Registers, Pointers &amp; Bit Manipulation</h1>
+  <p class="subtitle">CS245 · Lectures 7–8 (+ revision) · Register-level GPIO access, C pointers, bitwise operators, HAL</p>
+</header>
+
+<nav class="toc">
+  <span class="toc-label">Contents</span>
+  <ol>
+    <li><a href="#l8a">STM32F4 GPIO Registers</a></li>
+    <li><a href="#ptr">Pointers in C</a></li>
+    <li><a href="#bitops">Bitwise Operators &amp; Bit Manipulation</a></li>
+    <li><a href="#l8b">Direct Register Access Examples</a></li>
+    <li><a href="#l8c">STM32 HAL GPIO Functions</a></li>
+    <li><a href="#debounce">Software Debouncing</a></li>
+  </ol>
+</nav>
+
+<section class="lecture" id="l8a">
+  <h2>STM32F4 GPIO Registers</h2>
+  <p>Five 16-bit-wide ports — <strong>GPIOA…GPIOE</strong> — each with pins 0–15 (e.g. <code>PA0</code>…<code>PA15</code>). Base addresses (on the AHB1 bus):</p>
+  <table>
+    <thead><tr><th>Port</th><th>Base address</th></tr></thead>
+    <tbody>
+      <tr><td>GPIOA</td><td><code>0x4002 0000</code></td></tr>
+      <tr><td>GPIOB</td><td><code>0x4002 0400</code></td></tr>
+      <tr><td>GPIOC</td><td><code>0x4002 0800</code></td></tr>
+      <tr><td>GPIOD</td><td><code>0x4002 0C00</code></td></tr>
+      <tr><td>GPIOE</td><td><code>0x4002 1000</code></td></tr>
+    </tbody>
+  </table>
+  <p>Each port has 10 memory-mapped 32-bit registers, at these offsets from the port base:</p>
+
+  <figure class="diagram">
+    <div class="diagram-svg">
+      <svg viewBox="-20 -8 680 158" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GPIOx_MODER register: 16 two-bit fields, one per pin, with pin 13's field at bits 27 to 26 highlighted and set to 01 for general-purpose output">
+        <!-- 16 two-bit fields, pin15 (bits 31:30) on the left down to pin0 (bits 1:0) on the right -->
+        <g font-family="SF Mono, Consolas, Menlo, monospace">
+          <!-- pin 15 -->
+          <rect x="0" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="20" y="42" text-anchor="middle" font-size="8" opacity="0.7">31:30</text>
+          <text x="20" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P15</text>
+          <!-- pin 14 -->
+          <rect x="40" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="60" y="42" text-anchor="middle" font-size="8" opacity="0.7">29:28</text>
+          <text x="60" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P14</text>
+          <!-- pin 13 (highlighted) -->
+          <rect x="80" y="50" width="40" height="50" fill="var(--prog-soft)" stroke="var(--prog-accent)" stroke-width="2"/>
+          <text x="100" y="42" text-anchor="middle" font-size="8" fill="var(--prog-accent)" font-weight="700">27:26</text>
+          <text x="100" y="80" text-anchor="middle" font-size="15" font-weight="700" fill="var(--prog-accent)">01</text>
+          <text x="100" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" font-weight="700" fill="var(--prog-accent)">P13</text>
+          <!-- pin 12 -->
+          <rect x="120" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="140" y="42" text-anchor="middle" font-size="8" opacity="0.7">25:24</text>
+          <text x="140" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P12</text>
+          <!-- pin 11 -->
+          <rect x="160" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="180" y="42" text-anchor="middle" font-size="8" opacity="0.7">23:22</text>
+          <text x="180" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P11</text>
+          <!-- pin 10 -->
+          <rect x="200" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="220" y="42" text-anchor="middle" font-size="8" opacity="0.7">21:20</text>
+          <text x="220" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P10</text>
+          <!-- pin 9 -->
+          <rect x="240" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="260" y="42" text-anchor="middle" font-size="8" opacity="0.7">19:18</text>
+          <text x="260" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P9</text>
+          <!-- pin 8 -->
+          <rect x="280" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="300" y="42" text-anchor="middle" font-size="8" opacity="0.7">17:16</text>
+          <text x="300" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P8</text>
+          <!-- pin 7 -->
+          <rect x="320" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="340" y="42" text-anchor="middle" font-size="8" opacity="0.7">15:14</text>
+          <text x="340" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P7</text>
+          <!-- pin 6 -->
+          <rect x="360" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="380" y="42" text-anchor="middle" font-size="8" opacity="0.7">13:12</text>
+          <text x="380" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P6</text>
+          <!-- pin 5 -->
+          <rect x="400" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="420" y="42" text-anchor="middle" font-size="8" opacity="0.7">11:10</text>
+          <text x="420" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P5</text>
+          <!-- pin 4 -->
+          <rect x="440" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="460" y="42" text-anchor="middle" font-size="8" opacity="0.7">9:8</text>
+          <text x="460" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P4</text>
+          <!-- pin 3 -->
+          <rect x="480" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="500" y="42" text-anchor="middle" font-size="8" opacity="0.7">7:6</text>
+          <text x="500" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P3</text>
+          <!-- pin 2 -->
+          <rect x="520" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="540" y="42" text-anchor="middle" font-size="8" opacity="0.7">5:4</text>
+          <text x="540" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P2</text>
+          <!-- pin 1 -->
+          <rect x="560" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="580" y="42" text-anchor="middle" font-size="8" opacity="0.7">3:2</text>
+          <text x="580" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P1</text>
+          <!-- pin 0 -->
+          <rect x="600" y="50" width="40" height="50" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="620" y="42" text-anchor="middle" font-size="8" opacity="0.7">1:0</text>
+          <text x="620" y="112" text-anchor="middle" font-size="9" font-family="Helvetica Neue, Arial, sans-serif" opacity="0.75">P0</text>
+        </g>
+        <text x="100" y="135" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="var(--prog-accent)">PD13 → MODER[27:26] = 01 (output)</text>
+      </svg>
+    </div>
+    <figcaption class="diagram-caption">GPIOx_MODER: 16 two-bit fields, one per pin — the PD13 example (bits 27:26) highlighted</figcaption>
+  </figure>
+  <table>
+    <thead><tr><th>Register</th><th>Offset</th><th>Bits/pin</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>GPIOx_MODER</code></td><td><code>0x00</code></td><td>2</td><td><code>00</code>=Input (reset state), <code>01</code>=General-purpose output, <code>10</code>=Alternate function, <code>11</code>=Analog</td></tr>
+      <tr><td><code>GPIOx_OTYPER</code></td><td><code>0x04</code></td><td>1</td><td><code>0</code>=Push-pull, <code>1</code>=Open-drain</td></tr>
+      <tr><td><code>GPIOx_OSPEEDR</code></td><td><code>0x08</code></td><td>2</td><td><code>00</code>=Low (2 MHz), <code>01</code>=Medium (25 MHz), <code>10</code>=Fast (50 MHz), <code>11</code>=High (100 MHz)</td></tr>
+      <tr><td><code>GPIOx_PUPDR</code></td><td><code>0x0C</code></td><td>2</td><td><code>00</code>=None, <code>01</code>=Pull-up, <code>10</code>=Pull-down, <code>11</code>=Reserved</td></tr>
+      <tr><td><code>GPIOx_IDR</code></td><td><code>0x10</code></td><td>1 (RO)</td><td>Bits 0–15 reflect the current input level on pins 0–15</td></tr>
+      <tr><td><code>GPIOx_ODR</code></td><td><code>0x14</code></td><td>1 (RW)</td><td>Bits 0–15 set the output pin states</td></tr>
+      <tr><td><code>GPIOx_BSRR</code></td><td><code>0x18</code></td><td>2 (WO)</td><td>Bits 0–15 (<code>BSy</code>): write 1 to <strong>set</strong> pin y. Bits 16–31 (<code>BRy</code>): write 1 to <strong>reset</strong> pin y. Writing 0 has no effect either way; if both bits are written 1, set wins. This gives atomic, single-instruction bit manipulation of ODR.</td></tr>
+      <tr><td><code>GPIOx_LCKR</code></td><td><code>0x1C</code></td><td>—</td><td>A specific write sequence freezes MODER/OTYPER/OSPEEDR/PUPDR/AFRL/AFRH until the next reset</td></tr>
+      <tr><td><code>GPIOx_AFRL</code></td><td><code>0x20</code></td><td>4</td><td>Alternate-function mux select, pins 0–7 (AF0–AF15)</td></tr>
+      <tr><td><code>GPIOx_AFRH</code></td><td><code>0x24</code></td><td>4</td><td>Alternate-function mux select, pins 8–15 (AF0–AF15)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="lecture" id="ptr">
+  <h2>Pointers in C</h2>
+  <p>A <strong>pointer</strong> is a variable that contains an address — nothing more. <code>Pointer == Address</code>. A pointer has a type, which tells the compiler the size/type of the data stored <em>at</em> that address; the pointer variable itself is always a fixed size (32 bits on this platform), regardless of what it points to.</p>
+  <pre><code>int* my_ptr;      // my_ptr will hold the address of an int</code></pre>
+  <p>Two operators are central to working with pointers:</p>
+  <ul>
+    <li><strong><code>&amp;</code> (address-of):</strong> obtains the address of a variable.</li>
+    <li><strong><code>*</code> (dereference):</strong> accesses the data stored at the address a pointer contains.</li>
+  </ul>
+  <pre><code>int my_var = 5;
+int* my_ptr = &amp;my_var;   // my_ptr now contains the address of my_var
+
+*my_ptr = *my_ptr + 1;   // read the value at that address, add 1,
+                          // and write the result back to the same address</code></pre>
+  <p>Pointers are the mechanism behind three very common tasks in embedded C:</p>
+  <ul>
+    <li>Accessing (reading/writing) a specific memory location, e.g. a memory-mapped peripheral register.</li>
+    <li>Accessing data stored in arrays.</li>
+    <li>Passing data/variables by reference into a function.</li>
+  </ul>
+
+  <h3>Accessing a fixed memory address</h3>
+  <p>The compiler needs to know the size of the data at a raw address before it can read or write it correctly, so a numeric address must be <strong>cast</strong> to a pointer of the right type before it is dereferenced:</p>
+  <pre><code>*(0x40020000) = 5;                 // wrong — compiler doesn't know the size
+
+*((uint32_t*)0x40020000) = 5;      // correct — cast to a uint32_t pointer first
+
+#define GPIOA_MODER *((uint32_t*)0x40020000)   // no spaces, no trailing ';'
+
+GPIOA_MODER = 5;                    // now reads cleanly, thanks to the #define</code></pre>
+
+  <h3>Arrays are (almost) pointers</h3>
+  <pre><code>uint8_t data1[10];   // an array — the compiler allocates 10 bytes
+uint8_t* p = data1;   // array name decays to a pointer to its first element</code></pre>
+  <p>An array's size is fixed at compile time. There is a subtle but important difference between an array name and a pointer variable: the array name is <em>not itself a variable</em> (you cannot reassign it to point elsewhere), whereas a pointer variable can be reassigned to point anywhere.</p>
+</section>
+
+<section class="lecture" id="bitops">
+  <h2>Bitwise Operators &amp; Bit Manipulation</h2>
+  <p>These three operations — AND, OR, and BIC (bit-clear, i.e. AND-NOT) — are the standard toolkit for checking or modifying individual bits inside a register without disturbing the others.</p>
+
+  <h3>AND — masking / checking bits</h3>
+  <p>ANDing a bit with 0 always produces 0; ANDing with 1 passes the original bit through unchanged. This makes AND useful as a <strong>mask</strong>, to isolate specific bits for inspection.</p>
+  <pre class="diagram">input:  1100 1010
+ mask:  0110 0110
+result: 0100 0010</pre>
+  <pre><code>// Check that bit 0 is 1 and bit 3 is 0:
+if ((input &amp; 0b00001001) == 0b00000001)
+    return 1;</code></pre>
+
+  <h3>OR — forcing bits to 1</h3>
+  <p>ORing a bit with 1 always produces 1; ORing with 0 passes the original bit through. Used to force specific bits high without touching the rest of the register.</p>
+  <pre><code>0x12345678 | 0x0000FFFF == 0x1234FFFF;
+// high-order 16 bits untouched, low-order 16 bits forced to 1</code></pre>
+
+  <h3>BIC (AND-NOT) — forcing bits to 0</h3>
+  <p>BICing a bit with 1 clears it to 0; BICing with 0 leaves the original bit untouched. In C there is no dedicated BIC operator — it is written as AND with the complement.</p>
+  <pre><code>0x12345678 &amp; ~0x0000FFFF == 0x12340000;
+// high-order 16 bits untouched, low-order 16 bits forced to 0
+
+REG &amp;= ~(1 &lt;&lt; n);   // clear bit n     — C
+BIC r1, r1, #(1 &lt;&lt; n) ; clear bit n     — assembly
+
+REG |= (1 &lt;&lt; n);    // set bit n       — C
+ORR r1, r1, #(1 &lt;&lt; n) ; set bit n       — assembly</code></pre>
+
+  <h3>Shifting to target one bit</h3>
+  <p>For an 8-bit example value <code>1010 1010</code>:</p>
+  <table>
+    <thead><tr><th>Operation</th><th>Result</th><th>Equivalent math</th><th>Assembly</th><th>C</th></tr></thead>
+    <tbody>
+      <tr><td>Shift left by n</td><td>(1) 0101 0100</td><td>× 2<sup>n</sup></td><td><code>LSL r1, r0, #n</code></td><td><code>a = b &lt;&lt; n</code></td></tr>
+      <tr><td>Shift right by n</td><td>1101 0101</td><td>÷ 2<sup>n</sup></td><td><code>ASR r1, r0, #n</code></td><td><code>a = b &gt;&gt; n</code></td></tr>
+    </tbody>
+  </table>
+  <pre><code>// Set bit 6 of b (make it 1), leaving all other bits unchanged:
+a = b | (1 &lt;&lt; 6);
+
+// Clear bit 5 of b (make it 0), leaving all other bits unchanged:
+a = b &amp; ~(1 &lt;&lt; 5);</code></pre>
+  <p>This is exactly the pattern used to configure a single pin's field inside a shared register such as <code>GPIOx_MODER</code> without disturbing the other 15 pins' configuration.</p>
+</section>
+
+<section class="lecture" id="l8b">
+  <h2>Direct Register Access Examples</h2>
+  <h3>Configure PD13 as a general-purpose output</h3>
+  <p>GPIOD base is <code>0x4002 0C00</code>; <code>MODER</code> offset is <code>0x00</code>. Pin 13 occupies bits 27:26 of MODER — clear those two bits, then set them to <code>01</code>:</p>
+  <pre><code>#define GPIOD_MODER (*((volatile uint32_t *)0x40020C00))
+
+// Clear bits 27:26, then set bit 26 (mode = 01, general-purpose output)
+GPIOD_MODER = (GPIOD_MODER &amp; ~(0x3 &lt;&lt; (13 * 2))) | (0x1 &lt;&lt; (13 * 2));
+
+// Equivalently, written with the literal mask:
+uint32_t * GPIOD_MODER_p = (uint32_t *) 0x40020C00;
+*GPIOD_MODER_p = (*GPIOD_MODER_p &amp; 0xF3FFFFFF) | 0x04000000;</code></pre>
+  <h3>Read pin state from PE4</h3>
+  <p>GPIOE base is <code>0x4002 1000</code>; <code>IDR</code> offset is <code>0x10</code>, so <code>GPIOE_IDR</code> is at <code>0x4002 1010</code>:</p>
+  <pre><code>#define GPIOE_IDR (*((volatile uint32_t *)0x40021010))
+
+uint8_t pin_state = (GPIOE_IDR &gt;&gt; 4) &amp; 0x1;   // isolate bit 4</code></pre>
+</section>
+
+<section class="lecture" id="l8c">
+  <h2>STM32 HAL GPIO Functions</h2>
+  <p>STMicroelectronics provides a Hardware Abstraction Layer (HAL) and low-level drivers to improve productivity and portability across the STM32 family; STM32CubeIDE bundles STM32CubeMX to auto-generate initialisation code from a graphical configuration. Under the hood, the HAL functions simply read/write the same memory-mapped registers shown above — with added parameter validation.</p>
+  <pre><code>void HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init);
+void HAL_GPIO_DeInit(GPIO_TypeDef *GPIOx, uint32_t GPIO_Pin);
+
+void HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
+// PinState: GPIO_PIN_SET or GPIO_PIN_RESET
+
+GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+
+void HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);</code></pre>
+  <pre><code>// Example
+HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);</code></pre>
+  <p>In STM32CubeIDE, typing a function/constant name and pressing <kbd>Ctrl</kbd>+<kbd>Space</kbd> shows "Template Proposals" with the valid values — but this is only a list of what compiles, not what is functionally correct for your circuit; you still need to know which value is actually right.</p>
+</section>
+
+<section class="lecture" id="debounce">
+  <h2>Software Debouncing</h2>
+  <p>It is generally best to solve a hardware problem in hardware, but a few software approaches exist. The simplest (and most limited) is to 'pause' the microcontroller after the first edge and wait for bouncing to settle before reading the pin again.</p>
+  <div class="note-box"><span class="label">Caution</span>Avoid calling <code>HAL_Delay()</code> inside an interrupt handler — it depends on the SysTick interrupt to advance, and if SysTick cannot preempt the handler you are currently in, the system will hang waiting on a timer that can never fire.</div>
+</section>
+
+<footer class="pagefoot">
+  <span>CS245 — Computer Systems 245</span>
+  <span><a href="../theory/week3.html">See the Theory notes for Week 3 →</a></span>
+</footer>
+
+</div>
+</body>
+</html>

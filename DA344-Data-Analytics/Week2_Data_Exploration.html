@@ -1,0 +1,781 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DA344 — Week 2: Data Exploration (Part 1)</title>
+<style>
+/* ============================================================
+   DA344 Notes — shared stylesheet. DO NOT EDIT PER-WEEK.
+   Copy this whole <style> block verbatim into each week file.
+   ============================================================ */
+:root{
+  --bg:#12151a; --ink:#e6e9ed; --muted:#9aa5b1; --rule:#2c3238; --soft:#1a1e24;
+  --accent:#7bb0e8; --accent-soft:#182634;
+  --warn:#e3b565; --warn-soft:#2b2211;
+  --ok:#7fd1a3; --ok-soft:#123023;
+  --maxw:52rem;
+}
+*{box-sizing:border-box}
+html{font-size:16px}
+body{
+  margin:0 auto; padding:2.5rem 1.5rem 5rem; max-width:var(--maxw);
+  font-family:"Charter","Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
+  color:var(--ink); background:var(--bg); line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+/* ---- headings ---- */
+h1,h2,h3{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;line-height:1.25;color:var(--ink)}
+h1{font-size:2.1rem;font-weight:700;margin:0 0 .3rem;letter-spacing:-.02em}
+.subtitle{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;color:var(--muted);font-size:1.05rem;margin:0 0 2rem}
+h2{font-size:1.45rem;font-weight:650;margin:3rem 0 .9rem;padding-bottom:.35rem;border-bottom:2px solid var(--accent)}
+h3{font-size:1.13rem;font-weight:650;margin:2rem 0 .6rem;color:var(--accent)}
+p{margin:0 0 1rem}
+ul,ol{margin:0 0 1rem;padding-left:1.4rem}
+li{margin:.3rem 0}
+a{color:var(--accent)}
+
+/* ---- document header block ---- */
+.docmeta{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 .6rem}
+
+/* ---- boxes ---- */
+.box{border:1px solid var(--rule);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;background:var(--soft);page-break-inside:avoid}
+.box>:first-child{margin-top:0}
+.box>:last-child{margin-bottom:0}
+.box .label{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
+.def{background:var(--accent-soft);border-color:#2c4a6e}
+.def .label{color:var(--accent)}
+.watch{background:var(--warn-soft);border-color:#4a3b1a}
+.watch .label{color:var(--warn)}
+.exam{background:var(--ok-soft);border-color:#2f5940}
+.exam .label{color:var(--ok)}
+.intuition{background:var(--bg);border-style:dashed}
+
+/* ---- summary sheet (tier 1) ---- */
+.summary{border:2px solid var(--accent);border-radius:8px;padding:1.4rem 1.6rem;margin:0 0 2.5rem;page-break-after:always}
+.summary h2{margin-top:0;border:none;padding:0;font-size:1.2rem}
+.summary h3{margin:1.2rem 0 .4rem;font-size:.95rem}
+.summary ul{margin-bottom:.6rem}
+.summary li{margin:.15rem 0;font-size:.94rem}
+
+/* ---- tables ---- */
+table{border-collapse:collapse;width:100%;margin:1.2rem 0;font-size:.92rem;page-break-inside:avoid}
+th,td{border:1px solid var(--rule);padding:.45rem .6rem;text-align:left;vertical-align:top}
+th{background:var(--soft);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-weight:650;font-size:.86rem}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto}
+
+/* ---- maths ---- */
+.eq{margin:1.2rem 0;text-align:center;font-size:1.02rem;page-break-inside:avoid}
+.eq .eqbody{display:inline-block;padding:.2rem .6rem}
+var,.v{font-style:italic;font-family:Cambria,Georgia,serif}
+.frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .25em}
+.frac .top{display:block;border-bottom:1px solid currentColor;padding:0 .35em}
+.frac .bot{display:block;padding:0 .35em}
+sub,sup{font-size:.72em;line-height:0}
+
+/* ---- figures / SVG diagrams ---- */
+figure{margin:1.8rem 0;text-align:center;page-break-inside:avoid}
+figure svg{max-width:100%;height:auto;background:#eef1f6;border-radius:10px;padding:10px;box-sizing:border-box;border:1px solid #d9dee5}
+figcaption{font-size:.85rem;color:var(--muted);text-align:left;margin-top:.6rem;padding-top:.4rem;border-top:1px solid var(--rule)}
+figcaption b{color:var(--ink)}
+
+/* ---- reading refs ---- */
+.reading{font-size:.9rem;background:var(--bg);border-left:3px solid var(--accent);padding:.15rem 0 .15rem 1rem;margin:1.2rem 0;color:var(--muted)}
+.reading b{color:var(--ink);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
+
+/* ---- worked solutions ---- */
+
+hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
+
+
+/* ---- week navigation ---- */
+.weeknav{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .9rem;
+  font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:.85rem;
+  margin:0 0 2rem;padding:.7rem 1rem;background:var(--soft);
+  border:1px solid var(--rule);border-radius:8px}
+.weeknav a{color:var(--accent);text-decoration:none}
+.weeknav a:hover{text-decoration:underline}
+.weeknav .sep{color:var(--muted)}
+.weeknav .cur{color:var(--muted);margin-left:auto;font-weight:650}
+
+/* ---- print / PDF ---- */
+@page{size:A4;margin:18mm 16mm}
+@media print{
+
+  /* force a light, ink-friendly palette for printed/PDF output regardless of on-screen dark mode */
+  :root{
+    --bg:#fff; --ink:#1a1a1a; --muted:#555; --rule:#d8d8d8; --soft:#f6f7f9;
+    --accent:#1d4e89; --accent-soft:#e8eef6;
+    --warn:#8a5a00; --warn-soft:#fdf4e3;
+    --ok:#1f6b45; --ok-soft:#e8f4ee;
+  }
+  .def{border-color:#bccfe4}
+  .watch{border-color:#e6d3a8}
+  .exam{border-color:#bfdfcd}
+  .weeknav{display:none}
+
+  html{font-size:10.5pt}
+  body{max-width:none;padding:0}
+  h2{page-break-after:avoid}
+  h3{page-break-after:avoid}
+  .box,figure,table,.eq,.summary{page-break-inside:avoid}
+  a{color:var(--ink);text-decoration:none}
+}
+</style>
+</head>
+<body>
+
+<p class="docmeta">Data Analytics 344 &middot; 2026</p>
+<h1>Week 2 — Data Exploration (Part 1)</h1>
+<p class="subtitle">Systematically examining the analytical base table before modelling: feature data types, statistical summaries, and visualisations for understanding individual features and the relationships between them.</p>
+
+<nav class="weeknav">
+  <a href="../index.html#da344">&larr; Course Notes</a>
+  <span class="sep">&middot;</span><a href="Week1_Introduction_to_Data_Analytics.html">&larr; Week 1: Introduction to Data Analytics</a>
+  <span class="sep">&middot;</span><a href="Week3_Data_Quality_and_Preparation.html">Week 3: Data Quality and Preparation &rarr;</a>
+  <span class="cur">Week 2 of 6</span>
+</nav>
+
+<!-- ===== TIER 1: ONE-PAGE SUMMARY SHEET ===== -->
+<section class="summary">
+  <h2>Week 2 at a glance</h2>
+
+  <h3>Core ideas</h3>
+  <ul>
+    <li><b>Data exploration</b> is the systematic examination of the analytical base table <em>before</em> modelling. It sits in the <b>data-understanding</b> phase of CRISP-DM (and feeds data preparation).</li>
+    <li>Two aims: (1) understand each feature — the values it can take, their range, and how they are distributed; (2) surface <b>data-quality issues</b> — missing values, invalid values and outliers, noise, different units of measure.</li>
+    <li>A feature’s <b>data type</b> (numeric, interval, ordinal, categorical, binary, textual) determines which statistics and plots are valid.</li>
+    <li>Use <b>statistical summaries and visualisations together</b>: summaries condense key characteristics; plots reveal shape, groups and outliers that identical summaries can hide.</li>
+    <li>Explore <b>univariate</b> first, then <b>bivariate</b>: cont&nbsp;&times;&nbsp;cont &rarr; scatter plot + correlation; cont&nbsp;&times;&nbsp;cat &rarr; comparative box plots; cat&nbsp;&times;&nbsp;cat &rarr; contingency table + chi-square test.</li>
+    <li>Exploratory evidence classifies descriptive features as <b>potentially informative, weakly informative, redundant, complementary, irrelevant</b> or <b>invalid</b>; final feature-set choices are settled by <b>validation performance</b>, not by single summaries.</li>
+  </ul>
+
+  <h3>Key definitions</h3>
+  <ul>
+    <li><b>Cardinality</b> — the number of distinct values (levels) a feature takes.</li>
+    <li><b>Mode</b> — the most frequent level of a categorical feature.</li>
+    <li><b>IQR</b> — Q3 &minus; Q1; the spread of the middle 50% of values.</li>
+    <li><b>Correlation</b> — a standardised measure of <em>linear</em> association between two continuous features; ranges from &minus;1 to +1.</li>
+    <li><b>Chi-square test of independence</b> — hypothesis test of whether two categorical features are associated.</li>
+    <li><b>Informative / redundant / irrelevant</b> — correlated with the target and not with other features / correlated with the target but also with other features / no correlation with the target.</li>
+    <li><b>Target leakage</b> — a feature that is only available because the target event has already happened; invalid for prediction.</li>
+  </ul>
+
+  <h3>Formulas</h3>
+  <ul>
+    <li>cov(<var>a</var>,<var>b</var>) = <span class="frac"><span class="top">1</span><span class="bot"><var>n</var>&minus;1</span></span> &sum;(<var>a</var><sub><var>i</var></sub> &minus; <var>a&#772;</var>)(<var>b</var><sub><var>i</var></sub> &minus; <var>b&#772;</var>); &nbsp; corr(<var>a</var>,<var>b</var>) = <span class="frac"><span class="top">cov(<var>a</var>,<var>b</var>)</span><span class="bot">&sigma;<sub><var>a</var></sub>&sigma;<sub><var>b</var></sub></span></span> &isin; [&minus;1, +1].</li>
+    <li>Expected frequency: <var>E</var> = (row total &times; column total) &divide; grand total.</li>
+    <li>&chi;&sup2; = &sum; (<var>O</var> &minus; <var>E</var>)&sup2; &divide; <var>E</var>, summed over all cells; &nbsp; df = (<var>r</var> &minus; 1)(<var>c</var> &minus; 1).</li>
+  </ul>
+
+  <h3>Exam traps</h3>
+  <ul>
+    <li>Correlation measures <b>linear</b> association only — a clear non-linear pattern can give <var>r</var> &asymp; 0.</li>
+    <li><b>Correlation &ne; causation</b>; hidden groups or one extreme observation can create or destroy <var>r</var>.</li>
+    <li>A box plot <b>cannot show multiple modes</b> — use a histogram (or violin plot).</li>
+    <li>Mean and standard deviation are <b>sensitive to outliers and skew</b>; compare with median and IQR.</li>
+    <li>Chi-square works on <b>counts, not percentages</b>; expected frequencies come from the row/column totals.</li>
+    <li>Do not drop a feature on one weak summary alone — check for non-linear or subgroup effects, then compare feature sets on <b>validation performance</b>.</li>
+    <li>A feature available only <em>after</em> the target event is <b>invalid (leakage)</b> however strongly it is associated.</li>
+  </ul>
+
+  <h3>Prescribed reading</h3>
+  <ul><li>Kelleher et al. (2e): Chapter 2 §2.4–2.5; Chapter 3 §3.1–3.3.</li></ul>
+</section>
+
+<!-- ===== TIER 2: FULL NOTES ===== -->
+
+<h2>1. The purpose of data exploration and its place in CRISP-DM</h2>
+
+<div class="box def"><span class="label">Definition</span>
+<p><b>Data exploration</b> is the systematic examination of the data in an analytical base table using statistical summaries and visualisations, in order to understand the characteristics of each feature and the relationships between features <em>before</em> predictive modelling begins.</p>
+</div>
+
+<p>CRISP-DM proceeds through six phases: <b>business understanding</b>, <b>data understanding</b>, <b>data preparation</b>, <b>modelling</b>, <b>evaluation</b> and <b>deployment</b>. Data exploration forms part of the <b>data-understanding</b> phase (and directly informs data preparation). Models depend on data: a modelling algorithm can only exploit structure that is actually present in, and compatible with, the data it is given, so exploration is not an optional extra — it is how we learn what the data can support.</p>
+
+<p>Through data exploration we aim to:</p>
+<ol>
+  <li><b>Fully understand the characteristics of each feature</b> in the analytical base table:
+    <ul>
+      <li>the types of values a feature can take,</li>
+      <li>the ranges into which the values fall,</li>
+      <li>how the values are distributed across that range;</li>
+    </ul>
+  </li>
+  <li><b>Determine whether the data suffer from quality issues</b>, such as instances with:
+    <ul>
+      <li>missing values,</li>
+      <li>invalid values and outliers,</li>
+      <li>noise,</li>
+      <li>different units of measure.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>Exploration also <b>guides the analytical treatment</b> applied later:</p>
+<ul>
+  <li><b>Feature engineering</b> — using domain knowledge to extract features from raw data to improve modelling results;</li>
+  <li><b>Data-quality plan</b> — developing strategies to handle the quality issues found;</li>
+  <li><b>Data transformation</b> — choosing transformations that make features more compatible with specific analytical models.</li>
+</ul>
+
+<div class="box def"><span class="label">Definition</span>
+<p><b>Univariate exploration</b> analyses one feature at a time (distribution, shape). <b>Multivariate exploration</b> studies two or more features simultaneously, and is critical for understanding relationships between features — in particular whether a feature is useful for predicting the target feature. (Bivariate exploration, the two-feature case, is the focus of this week.)</p>
+</div>
+
+<p>Data exploration itself is broadly classified into <b>descriptive statistics</b> (condensing key characteristics of a data set into simple numeric metrics such as the mean, standard deviation and correlation) and <b>data visualisation</b> (projecting data, or parts of it, into multi-dimensional space or abstract images such as histograms, box plots and scatter plots). Both are used together — Section 3 explains why.</p>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch 2 §2.4–2.5 — data exploration and visualisation. Ch 3 §3.1–3.3 — data-quality issues and the data-quality report. Corrective actions for data-quality problems (Ch 3 §3.4 onward) are Week 3 material and are only flagged here as a forward pointer.</p>
+
+<h2>2. Feature data types</h2>
+
+<p>The features in an analytical base table can be several different types. At the highest level they are grouped into <b>continuous</b> and <b>categorical</b> types, with six sub-types in total. The data type matters because it <b>constrains which statistical summaries and visualisations can validly be applied</b>.</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th>High-level group</th><th>Data type</th><th>Properties</th><th>Examples</th></tr>
+  <tr><td rowspan="2"><b>Continuous</b></td><td><b>Numeric</b></td><td>True numeric values that allow arithmetic operations (addition, subtraction, multiplication, division).</td><td>price, age, vibration level</td></tr>
+  <tr><td><b>Interval</b></td><td>Values that allow ordering and subtraction, but not other arithmetic operations (no meaningful ratios).</td><td>date, time</td></tr>
+  <tr><td rowspan="4"><b>Categorical</b></td><td><b>Ordinal</b></td><td>A finite set of values that allow ordering but do not permit arithmetic.</td><td>size: small / medium / large</td></tr>
+  <tr><td><b>Categorical</b> (nominal)</td><td>A finite set of values that cannot be ordered and do not permit arithmetic.</td><td>country, product code</td></tr>
+  <tr><td><b>Binary</b></td><td>A set of just two values — a special case of categorical.</td><td>fraud vs not-fraud; failed vs not failed</td></tr>
+  <tr><td><b>Textual</b></td><td>Free-form, usually short, text data; must usually be transformed (feature engineering) before statistical treatment.</td><td>name, address</td></tr>
+</table>
+</div>
+
+<p>How the type constrains valid summaries and visualisations:</p>
+<ul>
+  <li><b>Numeric</b> features support the full set: mean, standard deviation, quartiles, histograms, box plots, scatter plots, correlation.</li>
+  <li><b>Interval</b> features support ordering and differences (e.g., time between two dates) but not ratio statements (“twice as much”) or, in general, meaningful means of the raw values.</li>
+  <li><b>Ordinal</b> features support ordering-based summaries (median, percentiles, mode, bar plots) but not arithmetic summaries such as the mean — the “distance” between small and medium is not defined.</li>
+  <li><b>Categorical / binary</b> features support only counting-based summaries: frequencies, percentages, mode, bar plots, contingency tables. A binary feature is additionally summarised by the proportion of one of its two levels.</li>
+  <li><b>Textual</b> features are not summarised statistically in their raw form; they must first be engineered into numeric or categorical features.</li>
+</ul>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>Computing a mean or standard deviation of an ordinal or nominal feature (e.g., averaging “small/medium/large” after coding it 1/2/3), or drawing a histogram of a categorical feature. The arithmetic is meaningless for those types — use the mode, frequencies and a bar plot instead. Always state the data type <em>first</em>, then choose the summary and plot that the type permits.</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch 2 §2.4–2.5 — data types and data exploration.</p>
+
+<h2>3. Why statistical summaries and visualisations must be used together</h2>
+
+<p>Descriptive statistics and visualisation are complementary, and neither is sufficient on its own:</p>
+<ul>
+  <li><b>Summaries condense but hide structure.</b> A small number of numeric values cannot consistently convey the wealth of information in a data set: two data sets can be nearly identical on several statistical properties (means, standard deviations, correlation) yet look noticeably different once plotted.</li>
+  <li><b>Plots reveal what numbers hide</b> — distribution shape, multiple peaks, gaps, clusters, outliers and non-linear patterns — but a plot alone gives no precise, comparable quantities.</li>
+  <li><b>Human vision is trained to find patterns and anomalies</b>, even in large volumes of data, but the effectiveness of that pattern detection depends on how effectively the information is visually presented. Selecting suitable visuals is therefore critical; a graphic should display as much information as possible with the lowest possible cognitive strain. Visualisation is an iterative process whose purpose is to answer questions about the data.</li>
+</ul>
+
+<div class="box intuition"><span class="label">Intuition</span>
+<p>Think of the summary statistics as a passport photo of the data: compact and comparable, but flattened. The plot is meeting the data in person. You need both — the photo to compare many data sets quickly, the meeting to notice anything the photo could not show.</p>
+</div>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>Exploring a feature with only its mean and standard deviation, then concluding two features (or two groups) behave the same. Identical summaries do not imply identical data — always look at the plot before drawing conclusions.</p>
+</div>
+
+<h2>4. Univariate exploration: continuous features</h2>
+
+<p>For a continuous feature the standard statistical summary reports the <b>five-number summary</b> plus measures of centre and spread. Each statistic answers a specific question:</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Statistic</th><th>What it measures</th><th>Interpretation notes</th></tr>
+  <tr><td><b>Count</b></td><td>Number of (non-missing) observations.</td><td>Basis for every other summary; a low count weakens all conclusions.</td></tr>
+  <tr><td><b>Minimum</b></td><td>Smallest observed value.</td><td>Lower end of the range; check for implausible values.</td></tr>
+  <tr><td><b>Q1</b> (first quartile)</td><td>25th percentile — 25% of values fall below it.</td><td>Lower edge of the middle half of the data.</td></tr>
+  <tr><td><b>Median</b> (Q2)</td><td>50th percentile — the middle value.</td><td>Robust measure of centre; not pulled by extreme values.</td></tr>
+  <tr><td><b>Mean</b></td><td>Arithmetic average.</td><td>Measure of centre; <em>sensitive to outliers and skew</em> — compare with the median.</td></tr>
+  <tr><td><b>Q3</b> (third quartile)</td><td>75th percentile — 75% of values fall below it.</td><td>Upper edge of the middle half of the data.</td></tr>
+  <tr><td><b>Maximum</b></td><td>Largest observed value.</td><td>Upper end of the range; check for implausible values.</td></tr>
+  <tr><td><b>Range</b></td><td>Maximum &minus; minimum.</td><td>Total spread; driven entirely by the two extremes.</td></tr>
+  <tr><td><b>IQR</b></td><td>Q3 &minus; Q1.</td><td>Spread of the middle 50%; robust to outliers.</td></tr>
+  <tr><td><b>Standard deviation</b></td><td>Typical deviation of values around the mean.</td><td>Sensitive to outliers; pairs naturally with the mean.</td></tr>
+</table>
+</div>
+
+<div class="eq"><span class="eqbody">
+  <span class="v">s</span> = &radic;<span style="white-space:nowrap">(</span>
+  <span class="frac"><span class="top">1</span><span class="bot"><var>n</var> &minus; 1</span></span>
+  &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
+  (<var>x</var><sub><var>i</var></sub> &minus; <var>x&#772;</var>)<sup>2</sup>
+  <span style="white-space:nowrap">)</span>
+</span></div>
+
+<p><b>Interpreting centre and skew:</b> if the mean and median are close, the distribution is roughly symmetric; if the mean is noticeably larger than the median the distribution is skewed to the right (a few very high values pull the mean up), and if the mean is noticeably smaller it is skewed to the left. The IQR tells you how concentrated the middle half of the data is; the range and standard deviation describe overall spread but are both sensitive to extremes.</p>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>Reporting the mean and standard deviation alone for a skewed distribution or one with outliers. A single extreme value can move the mean and inflate the standard deviation substantially; the median and IQR will not. Report both views and comment on the difference.</p>
+</div>
+
+<h2>5. Univariate exploration: categorical and binary features</h2>
+
+<p>Categorical features (including binary ones) cannot be summarised by means or quartiles. Their valid summaries are counting-based:</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Statistic</th><th>Meaning</th></tr>
+  <tr><td><b>Count</b></td><td>Number of (non-missing) observations.</td></tr>
+  <tr><td><b>Cardinality</b></td><td>Number of distinct values (levels) the feature takes. Low cardinality: a handful of levels; high cardinality: dozens or more (e.g., identifiers).</td></tr>
+  <tr><td><b>Mode</b></td><td>The most frequent level.</td></tr>
+  <tr><td><b>Level frequencies</b></td><td>The count of observations in each level.</td></tr>
+  <tr><td><b>Level percentages</b></td><td>Each level’s frequency as a percentage of the total; sums to 100%.</td></tr>
+</table>
+</div>
+
+<p>For a <b>binary</b> feature the whole distribution reduces to one number: the percentage (or proportion) of observations in either level — e.g., the failure rate. Cardinality also matters for visualisation: a categorical feature with very high cardinality produces a bar plot with too many bars to read, and may indicate a feature that is really an identifier rather than a useful predictor.</p>
+
+<div class="box intuition"><span class="label">Intuition</span>
+<p>Level percentages let you compare categories against a <b>baseline</b>. If the overall failure rate is 13.3%, then a machine type whose failure percentage is close to 13.3% behaves like the fleet average, while one far above or below it stands out. Exploration is about spotting those deviations — and then testing whether they are larger than chance would produce (Section 10).</p>
+</div>
+
+<h2>6. Univariate visualisations: histograms, box plots and bar plots</h2>
+
+<h3>6.1 Histograms (continuous features)</h3>
+<p>To construct a histogram, the data are binned into equal-size regions (bins); the number of observations in each bin is counted, and a bar is drawn whose height is the frequency or percentage of observations in that bin. Histograms reveal the <b>shape of the distribution</b>. The standard shapes to look out for are:</p>
+<ul>
+  <li><b>Uniform</b> — values roughly equally likely in any range (e.g., IDs);</li>
+  <li><b>Normal (unimodal, symmetric)</b> — strong tendency toward a central value with symmetric variation either side (e.g., heights of randomly selected females);</li>
+  <li><b>Unimodal skewed right</b> — tendency toward very high values (e.g., salaries);</li>
+  <li><b>Unimodal skewed left</b> — tendency toward very low values (e.g., life expectancy);</li>
+  <li><b>Exponential</b> — very high probability of low values that diminishes rapidly for higher values (e.g., number of times a person has been married);</li>
+  <li><b>Multimodal</b> — two or more commonly occurring ranges of values separated from each other (e.g., height of randomly selected students), suggesting several distinct mechanisms or subgroups in the data.</li>
+</ul>
+
+<h3>6.2 Box plots (continuous features)</h3>
+<p>The box plot (developed by John Tukey) is a compact way to assess a distribution from its five-number summary: minimum, lower quartile, median, upper quartile and maximum. The box spans the middle 50% of the data (Q1 to Q3); the whiskers extend from the box and indicate the region of the lower and upper 25% of the data; individual points beyond the whiskers are plotted as outliers. A symmetric distribution has roughly equal spacing across the quartiles, so the box and whiskers appear symmetric; skew shows up as a lopsided box and unequal whiskers.</p>
+
+<figure>
+<svg viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="w2-arrbox" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1d4e89"/>
+    </marker>
+  </defs>
+  <line x1="40" y1="230" x2="645" y2="230" stroke="#d8d8d8" stroke-width="1.5"/>
+  <!-- whiskers -->
+  <line x1="100" y1="120" x2="200" y2="120" stroke="#1d4e89" stroke-width="1.5"/>
+  <line x1="420" y1="120" x2="520" y2="120" stroke="#1d4e89" stroke-width="1.5"/>
+  <line x1="100" y1="105" x2="100" y2="135" stroke="#1d4e89" stroke-width="1.5"/>
+  <line x1="520" y1="105" x2="520" y2="135" stroke="#1d4e89" stroke-width="1.5"/>
+  <!-- box -->
+  <rect x="200" y="90" width="220" height="60" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <line x1="300" y1="90" x2="300" y2="150" stroke="#1d4e89" stroke-width="2.5"/>
+  <!-- outlier -->
+  <circle cx="585" cy="120" r="5" fill="none" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="585" y="100" text-anchor="middle" fill="#1a1a1a">outlier</text>
+  <!-- IQR bracket -->
+  <line x1="200" y1="88" x2="200" y2="74" stroke="#1d4e89" stroke-width="1"/>
+  <line x1="420" y1="88" x2="420" y2="74" stroke="#1d4e89" stroke-width="1"/>
+  <line x1="200" y1="74" x2="420" y2="74" stroke="#1d4e89" stroke-width="1"/>
+  <text x="310" y="58" text-anchor="middle" fill="#1a1a1a">IQR = Q3 &#8722; Q1 (middle 50% of values)</text>
+  <!-- lower labels -->
+  <line x1="100" y1="137" x2="100" y2="182" stroke="#d8d8d8" stroke-width="1"/>
+  <line x1="200" y1="152" x2="200" y2="182" stroke="#d8d8d8" stroke-width="1"/>
+  <line x1="300" y1="152" x2="300" y2="182" stroke="#d8d8d8" stroke-width="1"/>
+  <line x1="420" y1="152" x2="420" y2="182" stroke="#d8d8d8" stroke-width="1"/>
+  <line x1="520" y1="137" x2="520" y2="182" stroke="#d8d8d8" stroke-width="1"/>
+  <text x="100" y="200" text-anchor="middle" fill="#1a1a1a">minimum</text>
+  <text x="200" y="200" text-anchor="middle" fill="#1a1a1a">Q1</text>
+  <text x="300" y="200" text-anchor="middle" fill="#1a1a1a">median</text>
+  <text x="420" y="200" text-anchor="middle" fill="#1a1a1a">Q3</text>
+  <text x="520" y="200" text-anchor="middle" fill="#1a1a1a">maximum</text>
+  <text x="340" y="250" text-anchor="middle" fill="#1a1a1a">Whiskers show the spread of the lower and upper quarters;</text>
+  <text x="340" y="266" text-anchor="middle" fill="#1a1a1a">points beyond them are plotted individually as outliers.</text>
+</svg>
+<figcaption><b>Figure 6.1</b> — Anatomy of a box plot: the box spans Q1 to Q3 (the middle 50% of values), the thick line marks the median, the whiskers show the spread of the lower and upper quarters, and isolated points beyond the whiskers are outliers. Symmetry of the box and whiskers indicates a symmetric distribution; a lopsided box with unequal whiskers indicates skew.</figcaption>
+</figure>
+
+<p>While compact, a box plot <b>cannot identify distributions with multiple peaks</b> (modes). To detect multimodality, use a histogram or a <b>violin plot</b> — a compact density-based visualisation that retains histogram-like characteristics (a density curve and its mirror image), optionally with the quartiles and median added.</p>
+
+<h3>6.3 Bar plots (categorical and binary features)</h3>
+<p>A bar plot draws one bar per level of a categorical feature, with bar height equal to the level’s frequency or percentage. It is the categorical analogue of the histogram. For binary features a single bar (or two bars) showing the level percentages is enough.</p>
+
+<h3>6.4 Choosing the univariate visualisation</h3>
+<ul>
+  <li><b>Continuous feature</b> &rarr; histogram or box plot. Use a histogram (or violin plot) when the shape — especially multiple modes — matters; use a box plot for a compact summary and outlier detection, or to place several distributions side by side.</li>
+  <li><b>Categorical feature, low cardinality</b> &rarr; bar plot of frequencies or percentages.</li>
+  <li><b>Categorical feature, high cardinality</b> &rarr; a bar plot becomes unreadable; consider grouping levels, showing only the most frequent levels, or reconsidering whether the feature is really an identifier.</li>
+  <li><b>Ordinal feature</b> &rarr; bar plot with the levels ordered meaningfully.</li>
+</ul>
+
+<p>Additional dimensions can be added to almost any plot using <b>facets, colours and shapes</b>: faceting creates the same plot type split into panels by another feature. Such augmentations are simple but powerful for identifying patterns and engineering new features (e.g., splitting a ridership histogram into weekday and weekend panels revealed two distinct regimes).</p>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>Using a box plot to argue that a distribution is “normal” or unimodal — the box plot cannot show the number of peaks. Conversely, using a histogram to read exact quartiles is unreliable. Match the plot to the question.</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch 2 §2.4–2.5 — data exploration and visualisation. (The practical component of this week constructs these plots in R with ggplot2; no code is required in these notes.)</p>
+
+<h2>7. Bivariate exploration: choosing the right tool</h2>
+
+<p>The goal of a predictive model is to explain variation in the <b>target feature</b>, so bivariate exploration asks: <em>is this descriptive feature associated with the target (or with other descriptive features)?</em> The correct visualisation and statistical method are determined by the <b>data types of the two features involved</b>.</p>
+
+<figure>
+<svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="w2-arrsel" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1d4e89"/>
+    </marker>
+  </defs>
+  <text x="95" y="30" text-anchor="middle" fill="#1a1a1a"  font-weight="bold">FEATURE PAIR</text>
+  <text x="345" y="30" text-anchor="middle" fill="#1a1a1a"  font-weight="bold">VISUALISATION</text>
+  <text x="585" y="30" text-anchor="middle" fill="#1a1a1a"  font-weight="bold">ASSOCIATION MEASURE</text>
+  <!-- row 1 -->
+  <rect x="10" y="50" width="170" height="56" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="95" y="73" text-anchor="middle" fill="#1a1a1a">continuous</text>
+  <text x="95" y="91" text-anchor="middle" fill="#1a1a1a">&#215; continuous</text>
+  <rect x="240" y="50" width="210" height="56" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="345" y="73" text-anchor="middle" fill="#1a1a1a">scatter plot</text>
+  <text x="345" y="91" text-anchor="middle" fill="#1a1a1a">(SPLOM for many features)</text>
+  <rect x="500" y="50" width="170" height="56" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="585" y="73" text-anchor="middle" fill="#1a1a1a">correlation</text>
+  <text x="585" y="91" text-anchor="middle" fill="#1a1a1a">(Pearson r)</text>
+  <path d="M185 78 H 235" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w2-arrsel)"/>
+  <path d="M455 78 H 495" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w2-arrsel)"/>
+  <!-- row 2 -->
+  <rect x="10" y="130" width="170" height="56" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="95" y="153" text-anchor="middle" fill="#1a1a1a">continuous</text>
+  <text x="95" y="171" text-anchor="middle" fill="#1a1a1a">&#215; categorical</text>
+  <rect x="240" y="130" width="210" height="56" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="345" y="153" text-anchor="middle" fill="#1a1a1a">comparative box plots</text>
+  <text x="345" y="171" text-anchor="middle" fill="#1a1a1a">(one per level)</text>
+  <rect x="500" y="130" width="170" height="56" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="585" y="153" text-anchor="middle" fill="#1a1a1a">compare centre,</text>
+  <text x="585" y="171" text-anchor="middle" fill="#1a1a1a">spread, overlap</text>
+  <path d="M185 158 H 235" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w2-arrsel)"/>
+  <path d="M455 158 H 495" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w2-arrsel)"/>
+  <!-- row 3 -->
+  <rect x="10" y="210" width="170" height="56" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="95" y="233" text-anchor="middle" fill="#1a1a1a">categorical</text>
+  <text x="95" y="251" text-anchor="middle" fill="#1a1a1a">&#215; categorical</text>
+  <rect x="240" y="210" width="210" height="56" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="345" y="228" text-anchor="middle" fill="#1a1a1a">grouped / proportional</text>
+  <text x="345" y="246" text-anchor="middle" fill="#1a1a1a">bar plot + contingency</text>
+  <text x="345" y="262" text-anchor="middle" fill="#1a1a1a">table</text>
+  <rect x="500" y="210" width="170" height="56" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="585" y="233" text-anchor="middle" fill="#1a1a1a">chi-square test of</text>
+  <text x="585" y="251" text-anchor="middle" fill="#1a1a1a">independence</text>
+  <path d="M185 238 H 235" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w2-arrsel)"/>
+  <path d="M455 238 H 495" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w2-arrsel)"/>
+  <text x="340" y="300" text-anchor="middle" fill="#1a1a1a" >Select the visualisation and the measure of association from the data types of the two features.</text>
+</svg>
+<figcaption><b>Figure 7.1</b> — Visualisation-selection guide for bivariate exploration. Each combination of feature types maps to a default plot and an appropriate measure or test of association. When a continuous feature is paired with a categorical one (including a binary target), split the continuous feature by the categorical levels and compare distributions; when both are categorical, tabulate counts and test independence.</figcaption>
+</figure>
+
+<p>The following three sections work through the rows of Figure 7.1 in detail.</p>
+
+<h2>8. Two continuous features: scatter plots, covariance and correlation</h2>
+
+<h3>8.1 Scatter plots</h3>
+<p>A scatter plot places one feature on the x-axis and another on the y-axis; each instance is represented by a point determined by its values of the two features. Reading a scatter plot means describing the relationship along three dimensions:</p>
+<ul>
+  <li><b>Direction</b> — positive (both features increase together) or negative (one increases as the other decreases);</li>
+  <li><b>Strength</b> — how tightly the points cluster around a common trend (weak / moderate / strong);</li>
+  <li><b>Form</b> — the shape of the trend (linear, curved, or none).</li>
+</ul>
+
+<h3>8.2 Covariance</h3>
+<p>For two features <var>a</var> and <var>b</var> over <var>n</var> instances, the sample covariance is</p>
+<div class="eq"><span class="eqbody">
+  cov(<var>a</var>, <var>b</var>) =
+  <span class="frac"><span class="top">1</span><span class="bot"><var>n</var> &minus; 1</span></span>
+  &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
+  (<var>a</var><sub><var>i</var></sub> &minus; <var>a&#772;</var>)(&nbsp;<var>b</var><sub><var>i</var></sub> &minus; <var>b&#772;</var>&nbsp;)
+</span></div>
+<p>where <var>a&#772;</var> and <var>b&#772;</var> are the sample means. Covariance lies in [&minus;&infin;, +&infin;]: negative values indicate a negative linear relationship, positive values a positive linear relationship, and values near zero little or no linear relationship. However, covariance is measured <b>in the units of the two features</b>, so comparing covariances across differently scaled feature pairs is not meaningful — which motivates correlation.</p>
+
+<h3>8.3 Correlation</h3>
+<p>Correlation is the normalised version of covariance, obtained by dividing by the two standard deviations, so it always lies between &minus;1 and +1:</p>
+<div class="eq"><span class="eqbody">
+  corr(<var>a</var>, <var>b</var>) =
+  <span class="frac"><span class="top">cov(<var>a</var>, <var>b</var>)</span><span class="bot">&sigma;<sub><var>a</var></sub> &times; &sigma;<sub><var>b</var></sub></span></span>
+</span></div>
+<div class="eq"><span class="eqbody">
+  <var>r</var> =
+  <span class="frac">
+    <span class="top">&sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup> (<var>x</var><sub><var>i</var></sub> &minus; <var>x&#772;</var>)(<var>y</var><sub><var>i</var></sub> &minus; <var>y&#772;</var>)</span>
+    <span class="bot">&radic;<span style="white-space:nowrap">[</span> &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup> (<var>x</var><sub><var>i</var></sub> &minus; <var>x&#772;</var>)<sup>2</sup> &middot; &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup> (<var>y</var><sub><var>i</var></sub> &minus; <var>y&#772;</var>)<sup>2</sup> <span style="white-space:nowrap">]</span></span>
+  </span>
+</span></div>
+<ul>
+  <li>values close to <b>+1</b>: very strong positive <em>linear</em> correlation;</li>
+  <li>values close to <b>&minus;1</b>: very strong negative <em>linear</em> correlation;</li>
+  <li>values close to <b>0</b>: no <em>linear</em> correlation.</li>
+</ul>
+
+<p>When several continuous features are explored together, the pairwise correlations form a <b>correlation matrix</b>, often displayed in the upper triangle of a <b>scatter plot matrix (SPLOM)</b> — a grid of scatter plots for every pair of features. A SPLOM is useful for exploring relationships among all continuous features at once, but its effectiveness diminishes once the number of features exceeds about eight, because the individual panels become too small to interpret. For larger feature sets, the correlation matrix can also be visualised as a heatmap.</p>
+
+<h3>8.4 Caveats: what correlation can and cannot tell you</h3>
+<ul>
+  <li><b>Correlation measures linear association only.</b> A clear curved (non-linear) relationship can produce a correlation near zero — the pattern is invisible to <var>r</var>. Always inspect the scatter plot.</li>
+  <li><b>Different shapes, same correlation.</b> Data sets with very different scatter-plot shapes can share the same correlation value (and even the same means, standard deviations and correlation), so <var>r</var> alone never fully describes a relationship.</li>
+  <li><b>Hidden groups.</b> Separate subpopulations within the data can create, strengthen, weaken or mask a correlation. Faceting or colouring points by a grouping feature can reveal this.</li>
+  <li><b>One extreme observation</b> can create the appearance of a relationship where none exists in the bulk of the data, or destroy the appearance of one that does.</li>
+  <li><b>Correlation does not imply causation.</b> Two features can be correlated because both are driven by a third factor. The classic illustration: ice-cream sales and shark attacks both rise in hot, sunny weather — they are correlated, but neither causes the other; the common cause is good weather bringing people to the beach.</li>
+</ul>
+
+<figure>
+<svg viewBox="0 0 680 250" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <!-- panel 1: strong linear -->
+  <line x1="40" y1="195" x2="215" y2="195" stroke="#d8d8d8" stroke-width="1.5"/>
+  <line x1="40" y1="195" x2="40" y2="45" stroke="#d8d8d8" stroke-width="1.5"/>
+  <circle cx="55" cy="180" r="3" fill="#1d4e89"/><circle cx="70" cy="170" r="3" fill="#1d4e89"/>
+  <circle cx="85" cy="158" r="3" fill="#1d4e89"/><circle cx="100" cy="147" r="3" fill="#1d4e89"/>
+  <circle cx="115" cy="133" r="3" fill="#1d4e89"/><circle cx="130" cy="122" r="3" fill="#1d4e89"/>
+  <circle cx="145" cy="108" r="3" fill="#1d4e89"/><circle cx="160" cy="96" r="3" fill="#1d4e89"/>
+  <circle cx="175" cy="83" r="3" fill="#1d4e89"/><circle cx="190" cy="70" r="3" fill="#1d4e89"/>
+  <circle cx="203" cy="58" r="3" fill="#1d4e89"/>
+  <text x="127" y="30" text-anchor="middle" fill="#1a1a1a" font-weight="bold">strong linear</text>
+  <text x="127" y="222" text-anchor="middle" fill="#1a1a1a" >r close to +1</text>
+  <!-- panel 2: non-linear -->
+  <line x1="255" y1="195" x2="430" y2="195" stroke="#d8d8d8" stroke-width="1.5"/>
+  <line x1="255" y1="195" x2="255" y2="45" stroke="#d8d8d8" stroke-width="1.5"/>
+  <circle cx="270" cy="70" r="3" fill="#1d4e89"/><circle cx="287" cy="102" r="3" fill="#1d4e89"/>
+  <circle cx="304" cy="132" r="3" fill="#1d4e89"/><circle cx="321" cy="158" r="3" fill="#1d4e89"/>
+  <circle cx="338" cy="172" r="3" fill="#1d4e89"/><circle cx="355" cy="160" r="3" fill="#1d4e89"/>
+  <circle cx="372" cy="134" r="3" fill="#1d4e89"/><circle cx="389" cy="104" r="3" fill="#1d4e89"/>
+  <circle cx="406" cy="74" r="3" fill="#1d4e89"/>
+  <text x="342" y="30" text-anchor="middle" fill="#1a1a1a" font-weight="bold">non-linear</text>
+  <text x="342" y="222" text-anchor="middle" fill="#1a1a1a" >clear pattern, r close to 0</text>
+  <!-- panel 3: outlier-driven -->
+  <line x1="470" y1="195" x2="645" y2="195" stroke="#d8d8d8" stroke-width="1.5"/>
+  <line x1="470" y1="195" x2="470" y2="45" stroke="#d8d8d8" stroke-width="1.5"/>
+  <circle cx="485" cy="150" r="3" fill="#1d4e89"/><circle cx="500" cy="158" r="3" fill="#1d4e89"/>
+  <circle cx="515" cy="147" r="3" fill="#1d4e89"/><circle cx="530" cy="155" r="3" fill="#1d4e89"/>
+  <circle cx="545" cy="149" r="3" fill="#1d4e89"/><circle cx="560" cy="156" r="3" fill="#1d4e89"/>
+  <circle cx="575" cy="151" r="3" fill="#1d4e89"/><circle cx="590" cy="153" r="3" fill="#1d4e89"/>
+  <circle cx="630" cy="62" r="5" fill="none" stroke="#1d4e89" stroke-width="2"/>
+  <text x="557" y="30" text-anchor="middle" fill="#1a1a1a" font-weight="bold">outlier-driven</text>
+  <text x="557" y="222" text-anchor="middle" fill="#1a1a1a" >one extreme point inflates r</text>
+</svg>
+<figcaption><b>Figure 8.1</b> — Three relationships that correlation summarises very differently. Left: a strong positive linear trend — <var>r</var> close to +1 is an honest summary. Middle: a clear U-shaped relationship whose correlation is close to 0 — <var>r</var> is blind to non-linear form. Right: a flat cloud of points plus one extreme observation, which alone can inflate <var>r</var> and create the illusion of a relationship. In every case the scatter plot, not <var>r</var> alone, is the basis for interpretation.</figcaption>
+</figure>
+
+<div class="box exam"><span class="label">Worked example — interpreting a strong positive correlation</span>
+<p><b>Setting.</b> Exploring ten weekly machine assessments, the scatter plot of <em>average vibration</em> against <em>maximum temperature</em> shows points tightly clustered around an upward-sloping straight line, and the computed correlation is strongly positive (close to +1).</p>
+<p><b>What can be concluded:</b></p>
+<ul>
+  <li>There is a <b>strong, positive, linear association</b> between the two features within the observed range: weeks with higher average vibration tend to also have higher maximum temperature.</li>
+  <li>The two features vary together at a consistent rate — knowing one gives information about the other (relevant for redundancy screening, Section 11).</li>
+</ul>
+<p><b>What cannot be concluded:</b></p>
+<ul>
+  <li><b>No causation.</b> The correlation does not show that vibration causes temperature to rise, that temperature causes vibration, or anything about the mechanism — both could be driven by a third factor (e.g., machine load or wear).</li>
+  <li><b>No claim about form beyond linearity.</b> <var>r</var> summarises only the linear component; the relationship could bend or saturate outside the observed range, and <var>r</var> would not show it.</li>
+  <li><b>No claim of universality across subgroups.</b> The trend might differ between machine types or operating conditions (hidden groups); a single pooled <var>r</var> can mask that.</li>
+  <li><b>No claim of robustness.</b> One extreme observation could be responsible for much of the apparent association — check the scatter plot with and without suspect points.</li>
+</ul>
+</div>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>Describing a correlation of 0.05 as “no relationship”. The correct statement is “no <em>linear</em> relationship” — a strong non-linear relationship may still be present. Likewise, reading a high correlation as evidence that one feature <em>causes</em> the other is an automatic error.</p>
+</div>
+
+<h2>9. Continuous vs categorical: comparative box plots</h2>
+
+<p>To explore the relationship between a continuous feature and a categorical feature (for example, average vibration vs failure outcome, or vibration level vs machine type), split the continuous feature by the levels of the categorical feature and draw <b>side-by-side (comparative) box plots</b>, one per level. This works especially well when the continuous features are on the same order of magnitude.</p>
+
+<p>Interpretation compares three things across the groups:</p>
+<ul>
+  <li><b>Centre</b> — do the medians differ between groups?</li>
+  <li><b>Spread</b> — do the groups differ in variability (box height, whisker length, number of outliers)?</li>
+  <li><b>Overlap</b> — how much do the distributions overlap? Little overlap means the continuous feature separates the groups well.</li>
+</ul>
+
+<p>If the distributions differ clearly in centre or spread with limited overlap, the continuous feature is <b>potentially informative</b> for predicting the categorical feature. If the box plots are nearly identical across groups, the feature shows no evidence of being useful. The same logic applies when comparing several continuous descriptive features side by side, or when comparing a continuous feature against a binary target (e.g., failed vs not failed).</p>
+
+<div class="box intuition"><span class="label">Intuition</span>
+<p>In the study-guide machine data, machines that failed generally had higher average vibration than machines that did not. The comparative box plots would show the “failed” box shifted upward relative to the “not failed” box; the less the two boxes overlap, the more vibration looks like a useful predictor of failure.</p>
+</div>
+
+<h2>10. Two categorical features: contingency tables, bar plots and the chi-square test</h2>
+
+<h3>10.1 Contingency tables and bar plots</h3>
+<p>The relationship between two categorical features is summarised in a <b>contingency table</b>: rows are the levels of one feature, columns the levels of the other, and each cell holds the <em>count</em> of instances with that combination, with row and column totals added. Visually:</p>
+<ul>
+  <li><b>Grouped bar plots</b> show the counts (or frequencies) of one feature within each level of the other;</li>
+  <li><b>Proportional bar plots</b> show percentages instead of counts, which makes it easier to see whether the distribution of one feature deviates from the overall baseline proportion within each level of the other. Proportions reveal relative differences, but they carry no measure of uncertainty — an apparent deviation might be due to random chance, which is exactly what the chi-square test addresses.</li>
+</ul>
+
+<h3>10.2 The chi-square test of independence</h3>
+<p>The chi-square (&chi;&sup2;) test of independence assesses whether there is evidence of an <b>association between two categorical features</b>. Its logic: assume the two features are independent, compute what the cell counts <em>should</em> look like under that assumption, and measure how far the observed counts deviate from those expectations.</p>
+
+<ol>
+  <li><b>Null hypothesis H&#8320;:</b> the two categorical features are independent (no association). Any deviation between observed and expected counts is due to random chance.</li>
+  <li><b>Expected frequencies.</b> Under independence, the expected count of each cell is
+    <div class="eq"><span class="eqbody">
+      <var>E</var> = <span class="frac"><span class="top">row total &times; column total</span><span class="bot">grand total (&nbsp;<var>n</var>&nbsp;)</span></span>
+    </span></div>
+  </li>
+  <li><b>Test statistic.</b> Sum, over all cells, the squared deviation between observed (<var>O</var>) and expected (<var>E</var>) counts, divided by the expected count:
+    <div class="eq"><span class="eqbody">
+      &chi;<sup>2</sup> = &sum;<span style="white-space:nowrap"> </span>
+      <span class="frac"><span class="top">(<var>O</var> &minus; <var>E</var>)<sup>2</sup></span><span class="bot"><var>E</var></span></span>
+    </span></div>
+    Large deviations produce a large &chi;&sup2;.</li>
+  <li><b>Degrees of freedom:</b>
+    <div class="eq"><span class="eqbody">
+      df = (<var>r</var> &minus; 1) &times; (<var>c</var> &minus; 1)
+    </span></div>
+    where <var>r</var> is the number of rows and <var>c</var> the number of columns of the contingency table.</li>
+  <li><b>Decision.</b> Compare the statistic to the critical value of the &chi;&sup2; distribution at the chosen significance level (or convert it to a p-value). If &chi;&sup2; exceeds the critical value (equivalently, p-value &lt; &alpha;), reject H&#8320;: there is evidence of an association. Otherwise, do not reject H&#8320;.</li>
+  <li><b>Interpretation.</b> The test says <em>whether</em> an association exists, not what causes it. Describe the pattern of the association using the conditional percentages from the table.</li>
+</ol>
+
+<figure>
+<svg viewBox="0 0 680 185" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="w2-arrchi" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1d4e89"/>
+    </marker>
+  </defs>
+  <rect x="8" y="42" width="112" height="76" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="64" y="70" text-anchor="middle" fill="#1a1a1a">Observed</text>
+  <text x="64" y="87" text-anchor="middle" fill="#1a1a1a">frequencies O</text>
+  <text x="64" y="104" text-anchor="middle" fill="#1a1a1a">(contingency table)</text>
+  <path d="M122 80 H 144" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w2-arrchi)"/>
+  <rect x="146" y="42" width="112" height="76" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="202" y="70" text-anchor="middle" fill="#1a1a1a">Expected</text>
+  <text x="202" y="87" text-anchor="middle" fill="#1a1a1a">frequencies E</text>
+  <text x="202" y="104" text-anchor="middle" fill="#1a1a1a">(if independent)</text>
+  <path d="M260 80 H 282" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w2-arrchi)"/>
+  <rect x="284" y="42" width="112" height="76" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="340" y="70" text-anchor="middle" fill="#1a1a1a">Chi-square</text>
+  <text x="340" y="87" text-anchor="middle" fill="#1a1a1a">statistic</text>
+  <text x="340" y="104" text-anchor="middle" fill="#1a1a1a">&#967;&#178; = &#931;(O&#8722;E)&#178;/E</text>
+  <path d="M398 80 H 420" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w2-arrchi)"/>
+  <rect x="422" y="42" width="112" height="76" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="478" y="70" text-anchor="middle" fill="#1a1a1a">p-value or</text>
+  <text x="478" y="87" text-anchor="middle" fill="#1a1a1a">critical value</text>
+  <text x="478" y="104" text-anchor="middle" fill="#1a1a1a">df = (r&#8722;1)(c&#8722;1)</text>
+  <path d="M536 80 H 558" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w2-arrchi)"/>
+  <rect x="560" y="42" width="112" height="76" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="616" y="70" text-anchor="middle" fill="#1a1a1a">Conclusion:</text>
+  <text x="616" y="87" text-anchor="middle" fill="#1a1a1a">reject H&#8320; or not;</text>
+  <text x="616" y="104" text-anchor="middle" fill="#1a1a1a">interpret pattern</text>
+  <text x="340" y="155" text-anchor="middle" fill="#1a1a1a">Large &#967;&#178; (observed far from expected) &#8594; small p-value &#8594; evidence of association.</text>
+</svg>
+<figcaption><b>Figure 10.1</b> — Chi-square workflow: tabulate the observed counts, compute the expected counts under independence from the row and column totals, combine the cell-wise deviations into the &chi;&sup2; statistic, compare it with the &chi;&sup2; distribution using df = (<var>r</var>&minus;1)(<var>c</var>&minus;1), and draw a conclusion about association.</figcaption>
+</figure>
+
+<div class="box exam"><span class="label">Worked example — chi-square test of independence</span>
+<p><b>Setting.</b> Three machine types (A, B, C), 200 machines of each type, are observed for failure in the next seven days:</p>
+<div class="tablewrap">
+<table>
+  <tr><th>Machine type</th><th class="num">No failure</th><th class="num">Failure</th><th class="num">Total</th><th class="num">Failure %</th></tr>
+  <tr><td>Type A</td><td class="num">180</td><td class="num">20</td><td class="num">200</td><td class="num">20/200 = 10.0%</td></tr>
+  <tr><td>Type B</td><td class="num">150</td><td class="num">50</td><td class="num">200</td><td class="num">50/200 = 25.0%</td></tr>
+  <tr><td>Type C</td><td class="num">190</td><td class="num">10</td><td class="num">200</td><td class="num">10/200 = 5.0%</td></tr>
+  <tr><td><b>Total</b></td><td class="num">520</td><td class="num">80</td><td class="num">600</td><td class="num">80/600 = 13.3%</td></tr>
+</table>
+</div>
+<p><b>Step 1 — conditional failure percentages.</b> A: 10.0%, B: 25.0%, C: 5.0%, against an overall failure rate of 13.3%. Type B fails far more often than average; Type C far less. The question is whether these differences are larger than chance could plausibly produce.</p>
+<p><b>Step 2 — hypotheses.</b> H&#8320;: machine type and failure outcome are independent (every type has the same failure rate). H&#8321;: there is an association between machine type and failure outcome.</p>
+<p><b>Step 3 — expected frequencies under independence.</b> Each cell: <var>E</var> = (row total &times; column total) &divide; 600. All row totals are 200, so every type has the same expected counts:</p>
+<ul>
+  <li><var>E</var>(Failure) = 200 &times; 80 &divide; 600 = <b>26.67</b></li>
+  <li><var>E</var>(No failure) = 200 &times; 520 &divide; 600 = <b>173.33</b></li>
+</ul>
+<p><b>Step 4 — chi-square statistic.</b> &chi;&sup2; = &sum; (<var>O</var> &minus; <var>E</var>)&sup2; &divide; <var>E</var>, over all six cells:</p>
+<div class="tablewrap">
+<table>
+  <tr><th>Cell</th><th class="num"><var>O</var></th><th class="num"><var>E</var></th><th class="num">(<var>O</var> &minus; <var>E</var>)&sup2; &divide; <var>E</var></th></tr>
+  <tr><td>A — Failure</td><td class="num">20</td><td class="num">26.67</td><td class="num">(20 &minus; 26.67)&sup2; &divide; 26.67 = 44.49 &divide; 26.67 &asymp; 1.67</td></tr>
+  <tr><td>A — No failure</td><td class="num">180</td><td class="num">173.33</td><td class="num">(180 &minus; 173.33)&sup2; &divide; 173.33 = 44.49 &divide; 173.33 &asymp; 0.26</td></tr>
+  <tr><td>B — Failure</td><td class="num">50</td><td class="num">26.67</td><td class="num">(50 &minus; 26.67)&sup2; &divide; 26.67 = 544.69 &divide; 26.67 &asymp; 20.42</td></tr>
+  <tr><td>B — No failure</td><td class="num">150</td><td class="num">173.33</td><td class="num">(150 &minus; 173.33)&sup2; &divide; 173.33 = 544.69 &divide; 173.33 &asymp; 3.14</td></tr>
+  <tr><td>C — Failure</td><td class="num">10</td><td class="num">26.67</td><td class="num">(10 &minus; 26.67)&sup2; &divide; 26.67 = 277.89 &divide; 26.67 &asymp; 10.42</td></tr>
+  <tr><td>C — No failure</td><td class="num">190</td><td class="num">173.33</td><td class="num">(190 &minus; 173.33)&sup2; &divide; 173.33 = 277.89 &divide; 173.33 &asymp; 1.60</td></tr>
+</table>
+</div>
+<p>&chi;&sup2; = 1.67 + 0.26 + 20.42 + 3.14 + 10.42 + 1.60 = <b>37.50</b>.</p>
+<p><b>Step 5 — degrees of freedom.</b> df = (3 &minus; 1)(2 &minus; 1) = <b>2</b>.</p>
+<p><b>Step 6 — decision.</b> At the 5% significance level with df = 2 the critical value is 5.99. Since 37.50 &gt; 5.99 (equivalently, the p-value is far below 0.05), we <b>reject H&#8320;</b>: there is strong evidence of an association between machine type and failure outcome.</p>
+<p><b>Step 7 — interpretation.</b> The association is driven by Type B failing much more often than the fleet average (25% vs 13.3%) and Type C much less often (5%).</p>
+<p><b>Caution.</b> Association is not causation: the test does not show that machine type <em>causes</em> failure. A third factor — such as machine age, duty cycle, or maintenance history, which may differ between types — could explain the observed relationship.</p>
+</div>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>Running the chi-square test on percentages instead of counts, or computing expected frequencies from anything other than the row and column totals of the observed table. Also remember the test only answers “is there evidence of <em>some</em> association?” — it does not measure the strength or direction of the association, and rejecting H&#8320; never establishes causation.</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch 2 §2.4–2.5 — data exploration and visualisation. Data-quality issues surfaced during exploration, and the data-quality report, are covered in Ch 3 §3.1–3.3; corrective actions (Ch 3 §3.4 onward) are Week 3 material.</p>
+
+<h2>11. From exploration evidence to feature classification</h2>
+
+<p>The practical payoff of exploration is a first verdict on each descriptive feature: is it worth offering to the model? Not all collected features are relevant. The core classification (with respect to the target feature) is:</p>
+
+<div class="box def"><span class="label">Definition</span>
+<ul>
+  <li><b>Informative feature</b> — correlated with the output target, but not correlated with other descriptive features.</li>
+  <li><b>Redundant feature</b> — correlated with the output target, but also correlated with other descriptive features (it duplicates information another feature already provides).</li>
+  <li><b>Irrelevant feature</b> — has no correlation with the output target.</li>
+</ul>
+</div>
+
+<p>Week 2 refines this into the working vocabulary used for exploratory evidence:</p>
+<ul>
+  <li><b>Potentially informative</b> — shows a clear relationship with the target (different distributions across target levels, or a strong association); a serious candidate for the model.</li>
+  <li><b>Weakly informative</b> — only a weak overall relationship with the target (e.g., a weak linear correlation), but possibly still useful: the relationship may be non-linear, threshold-like, or visible only in subgroups. Do not discard on a single weak summary alone.</li>
+  <li><b>Redundant</b> — strongly associated with the target but nearly a duplicate of another feature (very high pairwise correlation, almost identical relationship with the target); one of the pair can usually be removed.</li>
+  <li><b>Complementary</b> — carries information not already provided by the other features, for example a relationship that differs between subgroups (an interaction); most valuable in combination with other features.</li>
+  <li><b>Irrelevant</b> — no relationship with the target (e.g., identifiers with a different value per instance, or attributes whose level distributions are identical across target classes).</li>
+  <li><b>Invalid</b> — unusable for prediction, most notably through <b>target leakage</b>: the feature is only recorded because the target event has already occurred, so it would not be available when a prediction must be made.</li>
+</ul>
+
+<p><b>Why this matters for modelling.</b> Feature selection — choosing a subset of the most informative features — is worthwhile because (1) some models, notably support vector machines and neural networks, are sensitive to irrelevant features; (2) models such as linear and logistic regression are vulnerable to correlated (redundant) predictors; and (3) even when a model is insensitive to extra predictors, fewer features give simpler models, shorter training times and less potential to overfit. Common selection strategies include <b>filter</b> methods (statistical tests between descriptive and target features, and between descriptive features, to flag relevant and redundant features), <b>wrapper</b> methods (add or remove features, build the model, compare performance) and <b>embedded</b> methods (the algorithm performs selection as part of training). These are developed further later in the module; this week only the exploratory evidence behind the classifications is required.</p>
+
+<div class="box exam"><span class="label">Worked example — classifying candidate features</span>
+<p><b>Setting.</b> An analytics team exploring candidate features for predicting machine failure obtains the following results. Classify each feature and justify.</p>
+<div class="tablewrap">
+<table>
+  <tr><th>Candidate feature</th><th>Exploration result</th><th>Classification</th><th>Justification</th></tr>
+  <tr><td>Average vibration</td><td>Machines that failed generally had higher vibration values than machines that did not fail.</td><td><b>Potentially informative</b></td><td>Clear difference in the feature across the two target levels — the feature helps distinguish failures from non-failures.</td></tr>
+  <tr><td>Vibration RMS</td><td>Correlation of 0.98 with average vibration and a very similar relationship with the target.</td><td><b>Redundant</b></td><td>Almost perfectly correlated with average vibration and relates to the target in nearly the same way — it duplicates information already present, so one of the two can be dropped.</td></tr>
+  <tr><td>Machine identifier</td><td>A different value for almost every machine; does not represent a measurable operating characteristic.</td><td><b>Irrelevant</b></td><td>Extremely high cardinality with no measurable relationship to operating behaviour; an identifier, not a predictor.</td></tr>
+  <tr><td>Maximum temperature</td><td>Moderate relationship with the target, but the relationship differs between machine types.</td><td><b>Potentially informative / complementary</b></td><td>The subgroup-specific pattern suggests an interaction with machine type; it contributes information that differs from, and complements, the other features.</td></tr>
+  <tr><td>Paint colour</td><td>Failure rates and feature distributions almost identical across all colour levels.</td><td><b>Irrelevant</b></td><td>No association with the target — the conditional distributions match the baseline everywhere.</td></tr>
+  <tr><td>Days since maintenance</td><td>Weak overall linear relationship with the target, but failure rates increase substantially after 90 days.</td><td><b>Weakly informative</b></td><td>A weak linear correlation misses the threshold effect visible after 90 days; the feature still carries predictive signal.</td></tr>
+  <tr><td>Maintenance work order</td><td>Strong relationship with the target, but the work order is opened only <em>after</em> a failure has occurred.</td><td><b>Invalid (target leakage)</b></td><td>The feature is a consequence of the target event; it would not exist at prediction time, so including it would leak the answer into the inputs.</td></tr>
+</table>
+</div>
+<p><b>Follow-up conclusions:</b> (1) average vibration and vibration RMS contain substantially overlapping information; (2) days since maintenance must not be removed on the weak linear correlation alone because its effect is non-linear (threshold-like); (3) maximum temperature is the feature suggesting an interaction / subgroup-specific relationship; (4) maintenance work order is the feature that would create target leakage; (5) no feature should be removed on a single summary statistic alone — summaries can miss non-linear and subgroup effects.</p>
+</div>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>Two classic errors: (1) keeping a leakage feature because its association with the target is strong — strength of association is irrelevant if the feature would not be available at prediction time; (2) discarding a feature because one correlation is weak — check plots for non-linear, threshold or subgroup patterns before deciding.</p>
+</div>
+
+<h2>12. Comparing alternative feature sets using validation performance</h2>
+
+<p>Exploratory summaries and plots generate <em>hypotheses</em> about which features might be useful, but they are not the final arbiter. Individual summaries can mislead — a weak correlation can hide a threshold effect, a strong one can be driven by an outlier, and two features that look similar marginally can behave very differently inside a model. Alternative feature sets should therefore be compared by <b>building models with each candidate set and comparing their performance on validation data</b> (data not used to build the models):</p>
+<ul>
+  <li>use exploration to propose candidate feature sets (drop clear irrelevancies and leakage, keep weakly informative and complementary features that plots support);</li>
+  <li>train the same modelling approach on each candidate set;</li>
+  <li>evaluate and compare the sets on validation performance;</li>
+  <li>prefer the set that generalises best, balancing performance against simplicity.</li>
+</ul>
+<p>This is the wrapper idea in miniature: add or remove features, build the model, evaluate, and let validation performance — not any single summary or plot — settle the choice. Features should therefore never be selected <em>solely</em> from their individual statistical summaries or visualisations.</p>
+
+<div class="box intuition"><span class="label">Intuition</span>
+<p>Exploration is the scout that maps the terrain; validation performance is the referee that decides the match. A scout’s report (“this feature looks weak”) is worth acting on only as a proposal — the referee’s verdict (the model actually performs worse/better without it) is what counts.</p>
+</div>
+
+<hr>
+
+<div class="box"><span class="label">Practice</span>
+<p>Work through the Week 2 study-guide practice questions: <b>Q1</b> selecting an exploration approach for six feature pairs (data types, visualisation, association measure, expected insight); <b>Q2</b> scatter plots, correlation matrix and comparative box plots for the ten-assessment machine data; <b>Q3</b> the machine-type &times; failure chi-square analysis reproduced in the worked example above; <b>Q4</b> classifying the seven candidate features reproduced in Section 11.</p>
+</div>
+
+
+<nav class="weeknav">
+  <a href="../index.html#da344">&larr; Course Notes</a>
+  <span class="sep">&middot;</span><a href="Week1_Introduction_to_Data_Analytics.html">&larr; Week 1: Introduction to Data Analytics</a>
+  <span class="sep">&middot;</span><a href="Week3_Data_Quality_and_Preparation.html">Week 3: Data Quality and Preparation &rarr;</a>
+  <span class="cur">Week 2 of 6</span>
+</nav>
+</body>
+</html>

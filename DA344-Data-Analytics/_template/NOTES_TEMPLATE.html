@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DA344 — Week N: TOPIC TITLE</title>
+<style>
+/* ============================================================
+   DA344 Notes — shared stylesheet. DO NOT EDIT PER-WEEK.
+   Copy this whole <style> block verbatim into each week file.
+   ============================================================ */
+:root{
+  --bg:#12151a; --ink:#e6e9ed; --muted:#9aa5b1; --rule:#2c3238; --soft:#1a1e24;
+  --accent:#7bb0e8; --accent-soft:#182634;
+  --warn:#e3b565; --warn-soft:#2b2211;
+  --ok:#7fd1a3; --ok-soft:#123023;
+  --maxw:52rem;
+}
+*{box-sizing:border-box}
+html{font-size:16px}
+body{
+  margin:0 auto; padding:2.5rem 1.5rem 5rem; max-width:var(--maxw);
+  font-family:"Charter","Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
+  color:var(--ink); background:var(--bg); line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+/* ---- headings ---- */
+h1,h2,h3{font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.25;color:var(--ink)}
+h1{font-size:2.1rem;font-weight:700;margin:0 0 .3rem;letter-spacing:-.02em}
+.subtitle{font-family:"Inter","Segoe UI",system-ui,sans-serif;color:var(--muted);font-size:1.05rem;margin:0 0 2rem}
+h2{font-size:1.45rem;font-weight:650;margin:3rem 0 .9rem;padding-bottom:.35rem;border-bottom:2px solid var(--accent)}
+h3{font-size:1.13rem;font-weight:650;margin:2rem 0 .6rem;color:var(--accent)}
+p{margin:0 0 1rem}
+ul,ol{margin:0 0 1rem;padding-left:1.4rem}
+li{margin:.3rem 0}
+strong{font-weight:650}
+code{font-family:"JetBrains Mono","Cascadia Mono",Consolas,monospace;font-size:.87em;background:var(--soft);padding:.1em .35em;border-radius:3px}
+pre{background:var(--soft);border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:4px;padding:.9rem 1rem;overflow-x:auto;font-size:.85rem;line-height:1.5}
+pre code{background:none;padding:0}
+a{color:var(--accent)}
+
+/* ---- document header block ---- */
+.docmeta{font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 .6rem}
+
+/* ---- boxes ---- */
+.box{border:1px solid var(--rule);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;background:var(--soft);page-break-inside:avoid}
+.box>:first-child{margin-top:0}
+.box>:last-child{margin-bottom:0}
+.box .label{font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
+.def{background:var(--accent-soft);border-color:#2c4a6e}
+.def .label{color:var(--accent)}
+.watch{background:var(--warn-soft);border-color:#4a3b1a}
+.watch .label{color:var(--warn)}
+.exam{background:var(--ok-soft);border-color:#2f5940}
+.exam .label{color:var(--ok)}
+.intuition{background:var(--bg);border-style:dashed}
+
+/* ---- summary sheet (tier 1) ---- */
+.summary{border:2px solid var(--accent);border-radius:8px;padding:1.4rem 1.6rem;margin:0 0 2.5rem;page-break-after:always}
+.summary h2{margin-top:0;border:none;padding:0;font-size:1.2rem}
+.summary h3{margin:1.2rem 0 .4rem;font-size:.95rem}
+.summary ul{margin-bottom:.6rem}
+.summary li{margin:.15rem 0;font-size:.94rem}
+
+/* ---- tables ---- */
+table{border-collapse:collapse;width:100%;margin:1.2rem 0;font-size:.92rem;page-break-inside:avoid}
+caption{caption-side:bottom;font-size:.82rem;color:var(--muted);text-align:left;padding-top:.5rem}
+th,td{border:1px solid var(--rule);padding:.45rem .6rem;text-align:left;vertical-align:top}
+th{background:var(--soft);font-family:"Inter","Segoe UI",system-ui,sans-serif;font-weight:650;font-size:.86rem}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto}
+
+/* ---- maths ---- */
+.eq{margin:1.2rem 0;text-align:center;font-size:1.02rem;page-break-inside:avoid}
+.eq .eqbody{display:inline-block;padding:.2rem .6rem}
+var{font-style:italic;font-family:Cambria,Georgia,serif}
+.frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .25em}
+.frac .top{display:block;border-bottom:1px solid currentColor;padding:0 .35em}
+.frac .bot{display:block;padding:0 .35em}
+sub,sup{font-size:.72em;line-height:0}
+
+/* ---- figures / SVG diagrams ---- */
+figure{margin:1.8rem 0;text-align:center;page-break-inside:avoid}
+figure svg{max-width:100%;height:auto;background:#eef1f6;border-radius:10px;padding:10px;box-sizing:border-box;border:1px solid #d9dee5}
+figcaption{font-size:.85rem;color:var(--muted);text-align:left;margin-top:.6rem;padding-top:.4rem;border-top:1px solid var(--rule)}
+figcaption b{color:var(--ink)}
+
+/* ---- reading refs ---- */
+.reading{font-size:.9rem;background:var(--bg);border-left:3px solid var(--accent);padding:.15rem 0 .15rem 1rem;margin:1.2rem 0;color:var(--muted)}
+.reading b{color:var(--ink);font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
+
+/* ---- worked solutions ---- */
+.qa{border-top:1px solid var(--rule);padding-top:1.2rem;margin-top:1.8rem}
+.qa .qnum{font-family:"Inter","Segoe UI",system-ui,sans-serif;font-weight:700;color:var(--accent)}
+.soln{border-left:3px solid var(--ok);padding-left:1rem;margin:.8rem 0 0}
+
+hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
+
+/* ---- week navigation (copy into each week file; fill hrefs) ---- */
+.weeknav{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .9rem;
+  font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:.85rem;
+  margin:0 0 2rem;padding:.7rem 1rem;background:var(--soft);
+  border:1px solid var(--rule);border-radius:8px}
+.weeknav a{color:var(--accent);text-decoration:none}
+.weeknav a:hover{text-decoration:underline}
+.weeknav .sep{color:var(--muted)}
+.weeknav .cur{color:var(--muted);margin-left:auto;font-weight:650}
+
+/* ---- print / PDF ---- */
+@page{size:A4;margin:18mm 16mm}
+@media print{
+
+  /* force a light, ink-friendly palette for printed/PDF output regardless of on-screen dark mode */
+  :root{
+    --bg:#fff; --ink:#1a1a1a; --muted:#555; --rule:#d8d8d8; --soft:#f6f7f9;
+    --accent:#1d4e89; --accent-soft:#e8eef6;
+    --warn:#8a5a00; --warn-soft:#fdf4e3;
+    --ok:#1f6b45; --ok-soft:#e8f4ee;
+  }
+  .def{border-color:#bccfe4}
+  .watch{border-color:#e6d3a8}
+  .exam{border-color:#bfdfcd}
+  .weeknav{display:none}
+
+  html{font-size:10.5pt}
+  /* Keep the same column width as screen so layout does not stretch */
+  body{max-width:var(--maxw);padding:0}
+  h2{page-break-after:avoid}
+  h3{page-break-after:avoid}
+  .box,figure,table,.eq,.summary{page-break-inside:avoid}
+  a{color:var(--ink);text-decoration:none}
+  /* Tables must not overflow the page margin */
+  table{width:100%;table-layout:fixed}
+  th,td{word-wrap:break-word;overflow-wrap:break-word}
+  .tablewrap{overflow:visible}
+  /* Scale SVG text to match the smaller print font */
+  figure svg{font-size:12.5pt !important}
+  figure svg text{font-size:inherit !important}
+}
+</style>
+</head>
+<body>
+
+<p class="docmeta">Data Analytics 344 &middot; 2026</p>
+<h1>Week N — Topic Title</h1>
+<p class="subtitle">One-line description of what the week covers.</p>
+
+<nav class="weeknav">
+  <a href="../index.html#da344">&larr; Course Notes</a>
+  <span class="sep">&middot;</span><a href="WeekN-1_....html">&larr; Week N-1</a>
+  <span class="sep">&middot;</span><a href="WeekN+1_....html">Week N+1 &rarr;</a>
+  <span class="cur">Week N of 6</span>
+</nav>
+
+<!-- ===== TIER 1: ONE-PAGE SUMMARY SHEET ===== -->
+<section class="summary">
+  <h2>Week N at a glance</h2>
+  <h3>Core ideas</h3>
+  <ul><li>…</li></ul>
+  <h3>Key definitions</h3>
+  <ul><li><b>Term</b> — one-line definition.</li></ul>
+  <h3>Formulas</h3>
+  <ul><li>…</li></ul>
+  <h3>Exam traps</h3>
+  <ul><li>…</li></ul>
+  <h3>Prescribed reading</h3>
+  <ul><li>Kelleher et al. (2e): §…</li></ul>
+</section>
+
+<!-- ===== TIER 2: FULL NOTES ===== -->
+<h2>1. Section</h2>
+<p>…</p>
+
+<div class="box def"><span class="label">Definition</span><p>…</p></div>
+<div class="box intuition"><span class="label">Intuition</span><p>…</p></div>
+<div class="box watch"><span class="label">Common mistake</span><p>…</p></div>
+<div class="box exam"><span class="label">Worked example</span><p>…</p></div>
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al., §1.1 — covers X. Further: §1.5 for Y.</p>
+
+<figure>
+<svg viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="13">
+  <rect x="20" y="60" width="140" height="52" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="90" y="91" text-anchor="middle" fill="#1a1a1a">Example node</text>
+  <path d="M165 86 H 235" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#a)"/>
+  <defs><marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L9,3 z" fill="#1d4e89"/></marker></defs>
+</svg>
+<figcaption><b>Figure N.1</b> — caption explaining what the reader should take away.</figcaption>
+</figure>
+
+<div class="eq"><span class="eqbody">
+  MSE = <span class="frac"><span class="top">1</span><span class="bot"><var>n</var></span></span>
+  &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
+  (<var>y</var><sub><var>i</var></sub> &minus; <var>ŷ</var><sub><var>i</var></sub>)<sup>2</sup>
+</span></div>
+
+</body>
+</html>

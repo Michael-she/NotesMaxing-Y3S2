@@ -1,9 +1,15 @@
 """
-Local server for the Week 12 Digital Control notes with an "Ask Gemini" panel.
+Local server for the whole notes site: the module hub (index.html), every
+notes page under the module folders, the past papers, and the "Ask Gemini"
+panel that the notes pages embed.
 
-Usage (from this folder):
+Usage (from the repo root):
     python serve_notes.py
 then open http://localhost:8765 (it opens automatically).
+
+One server covers every module. A notes page calls api/health and api/chat
+relative to its own folder, and any path ending in /api/health or /api/chat is
+answered here, so pages work at any depth in the tree without configuration.
 
 The Gemini API key is read from the .env file next to this script:
     GEMINI_API_KEY=your-key-here
@@ -23,9 +29,11 @@ import urllib.request
 import webbrowser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
+import build_manifest
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ENV_PATH = os.path.join(HERE, ".env")
-PAGE = "Week12_Digital_Control_Notes.html"
+PAGE = "index.html"
 HOST = "127.0.0.1"   # local machine only, never exposed to the network
 PORT = int(os.environ.get("NOTES_PORT", "8765"))
 DEFAULT_MODEL = "gemini-2.5-flash"
@@ -76,19 +84,31 @@ class Handler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def _blocked(self):
-        # Never serve dotfiles (.env holds the key) or this script.
-        name = os.path.basename(self.path.split("?", 1)[0])
-        return name.startswith(".") or name.endswith(".py")
+        # Never serve dotfiles or dot-folders (.env holds the key, .git the history) or the scripts.
+        parts = [p for p in self.path.split("?", 1)[0].split("/") if p]
+        return any(p.startswith(".") for p in parts) or (bool(parts) and parts[-1].endswith(".py"))
+
+    def _manifest(self):
+        # Rebuilt from the folder tree on every load, so a new notes file or PDF shows up on refresh.
+        try:
+            body = build_manifest.render(build_manifest.build()).encode("utf-8")
+        except Exception as err:  # fall back to the committed manifest.js
+            sys.stderr.write(f"manifest rebuild failed: {err}\n")
+            return False
+        self.send_response(200)
+        self.send_header("Content-Type", "text/javascript; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+        return True
 
     # ---- GET -----------------------------------------------------------
     def do_GET(self):
         path = self.path.split("?", 1)[0]
-        if path == "/":
-            self.send_response(302)
-            self.send_header("Location", "/" + PAGE)
-            self.end_headers()
+        if path == "/manifest.js" and self._manifest():
             return
-        if path == "/api/health":
+        if path.endswith("/api/health"):
             env = load_env()
             key = env.get("GEMINI_API_KEY", "")
             self._json(200, {
@@ -110,13 +130,13 @@ class Handler(SimpleHTTPRequestHandler):
 
     # ---- POST /api/chat -----------------------------------------------
     def do_POST(self):
-        if self.path.split("?", 1)[0] != "/api/chat":
+        if not self.path.split("?", 1)[0].endswith("/api/chat"):
             self.send_error(404)
             return
         env = load_env()
         key = env.get("GEMINI_API_KEY", "")
         if not key or "your" in key.lower():
-            self._json(400, {"error": "No Gemini API key. Put GEMINI_API_KEY=... in the .env file next to serve_notes.py, save, and try again."})
+            self._json(400, {"error": "No Gemini API key. Put GEMINI_API_KEY=... in the .env file next to serve_notes.py (repo root), save, and try again."})
             return
         model = env.get("GEMINI_MODEL") or DEFAULT_MODEL
         base = (env.get("GEMINI_API_BASE") or DEFAULT_BASE).rstrip("/")
@@ -177,8 +197,9 @@ def main():
         sys.exit(1)
     env = load_env()
     server = ThreadingHTTPServer((HOST, PORT), Handler)
-    url = f"http://localhost:{PORT}/{PAGE}"
+    url = f"http://localhost:{PORT}/"
     print(f"Serving notes at {url}")
+    build_manifest.main()
     if not env.get("GEMINI_API_KEY") or "your" in env.get("GEMINI_API_KEY", "").lower():
         print("Note: GEMINI_API_KEY is not set in .env yet. The notes work; the chat will ask for the key.")
     print("Press Ctrl+C to stop.")

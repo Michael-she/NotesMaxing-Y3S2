@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 5 — Programming | CS245</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="page">
+
+<div class="topnav">
+  <a href="../../index.html#cs245">CS245 Notes</a>
+  <span class="sep">/</span>
+  <a href="../theory/week5.html">Theory</a>
+  <span class="current">Programming</span>
+  <a href="../../index.html#cs245/papers">Papers</a>
+  <span class="sep">|</span>
+  <a href="week1.html">W1</a>
+  <a href="week2.html">W2</a>
+  <a href="week3.html">W3</a>
+  <a href="week4.html">W4</a>
+  <span class="current">W5</span>
+</div>
+
+<header class="hero">
+  <span class="kicker programming">Programming</span>
+  <h1 class="title">Week 5 — Timer Formulas &amp; the HAL Timer/RTC API</h1>
+  <p class="subtitle">CS245 · Lectures 12–14 · Timer math, HAL calls for OC/IC/PWM, watchdog kicking, RTC</p>
+</header>
+
+<nav class="toc">
+  <span class="toc-label">Contents</span>
+  <ol>
+    <li><a href="#formula">Timer Frequency &amp; Period Formulas</a></li>
+    <li><a href="#apb">Timer-to-Bus Mapping</a></li>
+    <li><a href="#oc">HAL: Output Compare</a></li>
+    <li><a href="#ic">HAL: Input Capture</a></li>
+    <li><a href="#pwm">HAL: PWM</a></li>
+    <li><a href="#wdg">Kicking the Watchdog</a></li>
+    <li><a href="#rtc">HAL: Real-Time Clock</a></li>
+  </ol>
+</nav>
+
+<section class="lecture" id="formula">
+  <h2>Timer Frequency &amp; Period Formulas</h2>
+  <figure class="diagram">
+    <div class="diagram-svg">
+      <svg viewBox="0 0 620 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timer/counter clock distribution: the input clock f_clk feeds a prescaler that divides by N (TIMx_PSC plus 1), which feeds the counter register TIMx_CNT; when the count matches the auto-reload register ARR, an update event UEV and update interrupt flag UIF are generated">
+        <defs>
+          <marker id="clkarrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <g font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700" text-anchor="middle">
+          <rect x="10" y="45" width="140" height="60" rx="4" fill="var(--code-bg)" stroke="currentColor" stroke-width="1.5"/>
+          <text x="80" y="72">Input Clock</text>
+          <text x="80" y="90" font-weight="400" opacity="0.75">(f_clk)</text>
+
+          <rect x="240" y="45" width="150" height="60" rx="4" fill="var(--prog-soft)" stroke="var(--prog-accent)" stroke-width="1.5">
+          </rect>
+          <text x="315" y="68" fill="var(--prog-accent)">Prescaler (÷N)</text>
+          <text x="315" y="86" font-weight="400" opacity="0.85" fill="var(--prog-accent)">TIMx_PSC + 1</text>
+
+          <rect x="470" y="45" width="140" height="60" rx="4" fill="var(--prog-soft)" stroke="var(--prog-accent)" stroke-width="1.5"/>
+          <text x="540" y="68" fill="var(--prog-accent)">Counter Reg.</text>
+          <text x="540" y="86" font-weight="400" opacity="0.85" fill="var(--prog-accent)">TIMx_CNT</text>
+        </g>
+
+        <g stroke="currentColor" stroke-width="1.5" fill="none">
+          <line x1="150" y1="75" x2="234" y2="75" marker-end="url(#clkarrow)"/>
+          <line x1="390" y1="75" x2="464" y2="75" marker-end="url(#clkarrow)"/>
+        </g>
+
+        <path d="M540,105 L540,140 L390,140" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#clkarrow)"/>
+        <text x="465" y="132" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10.5" fill="var(--accent)">matches ARR</text>
+
+        <g font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700" text-anchor="middle">
+          <rect x="240" y="145" width="150" height="55" rx="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="315" y="167" fill="var(--accent)">Auto-Reload (ARR)</text>
+          <text x="315" y="185" font-weight="400" opacity="0.85" fill="var(--accent)">generates UEV / UIF</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption class="diagram-caption">Timer / counter clock distribution</figcaption>
+  </figure>
+  <div class="formula">
+    f_timer = f_clk / N&emsp;&emsp;where N = TIMx_PSC + 1 (never 0, avoiding a divide-by-zero)<br>
+    T = (R + 1) / f_timer&emsp;&emsp;where R = TIMx_ARR
+    <span class="note">R + 1 because both 0 and R are included in the count — counting 0..3 is 4 steps, not 3.</span>
+  </div>
+
+  <h3>Worked example</h3>
+  <p>The input clock to the timer module (<code>CK_PSC</code>) is 10 MHz, with a prescaler value <code>TIMx_PSC</code> = 1024, counting up from 0. What auto-reload value gives a ≈1 s interrupt period?</p>
+  <div class="formula">TIMx_ARR = 10⁷ / (1024 + 1) − 1 ≈ 9746</div>
+  <p>Because 9746 is rounded down to an integer, the resulting period is not exactly 1 s — it works out to ≈0.9990675 s. Some timer hardware compensates for this rounding automatically; check the specific device's datasheet.</p>
+</section>
+
+<section class="lecture" id="apb">
+  <h2>Timer-to-Bus Mapping</h2>
+  <table>
+    <thead><tr><th>Bus</th><th>Timers / peripherals</th></tr></thead>
+    <tbody>
+      <tr><td>APB1 (≤42 MHz)</td><td>TIM2, TIM3, TIM4, TIM5, TIM6, TIM7, TIM12, TIM13, IWDG, WWDG, RTC</td></tr>
+      <tr><td>APB2 (≤84 MHz)</td><td>TIM1, TIM8, TIM9, TIM10, TIM11</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="lecture" id="oc">
+  <h2>HAL: Output Compare</h2>
+  <pre><code>// Start outside the while(1) loop:
+HAL_TIM_OC_Start(&amp;htim4, TIM_CHANNEL_1);</code></pre>
+  <p><code>htim4</code> is auto-generated by STM32CubeIDE from the timer's device-configuration settings — use the handle matching the timer, and the channel matching the output pin you configured.</p>
+</section>
+
+<section class="lecture" id="ic">
+  <h2>HAL: Input Capture</h2>
+  <pre><code>// Start (with interrupt) outside the while(1) loop:
+HAL_TIM_IC_Start_IT(&amp;htim5, TIM_CHANNEL_1);
+
+// Callback — copy the template from stm32f4xx_hal_tim.c into main.c
+// (without the __weak qualifier), then fill in your own logic.
+// Callbacks are shared across all timers, so check which one fired:
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
+    if (htim-&gt;Instance == TIM5) {
+        volatile uint32_t captured_val = __HAL_TIM_GetCounter(htim);
+        __HAL_TIM_SetCounter(htim, 0);   // reset the timer
+    }
+}</code></pre>
+  <div class="note-box"><span class="label">Note</span>The captured value is written from inside an interrupt callback — if you store it into a variable read elsewhere (e.g. the main loop), that variable must be <code>volatile</code>.</div>
+</section>
+
+<section class="lecture" id="pwm">
+  <h2>HAL: PWM</h2>
+  <pre><code>// Start outside the while(1) loop:
+HAL_TIM_PWM_Start(&amp;htim4, TIM_CHANNEL_1);
+
+// Change duty cycle at runtime by writing the compare register directly:
+htim4.Instance-&gt;CCR1 = newDutyCycle;</code></pre>
+</section>
+
+<section class="lecture" id="wdg">
+  <h2>Kicking the Watchdog</h2>
+  <p>The Independent Watchdog (IWDG) resets the MCU when its counter reaches <code>0x000</code>. Writing the key value <code>0xAAAA</code> into <code>IWDG_KR</code> reloads the counter from <code>IWDG_RLR</code> and prevents the reset — this is the "kick".</p>
+  <pre><code>#define IWDG_KR (*((volatile uint32_t *)0x40003000))
+IWDG_KR = 0xAAAA;   // reload the watchdog counter — call periodically</code></pre>
+</section>
+
+<section class="lecture" id="rtc">
+  <h2>HAL: Real-Time Clock</h2>
+  <pre><code>RTC_TimeTypeDef sTime = {0};
+RTC_DateTypeDef sDate = {0};
+
+// Set:
+HAL_RTC_SetTime(&amp;hrtc, &amp;sTime, RTC_FORMAT_BIN);
+HAL_RTC_SetDate(&amp;hrtc, &amp;sDate, RTC_FORMAT_BIN);
+
+// Read:
+HAL_RTC_GetTime(&amp;hrtc, &amp;sTime, RTC_FORMAT_BIN);
+HAL_RTC_GetDate(&amp;hrtc, &amp;sDate, RTC_FORMAT_BIN);</code></pre>
+  <p>Like the timer input-capture callback, the alarm has its own weak callback template (in <code>stm32f4xx_hal_rtc.c</code>) to copy into <code>main.c</code> and override:</p>
+  <pre><code>void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) {
+    HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);   // e.g. turn an LED on when the alarm fires
+}</code></pre>
+</section>
+
+<footer class="pagefoot">
+  <span>CS245 — Computer Systems 245</span>
+  <span><a href="../theory/week5.html">See the Theory notes for Week 5 →</a></span>
+</footer>
+
+</div>
+</body>
+</html>

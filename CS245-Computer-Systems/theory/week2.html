@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="page">
+
+<div class="topnav">
+  <a href="../../index.html#cs245">CS245 Notes</a>
+  <span class="sep">/</span>
+  <span class="current">Theory</span>
+  <a href="../programming/week2.html">Programming</a>
+  <a href="../../index.html#cs245/papers">Papers</a>
+  <span class="sep">|</span>
+  <a href="week1.html">W1</a>
+  <span class="current">W2</span>
+  <a href="week3.html">W3</a>
+  <a href="week4.html">W4</a>
+  <a href="week5.html">W5</a>
+</div>
+
+<header class="hero">
+  <span class="kicker theory">Theory</span>
+  <h1 class="title">Week 2 — Development Board &amp; Memory Architecture</h1>
+  <p class="subtitle">CS245 · Lectures 4–6 · Board hardware, physical memory technologies, memory map</p>
+</header>
+
+<nav class="toc">
+  <span class="toc-label">Contents</span>
+  <ol>
+    <li><a href="#l4">Lecture 4 — STM32F4DISCOVERY Board</a></li>
+    <li><a href="#l5">Lecture 5 — Physical Memory Technologies</a></li>
+    <li><a href="#l5b">Lecture 5 — C Memory Segments &amp; Layout</a></li>
+    <li><a href="#l6">Lecture 6 — The Stack (Concept)</a></li>
+  </ol>
+</nav>
+
+<section class="lecture" id="l4">
+  <h2>Lecture 4 — STM32F4DISCOVERY Board</h2>
+  <ul>
+    <li><strong>Target microcontroller:</strong> STM32F407VGT6 (LQFP100 package), manufactured by ST Microelectronics.</li>
+    <li><strong>Core:</strong> ARM 32-bit Cortex-M4 with a hardware single-precision FPU, running up to 168 MHz.</li>
+    <li><strong>On-chip memory:</strong> 1 MB Flash (program memory), 192 KB SRAM (data memory).</li>
+    <li><strong>On-board peripherals:</strong>
+      <ul>
+        <li>Embedded ST-LINK/V2-A debugger/programmer via Mini-USB (the CN3 jumpers must remain fitted for on-board MCU programming — do not remove them).</li>
+        <li>3-axis digital MEMS accelerometer (LIS302DL).</li>
+        <li>Omnidirectional digital MEMS microphone (MP45DT02).</li>
+        <li>Audio DAC with integrated Class-D speaker driver (CS43L22).</li>
+        <li>Push-buttons: B1 (blue, User button on <code>PA0</code>), B2 (black, Reset on <code>NRST</code>).</li>
+        <li>Eight LEDs: LD1 (USB comms), LD2 (3.3 V power), LD3 (orange, <code>PD13</code>), LD4 (green, <code>PD12</code>), LD5 (red, <code>PD14</code>), LD6 (blue, <code>PD15</code>), LD7 (V<sub>BUS</sub>, green), LD8 (over-current, red).</li>
+        <li>Dual 50-pin extension headers exposing all 100 LQFP I/O lines, for prototyping and probing.</li>
+        <li>Flexible power supply: via ST-LINK USB, a second USB port, or an external source (3 V / 5 V application supply options).</li>
+      </ul>
+    </li>
+  </ul>
+  <p>Programming happens over USB: the binary program is placed into Flash memory, and the processor begins executing instructions from address <code>0x0000 0000</code> (aliased to the start of Flash, <code>0x0800 0000</code>).</p>
+</section>
+
+<section class="lecture" id="l5">
+  <h2>Lecture 5 — Physical Memory Technologies</h2>
+
+  <h3>RAM vs. ROM</h3>
+  <ul>
+    <li><strong>RAM (Random Access Memory):</strong> read/written a byte at a time at roughly equal speed; used for program data (variables); <strong>volatile</strong> — loses its contents when power is removed.</li>
+    <li><strong>ROM (Read Only Memory):</strong> read-only from the program's point of view (reprogramming requires a higher supply voltage or a special procedure); used for program instructions; <strong>non-volatile</strong> — retains data indefinitely without power.</li>
+  </ul>
+
+  <h3>SRAM vs. DRAM</h3>
+  <ul>
+    <li><strong>SRAM (Static RAM):</strong> stores each bit on a pair of cross-coupled inverters — a bistable flip-flop. "Static" because it needs no refreshing. Fast, low latency, but uses more transistors per bit (6T), so it is lower density than DRAM. Used for embedded MCU internal RAM and CPU caches.</li>
+    <li><strong>DRAM (Dynamic RAM):</strong> stores a bit as charge on a capacitor (1 transistor + 1 capacitor per cell). Reading destroys the stored value, so it must be rewritten after every read; the charge also leaks away over time, so the whole array must be refreshed every few milliseconds. Higher density, lower cost — used for "bulk" system memory in PCs.</li>
+  </ul>
+
+  <h3>Historic core memory</h3>
+  <p>Magnetic-core memory used 32 × 32 planar grids of tiny ferrite rings threaded with write/sense wires. Because the cores retain their magnetic state without power, core memory is non-volatile.</p>
+
+  <h3>ROM family: PROM, EPROM, EEPROM, Flash</h3>
+  <ul>
+    <li><strong>Mask ROM:</strong> contents fixed during chip manufacture — presence or absence of a transistor per bit cell.</li>
+    <li><strong>PROM (Programmable ROM):</strong> a transistor is placed in every cell, connected to ground through a fuse; programming blows selected fuses. One-time programmable, since a blown fuse cannot be repaired.</li>
+    <li><strong>EPROM (Erasable PROM):</strong> replaces the fuse with a floating-gate transistor whose gate is not physically wired to anything. A sufficiently high voltage tunnels electrons onto the floating gate, turning the transistor on. Erased only by exposing the die to intense ultraviolet light through a quartz window.</li>
+    <li><strong>EEPROM (Electrically Erasable PROM):</strong> erased and written electrically, at byte or word granularity, using on-chip charge pumps to generate the higher programming voltage — no UV light needed. Higher endurance, but slower write speeds than Flash.</li>
+    <li><strong>Flash memory:</strong> erased in large blocks or sectors at once (erasing resets all bits to <code>1</code>); write-erase cycles are otherwise similar to EEPROM.
+      <table>
+        <thead><tr><th></th><th>NAND Flash</th><th>NOR Flash</th></tr></thead>
+        <tbody>
+          <tr><td>Density / cost</td><td>High density, low cost per bit</td><td>Lower density, higher cost per bit</td></tr>
+          <tr><td>Access</td><td>Serial block access via a complex I/O interface</td><td>Random byte-level access — enough address pins to map the whole chip (like SRAM)</td></tr>
+          <tr><td>Use case</td><td>Frequent writes — SD cards, USB drives</td><td>Infrequent writes, fast random access — program memory / boot code; supports execute-in-place (XIP)</td></tr>
+        </tbody>
+      </table>
+    </li>
+  </ul>
+  <div class="note-box"><span class="label">Programmer's summary</span>A memory cell always stores one bit, whose physical form depends on the technology: SRAM → flip-flop state, DRAM → capacitor charge, Flash → floating-gate transistor charge. Bits are grouped into bytes; computer memory is organised, addressed, and sized in bytes. The system bus lets the CPU access memory (and memory-mapped peripherals) directly; some memory (hard disks, SD cards) is not directly CPU-addressable at all.</div>
+</section>
+
+<section class="lecture" id="l5b">
+  <h2>Lecture 5 — C Memory Segments &amp; Layout</h2>
+  <p>In the embedded ARM system used in this module, memory is split across Flash (non-volatile, base <code>0x0800 0000</code>, aliased to <code>0x0000 0000</code>) and SRAM (volatile, base <code>0x2000 0000</code>). Program (instruction) memory is normally only read, never written to at run time; data memory is altered by the running program and holds variables.</p>
+
+  <table>
+    <caption>Memory map — from the top of SRAM down to the start of Flash</caption>
+    <thead><tr><th>Region</th><th>Location</th><th>Contents</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>STACK</strong></td><td>Top of RAM (<code>0x2003 0000</code> on this board)</td><td>Local variables, saved registers, LR, interrupt stack frames</td><td>Grows <strong>downward</strong></td></tr>
+      <tr><td><em>(free memory)</em></td><td>—</td><td>Unused space between heap and stack</td><td>Stack and heap grow toward each other</td></tr>
+      <tr><td><strong>HEAP</strong></td><td>—</td><td>Dynamic allocation (<code>malloc</code>/<code>free</code>)</td><td>Grows <strong>upward</strong></td></tr>
+      <tr><td><strong>BSS</strong></td><td>—</td><td>Uninitialised global/static variables</td><td>Zeroed by startup code at boot</td></tr>
+      <tr><td><strong>DATA</strong></td><td>Ends at base of SRAM (<code>0x2000 0000</code>)</td><td>Initialised global/static variables (RAM copy)</td><td>Copied from Flash at startup</td></tr>
+      <tr><td>DATA init image (LMA)</td><td>In Flash</td><td>Load-time copy of the DATA segment</td><td>Source for the startup copy into RAM</td></tr>
+      <tr><td><strong>RODATA</strong></td><td>In Flash</td><td>Read-only constants, string literals</td><td></td></tr>
+      <tr><td><strong>TEXT</strong></td><td>In Flash</td><td>Executable machine instructions</td><td></td></tr>
+      <tr><td>Vector table</td><td><code>0x0800 0000</code> / <code>0x0000 0000</code></td><td>Startup/exception handler addresses</td><td>Lowest address, start of Flash</td></tr>
+    </tbody>
+  </table>
+
+  <figure class="diagram">
+    <div class="diagram-svg">
+      <svg viewBox="0 0 470 610" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Memory map: SRAM region containing stack, free space, heap, bss and data, above the Flash region containing the data load image, rodata, text and vector table">
+        <defs>
+          <marker id="arrowdown" viewBox="0 0 10 10" refX="5" refY="8" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,0 L5,10 z" fill="currentColor"/>
+          </marker>
+          <marker id="arrowup" viewBox="0 0 10 10" refX="5" refY="2" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,10 L10,10 L5,0 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <!-- high/low address indicator -->
+        <g font-family="Helvetica Neue, Arial, sans-serif" font-size="11" opacity="0.7">
+          <text x="8" y="28">High</text>
+          <text x="8" y="588">Low</text>
+        </g>
+        <line x1="14" y1="36" x2="14" y2="575" stroke="currentColor" stroke-width="1" marker-end="url(#arrowdown)" opacity="0.5"/>
+
+        <!-- SRAM heading -->
+        <text x="190" y="18" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700" opacity="0.8">SRAM — volatile</text>
+
+        <!-- STACK -->
+        <rect x="40" y="25" width="300" height="90" rx="4" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+        <text x="190" y="55" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">STACK</text>
+        <text x="190" y="105" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.75">local vars · saved regs · LR</text>
+        <line x1="290" y1="65" x2="290" y2="100" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowdown)"/>
+        <text x="305" y="88" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.75">grows</text>
+
+        <!-- free -->
+        <rect x="40" y="115" width="300" height="35" rx="4" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
+        <text x="190" y="137" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" opacity="0.7">(free — stack &amp; heap grow toward each other)</text>
+
+        <!-- HEAP -->
+        <rect x="40" y="150" width="300" height="65" rx="4" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+        <text x="190" y="178" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">HEAP</text>
+        <text x="190" y="200" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.75">malloc() / free()</text>
+        <line x1="290" y1="205" x2="290" y2="170" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowup)"/>
+        <text x="305" y="192" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.75">grows</text>
+
+        <!-- BSS -->
+        <rect x="40" y="215" width="300" height="50" rx="4" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+        <text x="190" y="245" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">BSS — uninitialised globals</text>
+
+        <!-- DATA -->
+        <rect x="40" y="265" width="300" height="50" rx="4" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+        <text x="190" y="295" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">DATA — initialised globals</text>
+
+        <!-- address callouts -->
+        <line x1="340" y1="25" x2="352" y2="25" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+        <text x="356" y="29" font-family="SF Mono, Consolas, Menlo, monospace" font-size="11">0x2003 0000</text>
+        <line x1="340" y1="315" x2="352" y2="315" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+        <text x="356" y="319" font-family="SF Mono, Consolas, Menlo, monospace" font-size="11">0x2000 0000</text>
+
+        <!-- FLASH heading -->
+        <text x="190" y="358" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700" opacity="0.8">FLASH — non-volatile</text>
+
+        <!-- DATA init image (LMA) -->
+        <rect x="40" y="367" width="300" height="44" rx="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="190" y="394" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">DATA init image (LMA)</text>
+
+        <!-- RODATA -->
+        <rect x="40" y="416" width="300" height="44" rx="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="190" y="443" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">RODATA — constants</text>
+
+        <!-- TEXT -->
+        <rect x="40" y="465" width="300" height="60" rx="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="190" y="500" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">TEXT — machine instructions</text>
+
+        <!-- Vector table -->
+        <rect x="40" y="530" width="300" height="44" rx="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="190" y="557" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">Vector Table</text>
+
+        <line x1="340" y1="574" x2="352" y2="574" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+        <text x="356" y="578" font-family="SF Mono, Consolas, Menlo, monospace" font-size="11">0x0000 0000 /</text>
+        <text x="356" y="592" font-family="SF Mono, Consolas, Menlo, monospace" font-size="11">0x0800 0000</text>
+      </svg>
+    </div>
+    <figcaption class="diagram-caption">Memory map from the top of SRAM down to the start of Flash (not to address-scale) — hover or focus a region for detail</figcaption>
+  </figure>
+
+  <p>How does code end up in the <code>0x0000 0000</code>–<code>0x1FFF FFFF</code> range and data end up at <code>0x2000 0000</code> onward? The <strong>linker</strong> combines all object files into the executable and places each section at the address the linker script specifies; the debugger/programmer then copies the resulting binary image into non-volatile Flash memory. See the Programming notes for this week for the linker-script mechanics.</p>
+</section>
+
+<section class="lecture" id="l6">
+  <h2>Lecture 6 — The Stack (Concept)</h2>
+  <ul>
+    <li>The <strong>stack</strong> is a region of volatile memory (RAM) used to pass parameters and save state across function calls and interrupts, managed by the <strong>Stack Pointer (SP)</strong> register.</li>
+    <li>It is a <strong>last-in-first-out (LIFO)</strong> structure — like a stack of dishes, the most recently added item is the first one removed. The "top of stack" is the most recently allocated location.</li>
+    <li>ARM Cortex-M uses a <strong>Full Descending (FD)</strong> stack:
+      <ul>
+        <li><strong>Full:</strong> SP points at the last occupied address (not the next free slot).</li>
+        <li><strong>Descending:</strong> the stack grows from high addresses toward low addresses as items are pushed.</li>
+      </ul>
+    </li>
+    <li>What ends up on the stack: function arguments that don't fit in R0–R3; the callee-saved registers R4–R8, R10, R11 (and SP) if a function needs to reuse them as scratch space; local variables that don't fit in available registers; and the processor state (e.g. LR) that must be preserved across a nested function call or interrupt.</li>
+  </ul>
+  <p>The exact push/pop mechanics and the ARM instructions that manipulate the stack (<code>PUSH</code>/<code>POP</code>, <code>STM</code>/<code>LDM</code>, and the AAPCS calling convention) are covered in this week's Programming notes, since they are primarily assembly-programming knowledge.</p>
+</section>
+
+<footer class="pagefoot">
+  <span>CS245 — Computer Systems 245</span>
+  <span><a href="../programming/week2.html">See the Programming notes for Week 2 →</a></span>
+</footer>
+
+</div>
+</body>
+</html>

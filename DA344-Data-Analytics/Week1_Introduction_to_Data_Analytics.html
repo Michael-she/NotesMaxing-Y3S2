@@ -1,0 +1,849 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DA344 — Week 1: Introduction to Data Analytics</title>
+<style>
+/* ============================================================
+   DA344 Notes — shared stylesheet. DO NOT EDIT PER-WEEK.
+   Copy this whole <style> block verbatim into each week file.
+   ============================================================ */
+:root{
+  --bg:#12151a; --ink:#e6e9ed; --muted:#9aa5b1; --rule:#2c3238; --soft:#1a1e24;
+  --accent:#7bb0e8; --accent-soft:#182634;
+  --warn:#e3b565; --warn-soft:#2b2211;
+  --ok:#7fd1a3; --ok-soft:#123023;
+  --maxw:52rem;
+}
+*{box-sizing:border-box}
+html{font-size:16px}
+body{
+  margin:0 auto; padding:2.5rem 1.5rem 5rem; max-width:var(--maxw);
+  font-family:"Charter","Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
+  color:var(--ink); background:var(--bg); line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+/* ---- headings ---- */
+h1,h2,h3{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;line-height:1.25;color:var(--ink)}
+h1{font-size:2.1rem;font-weight:700;margin:0 0 .3rem;letter-spacing:-.02em}
+.subtitle{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;color:var(--muted);font-size:1.05rem;margin:0 0 2rem}
+h2{font-size:1.45rem;font-weight:650;margin:3rem 0 .9rem;padding-bottom:.35rem;border-bottom:2px solid var(--accent)}
+h3{font-size:1.13rem;font-weight:650;margin:2rem 0 .6rem;color:var(--accent)}
+p{margin:0 0 1rem}
+ul,ol{margin:0 0 1rem;padding-left:1.4rem}
+li{margin:.3rem 0}
+strong{font-weight:650}
+a{color:var(--accent)}
+
+/* ---- document header block ---- */
+.docmeta{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 .6rem}
+
+/* ---- boxes ---- */
+.box{border:1px solid var(--rule);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;background:var(--soft);page-break-inside:avoid}
+.box>:first-child{margin-top:0}
+.box>:last-child{margin-bottom:0}
+.box .label{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
+.def{background:var(--accent-soft);border-color:#2c4a6e}
+.def .label{color:var(--accent)}
+.watch{background:var(--warn-soft);border-color:#4a3b1a}
+.watch .label{color:var(--warn)}
+.exam{background:var(--ok-soft);border-color:#2f5940}
+.exam .label{color:var(--ok)}
+.intuition{background:var(--bg);border-style:dashed}
+
+/* ---- summary sheet (tier 1) ---- */
+.summary{border:2px solid var(--accent);border-radius:8px;padding:1.4rem 1.6rem;margin:0 0 2.5rem;page-break-after:always}
+.summary h2{margin-top:0;border:none;padding:0;font-size:1.2rem}
+.summary h3{margin:1.2rem 0 .4rem;font-size:.95rem}
+.summary ul{margin-bottom:.6rem}
+.summary li{margin:.15rem 0;font-size:.94rem}
+
+/* ---- tables ---- */
+table{border-collapse:collapse;width:100%;margin:1.2rem 0;font-size:.92rem;page-break-inside:avoid}
+caption{caption-side:bottom;font-size:.82rem;color:var(--muted);text-align:left;padding-top:.5rem}
+th,td{border:1px solid var(--rule);padding:.45rem .6rem;text-align:left;vertical-align:top}
+th{background:var(--soft);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-weight:650;font-size:.86rem}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+
+/* ---- maths ---- */
+.eq{margin:1.2rem 0;text-align:center;font-size:1.02rem;page-break-inside:avoid}
+.eq .eqbody{display:inline-block;padding:.2rem .6rem}
+var{font-style:italic;font-family:Cambria,Georgia,serif}
+.frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .25em}
+.frac .top{display:block;border-bottom:1px solid currentColor;padding:0 .35em}
+.frac .bot{display:block;padding:0 .35em}
+sub,sup{font-size:.72em;line-height:0}
+
+/* ---- figures / SVG diagrams ---- */
+figure{margin:1.8rem 0;text-align:center;page-break-inside:avoid}
+figure svg{max-width:100%;height:auto;background:#eef1f6;border-radius:10px;padding:10px;box-sizing:border-box;border:1px solid #d9dee5}
+figcaption{font-size:.85rem;color:var(--muted);text-align:left;margin-top:.6rem;padding-top:.4rem;border-top:1px solid var(--rule)}
+figcaption b{color:var(--ink)}
+
+/* ---- reading refs ---- */
+.reading{font-size:.9rem;background:var(--bg);border-left:3px solid var(--accent);padding:.15rem 0 .15rem 1rem;margin:1.2rem 0;color:var(--muted)}
+.reading b{color:var(--ink);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
+
+/* ---- worked solutions ---- */
+
+hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
+
+
+/* ---- week navigation ---- */
+.weeknav{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .9rem;
+  font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:.85rem;
+  margin:0 0 2rem;padding:.7rem 1rem;background:var(--soft);
+  border:1px solid var(--rule);border-radius:8px}
+.weeknav a{color:var(--accent);text-decoration:none}
+.weeknav a:hover{text-decoration:underline}
+.weeknav .sep{color:var(--muted)}
+.weeknav .cur{color:var(--muted);margin-left:auto;font-weight:650}
+
+/* ---- print / PDF ---- */
+@page{size:A4;margin:18mm 16mm}
+@media print{
+
+  /* force a light, ink-friendly palette for printed/PDF output regardless of on-screen dark mode */
+  :root{
+    --bg:#fff; --ink:#1a1a1a; --muted:#555; --rule:#d8d8d8; --soft:#f6f7f9;
+    --accent:#1d4e89; --accent-soft:#e8eef6;
+    --warn:#8a5a00; --warn-soft:#fdf4e3;
+    --ok:#1f6b45; --ok-soft:#e8f4ee;
+  }
+  .def{border-color:#bccfe4}
+  .watch{border-color:#e6d3a8}
+  .exam{border-color:#bfdfcd}
+  .weeknav{display:none}
+
+  html{font-size:10.5pt}
+  body{max-width:none;padding:0}
+  h2{page-break-after:avoid}
+  h3{page-break-after:avoid}
+  .box,figure,table,.eq,.summary{page-break-inside:avoid}
+  a{color:var(--ink);text-decoration:none}
+}
+</style>
+</head>
+<body>
+
+<p class="docmeta">Data Analytics 344 &middot; 2026</p>
+<h1>Week 1 — Introduction to Data Analytics</h1>
+<p class="subtitle">Topics 1 &amp; 2: what data analytics is, how machine-learning problems are recognised and formulated, how data is structured for prediction (analytics base table), and how models are developed and evaluated within CRISP-DM.</p>
+
+<nav class="weeknav">
+  <a href="../index.html#da344">&larr; Course Notes</a>
+  <span class="sep">&middot;</span><a href="Week2_Data_Exploration.html">Week 2: Data Exploration &rarr;</a>
+  <span class="cur">Week 1 of 6</span>
+</nav>
+
+<!-- ===== TIER 1: ONE-PAGE SUMMARY SHEET ===== -->
+<section class="summary">
+  <h2>Week 1 at a glance</h2>
+
+  <h3>Core ideas</h3>
+  <ul>
+    <li>Data analytics transforms raw data into insights and knowledge that support engineering and business decisions.</li>
+    <li>Machine learning learns the rules/logic from historical data instead of having them hand-coded; it is the engine of predictive analytics.</li>
+    <li>Three learning paradigms: <b>supervised</b> (target known), <b>unsupervised</b> (no target), <b>reinforcement</b> (learn by rewards). Supervised tasks split into <b>classification</b> (discrete target) and <b>regression</b> (continuous target).</li>
+    <li>A real-world problem becomes an analytics problem by fixing: the decision/process supported, the objective, the prediction subject, the required model output, and how the output is used — then checking feasibility (data available, available at prediction time, organisation can act).</li>
+    <li>Domain concept diagrams turn an analytics solution into candidate descriptive and target features; features are screened for <b>availability, timing, longevity</b>.</li>
+    <li>The analytics base table (ABT): one row = one prediction subject; descriptive feature columns + one target feature column.</li>
+    <li>CRISP-DM has six phases (business understanding, data understanding, data preparation, modelling, evaluation, deployment) and is <b>iterative</b>.</li>
+    <li>A model must <b>generalise</b>: training data develops it, validation data selects it, test data gives the final unbiased estimate of deployment performance. Training performance alone proves nothing.</li>
+  </ul>
+
+  <h3>Key definitions</h3>
+  <ul>
+    <li><b>Data</b> — raw, unprocessed facts and measurements. <b>Information</b> — data processed into a meaningful form. <b>Knowledge</b> — information understood well enough to guide decisions and action.</li>
+    <li><b>Data analytics</b> — extracting useful insights from raw data using an explorative/data-driven approach; related to data mining (discovering valuable information in small and very large databases).</li>
+    <li><b>Machine learning</b> — a subfield of AI that gives computers the ability to learn without being explicitly programmed (Samuel, 1959).</li>
+    <li><b>Generalisation</b> — performing well on both seen (training) and unseen instances.</li>
+    <li><b>Underfitting</b> — model too simple to capture the true relationship (high bias). <b>Overfitting</b> — model fits training data too closely, becomes sensitive to noise (high variance).</li>
+    <li><b>Feature</b> — a measurable property of the prediction subject (also: attribute, field, variable). <b>Instance</b> — one row/subject (also: example, record, observation).</li>
+  </ul>
+
+  <h3>Formulas</h3>
+  <ul>
+    <li>Accuracy = (TP + TN) / (TP + FP + FN + TN); &nbsp;Precision = TP / (TP + FP); &nbsp;Recall = TP / (TP + FN)</li>
+    <li>F1 = 2 &times; (Precision &times; Recall) / (Precision + Recall) — harmonic mean, 0 to 1.</li>
+    <li>SSE = &Sigma;(t<sub>i</sub> &minus; M(d<sub>i</sub>))&sup2;; &nbsp;MSE = SSE / n; &nbsp;RMSE = &radic;MSE (same units as target).</li>
+    <li>R&sup2; = 1 &minus; SSE/SST, where SST = &Sigma;(t<sub>i</sub> &minus; t&#772;)&sup2; (total sum of squares about the mean). R&sup2; = 0: explains no variance; R&sup2; = 1: explains all.</li>
+  </ul>
+
+  <h3>Exam traps</h3>
+  <ul>
+    <li>High accuracy on imbalanced data is misleading — compare against the &ldquo;predict the majority class&rdquo; baseline; check precision/recall.</li>
+    <li>Positive class = the business-important outcome (e.g. defective, fraud). FP/FN labels depend on it.</li>
+    <li>The confusion matrix only reflects <em>one</em> classification threshold (usually 0.5) applied to the model&rsquo;s prediction score — the ROC curve shows performance across <em>all</em> thresholds.</li>
+    <li>Residual = actual &minus; predicted. Negative residual &rarr; model overestimated.</li>
+    <li>Never select models using the test set — that makes the test estimate optimistic; selection uses the validation set.</li>
+    <li>100% training accuracy can mean memorisation (overfitting), not a good model.</li>
+    <li>A feature recorded historically can still be invalid if it is not available <em>at prediction time</em> (timing) or will change/become stale (longevity).</li>
+    <li>One row of the ABT = one prediction subject — not one measurement, day or transaction unless that is the subject.</li>
+  </ul>
+
+  <h3>Prescribed reading</h3>
+  <ul>
+    <li>Kelleher et al. (2e): Chapter 1 &sect;1.1&ndash;1.3, 1.5&ndash;1.6; Chapter 2 &sect;2.1&ndash;2.3; Chapter 9 &sect;9.1&ndash;9.3, 9.4.1.1, 9.4.2, 9.4.5.</li>
+    <li>Further (optional): Kelleher Ch 1 &sect;1.4 and the remaining sections of Ch 2 (full case-study treatment).</li>
+  </ul>
+</section>
+
+<!-- ===== TIER 2: FULL NOTES ===== -->
+
+<h2>1. Data analytics: from data to decisions</h2>
+
+<p>Organisations in almost every industry are now data-capturing: sensors, transactions, images, documents and logs are collected continuously. On its own this data is an untapped asset. <strong>Data analytics</strong> is what turns it into value — improved revenue, reduced costs, business agility, better customer experience, and new or improved products — by revealing meaningful information that supports better decision-making. The lectures open with examples where tiny data-driven edges decide outcomes (the Olympic crouching start, <em>Moneyball</em>&rsquo;s Oakland A&rsquo;s recruitment, Formula&nbsp;1 cars streaming over a million data points per second from ~300 sensors).</p>
+
+<div class="box def"><span class="label">Definition — data analytics</span>
+<p>Data analytics refers to (i) the process of extracting useful insights from raw data, (ii) using an explorative or data-driven approach, (iii) that shares similarities with <strong>data mining</strong> — the process of discovering valuable information from small and very large databases using algorithms that discover hidden patterns in the data.</p>
+</div>
+
+<h3>1.1 Data, information, knowledge</h3>
+<p>Analytics is often described as a chain that adds meaning at each step:</p>
+<ul>
+  <li><strong>Data</strong> — raw, unorganised facts and measurements (numbers, text, signals, images) with no meaning attached, e.g. a stream of sensor readings or a log of order records.</li>
+  <li><strong>Information</strong> — data that has been processed, organised or structured so that it becomes meaningful and useful, e.g. completion times summarised per component type.</li>
+  <li><strong>Knowledge</strong> — information that has been understood and internalised well enough to guide decisions and action, e.g. knowing which design characteristics drive long completion times, and using that to promise realistic delivery dates.</li>
+</ul>
+<p>The lecture&rsquo;s input&ndash;process&ndash;output picture is the same idea: inputs (data) go through the analytics process and come out as outputs (insights/knowledge) that improve a decision — in their analogy, turning a high-school student into an engineer by improving the pass rate.</p>
+
+<div class="box intuition"><span class="label">Intuition</span>
+<p>Data answers &ldquo;what was recorded?&rdquo;, information answers &ldquo;what does it mean?&rdquo;, and knowledge answers &ldquo;what should we do about it?&rdquo;. Predictive analytics pushes one step further: it uses knowledge learned from the past to predict the future before data about it exists.</p>
+</div>
+
+<h3>1.2 Data modalities and analytics families</h3>
+<p>Data comes in several common <strong>modalities</strong>, and each has a corresponding family of analytics. The module framework lists these explicitly for Topic&nbsp;1:</p>
+
+<table>
+  <tr><th>Data modality</th><th>Analytics family</th><th>Typical question</th></tr>
+  <tr><td>Structured (tabular) data</td><td>Visual analytics / exploratory analytics</td><td>What patterns, trends and outliers do the records show?</td></tr>
+  <tr><td>Text</td><td>Text analytics</td><td>What topics or sentiment appear in documents?</td></tr>
+  <tr><td>Images</td><td>Image analytics</td><td>Is this manufactured component defective?</td></tr>
+  <tr><td>Audio</td><td>Audio analytics</td><td>Does this machine sound abnormal?</td></tr>
+  <tr><td>Time series</td><td>Time-series analytics</td><td>What will demand/energy consumption be next month?</td></tr>
+</table>
+<caption>Common data modalities and the analytics families that process them.</caption>
+
+<p><strong>Big data</strong> refers to data sets whose volume, speed of arrival, and variety exceed what traditional tools can store and process easily; extracting value from them requires scalable, algorithmic approaches (this is why dimensionality reduction, for instance, is used for big-data visualisation and compression).</p>
+
+<p><strong>Predictive analytics</strong> is the branch of analytics that builds models of the past in order to predict future or unknown outcomes. Its core tool is <strong>machine learning</strong>, covered next. Sample business cases from the lectures: predicting when a component will fail (remaining useful life), detecting anomalies in engineering systems, forecasting building energy consumption, and improving autonomous-vehicle navigation.</p>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;1 &sect;1.1&ndash;1.3 — introduces predictive data analytics, the data-science context and the core concepts used throughout the book.</p>
+
+<h2>2. Machine learning and the three learning paradigms</h2>
+
+<div class="box def"><span class="label">Definition — machine learning</span>
+<p>&ldquo;Machine learning is the field of study that gives computers the ability to learn without being explicitly programmed&rdquo; (Arthur Samuel, 1959). It is a subfield of artificial intelligence in which models <em>learn or self-discover</em> the business logic or rules from historic data, rather than having the rules hand-coded by a domain expert.</p>
+</div>
+
+<p><strong>Classical vs machine-learning programming.</strong> In classical programming, domain knowledge is written as explicit rules (e.g. the ABCD melanoma test becomes a chain of IF&ndash;THEN statements). In machine learning, the algorithm is instead shown labelled examples (e.g. images of malignant and benign lesions) and discovers its own decision rules from them. Tom Mitchell&rsquo;s 1998 formulation makes &ldquo;learning&rdquo; precise: <em>a computer program learns from experience E with respect to some task T and performance measure P if its performance on T, as measured by P, improves with experience E</em> — for example, a spam filter (T: classify email; P: fraction correctly classified; E: the labelled training emails) or an energy-output predictor whose parameters are updated to minimise the summed squared error between predicted and actual output.</p>
+
+<h3>2.1 The three paradigms</h3>
+
+<table>
+  <tr><th></th><th>Supervised learning</th><th>Unsupervised learning</th><th>Reinforcement learning</th></tr>
+  <tr>
+    <th>What is it?</th>
+    <td>An algorithm uses training data (with human-assigned labels) to learn the relationship between a set of <em>descriptive features</em> and a <em>target feature</em>.</td>
+    <td>An algorithm explores data described by descriptive features <em>without</em> an explicit target, inferring structure (e.g. clusters of similar customers).</td>
+    <td>An algorithm learns to perform a task by taking actions in an environment and maximising the rewards it receives.</td>
+  </tr>
+  <tr>
+    <th>When to use?</th>
+    <td>You know how the inputs should be labelled and what behaviour to predict, but need the algorithm to compute it for new data.</td>
+    <td>You do not know how to classify the data and want the algorithm to find underlying patterns.</td>
+    <td>Little labelled training data; no clearly defined ideal end state, but an environment to learn from.</td>
+  </tr>
+  <tr>
+    <th>How it works</th>
+    <td>1. Collect and label sample data. 2. Train a model on the descriptive&ndash;target relationship. 3. Apply the model to new data once accurate enough.</td>
+    <td>1. Receive unlabelled data. 2. Infer structure. 3. Identify groups with similar behaviour (e.g. buying behaviour).</td>
+    <td>1. Take an action. 2. Receive a reward if it moves toward maximising total reward. 3. Correct itself over time to optimise the sequence of actions.</td>
+  </tr>
+  <tr>
+    <th>Examples</th>
+    <td>Defect detection, spam filtering, medical diagnosis, price/stock forecasting.</td>
+    <td>Market segmentation, recommendation systems, big-data visualisation, data compression (clustering; dimensionality reduction).</td>
+    <td>Robot navigation, autonomous vehicles, automated stock trading.</td>
+  </tr>
+</table>
+<caption>The three machine-learning paradigms as presented in the Week&nbsp;1 lectures.</caption>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>Reinforcement learning is <em>not</em> supervised learning with delayed labels: there is no target feature, only a reward signal that evaluates actions. If a question describes an agent making sequential decisions in an environment (e.g. routing parts between machines to minimise waiting times, where each decision affects later parts), the answer is reinforcement learning.</p>
+</div>
+
+<h3>2.2 Classification vs regression (supervised sub-tasks)</h3>
+<ul>
+  <li><strong>Classification</strong>: the target feature is <em>discrete</em> (a category or class). The model learns a function that separates the classes. Examples: spam or not spam; account hacked or not; component defective or non-defective.</li>
+  <li><strong>Regression</strong>: the target feature is <em>continuous</em> (a quantity). The model learns a function mapping inputs to a number. Examples: predicting a house&rsquo;s selling price from its size; the number of shares traded tomorrow; completion time of an order in working days.</li>
+</ul>
+
+<div class="box intuition"><span class="label">Intuition — deciding the task type</span>
+<p>Ask one question: <em>what exactly must the model output?</em> A label/category &rarr; classification. A number you can meaningfully add, average or be &ldquo;off by 2.3&rdquo; on &rarr; regression. The input modality (image, text, table) does not decide this — an image-based defect check is still classification.</p>
+</div>
+
+<h3>2.3 How supervised learning is framed formally</h3>
+<p>Given training examples consisting of descriptive-feature vectors <var>d</var>[<var>i</var>] with target values <var>t</var>[<var>i</var>], produced by some unknown function <var>M</var>&nbsp;:&nbsp;<var>d</var>&nbsp;&rarr;&nbsp;<var>t</var>, the goal is to <strong>find a good approximation to <var>M</var></strong>. Machine learning does this by searching a space of candidate models (equations, rule sets, lookup tables, or combinations) for the one that best captures the descriptive&ndash;target relationship. Later topics in DA344 are different ways of running that search: rule-based learning (if-else trees), similarity-based learning (predict the target of the most similar known instance), error-based learning (adjust parameters to minimise error), and ensemble learning (combine models).</p>
+
+<p>Two important consequences of this framing:</p>
+<ul>
+  <li><strong>Consistency is not unique.</strong> A model is <em>consistent</em> with a data set if it predicts every training instance correctly. With 4 binary features there are 2<sup>4</sup> = 16 possible instances and a binary target, so 2<sup>16</sup> = 65&nbsp;536 different prediction functions exist; the 7 training rows reduce these to 512 consistent models. The training data alone cannot pick one — machine learning is an <em>ill-defined problem</em>.</li>
+  <li><strong>Consistency is not learning.</strong> A consistent model can simply memorise the training rows; consistent models then disagree on every unseen instance. Being consistent with training data is therefore <em>not</em> evidence the model will perform well after deployment — we need a different criterion (Section&nbsp;7): performance on unseen data.</li>
+</ul>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;1 &sect;1.1&ndash;1.3 — the concepts of predictive data analytics, learning problems and how predictive models are framed.</p>
+
+<h2>3. From business problem to analytics problem</h2>
+
+<p>Before any data is touched, a real-world engineering or business problem must be translated into a precisely defined analytics problem. The lectures structure this as <strong>three key questions</strong>:</p>
+<ol>
+  <li><strong>What is the business problem and what are the goals the business wants to achieve?</strong></li>
+  <li><strong>How does the business currently work?</strong> (the existing process or decision that would be supported)</li>
+  <li><strong>In what ways could an analytical model address the business problem?</strong> — what type of model will be created, where and when it will be used, and how it helps.</li>
+</ol>
+
+<p>Answering these questions fixes the five elements every well-defined analytics problem must state:</p>
+
+<div class="box def"><span class="label">Definition — the five elements of an analytics problem formulation</span>
+<ul>
+  <li><strong>Decision or process to be supported</strong> — e.g. accepting/rejecting customer orders and promising completion dates.</li>
+  <li><strong>Business or engineering objective</strong> — e.g. give realistic completion promises without disrupting existing production commitments.</li>
+  <li><strong>Subject of the analysis</strong> — the thing each prediction is about, e.g. one customer order (this becomes &ldquo;one row&rdquo; in the analytics base table).</li>
+  <li><strong>Required model output</strong> — a class label, a probability/score, or a numeric prediction, e.g. predicted working days to completion.</li>
+  <li><strong>How the output will be used</strong> — who consumes it and what they do with it, e.g. the production planner sets the promised date and decides whether the order can be accepted.</li>
+</ul>
+</div>
+
+<p><strong>Illustration (motor-insurance fraud, from the lectures).</strong> (1)&nbsp;Problem and goal: despite a fraud team investigating 30% of claims, the insurer still loses money to fraud; investigations cost time and money, and uninvestigated fraud leaks money. (2)&nbsp;Current process: a claim is lodged, validated, and a fraud checklist (risk rating from statement consistency, supporting evidence, previous claim history) decides whether to investigate. (3)&nbsp;Analytics solution: build a model that predicts the likelihood a claim is fraudulent, so the investigation team targets high-risk claims instead of using the checklist.</p>
+
+<h3>3.1 Feasibility check</h3>
+<p>Once the analytic solution is defined, its feasibility must be assessed before proceeding:</p>
+<ul>
+  <li><strong>Are suitable data available?</strong> Developing a data-driven model requires historical data — for fraud, a large collection of past claims with labels (fraudulent / non-fraudulent).</li>
+  <li><strong>Will the data be available at prediction time?</strong> Every input the model needs must exist at the moment a prediction is required (see feature <em>timing</em>, Section&nbsp;4.2).</li>
+  <li><strong>Can the organisation act on the insight?</strong> A model is only useful if the business can use it — for fraud, the model replaces the checklist and directly drives the investigation decision (capacity to action).</li>
+</ul>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>Students often stop at &ldquo;we have data&rdquo;. The feasibility check has three legs: historical data to <em>train</em> on, data available <em>when predicting</em>, and an organisation able to <em>act</em>. A question may give you perfect historical data but reveal the process owner will ignore the model — that solution is not feasible.</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;2 &sect;2.1 — formulating a predictive-analytics problem from a business problem. Further: the remaining sections of Ch&nbsp;2 develop the full case study.</p>
+
+<h2>4. Domain concepts and feature design</h2>
+
+<h3>4.1 Domain concept diagrams</h3>
+<p>Selecting the features for an analytics base table is based on <strong>domain knowledge</strong> and on analysis of relationships between features. The recommended starting point is a <strong>domain concept diagram</strong> — a hierarchy that begins with the analytics solution and branches into high-level abstractions of the prediction subject:</p>
+
+<ul>
+  <li><strong>Analytics solution</strong> (root) &rarr; several <strong>domain concepts</strong> (high-level characteristics of the prediction subject) &rarr; <strong>domain sub-concepts</strong> &rarr; concrete <strong>features</strong>.</li>
+  <li>One branch is special: the <strong>target concept</strong> &rarr; the <strong>target feature</strong> (what the model must predict).</li>
+</ul>
+
+<p>Reading the diagram gives you the candidate features: each leaf under the descriptive domain concepts is a candidate <em>descriptive feature</em>, and the leaf under the target concept is the <em>target feature</em>.</p>
+
+<p><strong>Example 1 (motor-insurance fraud).</strong> Domain concepts include <em>policy details</em> (e.g. age of policy), <em>claim details</em> (incident type, claim amount), <em>claimant history</em> (number of previous claims), <em>claimant links</em> (relationships with other people involved) and <em>claimant demographics</em> (age, gender, occupation); the target concept is the <em>fraud outcome</em>.</p>
+
+<p><strong>Example 2 (study-guide case study: completion time of custom components).</strong> The diagram starts at &ldquo;predict order completion time&rdquo; and splits into (a)&nbsp;concepts about the submitted design and manufacturing requirements — material, dimensions, tolerances, design complexity, required operations, order quantity — and (b)&nbsp;concepts about the factory state when the order is accepted — machine workloads, queued orders, machine and material availability. The target concept is the actual working days to completion. Each concept is plausible because it can lengthen or shorten production (complex parts need more operations; a loaded factory adds queueing time).</p>
+
+<h3>4.2 Raw vs derived features, and feature validity</h3>
+<p><strong>Raw features</strong> are copied directly from the source data (e.g. accident location); <strong>derived features</strong> are constructed from one or more raw sources (e.g. grouping locations into accident &ldquo;zones&rdquo;). When designing features, three data considerations decide whether a feature is usable:</p>
+
+<div class="box def"><span class="label">Definition — availability, timing, longevity</span>
+<ul>
+  <li><strong>Availability</strong> — data must exist to implement the feature. Example: an &ldquo;average balance over the past six months&rdquo; feature is unusable if the company never tracked historical balances.</li>
+  <li><strong>Timing</strong> — the data defining a feature must be available <em>before the target is known</em>, i.e. at prediction time. Example: predicting tomorrow&rsquo;s ice-cream sales cannot use tomorrow&rsquo;s temperature unless that temperature can itself be predicted accurately.</li>
+  <li><strong>Longevity</strong> — data can become stale; the relationship or the source must remain valid over the model&rsquo;s lifetime. Example: using an applicant&rsquo;s salary for loan decisions is risky because salaries change over time.</li>
+</ul>
+</div>
+
+<p>A feature that fails any of these three tests is <strong>invalid at deployment</strong>, even if it looks brilliant on historical data.</p>
+
+<div class="box exam"><span class="label">Worked example — screening candidate features (study guide Q4)</span>
+<p>Prediction: completion time of a custom-component order, generated <em>when the customer submits the order</em>. Screen each candidate feature on availability, timing and longevity:</p>
+<ul>
+  <li><strong>A — Component material (recorded for all previous orders).</strong> Availability: full history &check;. Timing: known at order submission &check;. Longevity: material specifications are stable &check;. <strong>Suitable.</strong></li>
+  <li><strong>B — Number of orders waiting for the required machines.</strong> Availability: current queue information exists but <em>no historical queue records were retained</em> &cross; — there is nothing to train on. <strong>Not suitable</strong> (fails availability for model development).</li>
+  <li><strong>C — Design changes requested after production started.</strong> Availability: recorded historically &check;. Timing: the value only becomes known <em>after</em> production starts, i.e. after the prediction must already have been made &cross;. <strong>Not suitable</strong> (invalid at deployment — timing).</li>
+  <li><strong>D — Estimated processing time from the current scheduling system.</strong> Availability: recorded &check;. Timing: computable at submission &check;. Longevity: the system is being replaced next year and the replacement calculates processing times differently &cross; — the feature&rsquo;s meaning will change and historical values become inconsistent. <strong>Not suitable</strong> (longevity).</li>
+</ul>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;2 &sect;2.1&ndash;2.3 — domain concepts, the analytics base table and feature design considerations.</p>
+
+<h2>5. The analytics base table</h2>
+
+<div class="box def"><span class="label">Definition — analytics base table (ABT)</span>
+<p>The analytics base table is the flat tabular data structure used to represent a predictive-analytics problem. Each <strong>column</strong> is a <em>feature</em> (also called attribute, field or variable); the columns divide into <strong>descriptive features</strong> and a single <strong>target feature</strong>. Each <strong>row</strong> is an <em>instance</em> (also called example, record or observation) containing values for both the descriptive features and the target — one subject for which a prediction can be made. This is the &ldquo;<strong>one-row-per-subject</strong>&rdquo; structure.</p>
+</div>
+
+<p>In the fraud example, each row is one claim (location, time of day, weather, driver licence number, claim amount, &hellip; and the target: fraud yes/no). In the completion-time case study, one row is one customer order, the descriptive features describe the component design and factory state, and the target is the actual working days to complete the order. Note that not every analytics solution has a target feature — unsupervised problems (Section&nbsp;2.1) have only descriptive features.</p>
+
+<figure>
+<svg viewBox="0 0 660 340" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="w1-abt-arr" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1d4e89"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="52" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Descriptive features</text>
+  <path d="M140 60 H540" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="580" y="52" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Target feature</text>
+  <path d="M540 60 H620" stroke="#1d4e89" stroke-width="1.5"/>
+
+  <rect x="80" y="80" width="540" height="182" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+
+  <rect x="80" y="80" width="60" height="32" fill="#e8eef6" stroke="#1a1a1a"/>
+  <rect x="140" y="80" width="80" height="32" fill="#e8eef6" stroke="#1a1a1a"/>
+  <rect x="220" y="80" width="80" height="32" fill="#e8eef6" stroke="#1a1a1a"/>
+  <rect x="300" y="80" width="80" height="32" fill="#e8eef6" stroke="#1a1a1a"/>
+  <rect x="380" y="80" width="80" height="32" fill="#e8eef6" stroke="#1a1a1a"/>
+  <rect x="460" y="80" width="80" height="32" fill="#e8eef6" stroke="#1a1a1a"/>
+  <rect x="540" y="80" width="80" height="32" fill="#1d4e89" stroke="#1a1a1a"/>
+
+  <text x="110" y="100" text-anchor="middle" fill="#1a1a1a" >Order ID</text>
+  <text x="180" y="100" text-anchor="middle" fill="#1a1a1a" >Material</text>
+  <text x="260" y="100" text-anchor="middle" fill="#1a1a1a" >Dimensions</text>
+  <text x="340" y="100" text-anchor="middle" fill="#1a1a1a" >Tolerance</text>
+  <text x="420" y="100" text-anchor="middle" fill="#1a1a1a" >Quantity</text>
+  <text x="500" y="94" text-anchor="middle" fill="#1a1a1a" >Factory</text>
+  <text x="500" y="107" text-anchor="middle" fill="#1a1a1a" >load</text>
+  <text x="580" y="94" text-anchor="middle" fill="#ffffff" >Completion</text>
+  <text x="580" y="107" text-anchor="middle" fill="#ffffff" >time (target)</text>
+
+  <path d="M80 162 H620" stroke="#d8d8d8"/>
+  <path d="M80 212 H620" stroke="#d8d8d8"/>
+  <path d="M140 80 V262" stroke="#d8d8d8"/>
+  <path d="M220 80 V262" stroke="#d8d8d8"/>
+  <path d="M300 80 V262" stroke="#d8d8d8"/>
+  <path d="M380 80 V262" stroke="#d8d8d8"/>
+  <path d="M460 80 V262" stroke="#d8d8d8"/>
+  <path d="M540 80 V262" stroke="#1a1a1a"/>
+
+  <rect x="540" y="112" width="80" height="150" fill="#e8eef6" opacity="0.55"/>
+
+  <text x="110" y="141" text-anchor="middle" fill="#1a1a1a" >O101</text>
+  <text x="180" y="141" text-anchor="middle" fill="#1a1a1a" >Steel</text>
+  <text x="260" y="141" text-anchor="middle" fill="#1a1a1a" >120 mm</text>
+  <text x="340" y="141" text-anchor="middle" fill="#1a1a1a" >&#177;0.1 mm</text>
+  <text x="420" y="141" text-anchor="middle" fill="#1a1a1a" >50</text>
+  <text x="500" y="141" text-anchor="middle" fill="#1a1a1a" >High</text>
+  <text x="580" y="141" text-anchor="middle" fill="#1a1a1a" >10</text>
+
+  <text x="110" y="191" text-anchor="middle" fill="#1a1a1a" >O102</text>
+  <text x="180" y="191" text-anchor="middle" fill="#1a1a1a" >Aluminium</text>
+  <text x="260" y="191" text-anchor="middle" fill="#1a1a1a" >80 mm</text>
+  <text x="340" y="191" text-anchor="middle" fill="#1a1a1a" >&#177;0.5 mm</text>
+  <text x="420" y="191" text-anchor="middle" fill="#1a1a1a" >20</text>
+  <text x="500" y="191" text-anchor="middle" fill="#1a1a1a" >Low</text>
+  <text x="580" y="191" text-anchor="middle" fill="#1a1a1a" >15</text>
+
+  <text x="110" y="241" text-anchor="middle" fill="#1a1a1a" >O103</text>
+  <text x="180" y="241" text-anchor="middle" fill="#1a1a1a" >Titanium</text>
+  <text x="260" y="241" text-anchor="middle" fill="#1a1a1a" >200 mm</text>
+  <text x="340" y="241" text-anchor="middle" fill="#1a1a1a" >&#177;0.05 mm</text>
+  <text x="420" y="241" text-anchor="middle" fill="#1a1a1a" >5</text>
+  <text x="500" y="241" text-anchor="middle" fill="#1a1a1a" >High</text>
+  <text x="580" y="241" text-anchor="middle" fill="#1a1a1a" >20</text>
+
+  <rect x="80" y="162" width="540" height="50" fill="none" stroke="#1d4e89" stroke-width="2"/>
+
+  <text transform="rotate(-90 34 187)" x="34" y="187" text-anchor="middle" fill="#1a1a1a" >One row = one prediction subject</text>
+  <path d="M46 187 H74" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w1-abt-arr)"/>
+
+  <text x="350" y="300" text-anchor="middle" fill="#1a1a1a" >Columns = features: descriptive features (inputs) + one target feature (what the model predicts)</text>
+</svg>
+<figcaption><b>Figure 1.1</b> — Anatomy of an analytics base table for the completion-time case study. Each row is one prediction subject (a customer order); the descriptive-feature columns hold everything known when the prediction must be made, and the single target-feature column holds the value the model must learn to predict.</figcaption>
+</figure>
+
+<p>Organisational data is rarely already in this shape. The ABT is <strong>constructed from multiple sources</strong> — flat files, operational databases, data warehouses and data marts, external data feeds, and exotic data — by joining sources, filtering rows and fields, deriving new features by combining or transforming existing ones, and aggregating. This construction work happens in the data-preparation phase of CRISP-DM (Section&nbsp;6).</p>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>Getting the row granularity wrong. If the prediction is &ldquo;how long will this order take?&rdquo;, one row must be one <em>order</em>. A table with one row per machine, per day, or per operation cannot directly represent that prediction problem, no matter how much data it contains.</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;2 &sect;2.2&ndash;2.3 — the analytics base table, features, and preparing data for predictive analytics.</p>
+
+<h2>6. The CRISP-DM process</h2>
+
+<div class="box def"><span class="label">Definition — CRISP-DM</span>
+<p>The <strong>CR</strong>oss <strong>I</strong>ndustry <strong>S</strong>tandard <strong>P</strong>rocess for <strong>D</strong>ata <strong>M</strong>ining (CRISP-DM) is the commonly used approach for solving a data-analytics problem. It defines the six key phases of the data-analytics project lifecycle.</p>
+</div>
+
+<table>
+  <tr><th>#</th><th>Phase</th><th>What happens</th></tr>
+  <tr><td>1</td><td>Business understanding</td><td>The project starts from a business problem phrased as a question (e.g. &ldquo;how can revenue be increased?&rdquo;). Objectives, the current process and how a model would be used are defined (Section&nbsp;3).</td></tr>
+  <tr><td>2</td><td>Data understanding</td><td>Relevant data is identified and collected; activities are performed to get familiar with it — spotting data issues, discovering first insights (and often generating new questions).</td></tr>
+  <tr><td>3</td><td>Data preparation</td><td>All relevant data sources are combined into a table-like structure designed for analytics — i.e. the analytics base table is built (joins, filtering, deriving features, aggregation).</td></tr>
+  <tr><td>4</td><td>Modelling</td><td>Several models are constructed, from which the best model is selected.</td></tr>
+  <tr><td>5</td><td>Evaluation</td><td>Before deployment, tests determine whether model performance conforms to quality requirements and business success criteria.</td></tr>
+  <tr><td>6</td><td>Deployment</td><td>For a once-off analysis the results are presented; otherwise steps are taken to integrate the model into the organisation&rsquo;s processes.</td></tr>
+</table>
+<caption>The six CRISP-DM phases and their purpose, as presented in the Week&nbsp;1 lectures.</caption>
+
+<figure>
+<svg viewBox="0 0 660 400" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="w1-crisp-arr" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1d4e89"/>
+    </marker>
+  </defs>
+
+  <rect x="260" y="46" width="140" height="48" rx="8" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="330" y="66" text-anchor="middle" fill="#1a1a1a">1. Business</text>
+  <text x="330" y="82" text-anchor="middle" fill="#1a1a1a">understanding</text>
+
+  <rect x="410" y="121" width="140" height="48" rx="8" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="480" y="141" text-anchor="middle" fill="#1a1a1a">2. Data</text>
+  <text x="480" y="157" text-anchor="middle" fill="#1a1a1a">understanding</text>
+
+  <rect x="410" y="251" width="140" height="48" rx="8" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="480" y="271" text-anchor="middle" fill="#1a1a1a">3. Data</text>
+  <text x="480" y="287" text-anchor="middle" fill="#1a1a1a">preparation</text>
+
+  <rect x="260" y="326" width="140" height="48" rx="8" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="330" y="354" text-anchor="middle" fill="#1a1a1a">4. Modelling</text>
+
+  <rect x="110" y="251" width="140" height="48" rx="8" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="180" y="279" text-anchor="middle" fill="#1a1a1a">5. Evaluation</text>
+
+  <rect x="110" y="121" width="140" height="48" rx="8" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="180" y="149" text-anchor="middle" fill="#1a1a1a">6. Deployment</text>
+
+  <path d="M398 94 Q415 105 421 117" fill="none" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w1-crisp-arr)"/>
+  <path d="M552 172 L552 246" fill="none" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w1-crisp-arr)"/>
+  <path d="M413 302 Q403 316 399 322" fill="none" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w1-crisp-arr)"/>
+  <path d="M261 330 Q248 319 241 304" fill="none" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w1-crisp-arr)"/>
+  <path d="M108 248 L108 174" fill="none" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w1-crisp-arr)"/>
+  <path d="M242 119 Q251 106 259 97" fill="none" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w1-crisp-arr)"/>
+
+  <path d="M408 138 Q375 103 342 99" fill="none" stroke="#1d4e89" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#w1-crisp-arr)"/>
+  <text x="300" y="128" text-anchor="middle" fill="#1a1a1a"  font-style="italic">new questions</text>
+
+  <path d="M252 268 Q330 240 406 270" fill="none" stroke="#1d4e89" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#w1-crisp-arr)"/>
+  <text x="330" y="246" text-anchor="middle" fill="#1a1a1a"  font-style="italic">revisit data / models</text>
+
+  <text x="330" y="186" text-anchor="middle" fill="#1a1a1a"  font-style="italic">Iterative: phases are revisited</text>
+  <text x="330" y="201" text-anchor="middle" fill="#1a1a1a"  font-style="italic">and repeated, building on</text>
+  <text x="330" y="216" text-anchor="middle" fill="#1a1a1a"  font-style="italic">previous cycles</text>
+</svg>
+<figcaption><b>Figure 1.2</b> — The CRISP-DM six-phase cycle. Solid arrows show the usual forward flow; dashed arrows show the iteration that makes projects non-sequential: data understanding raises new business questions, and evaluation can send the project back to data preparation or modelling.</figcaption>
+</figure>
+
+<h3>6.1 Why CRISP-DM projects are iterative</h3>
+<p>CRISP-DM is explicitly <strong>not</strong> a strictly sequential waterfall:</p>
+<ul>
+  <li>Even in small projects, moving <em>back and forth</em> between phases is required — e.g. during data understanding, new questions arise that need additional input from the business (back to business understanding).</li>
+  <li>The six phases are typically <em>repeated several times</em> in the same project, each cycle building on the previous one — e.g. evaluation shows the error is too large for the order-acceptance decision, so the team returns to data preparation (new features) or modelling (different algorithms).</li>
+</ul>
+
+<div class="box intuition"><span class="label">Intuition — mapping activities to phases in exams</span>
+<p>Ask what the activity produces. Talking to planners about how predictions will be used &rarr; <em>business understanding</em>. Hunting missing values and inconsistencies &rarr; <em>data understanding</em>. Combining sources into the base table &rarr; <em>data preparation</em>. Training models &rarr; <em>modelling</em>. Checking errors against the decision&rsquo;s requirements &rarr; <em>evaluation</em>. Feeding predictions into the planners&rsquo; system &rarr; <em>deployment</em>. (These are exactly the six activities in study-guide Q5.)</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;1 &sect;1.5&ndash;1.6 — the data-science project lifecycle and how a predictive-analytics project is organised end to end.</p>
+
+<h2>7. Generalisation, underfitting and overfitting</h2>
+
+<div class="box def"><span class="label">Definition — generalisation</span>
+<p>A model <strong>generalises</strong> when it performs well not only on the historic instances it was built from but also on <em>unseen</em> instances. Searching for a model is really searching for a model that will generalise — this is the criterion that replaces mere consistency with the training data (Section&nbsp;2.3), since consistent models can simply memorise and then disagree on unseen data.</p>
+</div>
+
+<p>The purpose of model evaluation is threefold: (1)&nbsp;to estimate how the model will perform <em>when deployed</em>; (2)&nbsp;to determine which of the developed models is most suited to the task; (3)&nbsp;to convince the business that the model will meet its need. All three require measuring performance on data the model did not train on.</p>
+
+<h3>7.1 Underfitting and overfitting</h3>
+<ul>
+  <li><strong>Underfitting</strong> — the selected model is too simplistic to capture the underlying relationship between the descriptive features and the target feature. It performs poorly on both training and unseen data. Associated with <em>high bias</em>: error from erroneous assumptions in the learning algorithm, which can cause real (possibly complex) relationships to be missed.</li>
+  <li><strong>Overfitting</strong> — the selected model is so complex that it fits the data set too closely and becomes sensitive to noise in the data. It performs very well on training data but poorly on unseen data. Associated with <em>high variance</em>: error from sensitivity to small fluctuations in the training set, which causes the algorithm to model the random noise rather than the true relationship.</li>
+  <li><strong>&ldquo;Just right&rdquo;</strong> — the model strikes a good balance between underfitting and overfitting (low bias, low variance) and will generalise well.</li>
+</ul>
+
+<h3>7.2 Hold-out sampling: three data sets, three jobs</h3>
+<p>Finding the best model requires three data sets, typically split around 70% / 15% / 15% from the available data:</p>
+
+<figure>
+<svg viewBox="0 0 660 320" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="w1-split-arr" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1d4e89"/>
+    </marker>
+  </defs>
+
+  <text x="243" y="38" text-anchor="middle" fill="#1a1a1a" >Develop models</text>
+  <text x="489" y="38" text-anchor="middle" fill="#1a1a1a" >Select / tune</text>
+  <text x="576" y="22" text-anchor="middle" fill="#1a1a1a" >Final unbiased</text>
+  <text x="576" y="38" text-anchor="middle" fill="#1a1a1a" >evaluation</text>
+
+  <rect x="40" y="50" width="406" height="30" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <rect x="446" y="50" width="87" height="30" fill="#d8d8d8" stroke="#1d4e89" stroke-width="1.5"/>
+  <rect x="533" y="50" width="87" height="30" fill="#1d4e89" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="243" y="69" text-anchor="middle" fill="#1a1a1a">Training &#8776;70%</text>
+  <text x="489" y="69" text-anchor="middle" fill="#1a1a1a" >Val. &#8776;15%</text>
+  <text x="576" y="69" text-anchor="middle" fill="#ffffff" >Test &#8776;15%</text>
+
+  <path d="M243 82 Q180 120 138 156" fill="none" stroke="#1d4e89" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#w1-split-arr)"/>
+  <path d="M489 82 Q410 120 348 156" fill="none" stroke="#1d4e89" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#w1-split-arr)"/>
+  <path d="M576 82 L554 156" fill="none" stroke="#1d4e89" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#w1-split-arr)"/>
+
+  <rect x="40" y="160" width="190" height="80" rx="6" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="135" y="186" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Model development</text>
+  <text x="135" y="205" text-anchor="middle" fill="#1a1a1a" >Fit / train model</text>
+  <text x="135" y="220" text-anchor="middle" fill="#1a1a1a" >parameters</text>
+
+  <rect x="250" y="160" width="190" height="80" rx="6" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="345" y="186" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Model selection</text>
+  <text x="345" y="205" text-anchor="middle" fill="#1a1a1a" >Tune complexity; compare</text>
+  <text x="345" y="220" text-anchor="middle" fill="#1a1a1a" >models on validation error</text>
+
+  <rect x="460" y="160" width="180" height="80" rx="6" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="550" y="180" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Unbiased evaluation</text>
+  <text x="550" y="199" text-anchor="middle" fill="#1a1a1a" >Single final estimate of</text>
+  <text x="550" y="214" text-anchor="middle" fill="#1a1a1a" >performance on unseen</text>
+  <text x="550" y="229" text-anchor="middle" fill="#1a1a1a" >data (like production)</text>
+
+  <path d="M230 200 L246 200" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w1-split-arr)"/>
+  <path d="M440 200 L456 200" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w1-split-arr)"/>
+
+  <path d="M550 240 L550 262" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w1-split-arr)"/>
+  <rect x="460" y="266" width="180" height="34" rx="6" fill="#1d4e89" stroke="#1d4e89"/>
+  <text x="550" y="287" text-anchor="middle" fill="#ffffff">Deploy model</text>
+</svg>
+<figcaption><b>Figure 1.3</b> — Hold-out sampling and the three data-set roles. The training set develops models, the validation set is used repeatedly to tune and compare them, and the untouched test set provides the single final, unbiased estimate of how the chosen model will perform in production.</figcaption>
+</figure>
+
+<ul>
+  <li><strong>Training data (~70%) — model development.</strong> Used to fit the model parameters, i.e. to learn the descriptive&ndash;target relationship.</li>
+  <li><strong>Validation data (~15%) — model selection.</strong> Used to adjust model complexity and compare candidate models, while avoiding <em>multiple-comparison bias</em>: if the test set were used to &ldquo;find&rdquo; the best model over possibly hundreds of variations, performance on the test set would be optimistic. The validation set lets you try different models without &ldquo;peeking&rdquo; at the final yardstick. Select the model with the smallest validation error.</li>
+  <li><strong>Test data (~15%) — unbiased evaluation.</strong> Used once, after model selection, to estimate how the model will perform on unseen data in production. It must not contain any instances from the training or validation sets; otherwise no inference about generalisation is possible.</li>
+</ul>
+
+<p>The validation curve makes the diagnosis concrete: plot training and validation error against model complexity. Underfit models have high training <em>and</em> validation error; as complexity grows both fall; past the sweet spot the model becomes consistent with the training data but fails to generalise — validation error rises while training error keeps falling (validation error &gt;&gt; training error). The best model sits at the minimum of the validation error.</p>
+
+<div class="box watch"><span class="label">Common mistake — why training performance alone is insufficient</span>
+<p>Performance on training data alone never demonstrates that a model will perform well after deployment, because (1)&nbsp;many different models — including pure memorisers — are consistent with any training sample, and they disagree on unseen instances; (2)&nbsp;training error rewards complexity: the more flexible the model, the lower the training error, even when generalisation gets worse. Evidence of future performance requires measurement on data excluded from training (validation/test).</p>
+</div>
+
+<div class="box exam"><span class="label">Worked example — diagnosing under/overfitting and selecting a model (study guide Q8)</span>
+<p>Three classifiers of increasing complexity for defective/non-defective components:</p>
+<table>
+  <tr><th>Model</th><th class="num">Training accuracy</th><th class="num">Validation accuracy</th><th class="num">Gap (train &minus; val)</th></tr>
+  <tr><td>A</td><td class="num">81%</td><td class="num">79%</td><td class="num">2 pp</td></tr>
+  <tr><td>B</td><td class="num">95%</td><td class="num">92%</td><td class="num">3 pp</td></tr>
+  <tr><td>C</td><td class="num">100%</td><td class="num">76%</td><td class="num">24 pp</td></tr>
+</table>
+<p><strong>1. Diagnosis.</strong> <em>Model A</em>: low accuracy on both sets with a small gap — it performs poorly even on data it has seen, so it is too simple to capture the relationship: <strong>underfitting</strong> (high bias). <em>Model C</em>: perfect training accuracy but a 24-percentage-point collapse on validation data — it has fitted the training set (including its noise) too closely: <strong>overfitting</strong> (high variance). <em>Model B</em>: high accuracy on both sets with a small gap — the &ldquo;just right&rdquo; balance.</p>
+<p><strong>2. Selection.</strong> Select <strong>Model B</strong>: model choice is based on validation performance (the estimate of generalisation), and B has the highest validation accuracy (92%).</p>
+<p><strong>3. Why not C, which has the highest training accuracy?</strong> Training accuracy measures memorisation of the past, not prediction of the future; C&rsquo;s 76% validation accuracy shows it would perform worst of the three in production. This is exactly why the test/validation data — not the training data — drives selection.</p>
+<p><strong>4. Roles of the three sets.</strong> Training develops the models; validation compares them and exposes overfitting during selection; the (not yet used) test set will give the final unbiased estimate of the selected model&rsquo;s deployment performance — used once, after selection.</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;9 &sect;9.1&ndash;9.3 — model evaluation, generalisation, and how training/validation/test data are used.</p>
+
+<h2>8. Evaluating classification models</h2>
+
+<h3>8.1 The confusion matrix</h3>
+<p>A <strong>confusion matrix</strong> compares predicted values against actual values: instances are grouped by their actual label and their predicted label, which visualises exactly what kinds of errors a model makes. By convention, the outcome that is most important for the business is treated as the <strong>positive</strong> class (e.g. defective, fraud, churn). For a binary target there are four outcomes:</p>
+
+<figure>
+<svg viewBox="0 0 560 340" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <text x="330" y="26" text-anchor="middle" fill="#1a1a1a"  font-weight="bold">Predicted class</text>
+  <text x="245" y="52" text-anchor="middle" fill="#1a1a1a">Positive</text>
+  <text x="415" y="52" text-anchor="middle" fill="#1a1a1a">Negative</text>
+
+  <text transform="rotate(-90 70 170)" x="70" y="170" text-anchor="middle" fill="#1a1a1a"  font-weight="bold">Actual class</text>
+  <text x="145" y="124" text-anchor="end" fill="#1a1a1a">Positive</text>
+  <text x="145" y="224" text-anchor="end" fill="#1a1a1a">Negative</text>
+
+  <rect x="160" y="70" width="170" height="100" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="245" y="106" text-anchor="middle" fill="#1a1a1a"  font-weight="bold">TP</text>
+  <text x="245" y="126" text-anchor="middle" fill="#1a1a1a" >true positive</text>
+  <text x="245" y="144" text-anchor="middle" fill="#1a1a1a" >actual +, predicted +</text>
+
+  <rect x="330" y="70" width="170" height="100" fill="#ffffff" stroke="#d8d8d8" stroke-width="1.5"/>
+  <text x="415" y="106" text-anchor="middle" fill="#1a1a1a"  font-weight="bold">FN</text>
+  <text x="415" y="126" text-anchor="middle" fill="#1a1a1a" >false negative</text>
+  <text x="415" y="144" text-anchor="middle" fill="#1a1a1a" >actual +, predicted &#8722;</text>
+
+  <rect x="160" y="170" width="170" height="100" fill="#ffffff" stroke="#d8d8d8" stroke-width="1.5"/>
+  <text x="245" y="206" text-anchor="middle" fill="#1a1a1a"  font-weight="bold">FP</text>
+  <text x="245" y="226" text-anchor="middle" fill="#1a1a1a" >false positive</text>
+  <text x="245" y="244" text-anchor="middle" fill="#1a1a1a" >actual &#8722;, predicted +</text>
+
+  <rect x="330" y="170" width="170" height="100" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.5"/>
+  <text x="415" y="206" text-anchor="middle" fill="#1a1a1a"  font-weight="bold">TN</text>
+  <text x="415" y="226" text-anchor="middle" fill="#1a1a1a" >true negative</text>
+  <text x="415" y="244" text-anchor="middle" fill="#1a1a1a" >actual &#8722;, predicted &#8722;</text>
+
+  <text x="330" y="298" text-anchor="middle" fill="#1a1a1a" font-size="11.5">Shaded diagonal = correct predictions; off-diagonal cells = errors.</text>
+  <text x="330" y="318" text-anchor="middle" fill="#1a1a1a" font-size="11.5">Positive class = the business-important outcome (e.g. defective, fraud).</text>
+</svg>
+<figcaption><b>Figure 1.4</b> — The 2&times;2 confusion matrix. True positive: actual positive, predicted positive. True negative: actual negative, predicted negative. False positive: actual negative but predicted positive. False negative: actual positive but predicted negative.</figcaption>
+</figure>
+
+<h3>8.2 Accuracy, precision, recall, F1</h3>
+
+<div class="eq"><span class="eqbody">
+  Accuracy = <span class="frac"><span class="top">TP + TN</span><span class="bot">TP + FP + FN + TN</span></span>
+  &nbsp;&nbsp;&nbsp; Error rate = <span class="frac"><span class="top">FP + FN</span><span class="bot">TP + FP + FN + TN</span></span>
+</span></div>
+
+<p>Accuracy divides the number of correct predictions (true positives + true negatives) by the total number of predictions.</p>
+
+<div class="eq"><span class="eqbody">
+  Precision = <span class="frac"><span class="top">TP</span><span class="bot">TP + FP</span></span>
+  &nbsp;&nbsp;&nbsp; Recall = <span class="frac"><span class="top">TP</span><span class="bot">TP + FN</span></span>
+</span></div>
+
+<ul>
+  <li><strong>Precision</strong> — &ldquo;if the model predicts positive, how often is it correct?&rdquo; It measures how trustworthy positive predictions are (penalised by false positives).</li>
+  <li><strong>Recall</strong> — &ldquo;of all the actual positive cases, how many did we catch?&rdquo; It measures coverage of the positive class (penalised by false negatives).</li>
+</ul>
+
+<div class="eq"><span class="eqbody">
+  F1 = 2 &times; <span class="frac"><span class="top">Precision &times; Recall</span><span class="bot">Precision + Recall</span></span>
+</span></div>
+
+<p>The <strong>F1 score</strong> is the harmonic mean of precision and recall, ranging from 0 to 1; a classifier with a high F1 must have both good precision and good recall. It is a useful single number when the data set is imbalanced.</p>
+
+<div class="box watch"><span class="label">Common mistake — accuracy can be misleading</span>
+<p>When classes are imbalanced, accuracy rewards ignoring the rare class. Lecture example (churn prediction): a model with a 91% accuracy had predicted churn for only one customer, while a 78%-accuracy model found most churners. Always compare accuracy to the trivial baseline &ldquo;predict the majority class&rdquo;, and report precision/recall/F1 alongside it.</p>
+</div>
+
+<div class="box exam"><span class="label">Worked example — evaluating a component-inspection model (study guide Q7)</span>
+<p>A visual inspection model is evaluated on 200 components not used in training. 20 are actually defective; the model correctly identifies 16 defective components and incorrectly classifies 12 non-defective components as defective. Positive class = defective.</p>
+<p><strong>Step 1 — confusion matrix.</strong> Actual defective = 20, actual non-defective = 200 &minus; 20 = 180. TP = 16 (defective, flagged); FN = 20 &minus; 16 = 4 (defective, missed); FP = 12 (non-defective, flagged); TN = 180 &minus; 12 = 168.</p>
+<table>
+  <tr><th></th><th>Predicted defective (+)</th><th>Predicted non-defective (&minus;)</th></tr>
+  <tr><td><b>Actual defective (+)</b></td><td>TP = 16</td><td>FN = 4</td></tr>
+  <tr><td><b>Actual non-defective (&minus;)</b></td><td>FP = 12</td><td>TN = 168</td></tr>
+</table>
+<p><strong>Step 2 — metrics.</strong></p>
+<ul>
+  <li>Accuracy = (TP + TN) / 200 = (16 + 168) / 200 = 184 / 200 = <b>0.920 (92.0%)</b></li>
+  <li>Precision = TP / (TP + FP) = 16 / 28 = <b>&asymp; 0.571</b> — only ~57% of flagged components are truly defective.</li>
+  <li>Recall = TP / (TP + FN) = 16 / 20 = <b>0.800</b> — 80% of actual defects are caught.</li>
+  <li>F1 = 2 &times; (0.5714 &times; 0.800) / (0.5714 + 0.800) = 0.9143 / 1.3714 = <b>&asymp; 0.667</b></li>
+</ul>
+<p><strong>Step 3 — why accuracy alone is misleading.</strong> Only 10% of components are defective. A trivial model that labels <em>every</em> component &ldquo;non-defective&rdquo; scores 180/200 = 90% accuracy while catching zero defects. The real model&rsquo;s 92% is barely above that baseline; the confusion matrix reveals substantial false alarms (12) and missed defects (4) that the single accuracy number hides.</p>
+<p><strong>Step 4 — if missing a defect is far costlier than an unnecessary inspection.</strong> Focus on <b>recall</b>: it measures the fraction of actual defects caught, and improving it directly reduces false negatives (defects reaching the customer). Some false positives (extra inspections) are the acceptable price.</p>
+</div>
+
+<h3>8.3 Prediction scores and the ROC curve</h3>
+
+<p>Most classifiers do not output a class label directly. Instead they produce a <strong>prediction score</strong> between 0 and 1 (informally, a confidence that the instance is positive), which is only <em>converted</em> into a class label by comparing it to a <strong>threshold</strong> — conventionally 0.5: at or above the threshold the instance is predicted positive, below it, negative. A well-trained model should push actual negative instances toward scores near 0 and actual positive instances toward scores near 1.</p>
+
+<div class="box def"><span class="label">Definition</span>
+<p>A <strong>confusion matrix (and therefore accuracy, precision, recall, F1) is computed at one fixed threshold.</strong> Moving the threshold trades recall against precision: lowering it flags more instances as positive (recall rises, precision typically falls); raising it does the reverse. This threshold-dependence is exactly what the confusion matrix hides.</p>
+</div>
+
+<p>The <strong>receiver operating characteristic (ROC) curve</strong> is built by sweeping the threshold from 1 down to 0 and, at each value, plotting the <strong>true positive rate</strong> (recall, <var>y</var>-axis) against the <strong>false positive rate</strong> (FP / (FP + TN), <var>x</var>-axis). The resulting curve shows how the model trades recall for false alarms across <em>every</em> possible threshold at once, rather than the single operating point a confusion matrix reveals.</p>
+
+<figure>
+<svg viewBox="0 0 540 380" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="w1-roc-arr" markerWidth="8" markerHeight="8" refX="7" refY="2.5" orient="auto">
+      <path d="M0,0 L0,5 L7,2.5 z" fill="#1f6b45"/>
+    </marker>
+  </defs>
+  <line x1="70" y1="310" x2="70" y2="40" stroke="#1a1a1a" stroke-width="1.3"/>
+  <line x1="70" y1="310" x2="470" y2="310" stroke="#1a1a1a" stroke-width="1.3"/>
+  <text x="34" y="44" fill="#1a1a1a">1.0</text>
+  <text x="58" y="330" fill="#1a1a1a">0</text>
+  <text x="455" y="330" fill="#1a1a1a">1.0</text>
+  <text x="270" y="358" text-anchor="middle" fill="#1a1a1a">False positive rate = FP / (FP + TN)</text>
+  <text x="30" y="175" text-anchor="middle" fill="#1a1a1a" transform="rotate(-90 30 175)">True positive rate (recall)</text>
+
+  <line x1="70" y1="310" x2="470" y2="40" stroke="#999" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="400" y="280" text-anchor="middle" fill="#777">random guessing (AUC = 0.5)</text>
+
+  <path d="M70,310 C 115,150 160,80 470,40" fill="none" stroke="#1d4e89" stroke-width="2.4"/>
+  <text x="330" y="90" text-anchor="middle" fill="#1d4e89" font-weight="650">good classifier</text>
+
+  <path d="M250,255 Q238,215 225,170" fill="none" stroke="#1f6b45" stroke-width="1.2" marker-end="url(#w1-roc-arr)"/>
+  <text x="210" y="277" text-anchor="middle" fill="#1f6b45">curve near top-left &rarr;</text>
+  <text x="210" y="293" text-anchor="middle" fill="#1f6b45">strong separation</text>
+
+  <rect x="90" y="52" width="10" height="10" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="108" y="61" fill="#555">(0,1): every positive found,</text>
+  <text x="108" y="76" fill="#555">no false alarms &mdash;</text>
+  <text x="108" y="91" fill="#555">the ideal point</text>
+</svg>
+<figcaption><b>Figure 1.5</b> — The ROC curve plots true positive rate against false positive rate as the classification threshold sweeps from 1 to 0. The diagonal is the performance of random guessing (area under curve, AUC = 0.5); a curve that bows toward the top-left corner distinguishes the two classes well at many thresholds, not just the default 0.5.</figcaption>
+</figure>
+
+<ul>
+  <li><strong>Reading the curve:</strong> a point on the curve is the (FPR, TPR) pair produced by one specific threshold. As the threshold is lowered, both rates rise (more instances — correctly and incorrectly — are called positive), tracing the curve from the origin (0,0), where nothing is predicted positive, toward (1,1), where everything is.</li>
+  <li><strong>Area under the curve (AUC):</strong> summarises the whole curve as a single number between 0 and 1, making it easy to rank or compare models without committing to one threshold. AUC = 0.5 is no better than random guessing; AUC = 1.0 is a perfect ranking of positives above negatives.</li>
+  <li><strong>Why it matters:</strong> two models can have identical accuracy at the default 0.5 threshold yet have very different ROC curves — one may be far more useful once the threshold is tuned to the business's actual cost trade-off (Section&nbsp;8.2's worked example: if missing a defect is costlier than a false alarm, the threshold should be lowered to favour recall, and the ROC curve is what tells you how much precision that costs).</li>
+</ul>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;9 &sect;9.4.1.1 and &sect;9.4.2 — performance evaluation for classification problems (confusion-matrix-based measures and prediction scores/ROC analysis).</p>
+
+<h2>9. Evaluating regression models</h2>
+
+<p>For regression, the error of each instance is the difference between the target value <var>t</var><sub><var>i</var></sub> and the model prediction <var>M</var>(<var>d</var><sub><var>i</var></sub>). To get an overall measure, the per-instance errors are aggregated — commonly by summing either absolute or squared errors — and divided by the number of instances so that the measure is comparable across data sets of different sizes.</p>
+
+<div class="eq"><span class="eqbody">
+  SSE = &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
+  (<var>t</var><sub><var>i</var></sub> &minus; <var>M</var>(<var>d</var><sub><var>i</var></sub>))<sup>2</sup>
+  &nbsp;&nbsp;&nbsp;
+  MSE = <span class="frac"><span class="top">1</span><span class="bot"><var>n</var></span></span>
+  &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
+  (<var>t</var><sub><var>i</var></sub> &minus; <var>M</var>(<var>d</var><sub><var>i</var></sub>))<sup>2</sup> = <span class="frac"><span class="top">SSE</span><span class="bot"><var>n</var></span></span>
+</span></div>
+
+<div class="eq"><span class="eqbody">
+  RMSE = &radic;<span style="text-decoration:overline">MSE</span>
+</span></div>
+
+<ul>
+  <li><strong>SSE</strong> (sum of squared errors) — total squared prediction error; grows with data-set size.</li>
+  <li><strong>MSE</strong> (mean squared error) — average squared error; comparable across data sets, but in squared units.</li>
+  <li><strong>RMSE</strong> (root mean squared error) — back in the units of the target; interpretable as a typical prediction error. Squaring penalises large errors more than small ones.</li>
+</ul>
+
+<div class="eq"><span class="eqbody">
+  R<sup>2</sup> = 1 &minus; <span class="frac"><span class="top">SSE</span><span class="bot">SST</span></span>
+  &nbsp;&nbsp;&nbsp; where &nbsp;&nbsp; SST = &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
+  (<var>t</var><sub><var>i</var></sub> &minus; <span style="text-decoration:overline"><var>t</var></span>)<sup>2</sup>
+</span></div>
+
+<p>The <strong>R&sup2; coefficient</strong> is a domain-independent measure: it compares the model against the naive model that always predicts the average target value <span style="text-decoration:overline"><var>t</var></span>. SST is the total sum of squares about the mean — the error the naive model makes. An R&sup2; of 0 means the model explains none of the variance (it is no better than predicting the mean); an R&sup2; of 1 means it explains all the variability (perfect predictions, SSE = 0).</p>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>Sign convention and units: with residual = actual &minus; predicted, a <em>negative</em> residual means the model <em>overestimated</em>. MSE is in squared units and should not be interpreted directly as &ldquo;days&rdquo; or &ldquo;rand&rdquo; — take the square root (RMSE) first. And R&sup2; is computed with SST about the <em>mean of the actual values</em>, not about zero.</p>
+</div>
+
+<div class="box exam"><span class="label">Worked example — evaluating completion-time predictions (study guide Q6)</span>
+<p>A regression model is evaluated on five completed orders not used in training (residual = actual &minus; predicted):</p>
+<table>
+  <tr><th>Order</th><th class="num">Actual (days)</th><th class="num">Predicted (days)</th><th class="num">Residual</th><th class="num">Residual&sup2;</th></tr>
+  <tr><td>O101</td><td class="num">10</td><td class="num">11</td><td class="num">10 &minus; 11 = &minus;1</td><td class="num">1</td></tr>
+  <tr><td>O102</td><td class="num">15</td><td class="num">14</td><td class="num">15 &minus; 14 = +1</td><td class="num">1</td></tr>
+  <tr><td>O103</td><td class="num">20</td><td class="num">22</td><td class="num">20 &minus; 22 = &minus;2</td><td class="num">4</td></tr>
+  <tr><td>O104</td><td class="num">25</td><td class="num">23</td><td class="num">25 &minus; 23 = +2</td><td class="num">4</td></tr>
+  <tr><td>O105</td><td class="num">30</td><td class="num">30</td><td class="num">0</td><td class="num">0</td></tr>
+</table>
+<p><strong>1. Residuals and direction.</strong> O101 and O103: negative residuals — the model <em>overestimated</em> (by 1 and 2 days). O102 and O104: positive residuals — the model <em>underestimated</em> (by 1 and 2 days). O105: exact.</p>
+<p><strong>2. SSE, MSE, RMSE.</strong> SSE = 1 + 1 + 4 + 4 + 0 = <b>10</b>. MSE = 10 / 5 = <b>2</b>. RMSE = &radic;2 &asymp; <b>1.41 working days</b>.</p>
+<p><strong>3. R&sup2;.</strong> Mean actual = (10 + 15 + 20 + 25 + 30) / 5 = 20. SST = (10&minus;20)&sup2; + (15&minus;20)&sup2; + (20&minus;20)&sup2; + (25&minus;20)&sup2; + (30&minus;20)&sup2; = 100 + 25 + 0 + 25 + 100 = 250. R&sup2; = 1 &minus; 10/250 = 1 &minus; 0.04 = <b>0.96</b>.</p>
+<p><strong>4. Interpretation.</strong> RMSE &asymp; 1.41 days: the model&rsquo;s typical error is about one and a half working days — small relative to completion times of 10&ndash;30 days, so promises based on it are reasonably reliable (bearing in mind the evaluation used only five orders). R&sup2; = 0.96: the model explains 96% of the variability in completion times around the mean — its squared error is only 4% of the naive mean-predictor&rsquo;s, i.e. a very strong fit.</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;9 &sect;9.4.5 — performance evaluation for regression problems. Further reading for the full treatment of the Week&nbsp;1 case-study material: Kelleher Ch&nbsp;1 &sect;1.4 and the remaining sections of Ch&nbsp;2.</p>
+
+<hr>
+<p style="font-size:.88rem;color:var(--muted)">These notes cover the Week&nbsp;1 theory (Topics 1 &amp; 2). The module&rsquo;s practical sessions use R; the practical work is not covered here. Sources: DA344 Week&nbsp;1 lecture slides (Dr&nbsp;LE&nbsp; Burger, 2026), the Week&nbsp;1 study guide learning outcomes and practice questions, and the prescribed textbook referenced by chapter/section above.</p>
+
+
+<nav class="weeknav">
+  <a href="../index.html#da344">&larr; Course Notes</a>
+  <span class="sep">&middot;</span><a href="Week2_Data_Exploration.html">Week 2: Data Exploration &rarr;</a>
+  <span class="cur">Week 1 of 6</span>
+</nav>
+</body>
+</html>

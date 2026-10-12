@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="page">
+
+<div class="topnav">
+  <a href="../../index.html#cs245">CS245 Notes</a>
+  <span class="sep">/</span>
+  <span class="current">Theory</span>
+  <a href="../programming/week4.html">Programming</a>
+  <a href="../../index.html#cs245/papers">Papers</a>
+  <span class="sep">|</span>
+  <a href="week1.html">W1</a>
+  <a href="week2.html">W2</a>
+  <a href="week3.html">W3</a>
+  <span class="current">W4</span>
+  <a href="week5.html">W5</a>
+</div>
+
+<header class="hero">
+  <span class="kicker theory">Theory</span>
+  <h1 class="title">Week 4 — Interrupts, Exceptions &amp; the System Bus</h1>
+  <p class="subtitle">CS245 · Lectures 9–11 · Exception model, NVIC, bus architecture, Von Neumann vs. Harvard</p>
+</header>
+
+<nav class="toc">
+  <span class="toc-label">Contents</span>
+  <ol>
+    <li><a href="#l9a">Interrupts vs. Exceptions</a></li>
+    <li><a href="#l9b">The Vector Table &amp; EXTI</a></li>
+    <li><a href="#l10a">Cortex-M4 Exception Entry &amp; Return</a></li>
+    <li><a href="#l10b">The NVIC</a></li>
+    <li><a href="#l11a">Bus Concepts &amp; Address Decoding</a></li>
+    <li><a href="#l11b">Von Neumann vs. Harvard Architecture</a></li>
+    <li><a href="#l11c">AMBA: AHB &amp; APB</a></li>
+  </ol>
+</nav>
+
+<section class="lecture" id="l9a">
+  <h2>Interrupts vs. Exceptions</h2>
+  <ul>
+    <li><strong>Polling:</strong> continuously checking a peripheral status register in a software loop. Simple, but wastes CPU cycles and risks missing a short-lived event entirely if the CPU happens to be busy elsewhere when it occurs.</li>
+    <li><strong>Interrupts</strong> (asynchronous, external events): raised by hardware peripherals — a GPIO edge, a timer overflow, a UART byte arriving — to divert CPU execution immediately to an Interrupt Service Routine (ISR). Interrupts and exceptions generally behave like an unscheduled function call that branches to a new address, used to respond to an event as quickly as possible; they can be triggered by hardware or software.</li>
+    <li><strong>Exceptions</strong> (synchronous, internal events): triggered by the CPU itself, due to an error or a software service call — an undefined instruction, an out-of-bounds memory access (data/prefetch abort), a divide by zero, an <code>SVC</code> call.</li>
+  </ul>
+  <pre class="diagram">Polling Approach (Inefficient):
+[ Main Task Execution ] ---&gt; [ Check Pin ] ---&gt; [ Main Task Execution ] (Event missed if short!)
+
+Interrupt Approach (Efficient &amp; Instant):
+[ Main Task Execution ] ======================&gt; [ Main Task Continues ]
+         |                                             ^
+         +---&gt; (Hardware Trigger) ---&gt; [ Execute ISR ]-+</pre>
+  <p>Four questions any interrupt-driven design must answer: how does the processor know which handler to run, and where to find it; how is the interrupted program protected from having its registers/flags disturbed; which interrupt wins if several occur simultaneously; and how do you prevent an interrupt firing during a critical section of code? (These map directly onto the vector table, automatic register stacking, NVIC priorities, and interrupt masking, respectively — covered below.)</p>
+</section>
+
+<section class="lecture" id="l9b">
+  <h2>The Vector Table &amp; EXTI</h2>
+  <p>When an exception occurs, the processor does not execute an explicit branch instruction — it automatically loads a new value into the PC, looked up from the <strong>vector table</strong>: a table of 32-bit handler start addresses placed at the very beginning of Flash (addresses <code>0x0000</code>–<code>0x03FC</code>). On reset, the CPU reads two values from it — the initial Main Stack Pointer at <code>0x0000 0000</code>, and the Reset handler's address at <code>0x0000 0004</code>. Selected entries:</p>
+  <ul>
+    <li><code>0x0000 0000</code>: initial MSP value.</li>
+    <li><code>0x0000 0004</code>: Reset handler entry point.</li>
+    <li><code>0x0000 0008</code>: Non-Maskable Interrupt (NMI) handler.</li>
+    <li><code>0x0000 000C</code>: HardFault handler.</li>
+    <li><code>0x0000 0058</code>: EXTI Line 0 handler (the User Button on <code>PA0</code>, in this module's examples).</li>
+  </ul>
+  <p>At the end of the handler, execution must return to the instruction after the one interrupted, so the program resumes as if the exception were just a momentary "glitch".</p>
+  <h3>External Interrupt/event Controller (EXTI)</h3>
+  <p>The STM32F407 provides up to <strong>23 EXTI edge detectors</strong>, which generate an interrupt or event request on an external asynchronous signal. Each line is independently configurable for interrupt vs. event, and for rising/falling/both-edge triggering.</p>
+  <p>Because many GPIO pins can share one EXTI line number, a multiplexer (controlled by the <code>SYSCFG_EXTICR1</code>–<code>4</code> registers) selects which port feeds each EXTI line — e.g. EXTI0 can be routed from <code>PA0</code>, <code>PB0</code>, <code>PC0</code>, or <code>PD0</code>. (For the User Button on <code>PA0</code>: <code>SYSCFG_EXTICR1</code> bits 3:0 = <code>0000</code>, selecting Port A.)</p>
+</section>
+
+<section class="lecture" id="l10a">
+  <h2>Cortex-M4 Exception Entry &amp; Return</h2>
+  <p>When the processor accepts an exception:</p>
+  <ol>
+    <li><strong>Automatic stacking:</strong> the hardware pushes eight data words — the <strong>stack frame</strong> (32 bytes) — onto the stack currently in use.</li>
+    <li><strong>Vector fetch:</strong> in parallel, the CPU fetches the handler's start address from the vector table.</li>
+    <li><strong>EXC_RETURN generation:</strong> a special "magic" value (e.g. <code>0xFFFFFFF9</code> or <code>0xFFFFFFFD</code>) is written into LR, encoding which stack was in use and what mode the CPU was in.</li>
+    <li><strong>Mode switch:</strong> execution moves to <strong>Handler mode</strong> — always privileged, and always using the Main Stack Pointer (MSP).</li>
+  </ol>
+  <figure class="diagram">
+    <div class="diagram-svg">
+      <svg viewBox="0 0 460 415" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cortex-M4 exception stack frame: 8 words automatically pushed, from R0 at offset 0x00 (new stack pointer) up to xPSR at offset 0x1C">
+        <text x="230" y="16" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700" opacity="0.8">High addr</text>
+
+        <g font-family="Helvetica Neue, Arial, sans-serif" font-size="12">
+          <!-- row template: offset label left, box, register name + description -->
+          <text x="60" y="47" text-anchor="end" font-family="SF Mono, Consolas, Menlo, monospace" font-size="11" opacity="0.7">0x1C</text>
+          <rect x="70" y="25" width="90" height="40" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+          <text x="115" y="50" text-anchor="middle" font-weight="700">xPSR</text>
+          <text x="170" y="50" font-size="11" opacity="0.75">Program Status Register</text>
+
+          <text x="60" y="87" text-anchor="end" font-family="SF Mono, Consolas, Menlo, monospace" font-size="11" opacity="0.7">0x18</text>
+          <rect x="70" y="65" width="90" height="40" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+          <text x="115" y="90" text-anchor="middle" font-weight="700">PC</text>
+          <text x="170" y="90" font-size="11" opacity="0.75">return address to user code</text>
+
+          <text x="60" y="127" text-anchor="end" font-family="SF Mono, Consolas, Menlo, monospace" font-size="11" opacity="0.7">0x14</text>
+          <rect x="70" y="105" width="90" height="40" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+          <text x="115" y="130" text-anchor="middle" font-weight="700">LR</text>
+          <text x="170" y="130" font-size="11" opacity="0.75">link register</text>
+
+          <text x="60" y="167" text-anchor="end" font-family="SF Mono, Consolas, Menlo, monospace" font-size="11" opacity="0.7">0x10</text>
+          <rect x="70" y="145" width="90" height="40" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+          <text x="115" y="170" text-anchor="middle" font-weight="700">R12</text>
+          <text x="170" y="170" font-size="11" opacity="0.75">intra-procedure scratch register</text>
+
+          <text x="60" y="207" text-anchor="end" font-family="SF Mono, Consolas, Menlo, monospace" font-size="11" opacity="0.7">0x0C</text>
+          <rect x="70" y="185" width="90" height="40" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+          <text x="115" y="210" text-anchor="middle" font-weight="700">R3</text>
+          <text x="170" y="210" font-size="11" opacity="0.75">argument / parameter register 3</text>
+
+          <text x="60" y="247" text-anchor="end" font-family="SF Mono, Consolas, Menlo, monospace" font-size="11" opacity="0.7">0x08</text>
+          <rect x="70" y="225" width="90" height="40" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+          <text x="115" y="250" text-anchor="middle" font-weight="700">R2</text>
+          <text x="170" y="250" font-size="11" opacity="0.75">argument / parameter register 2</text>
+
+          <text x="60" y="287" text-anchor="end" font-family="SF Mono, Consolas, Menlo, monospace" font-size="11" opacity="0.7">0x04</text>
+          <rect x="70" y="265" width="90" height="40" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+          <text x="115" y="290" text-anchor="middle" font-weight="700">R1</text>
+          <text x="170" y="290" font-size="11" opacity="0.75">argument / parameter register 1</text>
+
+          <text x="60" y="327" text-anchor="end" font-family="SF Mono, Consolas, Menlo, monospace" font-size="11" opacity="0.7">0x00</text>
+          <rect x="70" y="305" width="90" height="40" fill="var(--prog-soft)" stroke="var(--prog-accent)" stroke-width="2"/>
+          <text x="115" y="330" text-anchor="middle" font-weight="700">R0</text>
+          <text x="170" y="330" font-size="11" opacity="0.75">argument / parameter register 0</text>
+        </g>
+
+        <line x1="115" y1="363" x2="115" y2="353" stroke="var(--prog-accent)" stroke-width="2"/>
+        <path d="M111,353 L119,353 L115,347 Z" fill="var(--prog-accent)"/>
+        <text x="115" y="378" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700" fill="var(--prog-accent)">SP after interrupt</text>
+
+        <text x="230" y="400" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700" opacity="0.8">Low addr</text>
+      </svg>
+    </div>
+    <figcaption class="diagram-caption">32-byte stack frame auto-pushed on exception entry — SP ends up pointing at R0 (offset 0x00)</figcaption>
+  </figure>
+  <p>Cortex-M4 has two execution modes — <strong>Thread mode</strong> (normal program execution, returns to after a handler finishes) and <strong>Handler mode</strong> (exception handler execution) — and two privilege levels: <strong>Unprivileged/User</strong> (restricted access to certain instructions and resources) and <strong>Privileged</strong> (full access; always used for interrupts). There are also two stack pointers, MSP and PSP, both accessed as R13 — relevant mainly when running an RTOS.</p>
+  <h3>Returning from an exception</h3>
+  <p>Exception return happens when, in Handler mode, the CPU executes <code>LDM</code>, <code>POP</code>, or <code>LDR</code> with PC as the destination, or <code>BX</code>, with one of the <code>EXC_RETURN</code> values loaded into PC — this is exactly what <code>BX LR</code> does inside the handler, since LR was set to <code>EXC_RETURN</code> on entry (LR does not hold a literal return address; the real return address was saved in the stack frame). The processor then automatically restores the pre-exception mode, pops the stack frame back into the original registers — including PC, which resumes the interrupted code exactly where it left off — and program execution continues.</p>
+  <div class="note-box"><span class="label">Aside — how a single core "multitasks"</span>A single-core processor executes small slices of each task in turn (time-slicing), switching context when a timer expires or the running task blocks waiting on something. Saving/restoring registers and memory-map state during this <strong>context switch</strong> is computationally expensive, which is a major reason OS design spends so much effort minimising and optimising it.</div>
+</section>
+
+<section class="lecture" id="l10b">
+  <h2>The NVIC</h2>
+  <p>Older microcontrollers OR every interrupt line together onto a single request line, forcing the CPU to poll each peripheral to find the source. A modern <strong>interrupt controller</strong> combines multiple sources, lets priorities be assigned so the CPU always switches to the most appropriate ISR, and reports the interrupt source directly. A <strong>Vectored Interrupt Controller (VIC)</strong> goes further and supplies the handler address itself. On the Cortex-M4 this is tightly integrated into the core as the <strong>Nested Vectored Interrupt Controller (NVIC)</strong>, connected via a dedicated bus, so the processor can select and dispatch the correct handler with no software polling required.</p>
+  <p>For the STM32F407, the NVIC supports:</p>
+  <ul>
+    <li><strong>52 maskable interrupt channels.</strong></li>
+    <li>A programmable priority level of <strong>0–15</strong> per interrupt — a <em>lower</em> number means <em>higher</em> priority (level 0 is highest).</li>
+    <li>Level and pulse detection of interrupt signals, and dynamic reprioritisation.</li>
+    <li>Grouping of priority values into group-priority and subpriority fields.</li>
+    <li><strong>Tail-chaining:</strong> if another exception is already pending when a handler finishes, the stack pop/push pair between them is skipped entirely and control passes straight to the next handler — taking only ~6 clock cycles.</li>
+    <li>An external <strong>Non-Maskable Interrupt (NMI)</strong> — the highest-priority exception other than reset, with a fixed priority of −2. It is permanently enabled and cannot be masked or pre-empted by anything else.</li>
+  </ul>
+</section>
+
+<section class="lecture" id="l11a">
+  <h2>Bus Concepts &amp; Address Decoding</h2>
+  <p>A <strong>bus</strong> is a communication system transferring data between components inside a computer (or between computers) — a generic term covering both serial communication (a single line, varied over time to carry multiple bits) and parallel communication (several lines, each carrying a bit at the same instant).</p>
+  <p>The <strong>system bus</strong> — connecting the CPU, memory, and peripherals — is a parallel bus carrying:</p>
+  <ul>
+    <li><strong>Address bus</strong> — unidirectional, driven by the bus master, selecting a memory address or I/O register.</li>
+    <li><strong>Data bus</strong> — bidirectional, carrying the actual data words.</li>
+    <li><strong>Control bus</strong> — read/write strobes, byte enables, clock, and interrupt signals.</li>
+  </ul>
+  <p>A <strong>tri-state buffer</strong> is a digital buffer whose output can be electronically disconnected (high-impedance, Hi-Z) as well as driven high or low. This lets several devices share the same physical wires without contention — a binary decoder enables only one device's buffer at a time.</p>
+  <table>
+    <thead><tr><th>A (input)</th><th>OE</th><th>Y (output)</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>1</td><td>0 (driven low)</td></tr>
+      <tr><td>1</td><td>1</td><td>1 (driven high)</td></tr>
+      <tr><td>X</td><td>0</td><td>Hi-Z (floating)</td></tr>
+    </tbody>
+  </table>
+  <p>A binary <strong>address decoder</strong> (e.g. 3-to-8) examines the most-significant address bits to assert exactly one chip-select/enable signal at a time (e.g. Flash-enable, SRAM-enable, Peripheral-enable), so only the addressed device's tri-state buffer ever drives the shared data bus.</p>
+</section>
+
+<section class="lecture" id="l11b">
+  <h2>Von Neumann vs. Harvard Architecture</h2>
+  <ul>
+    <li><strong>Von Neumann:</strong> a single, unified bus serves both instruction fetches and data transfers, so the two must be scheduled — they cannot both happen in the same cycle. This creates a memory-access bottleneck.</li>
+    <li><strong>Harvard:</strong> physically separate instruction and data buses (with independent address spaces) allow simultaneous instruction fetch and data load/store. A bridge is needed between the two buses if the program itself needs to be modified programmatically.</li>
+  </ul>
+  <p>The ARM Cortex-M4 is a <strong>Harvard architecture</strong>, with three separate AHB interfaces: an I-Code bus (instruction fetch from code memory), a D-Code bus (data/literal access to code memory), and a System bus (access to RAM and peripherals) — plus a Private Peripheral Bus (PPB) for the core's own configuration registers.</p>
+</section>
+
+<section class="lecture" id="l11c">
+  <h2>AMBA: AHB &amp; APB</h2>
+  <p>The <strong>Advanced Microcontroller Bus Architecture (AMBA)</strong>, introduced by ARM in 1996, is an open standard for connecting on-chip components and has become the de facto standard for embedded microcontrollers.</p>
+  <ul>
+    <li><strong>AHB (Advanced High-performance Bus):</strong> a high-throughput, synchronous, pipelined 32-bit bus. <strong>AHB-Lite</strong> is a simplified single-master version. Unlike older shared-databus architectures where every slave drives the bus through its own tri-state driver, AHB uses point-to-point links from each slave into a read multiplexer — this lets the bus run faster and avoids the power waste of one slave's driver turning on before another's has turned off. The master issues an address in one cycle, and the data phase completes in the next, allowing transfers to pipeline (address of the next transfer can be sent while the current one is still completing).</li>
+    <li><strong>APB (Advanced Peripheral Bus):</strong> a lower-speed, lower-power bus for standard peripherals, connected to AHB via AHB-to-APB bridge(s).</li>
+  </ul>
+  <figure class="diagram">
+    <div class="diagram-svg">
+      <svg viewBox="0 0 660 410" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ARM Cortex-M4 CPU core connects via I-Code, D-Code and System buses to the AHB bus matrix, which reaches Flash, SRAM, and AHB1/AHB2 peripherals; AHB1/AHB2 bridges down to the low-speed APB1 bus and high-speed APB2 bus">
+        <defs>
+          <marker id="ambaarrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <!-- CPU core -->
+        <rect x="230" y="10" width="200" height="45" rx="4" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+        <text x="330" y="37" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">ARM Cortex-M4 Core</text>
+
+        <!-- 3 buses to matrix -->
+        <path d="M260,55 L200,105" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ambaarrow)"/>
+        <text x="185" y="85" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.75">I-Code</text>
+        <path d="M330,55 L330,105" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ambaarrow)"/>
+        <text x="345" y="85" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.75">D-Code</text>
+        <path d="M400,55 L460,105" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ambaarrow)"/>
+        <text x="480" y="85" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.75">System</text>
+
+        <!-- AHB bus matrix -->
+        <rect x="170" y="110" width="320" height="50" rx="4" fill="var(--code-bg)" stroke="currentColor" stroke-width="1.5"/>
+        <text x="330" y="140" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">Multi-Layer AHB Bus Matrix</text>
+
+        <!-- down to Flash / SRAM / AHB1-2 -->
+        <path d="M240,160 L120,205" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ambaarrow)"/>
+        <path d="M330,160 L330,205" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ambaarrow)"/>
+        <path d="M420,160 L540,205" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ambaarrow)"/>
+
+        <rect x="20" y="210" width="200" height="50" rx="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="120" y="230" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">FLASH</text>
+        <text x="120" y="246" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.75">1 MB · 0x0800 0000</text>
+
+        <rect x="230" y="210" width="200" height="50" rx="4" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+        <text x="330" y="230" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">SRAM</text>
+        <text x="330" y="246" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.75">192 KB · 0x2000 0000</text>
+
+        <rect x="440" y="210" width="200" height="50" rx="4" fill="var(--prog-soft)" stroke="var(--prog-accent)" stroke-width="1.5"/>
+        <text x="540" y="230" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">AHB1 / AHB2</text>
+        <text x="540" y="246" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.75">GPIOs, DMA</text>
+
+        <!-- down to APB1 / APB2 -->
+        <path d="M500,260 L420,305" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ambaarrow)"/>
+        <path d="M580,260 L610,305" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ambaarrow)"/>
+
+        <rect x="270" y="310" width="200" height="80" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text x="370" y="330" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700">AHB→APB1 Bridge</text>
+        <text x="370" y="346" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.8">APB1 · ≤42 MHz</text>
+        <text x="370" y="362" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9" opacity="0.7">TIM2-7,12,13 · USART2</text>
+        <text x="370" y="376" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9" opacity="0.7">IWDG · WWDG · RTC</text>
+
+        <rect x="490" y="310" width="150" height="80" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text x="565" y="330" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="700">AHB→APB2 Bridge</text>
+        <text x="565" y="346" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.8">APB2 · ≤84 MHz</text>
+        <text x="565" y="362" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9" opacity="0.7">TIM1,8,9,10,11</text>
+        <text x="565" y="376" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9" opacity="0.7">USART1</text>
+      </svg>
+    </div>
+    <figcaption class="diagram-caption">Cortex-M4 Harvard bus structure: three core buses into the AHB matrix, bridged down to the APB peripheral buses</figcaption>
+  </figure>
+  <p>GPIO is connected via the AHB1 bus.</p>
+</section>
+
+<footer class="pagefoot">
+  <span>CS245 — Computer Systems 245</span>
+  <span><a href="../programming/week4.html">See the Programming notes for Week 4 →</a></span>
+</footer>
+
+</div>
+</body>
+</html>

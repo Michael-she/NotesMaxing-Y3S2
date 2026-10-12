@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 4 — Programming | CS245</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="page">
+
+<div class="topnav">
+  <a href="../../index.html#cs245">CS245 Notes</a>
+  <span class="sep">/</span>
+  <a href="../theory/week4.html">Theory</a>
+  <span class="current">Programming</span>
+  <a href="../../index.html#cs245/papers">Papers</a>
+  <span class="sep">|</span>
+  <a href="week1.html">W1</a>
+  <a href="week2.html">W2</a>
+  <a href="week3.html">W3</a>
+  <span class="current">W4</span>
+  <a href="week5.html">W5</a>
+</div>
+
+<header class="hero">
+  <span class="kicker programming">Programming</span>
+  <h1 class="title">Week 4 — Writing Interrupt Handlers</h1>
+  <p class="subtitle">CS245 · Lectures 9–10 · volatile, EXTI setup, NVIC control, ISR wiring</p>
+</header>
+
+<nav class="toc">
+  <span class="toc-label">Contents</span>
+  <ol>
+    <li><a href="#volatile">The C volatile Qualifier</a></li>
+    <li><a href="#exti">Configuring EXTI by Register</a></li>
+    <li><a href="#nvic">NVIC Control: Masking &amp; Priority</a></li>
+    <li><a href="#isr">Writing &amp; Wiring an Exception Handler</a></li>
+  </ol>
+</nav>
+
+<section class="lecture" id="volatile">
+  <h2>The C volatile Qualifier</h2>
+  <p>The C compiler aggressively optimises: it may cache a variable's value in a core register instead of re-reading memory every time, and will remove code it believes has no observable effect. This breaks two common embedded patterns, because the compiler cannot see that the value can change for reasons outside the visible code flow:</p>
+  <ol>
+    <li><strong>Memory-mapped peripheral registers</strong> — hardware can change the value independently of anything the CPU writes.</li>
+    <li><strong>Global variables modified inside an ISR</strong> — from the optimiser's point of view, if the ISR function is never explicitly called from the code it's analysing, it may assume the variable never changes, and either cache a stale copy in a register or optimise away a polling loop entirely (<code>while(!flag);</code> can become an infinite loop).</li>
+  </ol>
+  <p><strong>Fix:</strong> declare the variable <code>volatile</code>. This forces every read and write of that variable to go all the way to physical memory, with no caching or reordering by the optimiser.</p>
+  <pre><code>volatile uint8_t button_pressed = 0;      // ISR-shared flag
+volatile int x;   // equivalent to:
+int volatile x;    // (before or after the type — both are the same)
+
+// Pointers to volatile data are common for peripheral registers, and
+// these two declarations are equivalent:
+volatile uint32_t *p;
+uint32_t volatile *p;</code></pre>
+  <div class="note-box"><span class="label">Rule of thumb</span>Declare a variable <code>volatile</code> whenever its value can change unexpectedly — i.e. memory-mapped peripheral registers, and any global variable an ISR writes that is also read from the main loop or another handler.</div>
+</section>
+
+<section class="lecture" id="exti">
+  <h2>Configuring EXTI by Register</h2>
+  <p>To route the User Button (<code>PA0</code>) interrupt through to your ISR, several registers need to be set up (STM32CubeIDE's HAL/graphical configuration does this for you, but you should be able to do it by hand from the reference/programming manual):</p>
+  <ul>
+    <li><code>EXTI_IMR</code> bit 0 = 1 — unmask (enable) the interrupt.</li>
+    <li><code>EXTI_RTSR</code> bit 0 = 1 — enable the rising-edge trigger.</li>
+    <li><code>EXTI_FTSR</code> bit 0 = 0 — disable the falling-edge trigger.</li>
+    <li><code>NVIC_IPR0</code> bit 6 = 0 — set the priority of the EXTI0 interrupt.</li>
+    <li><code>NVIC_ISER0</code> bit 6 = 1 — enable the EXTI0 interrupt in the NVIC.</li>
+    <li><code>EXTI_PR</code> — the pending-flag register; a pending interrupt's bit is cleared by <em>writing</em> a 1 to it (not by writing 0).</li>
+  </ul>
+</section>
+
+<section class="lecture" id="nvic">
+  <h2>NVIC Control: Masking &amp; Priority</h2>
+  <ul>
+    <li><code>NVIC_ISERx</code> / <code>NVIC_ICERx</code> — Interrupt Set-Enable / Clear-Enable registers, to enable or disable individual interrupt lines.</li>
+    <li><code>NVIC_IPRx</code> — Interrupt Priority registers. Each is byte-accessible and holds four 8-bit priority fields, mapping onto the priority array <code>IP[0]</code>…<code>IP[67]</code>.</li>
+    <li><code>BASEPRI</code> — masks all exceptions below a chosen priority level; useful for disabling only lower-priority interrupts during a critical section, while still allowing higher-priority ones through.</li>
+    <li><code>PRIMASK</code> — a single bit that disables all exceptions with configurable priority. Controlled from C with <code>__disable_irq()</code> and <code>__enable_irq()</code>.</li>
+  </ul>
+  <p>The NVIC driver functions provided by CMSIS/HAL simply write to these same registers, with additional argument validation layered on top — useful, but it helps to know what they resolve to underneath.</p>
+</section>
+
+<section class="lecture" id="isr">
+  <h2>Writing &amp; Wiring an Exception Handler</h2>
+  <ul>
+    <li>The startup assembly file (a <code>.S</code> file, e.g. <code>startup_stm32f407vgtx.s</code>) sets up the vector table.</li>
+    <li>A handler function's name must exactly match the name expected in the vector table, and it takes no arguments and returns nothing — STM32CubeMX-generated projects already provide empty (weak) handlers for the standard exceptions in <code>stm32f4xx_it.c</code>, ready to be filled in.</li>
+    <li>In STM32CubeIDE, interrupts are usually configured through the graphical <code>.ioc</code> editor, which regenerates <code>main.c</code> and places your handler's address correctly in the vector table automatically — you then write the handler body in <code>stm32f4xx_it.c</code>.</li>
+  </ul>
+
+  <h3>Worked example — button press sets a flag, ISR turns on an LED</h3>
+  <p>The flag <code>button_pressed</code> lives at a fixed address; the main loop polls it, while the ISR (triggered by EXTI0 on the button press) sets it.</p>
+  <div class="trace-tables">
+    <table>
+      <caption>Vector Table</caption>
+      <thead><tr><th>Address</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>0000 0000</td><td>—</td></tr>
+        <tr><td>0000 0004</td><td>—</td></tr>
+        <tr><td>0000 0008</td><td>—</td></tr>
+        <tr><td>0000 000C</td><td>—</td></tr>
+        <tr><td>…</td><td>…</td></tr>
+        <tr class="highlight"><td>0000 0058</td><td>0000 1100</td></tr>
+        <tr><td>…</td><td>…</td></tr>
+      </tbody>
+    </table>
+
+    <table>
+      <caption>Interrupt Handler</caption>
+      <thead><tr><th>Address</th><th>Instruction</th></tr></thead>
+      <tbody>
+        <tr class="highlight"><td>0000 1100</td><td>LDR r0, =0x1000 0000</td></tr>
+        <tr><td>0000 1104</td><td>MOV r1, #1</td></tr>
+        <tr><td>0000 1108</td><td>STR r1, [r0]</td></tr>
+        <tr><td>0000 110C</td><td>BX LR</td></tr>
+      </tbody>
+    </table>
+
+    <table>
+      <caption>Main Program</caption>
+      <thead><tr><th>Address</th><th>Instruction</th></tr></thead>
+      <tbody>
+        <tr><td>0000 1000</td><td>LDR r0, =0x1000 0000</td></tr>
+        <tr><td>0000 1004</td><td>MOV r1, #0</td></tr>
+        <tr><td>0000 1008</td><td>STR r1, [r0]</td></tr>
+        <tr><td>0000 100C</td><td><em>Loop:</em> LDR r1, [r0]</td></tr>
+        <tr><td>0000 1010</td><td>CMP r1, #0</td></tr>
+        <tr><td>0000 1014</td><td>BEQ Loop</td></tr>
+        <tr><td>0000 1018</td><td><em>SetLed:</em> ...</td></tr>
+        <tr><td>0000 101C</td><td>B Loop</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The vector table entry for EXTI0 (<code>0x0000 0058</code>) holds the address of the handler (<code>0x0000 1100</code>). On a button press, the processor automatically saves the current PC and other registers onto the stack, jumps to the handler, which sets the flag at <code>0x1000 0000</code> to 1, and returns to the main program with <code>BX LR</code> — exactly like an ordinary function return.</p>
+</section>
+
+<footer class="pagefoot">
+  <span>CS245 — Computer Systems 245</span>
+  <span><a href="../theory/week4.html">See the Theory notes for Week 4 →</a></span>
+</footer>
+
+</div>
+</body>
+</html>

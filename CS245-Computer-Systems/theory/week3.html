@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="page">
+
+<div class="topnav">
+  <a href="../../index.html#cs245">CS245 Notes</a>
+  <span class="sep">/</span>
+  <span class="current">Theory</span>
+  <a href="../programming/week3.html">Programming</a>
+  <a href="../../index.html#cs245/papers">Papers</a>
+  <span class="sep">|</span>
+  <a href="week1.html">W1</a>
+  <a href="week2.html">W2</a>
+  <span class="current">W3</span>
+  <a href="week4.html">W4</a>
+  <a href="week5.html">W5</a>
+</div>
+
+<header class="hero">
+  <span class="kicker theory">Theory</span>
+  <h1 class="title">Week 3 — Digital I/O Hardware</h1>
+  <p class="subtitle">CS245 · Lectures 7–8 · Signal levels, output/input stages, Schmitt triggers, debouncing, memory-mapped I/O</p>
+</header>
+
+<nav class="toc">
+  <span class="toc-label">Contents</span>
+  <ol>
+    <li><a href="#l7a">Digital Signal Specifications &amp; Thresholds</a></li>
+    <li><a href="#l7b">Output Configurations</a></li>
+    <li><a href="#l7c">Schmitt Triggers &amp; Switch Debouncing</a></li>
+    <li><a href="#l7d">Memory-Mapped I/O</a></li>
+  </ol>
+</nav>
+
+<section class="lecture" id="l7a">
+  <h2>Digital Signal Specifications &amp; Thresholds</h2>
+  <p>A GPIO pin can be configured for input (floating/high-impedance, pull-down, pull-up, analog, or alternate function) or output (open-drain or push-pull, with optional pull-up/pull-down, or alternate function).</p>
+  <p>For the STM32F407 (V<sub>DD</sub> = 3.3 V):</p>
+  <ul>
+    <li><strong>Input High (V<sub>IH</sub>):</strong> minimum ≈ 0.7 × V<sub>DD</sub> ≈ 2.31 V.</li>
+    <li><strong>Input Low (V<sub>IL</sub>):</strong> maximum ≈ 0.3 × V<sub>DD</sub> ≈ 0.99 V.</li>
+    <li><strong>Output High (V<sub>OH</sub>):</strong> ≥ V<sub>DD</sub> − 0.4 V ≈ 2.9 V at 8 mA.</li>
+    <li><strong>Output Low (V<sub>OL</sub>):</strong> ≤ 0.4 V at 8 mA.</li>
+    <li><strong>5 V-tolerant pins (FT):</strong> specific GPIO pins can safely accept a 5 V input without damaging the internal 3.3 V protection diodes.</li>
+    <li><strong>Current capability:</strong> GPIO pins can sink/source ±8 mA under standard conditions, or up to ±20 mA absolute maximum with relaxed V<sub>OL</sub>/V<sub>OH</sub>. This is enough to switch an LED or drive a transistor, but not enough for higher-current loads (motors, relays) — those need an external switch (e.g. a MOSFET) driven from the GPIO.</li>
+  </ul>
+</section>
+
+<section class="lecture" id="l7b">
+  <h2>Output Configurations</h2>
+  <table>
+    <thead><tr><th>Configuration</th><th>How it drives the pin</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Push-pull</strong></td><td>Complementary P-MOS (pulls up to V<sub>DD</sub>) and N-MOS (pulls down to V<sub>SS</sub>) — the output is always actively driven, either high or low. Writing "0" activates the N-MOS; writing "1" activates the P-MOS.</td></tr>
+      <tr><td><strong>Open-drain</strong></td><td>The P-MOS is permanently disabled; only the N-MOS is active. Writing "0" pulls the pin to ground; writing "1" leaves the pin in high-impedance (Hi-Z) — it does not actively drive high. An internal or external pull-up resistor is needed to get a logic-high level. Behaves like a switch to ground, or disconnected. Essential for shared bidirectional buses (e.g. I²C), where multiple devices need to share one line without ever fighting each other.</td></tr>
+    </tbody>
+  </table>
+  <figure class="diagram">
+    <div class="diagram-svg">
+      <svg viewBox="-40 0 580 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Push-pull output stage with both P-MOS and N-MOS active, versus open-drain output stage with the P-MOS permanently disabled and an external pull-up resistor to VDD">
+        <!-- ===== Panel A: Push-Pull ===== -->
+        <text x="115" y="14" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">Push-Pull</text>
+
+        <line x1="30" y1="30" x2="150" y2="30" stroke="currentColor" stroke-width="1.5"/>
+        <text x="90" y="22" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" opacity="0.8">V<tspan baseline-shift="sub" font-size="8">DD</tspan></text>
+        <line x1="90" y1="30" x2="90" y2="60" stroke="currentColor" stroke-width="1.5"/>
+
+        <rect x="50" y="60" width="80" height="45" rx="4" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+        <text x="90" y="87" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">P-MOS</text>
+
+        <line x1="90" y1="105" x2="90" y2="150" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="90" cy="150" r="4" fill="currentColor"/>
+        <line x1="94" y1="150" x2="165" y2="150" stroke="currentColor" stroke-width="1.5"/>
+        <text x="170" y="154" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">Pin</text>
+        <line x1="90" y1="150" x2="90" y2="170" stroke="currentColor" stroke-width="1.5"/>
+
+        <rect x="50" y="170" width="80" height="45" rx="4" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+        <text x="90" y="197" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">N-MOS</text>
+
+        <line x1="90" y1="215" x2="90" y2="245" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="30" y1="245" x2="150" y2="245" stroke="currentColor" stroke-width="1.5"/>
+        <text x="90" y="262" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" opacity="0.8">GND</text>
+
+        <text x="90" y="285" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.7">both transistors active — pin always driven</text>
+
+        <!-- ===== Panel B: Open-Drain ===== -->
+        <text x="365" y="14" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">Open-Drain</text>
+
+        <line x1="280" y1="30" x2="400" y2="30" stroke="currentColor" stroke-width="1.5"/>
+        <text x="340" y="22" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" opacity="0.8">V<tspan baseline-shift="sub" font-size="8">DD</tspan></text>
+        <line x1="340" y1="30" x2="340" y2="60" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55"/>
+
+        <rect x="300" y="60" width="80" height="45" rx="4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55"/>
+        <text x="340" y="83" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700" opacity="0.6">P-MOS</text>
+        <text x="340" y="97" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9" opacity="0.6">(disabled)</text>
+
+        <line x1="340" y1="105" x2="340" y2="150" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55"/>
+        <circle cx="340" cy="150" r="4" fill="currentColor"/>
+        <line x1="344" y1="150" x2="415" y2="150" stroke="currentColor" stroke-width="1.5"/>
+        <text x="420" y="154" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">Pin</text>
+        <line x1="340" y1="150" x2="340" y2="170" stroke="currentColor" stroke-width="1.5"/>
+
+        <rect x="300" y="170" width="80" height="45" rx="4" fill="var(--theory-soft)" stroke="var(--theory-accent)" stroke-width="1.5"/>
+        <text x="340" y="197" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">N-MOS</text>
+
+        <line x1="340" y1="215" x2="340" y2="245" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="280" y1="245" x2="400" y2="245" stroke="currentColor" stroke-width="1.5"/>
+        <text x="340" y="262" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" opacity="0.8">GND</text>
+
+        <!-- external pull-up resistor from Pin back up to VDD -->
+        <line x1="420" y1="150" x2="450" y2="150" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="450" y1="150" x2="450" y2="112" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M450,112 l-6,-4 l12,-8 l-12,-8 l12,-8 l-6,-4" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+        <line x1="450" y1="80" x2="450" y2="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="400" y1="30" x2="450" y2="30" stroke="currentColor" stroke-width="1.5"/>
+        <text x="458" y="100" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="var(--accent)">ext. pull-up</text>
+
+        <text x="340" y="285" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" opacity="0.7">only N-MOS active — needs a pull-up for logic HIGH</text>
+      </svg>
+    </div>
+    <figcaption class="diagram-caption">Push-pull actively drives both HIGH and LOW; open-drain only pulls LOW, relying on a pull-up resistor for HIGH</figcaption>
+  </figure>
+  <p>On input, a pin is configured high-impedance (with the option of an internal pull-up or pull-down resistor); the voltage present on the pin is sampled into the input data register on every AHB clock cycle.</p>
+</section>
+
+<section class="lecture" id="l7c">
+  <h2>Schmitt Triggers &amp; Switch Debouncing</h2>
+  <h3>Schmitt trigger</h3>
+  <p>A gate's input has an "uncertain" voltage range where the interpretation as HIGH or LOW is not clearly defined; a single threshold point at that boundary means AC noise superimposed on a slowly-changing signal can cause erratic, rapid toggling of the gate's output.</p>
+  <p>A <strong>Schmitt trigger</strong> is a comparator circuit that uses positive feedback to implement <strong>hysteresis</strong> — two distinct threshold voltages instead of one: a positive-going threshold V<sub>T+</sub> (for rising edges) and a negative-going threshold V<sub>T−</sub> (for falling edges). The output holds its value until the input crosses far enough to trigger a change, which removes noise-induced oscillation and produces a clean, "square" digital transition from a noisy or slowly-varying analog input.</p>
+
+  <figure class="diagram">
+    <div class="diagram-svg">
+      <svg viewBox="0 0 434 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schmitt trigger hysteresis loop: output stays low until input rises past the upper threshold V-T-plus, and stays high until input falls past the lower threshold V-T-minus">
+        <!-- hysteresis band shading -->
+        <rect x="160" y="40" width="70" height="180" fill="var(--theory-soft)" opacity="0.6"/>
+
+        <!-- axes -->
+        <line x1="50" y1="220" x2="395" y2="220" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M395,220 l-8,-4 l0,8 z" fill="currentColor"/>
+        <line x1="50" y1="220" x2="50" y2="25" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M50,25 l-4,8 l8,0 z" fill="currentColor"/>
+        <text x="404" y="224" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-style="italic">V<tspan baseline-shift="sub" font-size="9">in</tspan></text>
+        <text x="16" y="18" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-style="italic">V<tspan baseline-shift="sub" font-size="9">out</tspan></text>
+
+        <!-- output level labels -->
+        <text x="44" y="204" text-anchor="end" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" opacity="0.8">LOW</text>
+        <text x="44" y="74" text-anchor="end" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" opacity="0.8">HIGH</text>
+        <line x1="46" y1="200" x2="50" y2="200" stroke="currentColor" stroke-width="1"/>
+        <line x1="46" y1="70" x2="50" y2="70" stroke="currentColor" stroke-width="1"/>
+
+        <!-- threshold tick lines -->
+        <g stroke="currentColor" stroke-dasharray="3 3" opacity="0.5">
+          <line x1="160" y1="220" x2="160" y2="200"/>
+          <line x1="230" y1="220" x2="230" y2="70"/>
+        </g>
+        <text x="160" y="236" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">V<tspan baseline-shift="sub" font-size="8">T−</tspan></text>
+        <text x="230" y="236" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">V<tspan baseline-shift="sub" font-size="8">T+</tspan></text>
+        <text x="380" y="236" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">V<tspan baseline-shift="sub" font-size="8">DD</tspan></text>
+
+        <!-- rising-input path: LOW until V_T+, then HIGH (input increasing → traced left to right) -->
+        <path d="M50,200 L230,200 L230,70 L380,70" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+        <path d="M150,196 L150,204 L160,200 Z" fill="var(--accent)"/>
+        <path d="M330,66 L330,74 L340,70 Z" fill="var(--accent)"/>
+
+        <!-- falling-input path: HIGH until V_T-, then LOW (input decreasing → traced right to left) -->
+        <path d="M380,90 L160,90 L160,180 L50,180" fill="none" stroke="var(--theory-accent)" stroke-width="2.5" stroke-dasharray="6 4"/>
+        <path d="M280,86 L280,94 L270,90 Z" fill="var(--theory-accent)"/>
+        <path d="M100,176 L100,184 L90,180 Z" fill="var(--theory-accent)"/>
+
+        <!-- legend -->
+        <line x1="230" y1="255" x2="255" y2="255" stroke="var(--accent)" stroke-width="2.5"/>
+        <text x="260" y="259" font-family="Helvetica Neue, Arial, sans-serif" font-size="10">rising input (V<tspan baseline-shift="sub" font-size="7">in</tspan> ↑)</text>
+        <line x1="230" y1="270" x2="255" y2="270" stroke="var(--theory-accent)" stroke-width="2.5" stroke-dasharray="6 4"/>
+        <text x="260" y="274" font-family="Helvetica Neue, Arial, sans-serif" font-size="10">falling input (V<tspan baseline-shift="sub" font-size="7">in</tspan> ↓)</text>
+      </svg>
+    </div>
+    <figcaption class="diagram-caption">Hysteresis loop: the output's transition point depends on which direction Vin is moving</figcaption>
+  </figure>
+
+  <h3>Switch bounce</h3>
+  <p>A mechanical switch does not transition cleanly between open and closed — its contacts physically bounce for roughly 5–50 ms after being pressed or released, producing several unwanted extra edges. This matters most when the <em>number</em> of presses is significant (not just whether a press occurred), and especially when using interrupts, since each bounce can trigger its own interrupt.</p>
+
+  <h3>Debouncing</h3>
+  <table>
+    <thead><tr><th>Approach</th><th>Technique</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Hardware</strong></td><td>Establish a definite logic level with the GPIO's pull-down resistor when the button is not pressed, then smooth the transition with an external RC low-pass filter (τ = R×C ≈ 10–50 ms) chosen to match the desired debounce time, followed by a Schmitt-trigger input to produce a clean edge. Pressing the button charges the capacitor; after release, the capacitor holds the pin high briefly before decaying.</td></tr>
+      <tr><td><strong>Software</strong></td><td>See the Programming notes for this week — generally preferred to be solved in hardware where practical, since software solutions either block execution or add complexity.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="lecture" id="l7d">
+  <h2>Memory-Mapped I/O</h2>
+  <p>A portion of the address space is dedicated to I/O devices rather than memory — on this microcontroller, the range <code>0x4000 0000</code> to <code>0x5FFF FFFF</code> is used for I/O. Each I/O device is assigned one or more addresses within this range: a store to that address sends data to the device, and a load receives data from it. This technique — using ordinary load/store instructions to talk to peripherals rather than dedicated I/O instructions — is called <strong>memory-mapped I/O</strong>.</p>
+  <p>Internally, an address decoder examines the address and the write-enable signal to determine which device the CPU is addressing, and generates the appropriate control/select signals; a multiplexer then selects between memory and the various I/O devices for reads, while write-enabled registers latch the values written to each device.</p>
+</section>
+
+<footer class="pagefoot">
+  <span>CS245 — Computer Systems 245</span>
+  <span><a href="../programming/week3.html">See the Programming notes for Week 3 →</a></span>
+</footer>
+
+</div>
+</body>
+</html>

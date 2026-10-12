@@ -1,0 +1,1054 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DA344 — Week 6: Rule-Based Knowledge Discovery</title>
+<style>
+/* ============================================================
+   DA344 Notes — shared stylesheet. DO NOT EDIT PER-WEEK.
+   Copy this whole <style> block verbatim into each week file.
+   ============================================================ */
+:root{
+  --bg:#12151a; --ink:#e6e9ed; --muted:#9aa5b1; --rule:#2c3238; --soft:#1a1e24;
+  --accent:#7bb0e8; --accent-soft:#182634;
+  --warn:#e3b565; --warn-soft:#2b2211;
+  --ok:#7fd1a3; --ok-soft:#123023;
+  --maxw:52rem;
+}
+*{box-sizing:border-box}
+html{font-size:16px}
+body{
+  margin:0 auto; padding:2.5rem 1.5rem 5rem; max-width:var(--maxw);
+  font-family:"Charter","Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
+  color:var(--ink); background:var(--bg); line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+/* ---- headings ---- */
+h1,h2,h3{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;line-height:1.25;color:var(--ink)}
+h1{font-size:2.1rem;font-weight:700;margin:0 0 .3rem;letter-spacing:-.02em}
+.subtitle{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;color:var(--muted);font-size:1.05rem;margin:0 0 2rem}
+h2{font-size:1.45rem;font-weight:650;margin:3rem 0 .9rem;padding-bottom:.35rem;border-bottom:2px solid var(--accent)}
+h3{font-size:1.13rem;font-weight:650;margin:2rem 0 .6rem;color:var(--accent)}
+p{margin:0 0 1rem}
+ul,ol{margin:0 0 1rem;padding-left:1.4rem}
+li{margin:.3rem 0}
+strong{font-weight:650}
+code{font-family:"JetBrains Mono","Cascadia Mono",Consolas,monospace;font-size:.87em;background:var(--soft);padding:.1em .35em;border-radius:3px}
+pre{background:var(--soft);border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:4px;padding:.9rem 1rem;overflow-x:auto;font-size:.85rem;line-height:1.5}
+pre code{background:none;padding:0}
+a{color:var(--accent)}
+
+/* ---- document header block ---- */
+.docmeta{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 .6rem}
+
+/* ---- boxes ---- */
+.box{border:1px solid var(--rule);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;background:var(--soft);page-break-inside:avoid}
+.box>:first-child{margin-top:0}
+.box>:last-child{margin-bottom:0}
+.box .label{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
+.def{background:var(--accent-soft);border-color:#2c4a6e}
+.def .label{color:var(--accent)}
+.watch{background:var(--warn-soft);border-color:#4a3b1a}
+.watch .label{color:var(--warn)}
+.exam{background:var(--ok-soft);border-color:#2f5940}
+.exam .label{color:var(--ok)}
+.intuition{background:var(--bg);border-style:dashed}
+
+/* ---- summary sheet (tier 1) ---- */
+.summary{border:2px solid var(--accent);border-radius:8px;padding:1.4rem 1.6rem;margin:0 0 2.5rem;page-break-after:always}
+.summary h2{margin-top:0;border:none;padding:0;font-size:1.2rem}
+.summary h3{margin:1.2rem 0 .4rem;font-size:.95rem}
+.summary ul{margin-bottom:.6rem}
+.summary li{margin:.15rem 0;font-size:.94rem}
+
+/* ---- tables ---- */
+table{border-collapse:collapse;width:100%;margin:1.2rem 0;font-size:.92rem;page-break-inside:avoid}
+th,td{border:1px solid var(--rule);padding:.45rem .6rem;text-align:left;vertical-align:top}
+th{background:var(--soft);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-weight:650;font-size:.86rem}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto}
+
+/* ---- maths ---- */
+.eq{margin:1.2rem 0;text-align:center;font-size:1.02rem;page-break-inside:avoid}
+.eq .eqbody{display:inline-block;padding:.2rem .6rem}
+var{font-style:italic;font-family:Cambria,Georgia,serif}
+.frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .25em}
+.frac .top{display:block;border-bottom:1px solid currentColor;padding:0 .35em}
+.frac .bot{display:block;padding:0 .35em}
+sub,sup{font-size:.72em;line-height:0}
+
+/* ---- figures / SVG diagrams ---- */
+figure{margin:1.8rem 0;text-align:center;page-break-inside:avoid}
+figure svg{max-width:100%;height:auto;background:#eef1f6;border-radius:10px;padding:10px;box-sizing:border-box;border:1px solid #d9dee5}
+figcaption{font-size:.85rem;color:var(--muted);text-align:left;margin-top:.6rem;padding-top:.4rem;border-top:1px solid var(--rule)}
+figcaption b{color:var(--ink)}
+
+/* ---- reading refs ---- */
+.reading{font-size:.9rem;background:var(--bg);border-left:3px solid var(--accent);padding:.15rem 0 .15rem 1rem;margin:1.2rem 0;color:var(--muted)}
+.reading b{color:var(--ink);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
+
+/* ---- worked solutions ---- */
+
+hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
+
+
+/* ---- week navigation ---- */
+.weeknav{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .9rem;
+  font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:.85rem;
+  margin:0 0 2rem;padding:.7rem 1rem;background:var(--soft);
+  border:1px solid var(--rule);border-radius:8px}
+.weeknav a{color:var(--accent);text-decoration:none}
+.weeknav a:hover{text-decoration:underline}
+.weeknav .sep{color:var(--muted)}
+.weeknav .cur{color:var(--muted);margin-left:auto;font-weight:650}
+
+/* ---- print / PDF ---- */
+@page{size:A4;margin:18mm 16mm}
+@media print{
+
+  /* force a light, ink-friendly palette for printed/PDF output regardless of on-screen dark mode */
+  :root{
+    --bg:#fff; --ink:#1a1a1a; --muted:#555; --rule:#d8d8d8; --soft:#f6f7f9;
+    --accent:#1d4e89; --accent-soft:#e8eef6;
+    --warn:#8a5a00; --warn-soft:#fdf4e3;
+    --ok:#1f6b45; --ok-soft:#e8f4ee;
+  }
+  .def{border-color:#bccfe4}
+  .watch{border-color:#e6d3a8}
+  .exam{border-color:#bfdfcd}
+  .weeknav{display:none}
+
+  html{font-size:10.5pt}
+  body{max-width:none;padding:0}
+  h2{page-break-after:avoid}
+  h3{page-break-after:avoid}
+  .box,figure,table,.eq,.summary{page-break-inside:avoid}
+  a{color:var(--ink);text-decoration:none}
+}
+</style>
+</head>
+<body>
+
+<p class="docmeta">Data Analytics 344 &middot; 2026</p>
+<h1>Week 6 — Rule-Based Knowledge Discovery</h1>
+<p class="subtitle">Classification as IF&ndash;THEN rules: rule structure, ordering and evaluation; learning rules with OneR and PRISM; overfitting and pruning; association rule mining.</p>
+
+<nav class="weeknav">
+  <a href="../index.html#da344">&larr; Course Notes</a>
+  <span class="sep">&middot;</span><a href="Week5_Prototype_Learning_and_SOMs.html">&larr; Week 5: Prototype-Based Learning and SOMs</a>
+  <span class="cur">Week 6 of 6</span>
+</nav>
+
+<!-- ===== TIER 1: ONE-PAGE SUMMARY SHEET ===== -->
+<section class="summary">
+  <h2>Week 6 at a glance</h2>
+
+  <h3>Core ideas</h3>
+  <ul>
+    <li>A classification model can be represented as a rule set <var>R</var> = {<var>r</var><sub>1</sub>, &hellip;, <var>r</var><sub><var>k</var></sub>}; each rule is <em>IF</em> condition <em>THEN</em> prediction, with the condition built from conjuncts (feature tests) ANDed together.</li>
+    <li>An instance <em>triggers</em> every rule whose antecedent it satisfies. Ordered rule sets: first matching rule wins. Unordered sets: vote. No rule triggered: use a default rule/prediction.</li>
+    <li>Rule quality has two sides: <b>coverage</b> (how many instances trigger the rule) and <b>accuracy</b> (fraction of covered instances in the predicted class). Adding conditions raises accuracy but reduces coverage.</li>
+    <li>OneR builds a one-feature classifier: per feature, majority class per value, count errors, keep the feature with the smallest total error. PRISM (sequential covering / separate-and-conquer) grows rules for one class at a time by greedily maximising accuracy <var>p</var>/<var>t</var> until each rule is perfect on the training data.</li>
+    <li>More and more specific rules keep improving training accuracy but eventually overfit: validation accuracy peaks and then falls. Control with pruning, stopping criteria, or validation-based model selection.</li>
+    <li>Association rules differ from classification rules: any attribute may appear on either side and the consequent may contain several attributes. They are mined via frequent itemsets (minimum support) and a minimum confidence.</li>
+  </ul>
+
+  <h3>Key definitions</h3>
+  <ul>
+    <li><b>Antecedent / consequent</b> &mdash; the condition part of a rule / the predicted target value.</li>
+    <li><b>Conjunct</b> &mdash; one feature test in the antecedent, e.g. <code>ToolWear = High</code>.</li>
+    <li><b>Triggered (fired) rule</b> &mdash; a rule whose antecedent is fully satisfied by the instance.</li>
+    <li><b>Ordered rule set (decision list)</b> &mdash; rules in priority order; first rule that triggers decides.</li>
+    <li><b>Default rule</b> &mdash; fallback prediction when no rule triggers.</li>
+    <li><b>Mutually exclusive</b> &mdash; no instance triggers more than one rule.</li>
+    <li><b>Exhaustive</b> &mdash; every possible instance triggers at least one rule.</li>
+    <li><b>Coverage (support)</b> &mdash; number/fraction of instances satisfying the antecedent.</li>
+    <li><b>Accuracy (confidence)</b> &mdash; fraction of covered instances that belong to the predicted class, <var>p</var>/<var>t</var>.</li>
+    <li><b>Inductive bias</b> &mdash; the algorithm&rsquo;s built-in preferences for choosing among models consistent with the data.</li>
+    <li><b>Itemset</b> &mdash; a set of attribute&ndash;value pairs (items) considered together in association mining.</li>
+  </ul>
+
+  <h3>Formulas</h3>
+  <ul>
+    <li>Rule accuracy: accuracy(<var>r</var>) = <var>p</var>/<var>t</var> = (covered instances of target class) &divide; (all instances covered).</li>
+    <li>Rule coverage: instances satisfying the antecedent (as a count, or as a fraction of all instances).</li>
+    <li>Support: support(<var>X</var>) = number of transactions/instances containing all items in <var>X</var>.</li>
+    <li>Confidence: confidence(<var>X</var> &rArr; <var>Y</var>) = support(<var>X</var> &cup; <var>Y</var>) &divide; support(<var>X</var>).</li>
+  </ul>
+
+  <h3>Exam traps</h3>
+  <ul>
+    <li>Selecting rules or conditions by accuracy alone &mdash; a 100%-accurate rule covering 2 instances is usually useless.</li>
+    <li>PRISM adds the condition that maximises <var>p</var>/<var>t</var> (accuracy), not the one covering the most instances; ties are broken by larger <var>p</var>.</li>
+    <li>OneR compares the <em>total</em> error of all rules for a feature &mdash; not the single best rule of each feature.</li>
+    <li>Non-exhaustive rule sets need a default rule; forgetting it leaves instances unpredicted.</li>
+    <li>&ldquo;First match wins&rdquo; applies only to <em>ordered</em> rule sets; unordered sets resolve conflicts by voting.</li>
+    <li>Choose the model at the <em>validation</em> accuracy peak &mdash; never the one with the highest training accuracy.</li>
+    <li>Adding a condition can never increase coverage (AND only restricts).</li>
+  </ul>
+
+  <h3>Prescribed reading</h3>
+  <ul>
+    <li>Ian H. Witten, Eibe Frank, Mark A. Hall, Christopher J. Pal, <em>Data Mining: Practical Machine Learning Tools and Techniques</em>, Fourth Edition, Morgan Kaufmann, 2017. ISBN: 978-0-12-804291-5 &mdash; Chapter 4: Section 4.4 (covering algorithms / rules); Section 4.5 for association rules.</li>
+    <li>Additional (not prescribed): Kelleher, Mac Namee &amp; D&rsquo;Arcy (2e), Chapter 7 (rule-based learning) &mdash; see the textbook note in Section 1.</li>
+  </ul>
+</section>
+
+<!-- ===== TIER 2: FULL NOTES ===== -->
+
+<h2>1. Classification models as IF&ndash;THEN rule sets</h2>
+
+<p>
+A classification model does not have to be a black box. Any classifier can, in principle, be
+represented as a set of <strong>IF&ndash;THEN rules</strong>: a rule set
+<var>R</var> = {<var>r</var><sub>1</sub>, <var>r</var><sub>2</sub>, &hellip;, <var>r</var><sub><var>k</var></sub>}
+in which each individual rule <var>r</var><sub><var>j</var></sub> (also called a <em>disjunct</em> or
+<em>classification rule</em>) has the form
+</p>
+
+<div class="eq"><span class="eqbody">
+  <var>r</var><sub><var>j</var></sub> : &nbsp; IF <var>condition</var> THEN <var>prediction</var>
+</span></div>
+
+<p>
+The <strong>condition</strong> (the rule <em>antecedent</em>) consists of one or more descriptive-feature
+tests logically ANDed together; each individual test is called a <strong>conjunct</strong>. A conjunct has the
+form <code>feature &nabla; value</code> where &nabla; is a comparison operator (=, &ne;, &lt;, &gt;, &le;, &ge;).
+The <strong>consequent</strong> (rule consequent / prediction) contains the predicted value of the target feature.
+For example, from the lecture traffic domain:
+</p>
+
+<p>
+<code>r1: IF time &lt; 10:00 am AND day = weekday THEN traffic = heavy</code><br>
+<code>rk: IF day = weekend THEN traffic = light</code>
+</p>
+
+<div class="box def"><span class="label">Definition</span>
+<p>
+A rule <strong>triggers</strong> (fires) for an instance if the instance&rsquo;s feature values satisfy
+<em>every</em> conjunct in the antecedent. When a rule triggers, the classifier predicts the rule&rsquo;s
+consequent for that instance. If any single conjunct is false, the rule does not trigger and makes no
+prediction for that instance.
+</p>
+</div>
+
+<p>
+The lecture animal-classification example illustrates this. With rules such as
+</p>
+<p>
+<code>r1: IF gives_birth = no AND aerial_creature = yes THEN bird</code><br>
+<code>r3: IF gives_birth = yes AND body_temperature = warm THEN mammal</code>
+</p>
+<p>
+the instance <em>lemur</em> (gives_birth = yes, body_temperature = warm, &hellip;) satisfies both conjuncts of
+<code>r3</code>, so <code>r3</code> is triggered and the predicted class is <em>mammal</em>.
+</p>
+
+<figure>
+<svg viewBox="0 0 680 316" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="w6-arr1" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1d4e89"/>
+    </marker>
+  </defs>
+  <text x="24" y="66" fill="#1a1a1a" font-weight="bold">IF</text>
+  <rect x="56" y="44" width="150" height="36" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="131" y="66" text-anchor="middle" fill="#1a1a1a">ToolWear = High</text>
+  <text x="222" y="66" text-anchor="middle" fill="#1a1a1a" font-weight="bold">AND</text>
+  <rect x="254" y="44" width="162" height="36" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="335" y="66" text-anchor="middle" fill="#1a1a1a">CoolantFlow = Low</text>
+  <text x="446" y="66" text-anchor="middle" fill="#1a1a1a" font-weight="bold">THEN</text>
+  <rect x="488" y="44" width="160" height="36" rx="6" fill="#1d4e89" stroke="#1d4e89"/>
+  <text x="568" y="66" text-anchor="middle" fill="#ffffff">Quality = Reject</text>
+  <path d="M56 90 H416" stroke="#1d4e89" stroke-width="1.2"/>
+  <text x="236" y="110" text-anchor="middle" fill="#1d4e89" >antecedent: two conjuncts (conditions)</text>
+  <path d="M488 90 H648" stroke="#1d4e89" stroke-width="1.2"/>
+  <text x="568" y="110" text-anchor="middle" fill="#1d4e89" >consequent (prediction)</text>
+  <rect x="24" y="140" width="330" height="46" rx="6" fill="#f6f7f9" stroke="#d8d8d8"/>
+  <text x="36" y="159" fill="#1a1a1a">Instance A: ToolWear = High,</text>
+  <text x="36" y="176" fill="#1a1a1a">CoolantFlow = Low</text>
+  <path d="M356 163 H416" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w6-arr1)"/>
+  <rect x="420" y="140" width="236" height="46" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="538" y="159" text-anchor="middle" fill="#1a1a1a">all conjuncts true: triggers</text>
+  <text x="538" y="176" text-anchor="middle" fill="#1d4e89" font-weight="bold">predict Quality = Reject</text>
+  <rect x="24" y="222" width="330" height="46" rx="6" fill="#f6f7f9" stroke="#d8d8d8"/>
+  <text x="36" y="241" fill="#1a1a1a">Instance B: ToolWear = High,</text>
+  <text x="36" y="258" fill="#1a1a1a">CoolantFlow = Normal</text>
+  <path d="M356 245 H416" stroke="#d8d8d8" stroke-width="1.5" marker-end="url(#w6-arr1)"/>
+  <rect x="420" y="222" width="236" height="46" rx="6" fill="#ffffff" stroke="#d8d8d8"/>
+  <text x="538" y="241" text-anchor="middle" fill="#1a1a1a">conjunct 2 false: not triggered</text>
+  <text x="538" y="258" text-anchor="middle" fill="#555">rule makes no prediction</text>
+</svg>
+<figcaption><b>Figure 6.1</b> &mdash; Anatomy of a classification rule. The antecedent is a conjunction of feature tests (conjuncts); the consequent is the predicted class. Instance A satisfies every conjunct, so the rule triggers and predicts <em>Reject</em>; instance B fails one conjunct, so the rule does not trigger.</figcaption>
+</figure>
+
+<div class="box intuition"><span class="label">Intuition</span>
+<p>
+Because conjuncts are ANDed, every extra condition can only <em>shrink</em> the set of instances that
+trigger the rule. A rule with no conditions (an <em>empty</em> or default rule) covers everything;
+a rule with many very specific conditions covers only a handful of instances. This monotone
+&ldquo;narrowing&rdquo; behaviour is the engine behind both PRISM (Section 7) and the
+coverage&ndash;accuracy trade-off (Section 4).
+</p>
+</div>
+
+<div class="box watch"><span class="label">Textbook note</span>
+<p>
+This week the <strong>prescribed source is Witten et al. (4e), Chapter 4 (&sect;4.4 and &sect;4.5)</strong>,
+not the module&rsquo;s main textbook. The main textbook &mdash; Kelleher, Mac Namee &amp; D&rsquo;Arcy,
+<em>Fundamentals of Machine Learning for Predictive Data Analytics</em> (2e) &mdash; is
+<em>not</em> the prescribed reading this week; its related material is <strong>Chapter 7 (rule-based
+learning)</strong>, which is suitable as <em>additional</em> reading on classification rule induction
+and rule evaluation if you want a second explanation.
+</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Witten et al. (4e), &sect;4.4 &mdash; introduces rule construction by covering (and contrasts rules with decision trees). Rule sets as classifiers are also developed in the Week 6 lecture slides. Further: Kelleher et al. (2e), Chapter 7, as additional reading only.</p>
+
+<h2>2. Rule ordering, conflict resolution and default rules</h2>
+
+<p>
+To classify an instance with a rule-based model, we identify which rules the instance triggers.
+Two complications arise naturally:
+</p>
+
+<ul>
+  <li><strong>An instance can trigger several rules with conflicting predictions.</strong> In the lecture&rsquo;s animal example, the instance <em>turtle</em> (gives_birth = no, aerial_creature = no, aquatic_creature = semi) triggers both <code>r4</code> (reptile) and <code>r5</code> (amphibian). The conflict must be resolved.</li>
+  <li><strong>An instance can trigger no rule at all.</strong> The instance <em>dogfish shark</em> (gives_birth = yes, aerial_creature = no, aquatic_creature = yes, body_temperature = cold) triggers none of the five rules, yet the classifier must still give a reasonable prediction.</li>
+</ul>
+
+<div class="box def"><span class="label">Definition</span>
+<p>
+An <strong>ordered rule set</strong> (decision list) arranges rules in decreasing priority; the prediction is
+the consequent of the <em>first</em> rule that triggers, and later rules are ignored for that instance.
+An <strong>unordered rule set</strong> has no fixed order; all triggered rules vote and the majority
+consequent is predicted (ties are usually resolved at random). A <strong>default rule</strong> (or default
+prediction) supplies the prediction when no rule triggers.
+</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 680 396" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="w6-arr2" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1d4e89"/>
+    </marker>
+  </defs>
+  <rect x="270" y="12" width="140" height="32" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="340" y="33" text-anchor="middle" fill="#1a1a1a">new instance</text>
+  <path d="M340 44 V64" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w6-arr2)"/>
+  <polygon points="340,66 436,100 340,134 244,100" fill="#ffffff" stroke="#1d4e89" stroke-width="1.4"/>
+  <text x="340" y="104" text-anchor="middle" fill="#1a1a1a">r1 triggers?</text>
+  <path d="M436 100 H486" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w6-arr2)"/>
+  <text x="452" y="92" fill="#1d4e89" >yes</text>
+  <rect x="490" y="82" width="176" height="36" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="578" y="97" text-anchor="middle" fill="#1a1a1a" >predict consequent of r1</text>
+  <text x="578" y="111" text-anchor="middle" fill="#555" >(stop)</text>
+  <path d="M340 134 V156" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w6-arr2)"/>
+  <text x="350" y="150" fill="#1d4e89" >no</text>
+  <polygon points="340,158 436,192 340,226 244,192" fill="#ffffff" stroke="#1d4e89" stroke-width="1.4"/>
+  <text x="340" y="196" text-anchor="middle" fill="#1a1a1a">r2 triggers?</text>
+  <path d="M436 192 H486" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w6-arr2)"/>
+  <text x="452" y="184" fill="#1d4e89" >yes</text>
+  <rect x="490" y="174" width="176" height="36" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="578" y="189" text-anchor="middle" fill="#1a1a1a" >predict consequent of r2</text>
+  <text x="578" y="203" text-anchor="middle" fill="#555" >(stop)</text>
+  <path d="M340 226 V248" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w6-arr2)"/>
+  <text x="350" y="242" fill="#1d4e89" >no</text>
+  <polygon points="340,250 436,284 340,318 244,284" fill="#ffffff" stroke="#1d4e89" stroke-width="1.4"/>
+  <text x="340" y="288" text-anchor="middle" fill="#1a1a1a">r3 triggers?</text>
+  <path d="M436 284 H486" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w6-arr2)"/>
+  <text x="452" y="276" fill="#1d4e89" >yes</text>
+  <rect x="490" y="266" width="176" height="36" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="578" y="281" text-anchor="middle" fill="#1a1a1a" >predict consequent of r3</text>
+  <text x="578" y="295" text-anchor="middle" fill="#555" >(stop)</text>
+  <path d="M340 318 V342" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w6-arr2)"/>
+  <text x="350" y="336" fill="#1d4e89" >no</text>
+  <rect x="252" y="344" width="176" height="38" rx="6" fill="#1d4e89" stroke="#1d4e89"/>
+  <text x="340" y="360" text-anchor="middle" fill="#ffffff" >default rule:</text>
+  <text x="340" y="374" text-anchor="middle" fill="#ffffff" >predict default class</text>
+</svg>
+<figcaption><b>Figure 6.2</b> &mdash; Decision flow of an <b>ordered</b> rule set (decision list). Rules are tested in priority order; the first rule that triggers fixes the prediction and the process stops. An instance that triggers no rule falls through to the default rule, so every instance receives a prediction.</figcaption>
+</figure>
+
+<p>
+In an ordered set, rule <em>position</em> is part of the model: a rule that appears earlier overrides
+later, overlapping rules. In an unordered set, rules act as independent &ldquo;nuggets of knowledge&rdquo;,
+which is modular and readable, but conflicts must then be settled by voting, and instances triggering no
+rule still need a default. Witten et al. note that rules generated <em>for the same class</em> may be applied
+in any order (they all predict the same class), while ordering matters once rules for different classes can
+fire on the same instance.
+</p>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>
+Assuming &ldquo;first match wins&rdquo; for every rule set. It only holds for <em>ordered</em> rule sets.
+If the question gives an unordered set, conflicting triggered rules are resolved by a voting scheme
+(ties usually at random), and a missing prediction requires a default rule or default class
+(e.g., the class with the most training examples).
+</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Witten et al. (4e), &sect;4.4 &mdash; the &ldquo;Rules versus decision lists&rdquo; discussion explains ordered interpretation, conflicting rules and default rules. See also the Week 6 lecture slides (turtle and dogfish shark examples).</p>
+
+<h2>3. Mutually exclusive and exhaustive rule sets</h2>
+
+<div class="box def"><span class="label">Definition</span>
+<p>
+A rule set is <strong>mutually exclusive</strong> if no instance can trigger more than one rule
+(the rules do not overlap). It is <strong>exhaustive</strong> if there is a rule for every possible
+combination of attribute values, i.e. every instance &mdash; even an unseen one &mdash; triggers at
+least one rule.
+</p>
+</div>
+
+<p>Consequences when these properties are violated:</p>
+<ul>
+  <li><strong>Not mutually exclusive:</strong> an instance may trigger several rules with different consequents, producing conflicting predictions that must be resolved (priority ordering or voting, Section 2).</li>
+  <li><strong>Not exhaustive:</strong> some instances trigger no rule and receive no prediction unless a default rule (or default class) is provided.</li>
+</ul>
+
+<p>
+A rule set that is <em>both</em> mutually exclusive and exhaustive guarantees that every instance is
+covered by <strong>exactly one rule</strong>: no conflicts, no gaps. In practice this is a strong
+requirement, and it is usually easier to use an <strong>ordered rule set plus a default rule</strong>
+to cover all instances than to engineer a rule set that is mutually exclusive and exhaustive by
+construction.
+</p>
+
+<div class="box intuition"><span class="label">Intuition</span>
+<p>
+Think of the rules as regions laid over the instance space. Mutually exclusive means the regions never
+overlap; exhaustive means the regions tile the whole space. Ordered rule sets relax both requirements:
+overlaps are allowed (earlier regions win) and the default rule fills whatever space is left uncovered.
+</p>
+</div>
+
+<h2>4. Rule evaluation: coverage and accuracy</h2>
+
+<p>
+Given two rule-based models, which should we prefer? The lectures motivate two complementary measures.
+For a rule <var>r</var> evaluated on a dataset:
+</p>
+
+<div class="box def"><span class="label">Definition</span>
+<p>
+<strong>Coverage (support)</strong>: the number (or fraction) of all instances that satisfy the
+antecedent of the rule &mdash; how many instances the rule applies to.<br>
+<strong>Accuracy (confidence)</strong>: the fraction of the covered instances that the rule classifies
+correctly &mdash; of the instances that trigger the rule, how many belong to the class predicted by the
+consequent.
+</p>
+</div>
+
+<p>Writing <var>t</var> for the number of instances covered by the rule and <var>p</var> for the number of covered instances that belong to the target class:</p>
+
+<div class="eq"><span class="eqbody">
+  accuracy(<var>r</var>) =
+  <span class="frac"><span class="top"><var>p</var></span><span class="bot"><var>t</var></span></span>
+  =
+  <span class="frac"><span class="top">covered instances of the target class</span><span class="bot">all instances covered by the rule</span></span>
+</span></div>
+
+<div class="eq"><span class="eqbody">
+  coverage(<var>r</var>) =
+  <span class="frac"><span class="top">instances satisfying the antecedent of <var>r</var></span><span class="bot"><var>N</var> (all instances)</span></span>
+  &nbsp;&nbsp;(often reported simply as the count <var>t</var>)
+</span></div>
+
+<p>
+<strong>Both quantities matter.</strong> The lectures contrast two rules: rule <var>r</var><sub>1</sub> has
+accuracy 95% and covers 40 instances (38 correct); rule <var>r</var><sub>2</sub> has accuracy 100% but covers
+only 2 instances. Accuracy alone is not a good measure &mdash; but neither is coverage alone: a rule that
+covers <em>all</em> instances (e.g., the empty rule) is rarely accurate. A &ldquo;good&rdquo; rule covers a
+reasonable number of instances <em>and</em> is accurate.
+</p>
+
+<p>
+<strong>Effect of adding conditions.</strong> Each added conjunct restricts which instances trigger the rule,
+so coverage can only stay the same or fall. Among the instances that remain, the proportion of the target
+class typically rises &mdash; accuracy increases while coverage decreases. Pushed too far, this produces
+increasingly specific rules that describe only a handful of training instances: the route to overfitting
+(Section 8).
+</p>
+
+<div class="box exam"><span class="label">Worked example &mdash; coverage vs accuracy</span>
+<p>Two rules constructed from a training dataset:</p>
+<ul>
+  <li>Rule A is triggered by 40 observations; 36 belong to the class predicted by the rule.</li>
+  <li>Rule B is triggered by 5 observations; all 5 belong to the class predicted by the rule.</li>
+</ul>
+<p><strong>Step 1 &mdash; accuracies.</strong></p>
+<div class="eq"><span class="eqbody">
+  accuracy(A) = <span class="frac"><span class="top">36</span><span class="bot">40</span></span> = 0.90 &nbsp;&nbsp;&nbsp;
+  accuracy(B) = <span class="frac"><span class="top">5</span><span class="bot">5</span></span> = 1.00
+</span></div>
+<p><strong>Step 2 &mdash; coverage.</strong> Rule A covers 40 observations, Rule B only 5, so Rule A has the greater coverage; Rule B has the greater accuracy.</p>
+<p><strong>Step 3 &mdash; interpretation.</strong> Selecting rules on accuracy alone would always prefer rules like B: trivially perfect rules that cover almost nothing. A classifier built from such rules makes confident predictions for very few instances and pushes most instances to the default rule, so overall performance is poor and the rules capture noise rather than structure. In general, adding conditions to a rule <em>increases accuracy</em> (on the data used to build it) while <em>reducing the number of observations that trigger it</em> &mdash; which is why coverage must always be reported alongside accuracy.</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Witten et al. (4e), &sect;4.4 &mdash; the accuracy <var>p</var>/<var>t</var> criterion for rule construction; &sect;4.5 notes the alternative terminology (coverage = support, accuracy = confidence). The coverage/accuracy trade-off and the FOIL measure are developed in the Week 6 lecture slides.</p>
+
+<h2>5. Inductive bias of rule-induction algorithms</h2>
+
+<p>
+The lectures show why learning rules cannot be driven by training data alone. With four binary descriptive
+features there are 2<sup>4</sup> = 16 possible instances and a binary target, so 2<sup>16</sup> = 65&nbsp;536
+different prediction functions exist; even restricting attention to models that are <em>consistent</em>
+(make no training error) leaves hundreds of consistent models, which disagree on unseen instances. A
+consistent model can simply <strong>memorise</strong> the training data without learning anything
+generalisable. Machine learning is therefore an ill-defined problem: the data alone cannot pick a unique
+model, so every algorithm must bring its own preferences to the search.
+</p>
+
+<div class="box def"><span class="label">Definition</span>
+<p>
+The <strong>inductive bias</strong> of a learning algorithm is the set of assumptions or preferences &mdash;
+beyond the training data &mdash; that it uses to choose among the hypotheses (rule sets) consistent with
+the data. It determines which rule sets the algorithm can and prefers to learn.
+</p>
+</div>
+
+<p>Examples of inductive biases seen this week:</p>
+<ul>
+  <li><strong>&ldquo;A good rule covers several instances and is accurate&rdquo;</strong> &mdash; the general bias stated in the lectures; it prefers broad, accurate rules over narrow ones.</li>
+  <li><strong>OneR</strong> biases the search to rule sets that use a <em>single</em> descriptive feature: very simple, very fast, but it can underfit when the true concept needs several features.</li>
+  <li><strong>PRISM</strong> biases toward rules that are <em>perfect on the training data</em>: it keeps adding conjuncts until accuracy reaches 100%, greedily choosing the condition that maximises <var>p</var>/<var>t</var> at each step.</li>
+</ul>
+
+<p>
+Study guide Question 6 contrasts two algorithms: Algorithm A prefers short rules with as few conditions as
+possible (a <em>simplicity</em> bias), while Algorithm B keeps adding conditions whenever training accuracy
+improves (a <em>training-fit</em> bias). Given the same training data they produce different rule sets:
+Algorithm B yields more complex rules. But the more complex rule set is not necessarily the better
+classifier &mdash; extra conditions may fit noise, and generalisation must be checked on unseen data
+(Section 8).
+</p>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>
+Treating &ldquo;consistent with the training data&rdquo; as a sufficient goal. Many consistent models exist;
+the inductive bias decides which one you get, and consistency says nothing about performance on unseen data.
+</p>
+</div>
+
+<h2>6. OneR: one rule (one feature) to rule them all</h2>
+
+<p>
+OneR constructs a classifier from a <strong>single descriptive feature</strong>. For each candidate feature it
+builds one rule per feature value (predicting the majority class among training instances with that value),
+counts the resulting classification errors, and finally keeps the rules of the feature with the
+<strong>smallest total error</strong>.
+</p>
+
+<h3>Algorithm</h3>
+<pre><code>For each descriptive feature d:
+    For every unique value v of d:
+        find the target value that appears most frequently when d = v
+        create the rule:  IF d = v THEN target = (that majority value)
+    calculate the total error of the rules created for feature d
+Keep the rules for the feature with the smallest total error; discard the rest.</code></pre>
+
+<p>
+The error of a rule is the number of covered instances whose true class differs from the majority class
+predicted for that value; the feature&rsquo;s total error is the sum over its values. OneR then reports that
+feature&rsquo;s rule set as the classifier.
+</p>
+
+<div class="box exam"><span class="label">Worked example &mdash; OneR on the study guide dataset (Question 4)</span>
+<p>Training data (8 instances):</p>
+<div class="tablewrap">
+<table>
+  <tr><th>ID</th><th>Height</th><th>Hair</th><th>Eyes</th><th>Class</th></tr>
+  <tr><td>1</td><td>Tall</td><td>Black</td><td>Brown</td><td>Yes</td></tr>
+  <tr><td>2</td><td>Short</td><td>Blond</td><td>Blue</td><td>No</td></tr>
+  <tr><td>3</td><td>Medium</td><td>Brown</td><td>Green</td><td>Yes</td></tr>
+  <tr><td>4</td><td>Tall</td><td>Blond</td><td>Blue</td><td>No</td></tr>
+  <tr><td>5</td><td>Short</td><td>Black</td><td>Brown</td><td>Yes</td></tr>
+  <tr><td>6</td><td>Medium</td><td>Blond</td><td>Green</td><td>No</td></tr>
+  <tr><td>7</td><td>Tall</td><td>Brown</td><td>Blue</td><td>Yes</td></tr>
+  <tr><td>8</td><td>Short</td><td>Brown</td><td>Green</td><td>No</td></tr>
+</table>
+</div>
+
+<p><strong>Step 1 &mdash; feature Height.</strong> Majority class per value, then errors:</p>
+<div class="tablewrap">
+<table>
+  <tr><th>Value</th><th>Instances (Class)</th><th>Majority class &rarr; rule</th><th>Errors</th></tr>
+  <tr><td>Tall</td><td>1: Yes, 4: No, 7: Yes</td><td>Yes (2 vs 1) &rarr; IF Height = Tall THEN Yes</td><td class="num">1</td></tr>
+  <tr><td>Short</td><td>2: No, 5: Yes, 8: No</td><td>No (2 vs 1) &rarr; IF Height = Short THEN No</td><td class="num">1</td></tr>
+  <tr><td>Medium</td><td>3: Yes, 6: No</td><td>tie (1 vs 1): predict either &rarr; IF Height = Medium THEN Yes or No</td><td class="num">1</td></tr>
+</table>
+</div>
+<p>Total error for Height = 1 + 1 + 1 = <strong>3</strong>. (With a tie, either prediction costs exactly one error, so the total is unaffected.)</p>
+
+<p><strong>Step 2 &mdash; feature Hair.</strong></p>
+<div class="tablewrap">
+<table>
+  <tr><th>Value</th><th>Instances (Class)</th><th>Majority class &rarr; rule</th><th>Errors</th></tr>
+  <tr><td>Black</td><td>1: Yes, 5: Yes</td><td>Yes (2 vs 0) &rarr; IF Hair = Black THEN Yes</td><td class="num">0</td></tr>
+  <tr><td>Blond</td><td>2: No, 4: No, 6: No</td><td>No (3 vs 0) &rarr; IF Hair = Blond THEN No</td><td class="num">0</td></tr>
+  <tr><td>Brown</td><td>3: Yes, 7: Yes, 8: No</td><td>Yes (2 vs 1) &rarr; IF Hair = Brown THEN Yes</td><td class="num">1</td></tr>
+</table>
+</div>
+<p>Total error for Hair = 0 + 0 + 1 = <strong>1</strong>.</p>
+
+<p><strong>Step 3 &mdash; feature Eyes.</strong></p>
+<div class="tablewrap">
+<table>
+  <tr><th>Value</th><th>Instances (Class)</th><th>Majority class &rarr; rule</th><th>Errors</th></tr>
+  <tr><td>Brown</td><td>1: Yes, 5: Yes</td><td>Yes (2 vs 0) &rarr; IF Eyes = Brown THEN Yes</td><td class="num">0</td></tr>
+  <tr><td>Blue</td><td>2: No, 4: No, 7: Yes</td><td>No (2 vs 1) &rarr; IF Eyes = Blue THEN No</td><td class="num">1</td></tr>
+  <tr><td>Green</td><td>3: Yes, 6: No, 8: No</td><td>No (2 vs 1) &rarr; IF Eyes = Green THEN No</td><td class="num">1</td></tr>
+</table>
+</div>
+<p>Total error for Eyes = 0 + 1 + 1 = <strong>2</strong>.</p>
+
+<p><strong>Step 4 &mdash; select the feature.</strong> Hair has the smallest total error (1 error, i.e. training accuracy 7/8 = 87.5%), so OneR selects <strong>Hair</strong> and discards the Height and Eyes rule sets.</p>
+
+<p><strong>Step 5 &mdash; the OneR rule set:</strong></p>
+<pre><code>r1: IF Hair = Black THEN Class = Yes
+r2: IF Hair = Blond THEN Class = No
+r3: IF Hair = Brown THEN Class = Yes</code></pre>
+
+<p><strong>Step 6 &mdash; mutually exclusive? exhaustive?</strong> The rule set is <em>mutually exclusive</em>: an instance has exactly one Hair value, so at most one rule can trigger and predictions can never conflict. It is <em>exhaustive over the values seen in training</em>: every Hair value present in the data (Black, Blond, Brown) has a rule, so every training instance is covered. Strictly, an unseen Hair value (say &ldquo;Red&rdquo;) would trigger no rule, so full exhaustiveness over the whole attribute space would additionally require a default rule.</p>
+</div>
+
+<h3>Numerical features and missing values</h3>
+<ul>
+  <li><strong>Numerical features:</strong> OneR works on categorical values, so a continuous feature (e.g., Height measured in cm) must first be <strong>discretised</strong>: bin the measurements into a small number of intervals (e.g., short/medium/tall, or data-driven bins) and then run OneR on the bin labels exactly as above.</li>
+  <li><strong>Missing values:</strong> OneR does not require imputation. Missing can be treated as its own distinct value with its own majority-class rule, or the instances with a missing value can be left out when computing that feature&rsquo;s majority classes and error. Either way the algorithm proceeds without first filling in the missing entries.</li>
+</ul>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>
+Comparing features by their single best rule. OneR compares the <em>total</em> error summed over
+<em>all</em> value-rules of a feature. Also remember the &ldquo;1&rdquo; in OneR: the final classifier uses
+only <em>one</em> descriptive feature &mdash; simple and interpretable, but prone to underfitting when the
+target depends on several features jointly.
+</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;OneR is developed in the Week 6 lecture slides (rule-induction section). Witten et al. (4e), &sect;4.4 provides the broader rule-induction context that the next section builds on.</p>
+
+<h2>7. Sequential covering and the PRISM algorithm</h2>
+
+<p>
+A OneR model can underfit because it may only use one feature. To learn more complex rules, the lectures
+introduce <strong>sequential covering</strong>: rules are learned one at a time, each rule &ldquo;covers&rdquo;
+some instances, the covered instances are removed, and the process repeats on what remains.
+</p>
+
+<h3>Sequential covering (separate-and-conquer)</h3>
+<pre><code>let DT be the training data set; set DS = DT
+create an empty rule set R
+for each target class tc:
+    while DS contains instances with the label tc:
+        learn a rule ri for class tc and add it to R
+        remove the instances from DS covered by ri</code></pre>
+
+<p>
+Key properties of this scheme:
+</p>
+<ul>
+  <li><strong>One class at a time.</strong> Rules are built for a chosen target class <var>tc</var>, disregarding the structure of the other classes except as &ldquo;not <var>tc</var>&rdquo;. This contrasts with decision trees, whose splits consider all classes at once.</li>
+  <li><strong>Multiple rules per class.</strong> A single rule rarely covers <em>all</em> instances of the class, so the while-loop keeps generating further rules for <var>tc</var> until every <var>tc</var>-instance in <var>DS</var> is covered.</li>
+  <li><strong>Removing covered instances is essential.</strong> If the instances covered by <var>r</var><sub>1</sub> were kept, the next iteration would simply re-learn the same rule. Removing them forces each new rule to specialise on the instances the earlier rules missed.</li>
+  <li>Because each rule separates out the instances it handles, these methods are called <strong>separate-and-conquer</strong> algorithms (contrast: divide-and-conquer for trees). The instance set continually shrinks, which keeps the search efficient.</li>
+</ul>
+
+<figure>
+<svg viewBox="0 0 680 340" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="w6-arr3x" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1a1a1a"/>
+    </marker>
+    <marker id="w6-arr3y" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1a1a1a"/>
+    </marker>
+  </defs>
+  <rect x="250" y="30" width="398" height="120" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.4"/>
+  <rect x="330" y="190" width="110" height="55" fill="#e8eef6" stroke="#1d4e89" stroke-width="1.4"/>
+  <line x1="250" y1="30" x2="250" y2="285" stroke="#1d4e89" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="60" y1="150" x2="648" y2="150" stroke="#1d4e89" stroke-width="1" stroke-dasharray="5 4"/>
+  <path d="M60 285 H648" stroke="#1a1a1a" stroke-width="1.4" marker-end="url(#w6-arr3x)"/>
+  <path d="M60 285 V28" stroke="#1a1a1a" stroke-width="1.4" marker-end="url(#w6-arr3y)"/>
+  <text x="656" y="300" fill="#1a1a1a" >x</text>
+  <text x="44" y="24" fill="#1a1a1a" >y</text>
+  <text x="250" y="306" text-anchor="middle" fill="#555" >x = 1.2</text>
+  <text x="66" y="144" fill="#555" >y = 2.6</text>
+  <text x="449" y="52" text-anchor="middle" fill="#1d4e89" >r1: if x &gt; 1.2 and y &gt; 2.6 then class = a</text>
+  <text x="385" y="278" text-anchor="middle" fill="#1d4e89" >r2: if x &gt; 1.4 and y &lt; 2.4 then class = a</text>
+  <circle cx="300" cy="75" r="6" fill="#1d4e89"/>
+  <circle cx="360" cy="112" r="6" fill="#1d4e89"/>
+  <circle cx="430" cy="64" r="6" fill="#1d4e89"/>
+  <circle cx="500" cy="98" r="6" fill="#1d4e89"/>
+  <circle cx="575" cy="122" r="6" fill="#1d4e89"/>
+  <circle cx="615" cy="68" r="6" fill="#1d4e89"/>
+  <circle cx="380" cy="215" r="6" fill="#1d4e89"/>
+  <circle cx="110" cy="80" r="6" fill="#d8d8d8" stroke="#1a1a1a"/>
+  <circle cx="150" cy="182" r="6" fill="#d8d8d8" stroke="#1a1a1a"/>
+  <circle cx="100" cy="242" r="6" fill="#d8d8d8" stroke="#1a1a1a"/>
+  <circle cx="200" cy="120" r="6" fill="#d8d8d8" stroke="#1a1a1a"/>
+  <circle cx="215" cy="235" r="6" fill="#d8d8d8" stroke="#1a1a1a"/>
+  <circle cx="300" cy="256" r="6" fill="#d8d8d8" stroke="#1a1a1a"/>
+  <circle cx="480" cy="206" r="6" fill="#d8d8d8" stroke="#1a1a1a"/>
+  <circle cx="560" cy="242" r="6" fill="#d8d8d8" stroke="#1a1a1a"/>
+  <circle cx="620" cy="186" r="6" fill="#d8d8d8" stroke="#1a1a1a"/>
+  <circle cx="140" cy="44" r="6" fill="#d8d8d8" stroke="#1a1a1a"/>
+  <rect x="470" y="292" width="170" height="46" fill="#eef1f6" stroke="#d8d8d8"/>
+  <circle cx="486" cy="305" r="6" fill="#1d4e89"/>
+  <text x="498" y="309" fill="#1a1a1a" >class a</text>
+  <circle cx="486" cy="325" r="6" fill="#d8d8d8" stroke="#1a1a1a"/>
+  <text x="498" y="329" fill="#1a1a1a" >class b</text>
+</svg>
+<figcaption><b>Figure 6.3</b> &mdash; Covering (separate-and-conquer) in a two-dimensional instance space, mirroring Witten et al. Figure 4.6(a). The first rule for class <em>a</em> adds the test x &gt; 1.2, then y &gt; 2.6, carving out a rectangular region that covers most <em>a</em>&rsquo;s while excluding <em>b</em>&rsquo;s; a second rule covers the remaining <em>a</em>. Each conjunct is an axis-aligned cut, so every rule corresponds to a rectangle; covered instances are then removed and the next rule is learned on the remainder.</figcaption>
+</figure>
+
+<h3>PRISM: learning one rule</h3>
+
+<p>
+Sequential covering says <em>that</em> rules are learned sequentially; <strong>PRISM</strong> specifies
+<em>how</em> each rule is learned. For the current target class <var>tc</var>:
+</p>
+
+<pre><code>Create a rule r with an empty condition that predicts tc
+    (the empty rule covers all instances; its accuracy is the fraction of tc).
+Repeat:
+    For each descriptive feature d not yet in the condition of r,
+      and for every unique value v of d:
+        temporarily add (d = v) to the condition of r
+        compute the coverage t and accuracy p/t of r
+        remove (d = v) again
+    Permanently add the condition (d = v) that maximises p/t
+        (break ties by choosing the condition with the largest p).
+Until the rule covers only instances of class tc (accuracy = 100%)
+    or no descriptive features remain.
+Remove the instances covered by r; start again if tc-instances remain.</code></pre>
+
+<p>
+The rule starts empty (general) and is <strong>specialised</strong> one conjunct at a time
+(general-to-specific). At each step PRISM evaluates every feature&ndash;value condition not yet in the rule
+and keeps the one that maximises the proportion of the target class among the covered instances. Because a
+rule is finished only when it covers target-class instances exclusively, PRISM generates rules that are
+<strong>perfect (or near-perfect) on the training data</strong> &mdash; which makes it prone to overfitting
+when the training data contain noise (Section 8).
+</p>
+
+<p>
+The lectures illustrate PRISM on the 24-instance contact-lens dataset with target class <em>hard</em>
+(4 of 24 instances). The empty rule covers 24 instances at accuracy 4/24 &asymp; 17%. Among the nine possible
+first conjuncts, <code>astigmatism = yes</code> and <code>tear production rate = normal</code> both give the
+largest fraction 4/12, one is chosen (here arbitrarily), then <code>tear production rate = normal</code>
+(4/6) and finally <code>spectacle prescription = myope</code> (3/3 = 100%), giving the perfect rule
+</p>
+<p>
+<code>IF astigmatism = yes AND tear production rate = normal AND spectacle prescription = myope THEN recommended lenses = hard</code>.
+</p>
+<p>
+This rule covers only 3 of the 4 <em>hard</em> instances, so the covered instances are removed and PRISM
+learns a <em>second</em> rule for <em>hard</em> from the remaining 21 instances
+(<code>IF age = young AND astigmatism = yes AND tear production rate = normal THEN hard</code>).
+Only then does the algorithm move on to the next class (<em>soft</em>, then <em>none</em>) &mdash; unless a
+default rule is used, in which case explicit rules for the final class are unnecessary.
+</p>
+
+<figure>
+<svg viewBox="0 0 620 500" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <text x="20" y="26" fill="#1a1a1a" font-weight="bold">Choosing a conjunct (target class = hard, 24 instances)</text>
+  <rect x="16" y="40" width="560" height="56" fill="none" stroke="#1d4e89" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="24" y="60" fill="#1a1a1a">astigmatism = yes</text>
+  <text x="560" y="60" text-anchor="end" fill="#1d4e89" font-weight="bold">4/12</text>
+  <text x="24" y="86" fill="#1a1a1a">tear production rate = normal</text>
+  <text x="560" y="86" text-anchor="end" fill="#1d4e89" font-weight="bold">4/12</text>
+  <text x="24" y="122" fill="#1a1a1a">spectacle prescription = myope</text>
+  <text x="560" y="122" text-anchor="end" fill="#1a1a1a">3/12</text>
+  <text x="24" y="148" fill="#1a1a1a">age = young</text>
+  <text x="560" y="148" text-anchor="end" fill="#1a1a1a">2/8</text>
+  <text x="24" y="174" fill="#1a1a1a">age = pre-presbyopic</text>
+  <text x="560" y="174" text-anchor="end" fill="#1a1a1a">1/8</text>
+  <text x="24" y="200" fill="#1a1a1a">astigmatism = no</text>
+  <text x="560" y="200" text-anchor="end" fill="#1a1a1a">0/12</text>
+  <text x="20" y="228" fill="#555" >candidate conditions with accuracy p/t;</text>
+  <text x="20" y="244" fill="#555" >maximise p/t (ties: larger p, else arbitrary)</text>
+  <text x="20" y="270" fill="#1a1a1a" font-weight="bold">Coverage shrinks, accuracy rises</text>
+  <line x1="20" y1="420" x2="600" y2="420" stroke="#d8d8d8" stroke-width="1.4"/>
+  <rect x="85" y="294" width="50" height="108" fill="#d8d8d8"/>
+  <rect x="85" y="402" width="50" height="18" fill="#1d4e89"/>
+  <text x="110" y="286" text-anchor="middle" fill="#1a1a1a" >4/24 = 17%</text>
+  <rect x="225" y="348" width="50" height="54" fill="#d8d8d8"/>
+  <rect x="225" y="402" width="50" height="18" fill="#1d4e89"/>
+  <text x="250" y="340" text-anchor="middle" fill="#1a1a1a" >4/12 = 33%</text>
+  <rect x="365" y="375" width="50" height="27" fill="#d8d8d8"/>
+  <rect x="365" y="402" width="50" height="18" fill="#1d4e89"/>
+  <text x="390" y="367" text-anchor="middle" fill="#1a1a1a" >4/6 = 67%</text>
+  <rect x="505" y="406" width="50" height="14" fill="#1d4e89"/>
+  <text x="530" y="398" text-anchor="middle" fill="#1a1a1a" >3/3 = 100%</text>
+  <text x="110" y="438" text-anchor="middle" fill="#555" >empty</text>
+  <text x="110" y="452" text-anchor="middle" fill="#555" >rule</text>
+  <text x="250" y="438" text-anchor="middle" fill="#555" >+ astigmatism</text>
+  <text x="250" y="452" text-anchor="middle" fill="#555" >= yes</text>
+  <text x="390" y="438" text-anchor="middle" fill="#555" >+ tear prod.</text>
+  <text x="390" y="452" text-anchor="middle" fill="#555" >= normal</text>
+  <text x="530" y="438" text-anchor="middle" fill="#555" >+ spec. prescr.</text>
+  <text x="530" y="452" text-anchor="middle" fill="#555" >= myope</text>
+  <rect x="150" y="474" width="12" height="12" fill="#1d4e89"/>
+  <text x="168" y="484" fill="#555" >target class (hard)</text>
+  <rect x="320" y="474" width="12" height="12" fill="#d8d8d8"/>
+  <text x="338" y="484" fill="#555" >other classes</text>
+</svg>
+<figcaption><b>Figure 6.4</b> &mdash; PRISM rule construction on the contact-lens data (target class <em>hard</em>). Left: candidate first conjuncts scored by the fraction of target-class instances they cover; the maximum (4/12, a tie resolved arbitrarily) is added to the rule. Right: as conjuncts accumulate, the covered set narrows from 24 instances to 3 while accuracy climbs from about 17% to 100% &mdash; progressive narrowing of covered instances is the core mechanism of PRISM.</figcaption>
+</figure>
+
+<div class="box exam"><span class="label">Worked example &mdash; PRISM condition selection (study guide Question 5)</span>
+<p>PRISM is constructing a rule for the target class <code>Quality = Reject</code>. Candidate conditions and their target/non-target counts:</p>
+<div class="tablewrap">
+<table>
+  <tr><th>Candidate condition</th><th class="num">Reject (<var>p</var>)</th><th class="num">Accept</th><th class="num">Covered (<var>t</var>)</th><th class="num">Reject proportion <var>p</var>/<var>t</var></th></tr>
+  <tr><td>ToolWear = High</td><td class="num">12</td><td class="num">4</td><td class="num">16</td><td class="num">12/16 = 0.750</td></tr>
+  <tr><td>CoolantFlow = Low</td><td class="num">8</td><td class="num">2</td><td class="num">10</td><td class="num">8/10 = 0.800</td></tr>
+  <tr><td>Vibration = High</td><td class="num">6</td><td class="num">3</td><td class="num">9</td><td class="num">6/9 &asymp; 0.667</td></tr>
+  <tr><td>Pressure = Low</td><td class="num">4</td><td class="num">0</td><td class="num">4</td><td class="num">4/4 = 1.000</td></tr>
+</table>
+</div>
+<p><strong>Step 1 &mdash; select the condition.</strong> PRISM maximises the Reject proportion <var>p</var>/<var>t</var>. The maximum is <strong>Pressure = Low</strong> with 4/4 = 1.000, so the rule becomes</p>
+<pre><code>IF Pressure = Low THEN Quality = Reject</code></pre>
+<p><strong>Step 2 &mdash; why this condition?</strong> Every instance it covers belongs to the target class: the rule is already 100% accurate on the training data, which is exactly what PRISM strives for. Note that it wins on <em>proportion</em>, not on coverage: ToolWear = High covers more Reject instances (12) but also 4 Accept instances, giving a lower proportion.</p>
+<p><strong>Step 3 &mdash; what if non-target instances remained?</strong> Suppose instead the best condition had been CoolantFlow = Low (0.800), still covering 2 Accept instances. PRISM would then <em>continue growing the rule</em>: among the features not yet in the rule, it evaluates every further feature&ndash;value condition <em>on the instances currently covered</em>, permanently adds the one with the highest new <var>p</var>/<var>t</var>, and repeats until the rule covers only Reject instances (or no features remain). This is why a PRISM rule can accumulate several conditions: each added conjunct can only remove instances from the covered set, so it is possible to keep cutting away the remaining Accept instances while retaining (most of) the Reject instances, driving accuracy toward 100%.</p>
+<p><strong>Step 4 &mdash; after the rule is finished.</strong> The instances covered by the completed rule are removed from the working set. If Reject instances remain uncovered, PRISM learns another rule for Reject on the reduced set; otherwise it moves on to the next class (Accept). Multiple rules per class are needed because each rule is restricted to a perfect rectangular &ldquo;patch&rdquo; of the instance space, and one patch seldom covers an entire class.</p>
+</div>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>
+Assuming PRISM must produce an exhaustive rule set: it does not. If rules are generated for every class
+there is a rule for every training instance, but unseen combinations may trigger nothing; and if a default
+rule is used, explicit rules for the last class are omitted entirely. Also remember PRISM&rsquo;s rules are
+perfect <em>on the training data</em> &mdash; that is a memorisation guarantee, not a generalisation one.
+</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Witten et al. (4e), &sect;4.4 &mdash; &ldquo;A simple covering algorithm&rdquo; (the <var>p</var>/<var>t</var> criterion and the contact-lens walkthrough), the PRISM summary pseudocode (Figure 4.8), and &ldquo;Rules versus decision lists&rdquo; (separate-and-conquer). Mirrored in the Week 6 lecture slides (sequential covering and PRISM example).</p>
+
+<h2>8. Model complexity, overfitting and pruning</h2>
+
+<p>
+The <strong>complexity</strong> of a rule-based classifier is driven by the number of rules and by how
+specific each rule is (how many conjuncts it contains). Simple models (few, general rules &mdash; think OneR)
+can <strong>underfit</strong>: they perform poorly even on the training data because they cannot capture the
+underlying relationship. Very complex models (many highly specific rules &mdash; think unpruned PRISM) can
+<strong>overfit</strong>: they fit the training data almost perfectly, including its noise, and then perform
+poorly on unseen data.
+</p>
+
+<p>
+The lectures&rsquo; remedy is a hold-out split (e.g., 70% training / 15% validation / 15% test):
+train candidate models of increasing complexity, plot <em>training</em> and <em>validation</em> performance
+against complexity, and select the model with the best validation performance. Underfitting shows up as poor
+training <em>and</em> validation performance; overfitting as validation performance far below training
+performance (validation error &gt;&gt; training error). The test set is reserved for the final, single
+evaluation of the chosen model.
+</p>
+
+<div class="box exam"><span class="label">Worked example &mdash; detecting overfitting in rule sets (study guide Question 7)</span>
+<p>A rule-induction algorithm is run with different limits on the maximum number of rules:</p>
+<div class="tablewrap">
+<table>
+  <tr><th>Number of rules</th><th class="num">Training accuracy</th><th class="num">Validation accuracy</th></tr>
+  <tr><td>1</td><td class="num">0.71</td><td class="num">0.69</td></tr>
+  <tr><td>3</td><td class="num">0.80</td><td class="num">0.76</td></tr>
+  <tr><td>5</td><td class="num">0.87</td><td class="num">0.81</td></tr>
+  <tr><td>7</td><td class="num">0.91</td><td class="num">0.84</td></tr>
+  <tr><td>9</td><td class="num">0.95</td><td class="num">0.81</td></tr>
+  <tr><td>11</td><td class="num">0.98</td><td class="num">0.77</td></tr>
+</table>
+</div>
+<p><strong>Pattern.</strong> Training accuracy rises monotonically with the number of rules (0.71 &rarr; 0.98): more rules always let the model fit the training data more closely. Validation accuracy rises only up to 7 rules (0.84) and then <em>falls</em> (0.81 at 9 rules, 0.77 at 11).</p>
+<p><strong>Model selection.</strong> Choose the <strong>7-rule model</strong>: it has the highest validation accuracy. Selection must be based on validation performance, not training performance.</p>
+<p><strong>Where overfitting begins.</strong> Beyond 7 rules: from 9 rules onward, training accuracy keeps climbing while validation accuracy drops &mdash; the extra rules are memorising noise in the training set rather than learning general structure.</p>
+<p><strong>Why not the 11-rule model?</strong> Its 0.98 training accuracy is the <em>highest</em>, but its validation accuracy (0.77) is well below the 7-rule model&rsquo;s &mdash; the classic overfitting signature. Selecting by training accuracy rewards memorisation.</p>
+<p><strong>Two controls against overfitting.</strong> (1) <em>Stopping criterion / complexity limit</em>: cap the number of rules (or conjuncts per rule), as done in this table. (2) <em>Rule pruning</em>: after learning a rule, remove conjuncts one at a time and keep the removal whenever the pruned rule performs better on validation data. A third, equivalent view is validation-based model selection, as used above.</p>
+</div>
+
+<p>
+The lectures describe pruning concretely via the RIPPER algorithm: rules are grown general-to-specific
+(selecting conjuncts with the FOIL information-gain measure rather than raw accuracy), then pruned by
+repeatedly removing the last-added conjunct and re-measuring accuracy on validation data, keeping the
+removal whenever accuracy improves, until accuracy stops improving. The FOIL measure itself rewards rules
+that cover many target instances while being accurate (lecture formulation, with <var>c</var>, <var>i</var> the
+correct/incorrect coverage of the old rule and <var>c</var>&prime;, <var>i</var>&prime; those of the new rule):
+</p>
+
+<div class="eq"><span class="eqbody">
+  FOIL_Gain = <var>c</var>&prime; &times;
+  ( log<sub>2</sub>
+  <span class="frac"><span class="top"><var>c</var>&prime;</span><span class="bot"><var>c</var>&prime; + <var>i</var>&prime;</span></span>
+  &minus; log<sub>2</sub>
+  <span class="frac"><span class="top"><var>c</var></span><span class="bot"><var>c</var> + <var>i</var></span></span>
+  )
+</span></div>
+
+<p>
+In short, overfitting in rule-based models is controlled by (i) <strong>rule pruning</strong>,
+(ii) <strong>stopping criteria</strong> (limits on rules/conjuncts, or stop adding conditions unless they
+help on held-out data), or (iii) <strong>model selection using validation data</strong>.
+</p>
+
+<div class="box watch"><span class="label">Common mistake</span>
+<p>
+Reporting the training accuracy of the final (largest) rule set as the model&rsquo;s quality. Always compare
+training and validation curves: the gap between them is your evidence of overfitting, and the validation
+peak decides which model to deploy.
+</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Week 6 lecture slides (model complexity, hold-out sampling, pruning via RIPPER/FOIL). Witten et al. (4e), &sect;4.4 explains why PRISM&rsquo;s drive for perfect rules makes overfitting the natural failure mode of covering algorithms.</p>
+
+<h2>9. Association rule mining</h2>
+
+<div class="box watch"><span class="label">Scope note</span>
+<p>
+The Week 6 learning outcomes emphasise <em>classification</em> rules. However, <strong>association rule
+mining is part of Topic 6</strong> per the module framework (&ldquo;Rule-Based Knowledge Discovery:
+association rule mining &hellip;&rdquo;) and is prescribed via Witten et al. &sect;4.5, so it is included
+here. The practical component of the module implements these methods in R; these notes stay conceptual.
+</p>
+</div>
+
+<h3>Association rules vs classification rules</h3>
+<ul>
+  <li>In a <strong>classification rule</strong>, the consequent is always the designated target feature; descriptive features appear only in the antecedent.</li>
+  <li>In an <strong>association rule</strong>, <em>any</em> attribute may appear on either side, and the consequent may contain <em>several</em> attributes, e.g. <code>IF temperature = cool THEN humidity = normal</code> or <code>IF temperature = cool AND windy = false THEN humidity = normal AND play = yes</code>.</li>
+  <li>There is no distinguished target: association mining searches for <em>any</em> regular co-occurrence among attribute values (the classic setting is market-basket analysis, where items are purchases).</li>
+</ul>
+
+<p>
+Because any combination of attributes could be a consequent, brute-force rule induction for every possible
+right-hand side is infeasible. Instead the method exploits the fact that only rules with <em>high
+coverage</em> are interesting, and works in two stages: first find frequent combinations of
+attribute&ndash;value pairs (<strong>itemsets</strong>), then turn them into rules with sufficient accuracy.
+Terminology: in this setting coverage is usually called <strong>support</strong> and accuracy
+<strong>confidence</strong>.
+</p>
+
+<div class="box def"><span class="label">Definition</span>
+<p>
+An <strong>item</strong> is an attribute&ndash;value pair; an <strong>itemset</strong> is a set of items.
+The <strong>support</strong> of an itemset (or rule) is the number of instances/transactions containing all
+its items. The <strong>confidence</strong> of a rule is the support of the full itemset (antecedent +
+consequent) divided by the support of the antecedent alone &mdash; the proportion of antecedent instances
+for which the rule is correct.
+</p>
+</div>
+
+<div class="eq"><span class="eqbody">
+  support(<var>X</var>) = number of instances containing all items in <var>X</var>
+  &nbsp;&nbsp;(sometimes normalised by <var>N</var>)
+</span></div>
+
+<div class="eq"><span class="eqbody">
+  confidence(<var>X</var> &rArr; <var>Y</var>) =
+  <span class="frac"><span class="top">support(<var>X</var> &cup; <var>Y</var>)</span><span class="bot">support(<var>X</var>)</span></span>
+</span></div>
+
+<h3>Why minimum support thresholds?</h3>
+<p>
+The user prescribes a <strong>minimum support</strong> (minimum coverage). This serves two purposes:
+it focuses the output on patterns that occur often enough to be interesting, and it makes the search
+feasible. Itemsets are generated level by level &mdash; all frequent one-item sets, then candidate two-item
+sets formed from pairs of them, then three-item sets, and so on &mdash; with one pass over the data per
+level to count coverage and discard itemsets below the threshold. The crucial property used is:
+<em>an itemset can only reach the minimum support if all of its subsets also reach it</em>, so infrequent
+subsets need never be expanded. (Sets containing two different values of the same attribute, e.g.
+outlook = sunny and outlook = overcast, are never generated since they cannot occur.)
+</p>
+
+<h3>From itemsets to rules</h3>
+<p>
+Each frequent itemset is then split into antecedent and consequent in every possible way, keeping only
+rules whose confidence meets the <strong>minimum accuracy</strong>. Witten et al.&rsquo;s weather data gives a
+concrete illustration: the three-itemset {humidity = normal, windy = false, play = yes} has support 4 and
+yields seven candidate rules, including
+</p>
+<ul>
+  <li><code>IF humidity = normal AND windy = false THEN play = yes</code> &mdash; 4/4 = 100%</li>
+  <li><code>IF humidity = normal AND play = yes THEN windy = false</code> &mdash; 4/6</li>
+  <li><code>IF humidity = normal THEN windy = false AND play = yes</code> &mdash; 4/7</li>
+  <li><code>IF play = yes THEN humidity = normal AND windy = false</code> &mdash; 4/9</li>
+</ul>
+<p>
+(each fraction is the itemset&rsquo;s support divided by the support of the rule&rsquo;s antecedent). With a
+minimum accuracy of 100%, only the first survives. Multi-consequent rules are built efficiently from
+single-consequent ones: a double-consequent rule can hold only if both corresponding single-consequent
+rules hold, so candidates are grown one consequent at a time instead of enumerating all subsets.
+</p>
+
+<p>
+Qualitatively, for the weather data with minimum coverage 2 and minimum accuracy 100%, the procedure returns
+58 rules &mdash; 3 with coverage 4 (e.g. <code>outlook = overcast &rArr; play = yes</code>), 5 with coverage 3
+(e.g. <code>outlook = sunny AND humidity = high &rArr; play = no</code>), and 50 with coverage 2. The point of
+the example is the mechanism (support filtering, then confidence filtering), not memorising the rules.
+</p>
+
+<figure>
+<svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Segoe UI, sans-serif" font-size="12.5">
+  <text x="24" y="30" fill="#1a1a1a" font-weight="bold">14 instances (weather days)</text>
+  <rect x="40" y="52" width="34" height="34" fill="#1d4e89" stroke="#1d4e89"/>
+  <rect x="88" y="52" width="34" height="34" fill="#ffffff" stroke="#d8d8d8"/>
+  <rect x="136" y="52" width="34" height="34" fill="#ffffff" stroke="#d8d8d8"/>
+  <rect x="184" y="52" width="34" height="34" fill="#1d4e89" stroke="#1d4e89"/>
+  <rect x="232" y="52" width="34" height="34" fill="#ffffff" stroke="#d8d8d8"/>
+  <rect x="280" y="52" width="34" height="34" fill="#e8eef6" stroke="#1d4e89"/>
+  <rect x="328" y="52" width="34" height="34" fill="#ffffff" stroke="#d8d8d8"/>
+  <rect x="40" y="100" width="34" height="34" fill="#e8eef6" stroke="#1d4e89"/>
+  <rect x="88" y="100" width="34" height="34" fill="#1d4e89" stroke="#1d4e89"/>
+  <rect x="136" y="100" width="34" height="34" fill="#ffffff" stroke="#d8d8d8"/>
+  <rect x="184" y="100" width="34" height="34" fill="#e8eef6" stroke="#1d4e89"/>
+  <rect x="232" y="100" width="34" height="34" fill="#ffffff" stroke="#d8d8d8"/>
+  <rect x="280" y="100" width="34" height="34" fill="#1d4e89" stroke="#1d4e89"/>
+  <rect x="328" y="100" width="34" height="34" fill="#ffffff" stroke="#d8d8d8"/>
+  <rect x="400" y="52" width="14" height="14" fill="#1d4e89"/>
+  <text x="422" y="64" fill="#1a1a1a" >all three items: humidity = normal,</text>
+  <text x="422" y="79" fill="#1a1a1a" >windy = false, play = yes (4 instances)</text>
+  <rect x="400" y="96" width="14" height="14" fill="#e8eef6" stroke="#1d4e89"/>
+  <text x="422" y="108" fill="#1a1a1a" >humidity = normal, but windy = false or</text>
+  <text x="422" y="123" fill="#1a1a1a" >play = yes missing (3 instances)</text>
+  <rect x="400" y="140" width="14" height="14" fill="#ffffff" stroke="#d8d8d8"/>
+  <text x="422" y="152" fill="#1a1a1a" >humidity &#8800; normal (7 instances)</text>
+  <text x="24" y="190" fill="#1a1a1a">support(humidity = normal, windy = false, play = yes) = 4</text>
+  <text x="24" y="214" fill="#1a1a1a">support(humidity = normal) = 4 + 3 = 7</text>
+  <text x="24" y="238" fill="#1a1a1a">confidence(if humidity = normal then windy = false and play = yes) = 4/7 &#8776; 57%</text>
+  <text x="24" y="262" fill="#555" >At minimum accuracy 100% this rule is discarded, but the rule with antecedent</text>
+  <text x="24" y="278" fill="#555" >(humidity = normal and windy = false) has confidence 4/4 = 100% and is kept.</text>
+</svg>
+<figcaption><b>Figure 6.5</b> &mdash; Support and confidence for association rules. Each square is one instance (day). The itemset {humidity = normal, windy = false, play = yes} has support 4 (dark squares). The rule&rsquo;s confidence divides that support by the support of its antecedent (all light + dark squares, 7), giving 4/7. Only rules meeting both the minimum support and minimum confidence thresholds survive.</figcaption>
+</figure>
+
+<div class="box intuition"><span class="label">Intuition</span>
+<p>
+Association mining reverses the usual modelling question. Instead of &ldquo;given features, predict the
+target&rdquo;, it asks &ldquo;which attribute values tend to occur together?&rdquo;. Support filters out
+coincidences that are too rare to matter; confidence checks that the co-occurrence is reliable enough
+when the antecedent holds.
+</p>
+</div>
+
+<p class="reading"><b>Reading</b> &nbsp;Witten et al. (4e), &sect;4.5 &mdash; item sets for the weather data (Table 4.10), turning itemsets into rules (Table 4.11), generating rules efficiently, and the role of the minimum coverage threshold.</p>
+
+<hr>
+<p style="color:var(--muted);font-size:.9rem">
+Topic 6 summary: rules give interpretable classifiers whose behaviour is governed by structure
+(antecedent/conjuncts, ordering, default), evaluated by coverage and accuracy, learned by OneR
+(single feature, minimum total error) or PRISM (sequential covering, greedy <var>p</var>/<var>t</var>
+specialisation), and kept honest by validation-based complexity control. Association rule mining extends
+the rule idea to any-to-any attribute relationships via frequent itemsets, support and confidence.
+</p>
+
+
+<nav class="weeknav">
+  <a href="../index.html#da344">&larr; Course Notes</a>
+  <span class="sep">&middot;</span><a href="Week5_Prototype_Learning_and_SOMs.html">&larr; Week 5: Prototype-Based Learning and SOMs</a>
+  <span class="cur">Week 6 of 6</span>
+</nav>
+</body>
+</html>
