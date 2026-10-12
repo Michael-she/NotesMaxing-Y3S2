@@ -358,6 +358,25 @@ body.chat-open main ::selection{background:rgba(184,116,26,.32)}
   body.chat-open main{padding-bottom:62vh}
 }
 
+/* resizing and popping out (ask-gemini.js sets --chat-w, and the position and size when floating) */
+#chat .bar .model{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#chatGrip{position:absolute;left:-5px;top:0;bottom:0;width:10px;cursor:ew-resize;z-index:2;touch-action:none}
+#chatGrip::after{content:"";position:absolute;left:4px;top:0;bottom:0;width:2px;background:var(--genoa);opacity:0;transition:opacity .12s}
+#chatGrip:hover::after,body.chat-dragging #chatGrip::after{opacity:1}
+#chatCorner{display:none;position:absolute;right:0;bottom:0;width:20px;height:20px;cursor:nwse-resize;z-index:2;touch-action:none;
+  background:linear-gradient(135deg,transparent 0 55%,var(--ink-2) 55% 62%,transparent 62% 72%,var(--ink-2) 72% 79%,transparent 79%);border-bottom-right-radius:12px;opacity:.7}
+#chatCorner:hover{opacity:1}
+body.chat-dragging{user-select:none;-webkit-user-select:none}
+@media (min-width:901px){
+  body.chat-float #chat{right:auto;bottom:auto;max-width:none;overflow:hidden;border:1px solid var(--rule);border-radius:12px;padding-bottom:0;box-shadow:0 18px 50px rgba(9,28,33,.28)}
+  body.chat-float #chat .bar{cursor:move;touch-action:none}
+  body.chat-float #chatGrip{display:none}
+  body.chat-float #chatCorner{display:block}
+  body.chat-float.chat-open .wrap{margin-right:auto;margin-left:auto}
+  body.chat-float #composer{padding-bottom:16px}
+}
+@media (max-width:900px){#chatGrip,#chatCorner,#popChat{display:none}}
+
 /* ---------- 9. Collapsible side menu and formula annotations ---------- */
 nav .rail-toggle{display:block;margin:0 0 16px;background:var(--surface)}
 #railShow{position:fixed;top:calc(var(--head-h) + 12px);left:12px;z-index:30;display:none;background:var(--surface);box-shadow:var(--shadow)}

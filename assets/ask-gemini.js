@@ -25,10 +25,12 @@
 </button>
 
 <aside id="chat" hidden aria-label="Ask Gemini about these notes">
+  <div id="chatGrip" title="Drag to resize" aria-hidden="true"></div>
   <div class="bar">
     <h2>Ask Gemini</h2>
     <span class="model" id="modelName"></span>
     <button class="iconbtn" id="newChat" type="button" title="Clear the conversation">New chat</button>
+    <button class="iconbtn" id="popChat" type="button">Pop out</button>
     <button class="iconbtn" id="closeChat" type="button" title="Close (Esc)">Close</button>
   </div>
   <div class="status" id="chatStatus" hidden></div>
@@ -42,6 +44,7 @@
       <button id="sendBtn" type="submit" title="Send (Ctrl+Enter)">Send</button>
     </div>
   </form>
+  <div id="chatCorner" title="Drag to resize" aria-hidden="true"></div>
 </aside>
 <div class="toast" id="toast" role="status"></div>
 `);
@@ -354,5 +357,58 @@
     if (e.key === 'Escape' && !chat.hidden) closeChat();
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k' && !e.shiftKey){ e.preventDefault(); chat.hidden ? openChat() : qEl.focus(); }
   });
+  // ---------- resize and pop out ----------
+  // Docked (the default): drag the panel's left edge to change its width.
+  // Popped out: a floating window; drag its title bar to move it and its corner to resize it.
+  // The layout is remembered across pages. On narrow screens the panel is a bottom sheet and
+  // none of this applies.
+  const LAYOUT = 'notes-chat-layout';
+  const wide = matchMedia('(min-width: 901px)');
+  const grip = $('#chatGrip'), corner = $('#chatCorner'), popBtn = $('#popChat'), barEl = chat.querySelector('.bar');
+  const layout = {mode: 'dock', w: 420, x: null, y: null, fw: 440, fh: 560};
+  try{ Object.assign(layout, JSON.parse(localStorage.getItem(LAYOUT) || '{}')); }catch(e){}
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(Math.max(lo, hi), v));
+  function saveLayout(){ try{ localStorage.setItem(LAYOUT, JSON.stringify(layout)); }catch(e){} }
+  function applyLayout(){
+    const floating = layout.mode === 'float' && wide.matches;
+    document.body.classList.toggle('chat-float', floating);
+    popBtn.textContent = floating ? 'Dock' : 'Pop out';
+    popBtn.title = floating ? 'Dock the panel to the side of the page' : 'Pop out into a movable, resizable window';
+    for (const p of ['left', 'top', 'width', 'height']) chat.style.removeProperty(p);
+    if (!wide.matches){ document.documentElement.style.removeProperty('--chat-w'); return; }
+    layout.w = clamp(layout.w, 320, innerWidth - 240);
+    document.documentElement.style.setProperty('--chat-w', layout.w + 'px');
+    if (!floating) return;
+    const headH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--head-h')) || 0;
+    layout.fw = clamp(layout.fw, 320, innerWidth - 16);
+    layout.fh = clamp(layout.fh, 320, innerHeight - headH - 16);
+    if (layout.x == null){ layout.x = innerWidth - layout.fw - 24; layout.y = headH + 16; }
+    layout.x = clamp(layout.x, 8, innerWidth - layout.fw - 8);
+    layout.y = clamp(layout.y, headH + 8, innerHeight - layout.fh - 8);
+    Object.assign(chat.style, {left: layout.x + 'px', top: layout.y + 'px', width: layout.fw + 'px', height: layout.fh + 'px'});
+  }
+  function draggable(handle, onMove){
+    handle.addEventListener('pointerdown', e => {
+      if (e.button !== 0 || !wide.matches || e.target.closest('button')) return;
+      e.preventDefault();
+      try{ handle.setPointerCapture(e.pointerId); }catch(err){}
+      const from = Object.assign({}, layout), px = e.clientX, py = e.clientY;
+      document.body.classList.add('chat-dragging');
+      const move = ev => { onMove(ev.clientX - px, ev.clientY - py, from); applyLayout(); };
+      const up = () => {
+        handle.removeEventListener('pointermove', move); handle.removeEventListener('pointerup', up); handle.removeEventListener('pointercancel', up);
+        document.body.classList.remove('chat-dragging'); saveLayout();
+      };
+      handle.addEventListener('pointermove', move); handle.addEventListener('pointerup', up); handle.addEventListener('pointercancel', up);
+    });
+  }
+  draggable(grip, (dx, dy, from) => { layout.w = from.w - dx; });
+  draggable(corner, (dx, dy, from) => { layout.fw = from.fw + dx; layout.fh = from.fh + dy; });
+  draggable(barEl, (dx, dy, from) => { if (layout.mode === 'float'){ layout.x = from.x + dx; layout.y = from.y + dy; } });
+  popBtn.onclick = () => { layout.mode = layout.mode === 'float' ? 'dock' : 'float'; saveLayout(); applyLayout(); };
+  wide.addEventListener('change', applyLayout);
+  addEventListener('resize', applyLayout);
+  applyLayout();
+
   load();
 })();

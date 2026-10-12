@@ -78,6 +78,8 @@ and this skeleton: `<div class="wrap">`, holding `<nav class="toc">` (the side m
 
 Every notes page has a chat panel that sends questions, plus any text you select in the notes, to Google Gemini. Click **Ask Gemini** (or press Ctrl+K), select lines in the notes to attach them, and press Ctrl+Enter to send. The API key stays on the server and never reaches the browser.
 
+On a desktop-width screen the panel can be resized by dragging its left edge, or popped out with **Pop out** into a floating window that moves by its title bar and resizes from its bottom-right corner. **Dock** puts it back. The size and position are remembered.
+
 **On the deployed site (Vercel)** it works as is. `api/chat.js` and `api/health.js` are Vercel functions that add the key and stream Gemini's answer, and `vercel.json` routes each page's `api/...` calls to them. The key comes from the project's environment variables: `GEMINI_API_KEY`, and optionally `GEMINI_MODEL`. The functions only accept requests from the site's own pages.
 
 **Locally** the same panel runs through one small Python server:
