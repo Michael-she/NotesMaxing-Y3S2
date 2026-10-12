@@ -749,10 +749,10 @@ body.chat-open main ::selection{background:rgba(184,116,26,.32)}
   <div id="msgs" aria-live="polite"></div>
   <div id="ctx" aria-label="Attached excerpts"></div>
   <form id="composer">
-    <textarea id="q" rows="2" placeholder="Ask about the notes, or about what you selected…"></textarea>
+    <textarea id="q" rows="2" placeholder="Ask about the notes, or about what you selected. Ctrl+Enter to send."></textarea>
     <div class="row">
       <label for="fullNotes"><input type="checkbox" id="fullNotes" checked> Send the full notes as background</label>
-      <button id="sendBtn" type="submit">Send</button>
+      <button id="sendBtn" type="submit" title="Send (Ctrl+Enter)">Send</button>
     </div>
   </form>
 </aside>
@@ -943,7 +943,7 @@ body.chat-open main ::selection{background:rgba(184,116,26,.32)}
   function load(){ try{ const v = JSON.parse(localStorage.getItem(STORE) || '[]'); if (Array.isArray(v)) history = v; }catch(e){} }
 
   // ---------- server status ----------
-  const RUN_HELP = 'The chat needs the local server, which keeps your API key out of the browser. In the top folder of the notes repo, double-click <code>run_notes.bat</code> (or run <code>python serve_notes.py</code>), then open these notes from the page it opens at <code>http://localhost:8765</code>.';
+  const RUN_HELP = 'Ask Gemini cannot be reached from here. Reload the page, or if you opened this file straight from disk, use the deployed site instead.';
   async function checkServer(){
     statusEl.hidden = true;
     if (location.protocol === 'file:'){ setStatus(RUN_HELP); serverOK = false; return; }
@@ -952,7 +952,7 @@ body.chat-open main ::selection{background:rgba(184,116,26,.32)}
       if (!r.ok) throw new Error();
       const h = await r.json();
       $('#modelName').textContent = h.model || '';
-      if (!h.hasKey){ setStatus('No API key yet. Open the <code>.env</code> file in the top folder of the notes repo (copy <code>.env.example</code> if it is not there), set <code>GEMINI_API_KEY=</code> to your key, and save. No restart needed.'); }
+      if (!h.hasKey){ setStatus('The server has no Gemini API key yet (<code>GEMINI_API_KEY</code>).'); }
       serverOK = true;
     }catch(e){ setStatus(RUN_HELP); serverOK = false; }
   }
@@ -1052,7 +1052,7 @@ body.chat-open main ::selection{background:rgba(184,116,26,.32)}
   $('#newChat').onclick = () => { history = []; attached = []; save(); renderChips(); renderAll(); qEl.focus(); };
   $('#composer').addEventListener('submit', e => { e.preventDefault(); send(); });
   qEl.addEventListener('input', autosize);
-  qEl.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); send(); } });
+  qEl.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); send(); } });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !chat.hidden) closeChat();
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k' && !e.shiftKey){ e.preventDefault(); chat.hidden ? openChat() : qEl.focus(); }

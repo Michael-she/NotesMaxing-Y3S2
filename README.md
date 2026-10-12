@@ -13,7 +13,9 @@ modules.json          the modules: id, folder, code, display name
 build_manifest.py     scans the module folders and writes manifest.js
 serve_notes.py        local server: hub, notes, papers and the Ask Gemini API
 run_notes.bat         double-click launcher for serve_notes.py (Windows)
-.env.example          template for the Gemini key
+.env.example          template for the Gemini key (local server)
+api/chat.js, health.js  Ask Gemini endpoints for the Vercel deployment
+vercel.json           routes every page's api/ calls to those functions
 assets/
     notes.css         shared page design (taken from the CS354 Week 12 page)
     ask-gemini.js     the Ask Gemini panel, one script tag per page
@@ -68,15 +70,19 @@ Every notes page uses the design of the CS354 Week 12 page: a contents rail on t
 <dl class="terms"><dt>term</dt><dd>What it means.</dd></dl>
 ```
 
-## Ask Gemini panel (optional)
+## Ask Gemini panel
 
-Every notes page has a chat panel that sends questions, plus any text you select in the notes, to Google Gemini. It runs through one small local server for the whole repo, so the API key never reaches the browser.
+Every notes page has a chat panel that sends questions, plus any text you select in the notes, to Google Gemini. Click **Ask Gemini** (or press Ctrl+K), select lines in the notes to attach them, and press Ctrl+Enter to send. The API key stays on the server and never reaches the browser.
+
+**On the deployed site (Vercel)** it works as is. `api/chat.js` and `api/health.js` are Vercel functions that add the key and stream Gemini's answer, and `vercel.json` routes each page's `api/...` calls to them. The key comes from the project's environment variables: `GEMINI_API_KEY`, and optionally `GEMINI_MODEL`. The functions only accept requests from the site's own pages.
+
+**Locally** the same panel runs through one small Python server:
 
 1. Copy `.env.example` to `.env` (in this top folder) and paste your key after `GEMINI_API_KEY=`.
 2. Run `python serve_notes.py` (or double-click `run_notes.bat` on Windows). It opens the hub at `http://localhost:8765`.
-3. Open a notes page from the hub, click **Ask Gemini** (or press Ctrl+K), select lines in the notes to attach them, and ask.
+3. Open a notes page from the hub and use the panel as usual.
 
-A page calls `api/health` and `api/chat` relative to its own location, and the server answers those at any depth, so a notes page with the panel works from any module folder without changes.
+A page calls `api/health` and `api/chat` relative to its own location, and both the local server and the Vercel routes answer those at any depth, so a notes page with the panel works from any module folder without changes.
 
 The server uses only the Python standard library, binds to `127.0.0.1`, and refuses to serve dotfiles (`.env`, `.git`) or `.py` files.
 
