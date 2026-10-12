@@ -1,44 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="stylesheet" href="../style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 1 Theory: Architecture Foundations &amp; Number Systems · CS245</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/notes.css">
+<link rel="stylesheet" href="../../assets/page.css">
 </head>
 <body>
-<div class="page">
-
-<div class="topnav">
-  <a href="../../index.html#cs245">CS245 Notes</a>
-  <span class="sep">/</span>
-  <span class="current">Theory</span>
-  <a href="../programming/week1.html">Programming</a>
-  <a href="../../index.html#cs245/papers">Papers</a>
-  <span class="sep">|</span>
-  <span class="current">W1</span>
-  <a href="week2.html">W2</a>
-  <a href="week3.html">W3</a>
-  <a href="week4.html">W4</a>
-  <a href="week5.html">W5</a>
-</div>
-
-<header class="hero">
-  <span class="kicker theory">Theory</span>
-  <h1 class="title">Week 1 — Architecture Foundations &amp; Number Systems</h1>
-  <p class="subtitle">CS245 · Lectures 1–3 · Computing history, microcontroller concepts, number representation</p>
-</header>
-
-<nav class="toc">
-  <span class="toc-label">Contents</span>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../index.html#cs245">&larr; All modules</a>
+  <div class="k">CS245 &middot; Theory &middot; Week 1</div>
   <ol>
-    <li><a href="#l1">Lecture 1 — Embedded Systems &amp; Computing History</a></li>
-    <li><a href="#l2">Lectures 2–3 — Number Systems &amp; Representation</a></li>
+    <li><a href="#l1">1. Embedded Systems &amp; Computing History</a></li>
+    <li><a href="#l2">2. Number Systems &amp; Representation</a></li>
   </ol>
+  <div class="k">Theory weeks</div>
+  <div class="weeks"><a href="week1.html" class="cur" aria-current="page">1</a><a href="week2.html">2</a><a href="week3.html">3</a><a href="week4.html">4</a><a href="week5.html">5</a></div>
+  <ol class="alt"><li><a href="../programming/week1.html">Programming notes, week 1 &rarr;</a></li></ol>
 </nav>
 
-<section class="lecture" id="l1">
-  <h2>Lecture 1 — Embedded Systems &amp; Computing History</h2>
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 &middot; THEORY &middot; WEEK 1</div>
+  <h1>Architecture Foundations &amp; Number Systems</h1>
+  <p>CS245 · Lectures 1–3 · Computing history, microcontroller concepts, number representation</p>
+</header>
+
+<section id="l1">
+  <h2><span class="n">L1</span>Embedded Systems &amp; Computing History</h2>
 
   <h3>Embedded systems &amp; microcontrollers</h3>
   <ul>
@@ -76,8 +70,8 @@
   <div class="note-box"><span class="label">Why this matters</span>Computers began as mechanical devices and only became general-purpose, programmable, electronic machines in the mid-20th century. Everything since — including the STM32F407 used in this module — is a direct descendant of the ENIAC/Z3 lineage: a clocked digital circuit executing stored instructions.</div>
 </section>
 
-<section class="lecture" id="l2">
-  <h2>Lectures 2–3 — Number Systems &amp; Representation</h2>
+<section id="l2">
+  <h2><span class="n">L2–3</span>Number Systems &amp; Representation</h2>
 
   <h3>Number systems</h3>
   <p>Digital logic only has two states — HIGH and LOW — so binary is the native representation. Hexadecimal exists purely as a convenient, human-readable shorthand for binary.</p>
@@ -89,7 +83,10 @@
   <h3>Two's-complement signed integers</h3>
   <p>The processor performs all arithmetic as if the number were unsigned — the only difference is how the bit pattern is <em>interpreted</em>. In two's complement, the most significant bit (MSB) carries a <em>negative</em> weight instead of a positive one:</p>
   <div class="formula">Value = −b<sub>N−1</sub>·2<sup>N−1</sup> + Σ bᵢ·2<sup>i</sup>  (i = 0 … N−2)
-<span class="note">Most positive value: 011…1₂ = +2ᴺ⁻¹ − 1 · Most negative value: 100…0₂ = −2ᴺ⁻¹</span></div>
+<span class="note">Most positive value: 011…1₂ = +2ᴺ⁻¹ − 1 · Most negative value: 100…0₂ = −2ᴺ⁻¹</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>N</dt><dd>Number of bits in the word.</dd><dt>b&#7522;</dt><dd>Bit i, either 0 or 1.</dd><dt>b<sub>N&minus;1</sub></dt><dd>The sign bit; it carries a negative weight of 2<sup>N&minus;1</sup>.</dd><dt>2<sup>i</sup></dt><dd>Weight of bit i.</dd></dl>
+</div>
   <p>Negation algorithm: invert every bit and add 1 — <code>Two's-Comp(x) = ~x + 1</code>.</p>
 
   <table>
@@ -106,7 +103,10 @@
   <div class="note-box"><span class="label">Worked caution</span>A satellite telemetry channel used a 16-bit signed integer with ×1000 fixed-point scaling to represent an angular spin rate (range −32.768 to +32.767 deg/s). When the true rate exceeded the representable range, the value overflowed and appeared to "jump" between +32 and −32 — a classic symptom of exceeding a signed integer's range.</div>
 
   <h3>Floating-point numbers (IEEE 754)</h3>
-  <div class="formula">Value = (−1)<sup>S</sup> × (1.M) × 2<sup>E − bias</sup></div>
+  <div class="formula">Value = (−1)<sup>S</sup> × (1.M) × 2<sup>E − bias</sup>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>S</dt><dd>Sign bit: 0 for positive, 1 for negative.</dd><dt>M</dt><dd>Mantissa (fraction) bits.</dd><dt>1.M</dt><dd>Significand with its implied leading 1.</dd><dt>E</dt><dd>Stored exponent field.</dd><dt>bias</dt><dd>Offset subtracted from E; 127 for single precision.</dd></dl>
+</div>
 
   <figure class="diagram">
     <div class="diagram-svg">
@@ -161,11 +161,13 @@
   </ul>
 </section>
 
-<footer class="pagefoot">
-  <span>CS245 — Computer Systems 245</span>
-  <span><a href="../programming/week1.html">See the Programming notes for Week 1 →</a></span>
+<footer>
+<p>Computer Systems 245 &middot; Theory &middot; Week 1. <a href="../programming/week1.html">See the Programming notes for Week 1 →</a></p>
 </footer>
-
+</main>
 </div>
+
+<script src="../../assets/ask-gemini.js" data-store="cs245-theory-w1" data-course="Computer Systems 245" data-topic="Theory track, week 1: Architecture Foundations &amp; Number Systems"></script>
+<script src="../../assets/page.js"></script>
 </body>
 </html>

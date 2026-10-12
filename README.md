@@ -14,6 +14,10 @@ build_manifest.py     scans the module folders and writes manifest.js
 serve_notes.py        local server: hub, notes, papers and the Ask Gemini API
 run_notes.bat         double-click launcher for serve_notes.py (Windows)
 .env.example          template for the Gemini key
+assets/
+    notes.css         shared page design (taken from the CS354 Week 12 page)
+    ask-gemini.js     the Ask Gemini panel, one script tag per page
+    page.css, page.js collapsible side menu and formula annotations, used by every page
 
 CS354-Control-Systems/
     Week12-Digital-Control/Week12_Digital_Control_Notes.html
@@ -27,7 +31,6 @@ DA344-Data-Analytics/
 CS245-Computer-Systems/
     theory/week1.html ... week5.html
     programming/week1.html ... week5.html
-    style.css
     papers/
 Electronics/
     papers/
@@ -43,9 +46,31 @@ Then run `python build_manifest.py` and commit `manifest.js` with the new files.
 
 Folders starting with `_` or `.` and files named `index.html` are never listed. PDFs are git-ignored everywhere except inside `papers/` folders.
 
+## Page design
+
+Every notes page uses the design of the CS354 Week 12 page: a contents rail on the left, one reading column, the same fonts and colours, light and dark themes. The CS354 page carries its own styles; the other pages link `assets/notes.css`. A new page gets the full set with these tags (adjust `../` to the page's depth):
+
+```html
+<link rel="stylesheet" href="../assets/notes.css">
+<link rel="stylesheet" href="../assets/page.css">
+...
+<script src="../assets/ask-gemini.js" data-store="da344-w7" data-course="Data Analytics 344" data-topic="Week 7: Topic"></script>
+<script src="../assets/page.js"></script>
+```
+
+`DA344-Data-Analytics/_template/NOTES_TEMPLATE.html` is a working skeleton; after copying it into the module folder, change its `../../` paths to `../`.
+
+- **Side menu:** the "Hide menu" button at the top of the contents rail collapses it, and a "Menu" button brings it back. The choice is remembered across pages.
+- **Formula annotations:** every displayed formula has an "Annotate terms" checkbox, off by default, that lists what each term means. To annotate a new formula, end its box (`.eq` or `.formula`) with:
+
+```html
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>term</dt><dd>What it means.</dd></dl>
+```
+
 ## Ask Gemini panel (optional)
 
-Notes pages can include a chat panel that sends questions, plus any text you select in the notes, to Google Gemini. It runs through one small local server for the whole repo, so the API key never reaches the browser.
+Every notes page has a chat panel that sends questions, plus any text you select in the notes, to Google Gemini. It runs through one small local server for the whole repo, so the API key never reaches the browser.
 
 1. Copy `.env.example` to `.env` (in this top folder) and paste your key after `GEMINI_API_KEY=`.
 2. Run `python serve_notes.py` (or double-click `run_notes.bat` on Windows). It opens the hub at `http://localhost:8765`.

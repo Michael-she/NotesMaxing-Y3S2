@@ -1,48 +1,42 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="stylesheet" href="../style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 3 Programming: GPIO Registers, Pointers &amp; Bit Manipulation · CS245</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/notes.css">
+<link rel="stylesheet" href="../../assets/page.css">
 </head>
 <body>
-<div class="page">
-
-<div class="topnav">
-  <a href="../../index.html#cs245">CS245 Notes</a>
-  <span class="sep">/</span>
-  <a href="../theory/week3.html">Theory</a>
-  <span class="current">Programming</span>
-  <a href="../../index.html#cs245/papers">Papers</a>
-  <span class="sep">|</span>
-  <a href="week1.html">W1</a>
-  <a href="week2.html">W2</a>
-  <span class="current">W3</span>
-  <a href="week4.html">W4</a>
-  <a href="week5.html">W5</a>
-</div>
-
-<header class="hero">
-  <span class="kicker programming">Programming</span>
-  <h1 class="title">Week 3 — GPIO Registers, Pointers &amp; Bit Manipulation</h1>
-  <p class="subtitle">CS245 · Lectures 7–8 (+ revision) · Register-level GPIO access, C pointers, bitwise operators, HAL</p>
-</header>
-
-<nav class="toc">
-  <span class="toc-label">Contents</span>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../index.html#cs245">&larr; All modules</a>
+  <div class="k">CS245 &middot; Programming &middot; Week 3</div>
   <ol>
-    <li><a href="#l8a">STM32F4 GPIO Registers</a></li>
-    <li><a href="#ptr">Pointers in C</a></li>
-    <li><a href="#bitops">Bitwise Operators &amp; Bit Manipulation</a></li>
-    <li><a href="#l8b">Direct Register Access Examples</a></li>
-    <li><a href="#l8c">STM32 HAL GPIO Functions</a></li>
-    <li><a href="#debounce">Software Debouncing</a></li>
+    <li><a href="#l8a">1. STM32F4 GPIO Registers</a></li>
+    <li><a href="#ptr">2. Pointers in C</a></li>
+    <li><a href="#bitops">3. Bitwise Operators &amp; Bit Manipulation</a></li>
+    <li><a href="#l8b">4. Direct Register Access Examples</a></li>
+    <li><a href="#l8c">5. STM32 HAL GPIO Functions</a></li>
+    <li><a href="#debounce">6. Software Debouncing</a></li>
   </ol>
+  <div class="k">Programming weeks</div>
+  <div class="weeks"><a href="week1.html">1</a><a href="week2.html">2</a><a href="week3.html" class="cur" aria-current="page">3</a><a href="week4.html">4</a><a href="week5.html">5</a></div>
+  <ol class="alt"><li><a href="../theory/week3.html">Theory notes, week 3 &rarr;</a></li></ol>
 </nav>
 
-<section class="lecture" id="l8a">
-  <h2>STM32F4 GPIO Registers</h2>
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 &middot; PROGRAMMING &middot; WEEK 3</div>
+  <h1>GPIO Registers, Pointers &amp; Bit Manipulation</h1>
+  <p>CS245 · Lectures 7–8 (+ revision) · Register-level GPIO access, C pointers, bitwise operators, HAL</p>
+</header>
+
+<section id="l8a">
+  <h2><span class="n">01</span>STM32F4 GPIO Registers</h2>
   <p>Five 16-bit-wide ports — <strong>GPIOA…GPIOE</strong> — each with pins 0–15 (e.g. <code>PA0</code>…<code>PA15</code>). Base addresses (on the AHB1 bus):</p>
   <table>
     <thead><tr><th>Port</th><th>Base address</th></tr></thead>
@@ -149,8 +143,8 @@
   </table>
 </section>
 
-<section class="lecture" id="ptr">
-  <h2>Pointers in C</h2>
+<section id="ptr">
+  <h2><span class="n">02</span>Pointers in C</h2>
   <p>A <strong>pointer</strong> is a variable that contains an address — nothing more. <code>Pointer == Address</code>. A pointer has a type, which tells the compiler the size/type of the data stored <em>at</em> that address; the pointer variable itself is always a fixed size (32 bits on this platform), regardless of what it points to.</p>
   <pre><code>int* my_ptr;      // my_ptr will hold the address of an int</code></pre>
   <p>Two operators are central to working with pointers:</p>
@@ -186,8 +180,8 @@ uint8_t* p = data1;   // array name decays to a pointer to its first element</co
   <p>An array's size is fixed at compile time. There is a subtle but important difference between an array name and a pointer variable: the array name is <em>not itself a variable</em> (you cannot reassign it to point elsewhere), whereas a pointer variable can be reassigned to point anywhere.</p>
 </section>
 
-<section class="lecture" id="bitops">
-  <h2>Bitwise Operators &amp; Bit Manipulation</h2>
+<section id="bitops">
+  <h2><span class="n">03</span>Bitwise Operators &amp; Bit Manipulation</h2>
   <p>These three operations — AND, OR, and BIC (bit-clear, i.e. AND-NOT) — are the standard toolkit for checking or modifying individual bits inside a register without disturbing the others.</p>
 
   <h3>AND — masking / checking bits</h3>
@@ -232,8 +226,8 @@ a = b &amp; ~(1 &lt;&lt; 5);</code></pre>
   <p>This is exactly the pattern used to configure a single pin's field inside a shared register such as <code>GPIOx_MODER</code> without disturbing the other 15 pins' configuration.</p>
 </section>
 
-<section class="lecture" id="l8b">
-  <h2>Direct Register Access Examples</h2>
+<section id="l8b">
+  <h2><span class="n">04</span>Direct Register Access Examples</h2>
   <h3>Configure PD13 as a general-purpose output</h3>
   <p>GPIOD base is <code>0x4002 0C00</code>; <code>MODER</code> offset is <code>0x00</code>. Pin 13 occupies bits 27:26 of MODER — clear those two bits, then set them to <code>01</code>:</p>
   <pre><code>#define GPIOD_MODER (*((volatile uint32_t *)0x40020C00))
@@ -251,8 +245,8 @@ uint32_t * GPIOD_MODER_p = (uint32_t *) 0x40020C00;
 uint8_t pin_state = (GPIOE_IDR &gt;&gt; 4) &amp; 0x1;   // isolate bit 4</code></pre>
 </section>
 
-<section class="lecture" id="l8c">
-  <h2>STM32 HAL GPIO Functions</h2>
+<section id="l8c">
+  <h2><span class="n">05</span>STM32 HAL GPIO Functions</h2>
   <p>STMicroelectronics provides a Hardware Abstraction Layer (HAL) and low-level drivers to improve productivity and portability across the STM32 family; STM32CubeIDE bundles STM32CubeMX to auto-generate initialisation code from a graphical configuration. Under the hood, the HAL functions simply read/write the same memory-mapped registers shown above — with added parameter validation.</p>
   <pre><code>void HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init);
 void HAL_GPIO_DeInit(GPIO_TypeDef *GPIOx, uint32_t GPIO_Pin);
@@ -268,17 +262,19 @@ HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);</code></pre>
   <p>In STM32CubeIDE, typing a function/constant name and pressing <kbd>Ctrl</kbd>+<kbd>Space</kbd> shows "Template Proposals" with the valid values — but this is only a list of what compiles, not what is functionally correct for your circuit; you still need to know which value is actually right.</p>
 </section>
 
-<section class="lecture" id="debounce">
-  <h2>Software Debouncing</h2>
+<section id="debounce">
+  <h2><span class="n">06</span>Software Debouncing</h2>
   <p>It is generally best to solve a hardware problem in hardware, but a few software approaches exist. The simplest (and most limited) is to 'pause' the microcontroller after the first edge and wait for bouncing to settle before reading the pin again.</p>
   <div class="note-box"><span class="label">Caution</span>Avoid calling <code>HAL_Delay()</code> inside an interrupt handler — it depends on the SysTick interrupt to advance, and if SysTick cannot preempt the handler you are currently in, the system will hang waiting on a timer that can never fire.</div>
 </section>
 
-<footer class="pagefoot">
-  <span>CS245 — Computer Systems 245</span>
-  <span><a href="../theory/week3.html">See the Theory notes for Week 3 →</a></span>
+<footer>
+<p>Computer Systems 245 &middot; Programming &middot; Week 3. <a href="../theory/week3.html">See the Theory notes for Week 3 →</a></p>
 </footer>
-
+</main>
 </div>
+
+<script src="../../assets/ask-gemini.js" data-store="cs245-programming-w3" data-course="Computer Systems 245" data-topic="Programming track, week 3: GPIO Registers, Pointers &amp; Bit Manipulation"></script>
+<script src="../../assets/page.js"></script>
 </body>
 </html>

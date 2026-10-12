@@ -1,145 +1,48 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DA344 — Week 4: Data Clustering and Cluster Analysis</title>
-<style>
-/* ============================================================
-   DA344 Notes — shared stylesheet. DO NOT EDIT PER-WEEK.
-   Copy this whole <style> block verbatim into each week file.
-   ============================================================ */
-:root{
-  --bg:#12151a; --ink:#e6e9ed; --muted:#9aa5b1; --rule:#2c3238; --soft:#1a1e24;
-  --accent:#7bb0e8; --accent-soft:#182634;
-  --warn:#e3b565; --warn-soft:#2b2211;
-  --ok:#7fd1a3; --ok-soft:#123023;
-  --maxw:52rem;
-}
-*{box-sizing:border-box}
-html{font-size:16px}
-body{
-  margin:0 auto; padding:2.5rem 1.5rem 5rem; max-width:var(--maxw);
-  font-family:"Charter","Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
-  color:var(--ink); background:var(--bg); line-height:1.62;
-  -webkit-font-smoothing:antialiased;
-}
-/* ---- headings ---- */
-h1,h2,h3{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;line-height:1.25;color:var(--ink)}
-h1{font-size:2.1rem;font-weight:700;margin:0 0 .3rem;letter-spacing:-.02em}
-.subtitle{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;color:var(--muted);font-size:1.05rem;margin:0 0 2rem}
-h2{font-size:1.45rem;font-weight:650;margin:3rem 0 .9rem;padding-bottom:.35rem;border-bottom:2px solid var(--accent)}
-h3{font-size:1.13rem;font-weight:650;margin:2rem 0 .6rem;color:var(--accent)}
-p{margin:0 0 1rem}
-ul,ol{margin:0 0 1rem;padding-left:1.4rem}
-li{margin:.3rem 0}
-strong{font-weight:650}
-a{color:var(--accent)}
-
-/* ---- document header block ---- */
-.docmeta{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 .6rem}
-
-/* ---- boxes ---- */
-.box{border:1px solid var(--rule);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;background:var(--soft);page-break-inside:avoid}
-.box>:first-child{margin-top:0}
-.box>:last-child{margin-bottom:0}
-.box .label{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
-.def{background:var(--accent-soft);border-color:#2c4a6e}
-.def .label{color:var(--accent)}
-.watch{background:var(--warn-soft);border-color:#4a3b1a}
-.watch .label{color:var(--warn)}
-.exam{background:var(--ok-soft);border-color:#2f5940}
-.exam .label{color:var(--ok)}
-.intuition{background:var(--bg);border-style:dashed}
-
-/* ---- summary sheet (tier 1) ---- */
-.summary{border:2px solid var(--accent);border-radius:8px;padding:1.4rem 1.6rem;margin:0 0 2.5rem;page-break-after:always}
-.summary h2{margin-top:0;border:none;padding:0;font-size:1.2rem}
-.summary h3{margin:1.2rem 0 .4rem;font-size:.95rem}
-.summary ul{margin-bottom:.6rem}
-.summary li{margin:.15rem 0;font-size:.94rem}
-
-/* ---- tables ---- */
-table{border-collapse:collapse;width:100%;margin:1.2rem 0;font-size:.92rem;page-break-inside:avoid}
-caption{caption-side:bottom;font-size:.82rem;color:var(--muted);text-align:left;padding-top:.5rem}
-th,td{border:1px solid var(--rule);padding:.45rem .6rem;text-align:left;vertical-align:top}
-th{background:var(--soft);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-weight:650;font-size:.86rem}
-td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
-.tablewrap{overflow-x:auto}
-
-/* ---- maths ---- */
-.eq{margin:1.2rem 0;text-align:center;font-size:1.02rem;page-break-inside:avoid}
-.eq .eqbody{display:inline-block;padding:.2rem .6rem}
-var{font-style:italic;font-family:Cambria,Georgia,serif}
-.frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .25em}
-.frac .top{display:block;border-bottom:1px solid currentColor;padding:0 .35em}
-.frac .bot{display:block;padding:0 .35em}
-sub,sup{font-size:.72em;line-height:0}
-
-/* ---- figures / SVG diagrams ---- */
-figure{margin:1.8rem 0;text-align:center;page-break-inside:avoid}
-figure svg{max-width:100%;height:auto;background:#eef1f6;border-radius:10px;padding:10px;box-sizing:border-box;border:1px solid #d9dee5}
-figcaption{font-size:.85rem;color:var(--muted);text-align:left;margin-top:.6rem;padding-top:.4rem;border-top:1px solid var(--rule)}
-figcaption b{color:var(--ink)}
-
-/* ---- reading refs ---- */
-.reading{font-size:.9rem;background:var(--bg);border-left:3px solid var(--accent);padding:.15rem 0 .15rem 1rem;margin:1.2rem 0;color:var(--muted)}
-.reading b{color:var(--ink);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
-
-/* ---- worked solutions ---- */
-
-
-
-/* ---- week navigation ---- */
-.weeknav{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .9rem;
-  font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:.85rem;
-  margin:0 0 2rem;padding:.7rem 1rem;background:var(--soft);
-  border:1px solid var(--rule);border-radius:8px}
-.weeknav a{color:var(--accent);text-decoration:none}
-.weeknav a:hover{text-decoration:underline}
-.weeknav .sep{color:var(--muted)}
-.weeknav .cur{color:var(--muted);margin-left:auto;font-weight:650}
-
-/* ---- print / PDF ---- */
-@page{size:A4;margin:18mm 16mm}
-@media print{
-
-  /* force a light, ink-friendly palette for printed/PDF output regardless of on-screen dark mode */
-  :root{
-    --bg:#fff; --ink:#1a1a1a; --muted:#555; --rule:#d8d8d8; --soft:#f6f7f9;
-    --accent:#1d4e89; --accent-soft:#e8eef6;
-    --warn:#8a5a00; --warn-soft:#fdf4e3;
-    --ok:#1f6b45; --ok-soft:#e8f4ee;
-  }
-  .def{border-color:#bccfe4}
-  .watch{border-color:#e6d3a8}
-  .exam{border-color:#bfdfcd}
-  .weeknav{display:none}
-
-  html{font-size:10.5pt}
-  body{max-width:none;padding:0}
-  h2{page-break-after:avoid}
-  h3{page-break-after:avoid}
-  .box,figure,table,.eq,.summary{page-break-inside:avoid}
-  a{color:var(--ink);text-decoration:none}
-}
-</style>
+<title>Week 4: Data Clustering and Cluster Analysis · DA344</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../assets/notes.css">
+<link rel="stylesheet" href="../assets/page.css">
 </head>
 <body>
-
-<p class="docmeta">Data Analytics 344 &middot; 2026</p>
-<h1>Week 4 — Data Clustering and Cluster Analysis</h1>
-<p class="subtitle">Unsupervised learning: defining similarity, building clusters with K-means, K-medoids and hierarchical methods, and judging whether the result is compact, separated, interpretable and stable.</p>
-
-<nav class="weeknav">
-  <a href="../index.html#da344">&larr; Course Notes</a>
-  <span class="sep">&middot;</span><a href="Week3_Data_Quality_and_Preparation.html">&larr; Week 3: Data Quality and Preparation</a>
-  <span class="sep">&middot;</span><a href="Week5_Prototype_Learning_and_SOMs.html">Week 5: Prototype-Based Learning and SOMs &rarr;</a>
-  <span class="cur">Week 4 of 6</span>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../index.html#da344">&larr; All modules</a>
+  <div class="k">DA344 &middot; Week 4</div>
+  <ol>
+    <li><a href="#summary">At a glance</a></li>
+    <li><a href="#s1">1. Clustering as unsupervised learning</a></li>
+    <li><a href="#s2">2. Similarity and distance measures</a></li>
+    <li><a href="#s3">3. Feature scale and normalisation</a></li>
+    <li><a href="#s4">4. Cluster tendency: should we cluster at all?</a></li>
+    <li><a href="#s5">5. Partition-based clustering: K-means</a></li>
+    <li><a href="#s6">6. K-medoids: clustering around observed instances</a></li>
+    <li><a href="#s7">7. Hierarchical clustering</a></li>
+    <li><a href="#s8">8. Choosing the number of clusters</a></li>
+    <li><a href="#s9">9. Internal measures: compactness and separation</a></li>
+    <li><a href="#s10">10. Interpreting clusters</a></li>
+    <li><a href="#s11">11. Cluster stability</a></li>
+    <li><a href="#s12">12. The final judgement</a></li>
+  </ol>
+  <div class="k">Weeks</div>
+  <div class="weeks"><a href="Week1_Introduction_to_Data_Analytics.html">1</a><a href="Week2_Data_Exploration.html">2</a><a href="Week3_Data_Quality_and_Preparation.html">3</a><a href="Week4_Clustering_and_Cluster_Analysis.html" class="cur" aria-current="page">4</a><a href="Week5_Prototype_Learning_and_SOMs.html">5</a><a href="Week6_Rule_Based_Knowledge_Discovery.html">6</a></div>
 </nav>
 
+<main>
+<header class="top">
+  <div class="kicker">DATA ANALYTICS 344 &middot; WEEK 4</div>
+  <h1>Data Clustering and Cluster Analysis</h1>
+  <p>Unsupervised learning: defining similarity, building clusters with K-means, K-medoids and hierarchical methods, and judging whether the result is compact, separated, interpretable and stable.</p>
+</header>
+
 <!-- ===== TIER 1: ONE-PAGE SUMMARY SHEET ===== -->
-<section class="summary">
+<section class="summary" id="summary">
   <h2>Week 4 at a glance</h2>
 
   <h3>Core ideas</h3>
@@ -191,7 +94,8 @@ figcaption b{color:var(--ink)}
 
 <!-- ===== TIER 2: FULL NOTES ===== -->
 
-<h2>1. Clustering as unsupervised learning</h2>
+<section id="s1">
+<h2><span class="n">01</span>Clustering as unsupervised learning</h2>
 
 <p>In <strong>supervised learning</strong> (e.g. classification) historical instances with <em>known</em> target values are used to learn a model that assigns the correct class label to unseen instances. In <strong>unsupervised learning</strong> there is no target feature: the structure in the data must be discovered rather than predicted.</p>
 
@@ -225,8 +129,10 @@ figcaption b{color:var(--ink)}
 <p>Families of clustering algorithms differ in how they define a cluster: <strong>centroid-based</strong> (similarity = closeness to a cluster centre, e.g. K-means), <strong>connection-based</strong> (points close in data space are more similar), <strong>density-based</strong> (dense regions separated by sparse regions) and <strong>probability-based</strong> (instances likely drawn from the same distribution).</p>
 
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch 10 &sect;10.1 — introduction to clustering. The lectures also cover applying CRISP-DM to clustering.</p>
+</section>
 
-<h2>2. Similarity and distance measures</h2>
+<section id="s2">
+<h2><span class="n">02</span>Similarity and distance measures</h2>
 
 <p>A similarity measure compares two instances and quantifies how similar or different they are. A <em>similarity</em> function uses large values for similar instances; a <em>distance</em> (dissimilarity) measure uses low values for similar instances. Clustering needs one of these to operate.</p>
 
@@ -239,19 +145,28 @@ figcaption b{color:var(--ink)}
 <div class="eq"><span class="eqbody">
   Euclidean(<var>a</var>, <var>b</var>) = &#8214;<var>a</var> &minus; <var>b</var>&#8214;<sub>2</sub> =
   &radic;<span style="text-decoration:overline">&nbsp;&sum;<sub><var>i</var>=1</sub><sup><var>m</var></sup> (<var>a</var><sub><var>i</var></sub> &minus; <var>b</var><sub><var>i</var></sub>)<sup>2</sup>&nbsp;</span>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>a</var>, <var>b</var></dt><dd>The two instances being compared.</dd><dt><var>a</var><sub>i</sub>, <var>b</var><sub>i</sub></dt><dd>Their values for feature <var>i</var>.</dd><dt><var>m</var></dt><dd>Number of features.</dd><dt>&Vert;&middot;&Vert;<sub>2</sub></dt><dd>The L2 norm: straight-line length.</dd></dl>
+</div>
 
 <div class="eq"><span class="eqbody">
   Manhattan(<var>a</var>, <var>b</var>) = &#8214;<var>a</var> &minus; <var>b</var>&#8214;<sub>1</sub> =
   &sum;<sub><var>i</var>=1</sub><sup><var>m</var></sup> abs(<var>a</var><sub><var>i</var></sub> &minus; <var>b</var><sub><var>i</var></sub>)
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>a</var><sub>i</sub>, <var>b</var><sub>i</sub></dt><dd>Values of the two instances for feature <var>i</var>.</dd><dt><var>m</var></dt><dd>Number of features.</dd><dt>abs</dt><dd>Absolute value.</dd><dt>&Vert;&middot;&Vert;<sub>1</sub></dt><dd>The L1 norm: sum of axis-aligned steps.</dd></dl>
+</div>
 
 <p>Both are special cases of the <strong>Minkowski</strong> family of distances:</p>
 
 <div class="eq"><span class="eqbody">
   Minkowski(<var>a</var>, <var>b</var>) = &#8214;<var>a</var> &minus; <var>b</var>&#8214;<sub><var>p</var></sub> =
   <span style="white-space:nowrap">( &sum;<sub><var>i</var>=1</sub><sup><var>m</var></sup> abs(<var>a</var><sub><var>i</var></sub> &minus; <var>b</var><sub><var>i</var></sub>)<sup><var>p</var></sup> )</span><sup>1/<var>p</var></sup>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>p</var></dt><dd>Order of the distance: <var>p</var> = 1 gives Manhattan, <var>p</var> = 2 gives Euclidean.</dd><dt><var>a</var><sub>i</sub>, <var>b</var><sub>i</sub></dt><dd>Values of the two instances for feature <var>i</var>.</dd><dt><var>m</var></dt><dd>Number of features.</dd></dl>
+</div>
 
 <p>The positive parameter <var>p</var> controls the behaviour of the metric: <strong>larger <var>p</var> places more emphasis on large differences</strong> between feature values. Euclidean distance (<var>p</var> = 2) is therefore more strongly influenced by a single large difference in one feature than Manhattan distance (<var>p</var> = 1).</p>
 
@@ -297,7 +212,10 @@ figcaption b{color:var(--ink)}
   <var>d</var><sub>SSM</sub> =
   <span class="frac"><span class="top"><var>f</var><sub>01</sub> + <var>f</var><sub>10</sub></span>
   <span class="bot"><var>f</var><sub>01</sub> + <var>f</var><sub>10</sub> + <var>f</var><sub>00</sub> + <var>f</var><sub>11</sub></span></span>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>d</var><sub>SSM</sub></dt><dd>Simple-matching distance: the proportion of binary features that differ.</dd><dt><var>f</var><sub>01</sub></dt><dd>Number of features where <var>a</var> is 0 and <var>b</var> is 1.</dd><dt><var>f</var><sub>10</sub></dt><dd>Number of features where <var>a</var> is 1 and <var>b</var> is 0.</dd><dt><var>f</var><sub>00</sub></dt><dd>Number of features where both are 0.</dd><dt><var>f</var><sub>11</sub></dt><dd>Number of features where both are 1.</dd></dl>
+</div>
 
 <p>where <var>f</var><sub>01</sub> = number of features where <var>a</var> is 0 and <var>b</var> is 1, <var>f</var><sub>10</sub> = features where <var>a</var> is 1 and <var>b</var> is 0, <var>f</var><sub>00</sub> = features where both are 0, and <var>f</var><sub>11</sub> = features where both are 1. (Some formulations drop <var>f</var><sub>00</sub> from the denominator when shared absences are not meaningful.)</p>
 
@@ -311,7 +229,10 @@ figcaption b{color:var(--ink)}
 <div class="eq"><span class="eqbody">
   <var>d</var>(<var>a</var>, <var>b</var>) =
   <span class="frac"><span class="top"><var>m</var> &minus; <var>j</var></span><span class="bot"><var>m</var></span></span>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>d</var>(<var>a</var>, <var>b</var>)</dt><dd>Distance between two instances described by categorical features.</dd><dt><var>m</var></dt><dd>Number of features.</dd><dt><var>j</var></dt><dd>Number of features on which the two instances match.</dd><dt><var>m</var> &minus; <var>j</var></dt><dd>Number of features that differ.</dd></dl>
+</div>
 
 <p>where <var>m</var> is the number of features and <var>j</var> the number of matching features. Example: <var>a</var> = (Rugby, Engineering, SA), <var>b</var> = (Cricket, Marketing, USA), <var>c</var> = (Rugby, Marketing, USA): <var>d</var>(<var>a</var>,<var>b</var>) = 3/3, <var>d</var>(<var>a</var>,<var>c</var>) = 2/3, <var>d</var>(<var>b</var>,<var>c</var>) = 1/3.</p>
 
@@ -324,16 +245,20 @@ figcaption b{color:var(--ink)}
 </ul>
 
 <p class="reading"><b>Reading</b> &nbsp;Distance and similarity measures are sourced from Kelleher et al. (2e), Ch 5 (similarity-based learning) — recommended for a deeper treatment. Clustering context: Ch 10 &sect;10.1&ndash;10.2.</p>
+</section>
 
-<h2>3. Feature scale and normalisation</h2>
+<section id="s3">
+<h2><span class="n">03</span>Feature scale and normalisation</h2>
 
 <p>When distance is used as the similarity measure, features with larger values or larger variance <strong>dominate the distance calculation</strong>. Consider persons described by age and height: measuring height in centimetres rather than feet changes which person is &ldquo;closest&rdquo; to person A, because the height feature then contributes far more to every distance. The information in the data has not changed — only the units have — yet the clustering result can change. If the variance of one feature is much smaller than another's, K-means largely ignores the small-variance feature.</p>
 
 <div class="box watch"><span class="label">Common mistake</span>
 <p>Forgetting to normalise: with features on different scales, the resulting clusters reflect mostly the largest-scale feature. It is often recommended to scale all features to a common range before clustering. <strong>But scaling is not always right</strong>: for longitude/latitude coordinates, scaling each feature independently would destroy the geographic information that two cities are genuinely close to each other. Decide per problem whether the original units carry meaning.</p>
 </div>
+</section>
 
-<h2>4. Cluster tendency: should we cluster at all?</h2>
+<section id="s4">
+<h2><span class="n">04</span>Cluster tendency: should we cluster at all?</h2>
 
 <p>Perhaps the biggest limitation of clustering algorithms is that they <strong>always produce <var>k</var> clusters — even when the underlying data has no meaningful groupings</strong>. The classic illustration: the locations of bombs dropped on London during the (1940s) Blitz were, after the war, shown to be random — yet clustering the locations produces &ldquo;clusters&rdquo; that are meaningless. An improvement in the error measure after clustering can therefore be misleading.</p>
 
@@ -354,7 +279,10 @@ figcaption b{color:var(--ink)}
   <var>H</var> =
   <span class="frac"><span class="top">&sum;<sub><var>i</var>=1</sub><sup><var>m</var></sup> <var>r</var><sub><var>i</var></sub></span>
   <span class="bot">&sum;<sub><var>i</var>=1</sub><sup><var>m</var></sup> <var>a</var><sub><var>i</var></sub> + &sum;<sub><var>i</var>=1</sub><sup><var>m</var></sup> <var>r</var><sub><var>i</var></sub></span></span>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>H</var></dt><dd>Hopkins statistic: about 0.5 for uniform data, close to 1 for clustered data.</dd><dt><var>m</var></dt><dd>Number of points sampled.</dd><dt><var>r</var><sub>i</sub></dt><dd>Distance from uniform random point <var>q</var><sub>i</sub> to its nearest instance in the data.</dd><dt><var>a</var><sub>i</sub></dt><dd>Distance from sampled real instance <var>p</var><sub>i</sub> to its nearest instance in the data.</dd></dl>
+</div>
 
 <p><strong>Interpretation:</strong> if the data is clustered, real instances sit close to neighbours (<var>a<sub>i</sub></var> small) while uniform random points fall in the gaps (<var>r<sub>i</sub></var> large), so <var>H</var> is <strong>close to 1</strong>. If the data itself is uniform, <var>a<sub>i</sub></var> &asymp; <var>r<sub>i</sub></var> and <var>H</var> &asymp; <strong>0.5</strong> — no evidence of cluster structure.</p>
 
@@ -406,14 +334,19 @@ figcaption b{color:var(--ink)}
 </div>
 
 <p class="reading"><b>Reading</b> &nbsp;Cluster tendency is covered in the lectures; Kelleher et al. (2e), Ch 10 provides the surrounding clustering context.</p>
+</section>
 
-<h2>5. Partition-based clustering: K-means</h2>
+<section id="s5">
+<h2><span class="n">05</span>Partition-based clustering: K-means</h2>
 
 <p>K-means is the most well-known clustering algorithm: easy to understand, computationally efficient, and generally producing good results. It divides <var>n</var> instances into <var>k</var> disjoint clusters (<var>k</var> is user-specified), with each instance assigned to exactly one cluster, by minimising the within-cluster sum of squared error:</p>
 
 <div class="eq"><span class="eqbody">
   SSE = &sum;<sub><var>j</var>=1</sub><sup><var>k</var></sup> &sum;<sub><var>d<sub>i</sub></var> &isin; <var>C<sub>j</sub></var></sub> Dist(<var>d<sub>i</sub></var>, <var>c<sub>j</sub></var>)<sup>2</sup>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>SSE</dt><dd>Within-cluster sum of squared errors; K-means tries to make it small.</dd><dt><var>k</var></dt><dd>Number of clusters.</dd><dt><var>C</var><sub>j</sub></dt><dd>Cluster <var>j</var>.</dd><dt><var>d</var><sub>i</sub></dt><dd>An instance belonging to that cluster.</dd><dt><var>c</var><sub>j</sub></dt><dd>Centroid of cluster <var>j</var>.</dd><dt>Dist</dt><dd>The distance measure, usually Euclidean.</dd></dl>
+</div>
 
 <p>where <var>c</var><sub>1</sub>, &hellip;, <var>c<sub>k</sub></var> are the cluster <strong>centroids</strong> and Dist is a distance measure such as Euclidean distance.</p>
 
@@ -486,7 +419,10 @@ figcaption b{color:var(--ink)}
   <var>w</var>(<var>d<sub>i</sub></var>) =
   <span class="frac"><span class="top">Dist(<var>d<sub>i</sub></var>)<sup>2</sup></span>
   <span class="bot">&sum;<sub><var>p</var>=1</sub><sup><var>n</var></sup> Dist(<var>d<sub>p</sub></var>)<sup>2</sup></span></span>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>w</var>(<var>d</var><sub>i</sub>)</dt><dd>Probability that instance <var>d</var><sub>i</sub> is picked as the next centroid.</dd><dt>Dist(<var>d</var><sub>i</sub>)</dt><dd>Distance from the instance to the nearest centroid already chosen.</dd><dt>Denominator</dt><dd>Sum of the squared distances over all instances, so the weights add up to 1.</dd><dt><var>n</var></dt><dd>Number of instances.</dd></dl>
+</div>
 
 <p>so instances <em>far from</em> existing centroids are more likely to become the next centroid. Repeat until <var>k</var> centroids exist, then run the ordinary K-means loop.</p>
 
@@ -531,13 +467,19 @@ figcaption b{color:var(--ink)}
   (<span class="frac"><span class="top">&minus;0.392 &minus; 0.251 &minus; 0.736 &minus; 0.288 &minus; 0.597</span><span class="bot">5</span></span>,
   <span class="frac"><span class="top">&minus;1.258 &minus; 1.781 &minus; 1.694 &minus; 2.116 &minus; 1.577</span><span class="bot">5</span></span>,
   <span class="frac"><span class="top">&minus;0.666 &minus; 1.495 &minus; 0.686 &minus; 1.165 &minus; 0.618</span><span class="bot">5</span></span>)
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>c</var><sub>1</sub>&prime;</dt><dd>Updated centroid of cluster 1.</dd><dt>Each fraction</dt><dd>Mean of one feature over the instances now assigned to the cluster (members 1, 2, 5, 11, 12).</dd><dt>5</dt><dd>Number of instances in the cluster.</dd></dl>
+</div>
 <div class="eq"><span class="eqbody">
   = (<span class="frac"><span class="top">&minus;2.264</span><span class="bot">5</span></span>,
   <span class="frac"><span class="top">&minus;8.426</span><span class="bot">5</span></span>,
   <span class="frac"><span class="top">&minus;4.630</span><span class="bot">5</span></span>)
   = (&minus;0.453, &minus;1.685, &minus;0.926)
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>Numerators</dt><dd>Sum of each feature over the cluster's five members.</dd><dt>5</dt><dd>Number of members.</dd><dt>Result</dt><dd>Coordinates of the new centroid, one per feature.</dd></dl>
+</div>
 <p>The same calculation for the other two clusters gives:</p>
 <ul>
   <li><var>c</var><sub>2</sub>&prime; = ((0.917+1.204+0.778+1.075+1.280)/5, (&minus;0.961&minus;0.605&minus;0.436&minus;1.199&minus;1.188)/5, (0.055+0.351&minus;0.220&minus;0.141+0.053)/5) = (5.254/5, &minus;4.389/5, 0.098/5) = <b>(1.051, &minus;0.878, 0.020)</b></li>
@@ -547,8 +489,10 @@ figcaption b{color:var(--ink)}
 </div>
 
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch 10 &sect;10.2&ndash;10.3 — partition-based clustering and the K-means algorithm.</p>
+</section>
 
-<h2>6. K-medoids: clustering around observed instances</h2>
+<section id="s6">
+<h2><span class="n">06</span>K-medoids: clustering around observed instances</h2>
 
 <p>K-medoids addresses two weaknesses of K-means: sensitivity to outliers (the mean is easily pulled by extreme values, and squared errors amplify them) and the restriction to distances that work with means. Instead of a mean, each cluster is represented by a <strong>medoid</strong> — an actual observed instance.</p>
 
@@ -568,8 +512,10 @@ figcaption b{color:var(--ink)}
 <div class="box watch"><span class="label">Common mistake</span>
 <p>Confusing centroid and medoid. A <strong>centroid</strong> is the feature-wise mean of a cluster's members — it can lie at a point where no instance exists and is sensitive to extremes. A <strong>medoid</strong> is always one of the observed instances and is therefore less sensitive to extreme observations: swapping in an outlier never lowers the total distance much, whereas an outlier drags a mean towards it. Trade-off: K-medoids is more expensive to compute than K-means.</p>
 </div>
+</section>
 
-<h2>7. Hierarchical clustering</h2>
+<section id="s7">
+<h2><span class="n">07</span>Hierarchical clustering</h2>
 
 <p>Instead of one flat partition, hierarchical clustering learns a <strong>hierarchy of clusters</strong> — like grouping orchestra instruments into brass, percussion, strings and woodwinds, and then subdividing (strings into bowed and plucked, etc.). This reveals richer grouping structure at the cost of more computation. There are two directions:</p>
 <ul>
@@ -590,13 +536,19 @@ figcaption b{color:var(--ink)}
 <div class="eq"><span class="eqbody">
   Single: <var>d</var>(<var>C</var><sub>1</sub>,<var>C</var><sub>2</sub>) = min<sub><var>i</var>&isin;<var>C</var><sub>1</sub>, <var>j</var>&isin;<var>C</var><sub>2</sub></sub> <var>d</var>(<var>i</var>,<var>j</var>)
   &nbsp;&nbsp;&nbsp; Complete: <var>d</var>(<var>C</var><sub>1</sub>,<var>C</var><sub>2</sub>) = max<sub><var>i</var>&isin;<var>C</var><sub>1</sub>, <var>j</var>&isin;<var>C</var><sub>2</sub></sub> <var>d</var>(<var>i</var>,<var>j</var>)
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>d</var>(C<sub>1</sub>,C<sub>2</sub>)</dt><dd>Distance between the two clusters.</dd><dt><var>i</var>, <var>j</var></dt><dd>An instance from C<sub>1</sub> and one from C<sub>2</sub>.</dd><dt><var>d</var>(<var>i</var>,<var>j</var>)</dt><dd>Distance between those two instances.</dd><dt>min</dt><dd>Single linkage: the closest pair decides.</dd><dt>max</dt><dd>Complete linkage: the farthest pair decides.</dd></dl>
+</div>
 
 <div class="eq"><span class="eqbody">
   Average: <var>d</var>(<var>C</var><sub>1</sub>,<var>C</var><sub>2</sub>) =
   <span class="frac"><span class="top">1</span><span class="bot">|<var>C</var><sub>1</sub>|&middot;|<var>C</var><sub>2</sub>|</span></span>
   &sum;<sub><var>i</var>&isin;<var>C</var><sub>1</sub>, <var>j</var>&isin;<var>C</var><sub>2</sub></sub> <var>d</var>(<var>i</var>,<var>j</var>)
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>|C<sub>1</sub>|, |C<sub>2</sub>|</dt><dd>Number of instances in each cluster.</dd><dt><var>d</var>(<var>i</var>,<var>j</var>)</dt><dd>Distance between an instance of C<sub>1</sub> and one of C<sub>2</sub>.</dd><dt>&sum;</dt><dd>Sum over every cross-cluster pair, so the result is the mean pairwise distance.</dd></dl>
+</div>
 
 <ul>
   <li><strong>Single linkage</strong> uses the closest pair of instances. Because the merge criterion is strictly local, chains of instances can be extended for a long distance without regard to the overall shape of the cluster — the <strong>chaining effect</strong> — producing undesirable elongated clusters. Outliers typically end up in their own cluster; if they are noise, single linkage gives poor clusters.</li>
@@ -672,8 +624,10 @@ figcaption b{color:var(--ink)}
 </div>
 
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch 10 &sect;10.4.1&ndash;10.4.5 — hierarchical clustering: agglomerative and divisive approaches, linkage and dendrograms.</p>
+</section>
 
-<h2>8. Choosing the number of clusters</h2>
+<section id="s8">
+<h2><span class="n">08</span>Choosing the number of clusters</h2>
 
 <p>K-means and K-medoids require the user to specify <var>k</var>, and the true number of classes is unknown. Selecting <var>k</var> is difficult because high-dimensional data cannot easily be visualised.</p>
 
@@ -699,7 +653,10 @@ figcaption b{color:var(--ink)}
   <var>s&#772;</var> =
   <span class="frac"><span class="top">1</span><span class="bot"><var>n</var></span></span>
   &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup> <var>s</var>(<var>i</var>)
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>s</var>(<var>i</var>)</dt><dd>Silhouette of instance <var>i</var>, between &minus;1 and +1.</dd><dt><var>a</var>(<var>i</var>)</dt><dd>Average distance to the other instances in its own cluster.</dd><dt><var>b</var>(<var>i</var>)</dt><dd>Average distance to the instances of the nearest other cluster.</dd><dt><var>s&#772;</var></dt><dd>Overall silhouette: the mean over all instances.</dd><dt><var>n</var></dt><dd>Number of instances.</dd></dl>
+</div>
 
 <p><strong>Interpretation:</strong> <var>s</var>(<var>i</var>) lies between &minus;1 and +1. Near <b>+1</b>: <var>b</var> &gt;&gt; <var>a</var> — the instance is much closer to its own cluster than to the nearest rival; well matched. Near <b>0</b>: <var>a</var> &asymp; <var>b</var> — the instance sits on the boundary between two clusters. <b>Negative</b>: <var>a</var> &gt; <var>b</var> — the instance is on average closer to another cluster than to its own and is likely misassigned. To select <var>k</var>, compute the overall silhouette for each candidate <var>k</var> and prefer the <var>k</var> with the highest average.</p>
 
@@ -754,8 +711,10 @@ figcaption b{color:var(--ink)}
 </div>
 
 <p>The lectures also mention <strong>X-means</strong> as an automated alternative: start from an initial <var>k</var>, repeatedly split clusters and keep a split only when it improves the Bayesian Information Criterion (BIC) — an explicit trade-off between error and complexity — until no split improves the BIC.</p>
+</section>
 
-<h2>9. Internal measures: compactness and separation</h2>
+<section id="s9">
+<h2><span class="n">09</span>Internal measures: compactness and separation</h2>
 
 <p>Because there are no ground-truth labels, clustering quality is judged with <strong>internal measures</strong> computed from the data and the assignments alone. A good clustering is:</p>
 <ul>
@@ -775,7 +734,10 @@ figcaption b{color:var(--ink)}
   DI =
   <span class="frac"><span class="top">min inter-cluster distance (separation)</span>
   <span class="bot">max intra-cluster distance (diameter)</span></span>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>DI</dt><dd>Dunn index; larger means compact, well separated clusters.</dd><dt>Separation</dt><dd>Smallest distance between any two clusters.</dd><dt>Diameter</dt><dd>Largest distance between two instances inside one cluster.</dd></dl>
+</div>
 
 <p>Higher is better: compact, well-separated clusters give a large DI. Example from the lectures: separation 0.56 and diameter 1.14 give DI = 0.56/1.14 = 0.49.</p>
 
@@ -783,8 +745,10 @@ figcaption b{color:var(--ink)}
 <p>To compare clusterings of the same data (different algorithms, different <var>k</var>, different initialisations), compare their internal measures: lower SSE, higher average silhouette, higher Dunn index — but remember each measure trades off compactness, separation and complexity differently, and none of them knows whether the clusters are meaningful. A silhouette plot (silhouette width per instance, grouped by cluster) gives an overall view of how well each instance belongs to its cluster and is an easy way to spot possible outliers (instances with small scores typically lie between clusters).</p>
 
 <p class="reading"><b>Reading</b> &nbsp;Internal evaluation is lecture material; Kelleher et al. (2e), Ch 10 provides the surrounding context on clustering evaluation.</p>
+</section>
 
-<h2>10. Interpreting clusters</h2>
+<section id="s10">
+<h2><span class="n">10</span>Interpreting clusters</h2>
 
 <p>Internal measures say how well a clustering matches an ideal expectation, but not <em>what each cluster represents</em>. Interpretation uses descriptive statistics and visualisations:</p>
 <ul>
@@ -796,8 +760,10 @@ figcaption b{color:var(--ink)}
 <div class="box intuition"><span class="label">Domain knowledge is required</span>
 <p>Consider clustering accelerometer windows (mean X, Y, Z acceleration) with <var>k</var> = 2: one centroid is (&minus;0.106, 0.438, &minus;0.055), the other (0.279, 0.044, &minus;0.279). The centroids clearly differ in all three axes, so the clusters capture two distinct acceleration patterns — but the clustering alone cannot say whether those patterns are &ldquo;walking&rdquo; and &ldquo;running&rdquo;. <strong>The meaning assigned to a cluster requires domain knowledge</strong> (labelled reference data, expert knowledge of the phenomenon); the algorithm only supplies the groups.</p>
 </div>
+</section>
 
-<h2>11. Cluster stability</h2>
+<section id="s11">
+<h2><span class="n">11</span>Cluster stability</h2>
 
 <p>Even a compact, separated clustering might be an artefact of the particular sample. <strong>Stability analysis</strong> asks whether the discovered clusters reflect genuine structure by testing whether the results remain consistent under reasonable changes to the data.</p>
 
@@ -813,7 +779,10 @@ figcaption b{color:var(--ink)}
   Jaccard(<var>A</var>, <var>B</var>) =
   <span class="frac"><span class="top">|<var>A</var> &cap; <var>B</var>|</span><span class="bot">|<var>A</var> &cup; <var>B</var>|</span></span>
   &nbsp;&nbsp; (number of instances in both clusters &divide; number of instances in either cluster)
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>A, B</dt><dd>Two clusters, as sets of instances, for example from two runs.</dd><dt>|A &cap; B|</dt><dd>Number of instances in both.</dd><dt>|A &cup; B|</dt><dd>Number of instances in either.</dd></dl>
+</div>
 
 <p>The Jaccard coefficient ranges from 0 to 1; higher values mean the two matched clusters contain (almost) the same instances. Lecture example: 5 shared out of 6 instances in the union gives 5/6 = 0.83. As a rule of thumb used in the lectures, a cluster whose mean Jaccard coefficient is <strong>below 0.6 is considered unstable</strong>.</p>
 
@@ -832,8 +801,10 @@ figcaption b{color:var(--ink)}
 <div class="box watch"><span class="label">Common mistake</span>
 <p>Treating stability as the same information as SSE or silhouette. Within-cluster error and silhouette measure how well <em>one</em> clustering fits <em>one</em> data set; stability measures whether the clustering is <em>reproducible</em> when the data is perturbed. A solution can have a high silhouette yet poor stability (the tidy structure depends on a few influential points or on sampling luck), and vice versa. Report both.</p>
 </div>
+</section>
 
-<h2>12. The final judgement</h2>
+<section id="s12">
+<h2><span class="n">12</span>The final judgement</h2>
 
 <p>No single number certifies a clustering. A solution is acceptable for the intended analytics objective when it is:</p>
 <ul>
@@ -846,13 +817,15 @@ figcaption b{color:var(--ink)}
 <p>The week's evaluation pipeline, in order: (1) <strong>cluster tendency</strong> before clustering (Hopkins, ODI, visual inspection); (2) <strong>internal measures</strong> to choose <var>k</var> and compare solutions (elbow, silhouette, Dunn); (3) <strong>stability validation</strong> via resampling and Jaccard coefficients; (4) <strong>understanding</strong> the result with summary statistics and visualisations. The practical sessions implement this pipeline in R; these notes cover the theory behind it.</p>
 
 <p class="reading"><b>Reading</b> &nbsp;Full week: Kelleher et al. (2e), Chapter 10 &sect;10.1, 10.2, 10.3 and 10.4.1&ndash;10.4.5; Ch 5 for distance measures. Cluster tendency, stability and the Jaccard-based bootstrap procedure follow the Week 4 lectures.</p>
+</section>
 
+<footer>
+<p>Data Analytics 344 &middot; Week 4 &middot; Data Clustering and Cluster Analysis</p>
+</footer>
+</main>
+</div>
 
-<nav class="weeknav">
-  <a href="../index.html#da344">&larr; Course Notes</a>
-  <span class="sep">&middot;</span><a href="Week3_Data_Quality_and_Preparation.html">&larr; Week 3: Data Quality and Preparation</a>
-  <span class="sep">&middot;</span><a href="Week5_Prototype_Learning_and_SOMs.html">Week 5: Prototype-Based Learning and SOMs &rarr;</a>
-  <span class="cur">Week 4 of 6</span>
-</nav>
+<script src="../assets/ask-gemini.js" data-store="da344-w4" data-course="Data Analytics 344" data-topic="Week 4: Data Clustering and Cluster Analysis"></script>
+<script src="../assets/page.js"></script>
 </body>
 </html>

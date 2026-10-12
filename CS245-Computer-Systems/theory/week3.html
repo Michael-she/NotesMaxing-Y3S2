@@ -1,46 +1,40 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="stylesheet" href="../style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 3 Theory: Digital I/O Hardware · CS245</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/notes.css">
+<link rel="stylesheet" href="../../assets/page.css">
 </head>
 <body>
-<div class="page">
-
-<div class="topnav">
-  <a href="../../index.html#cs245">CS245 Notes</a>
-  <span class="sep">/</span>
-  <span class="current">Theory</span>
-  <a href="../programming/week3.html">Programming</a>
-  <a href="../../index.html#cs245/papers">Papers</a>
-  <span class="sep">|</span>
-  <a href="week1.html">W1</a>
-  <a href="week2.html">W2</a>
-  <span class="current">W3</span>
-  <a href="week4.html">W4</a>
-  <a href="week5.html">W5</a>
-</div>
-
-<header class="hero">
-  <span class="kicker theory">Theory</span>
-  <h1 class="title">Week 3 — Digital I/O Hardware</h1>
-  <p class="subtitle">CS245 · Lectures 7–8 · Signal levels, output/input stages, Schmitt triggers, debouncing, memory-mapped I/O</p>
-</header>
-
-<nav class="toc">
-  <span class="toc-label">Contents</span>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../index.html#cs245">&larr; All modules</a>
+  <div class="k">CS245 &middot; Theory &middot; Week 3</div>
   <ol>
-    <li><a href="#l7a">Digital Signal Specifications &amp; Thresholds</a></li>
-    <li><a href="#l7b">Output Configurations</a></li>
-    <li><a href="#l7c">Schmitt Triggers &amp; Switch Debouncing</a></li>
-    <li><a href="#l7d">Memory-Mapped I/O</a></li>
+    <li><a href="#l7a">1. Digital Signal Specifications &amp; Thresholds</a></li>
+    <li><a href="#l7b">2. Output Configurations</a></li>
+    <li><a href="#l7c">3. Schmitt Triggers &amp; Switch Debouncing</a></li>
+    <li><a href="#l7d">4. Memory-Mapped I/O</a></li>
   </ol>
+  <div class="k">Theory weeks</div>
+  <div class="weeks"><a href="week1.html">1</a><a href="week2.html">2</a><a href="week3.html" class="cur" aria-current="page">3</a><a href="week4.html">4</a><a href="week5.html">5</a></div>
+  <ol class="alt"><li><a href="../programming/week3.html">Programming notes, week 3 &rarr;</a></li></ol>
 </nav>
 
-<section class="lecture" id="l7a">
-  <h2>Digital Signal Specifications &amp; Thresholds</h2>
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 &middot; THEORY &middot; WEEK 3</div>
+  <h1>Digital I/O Hardware</h1>
+  <p>CS245 · Lectures 7–8 · Signal levels, output/input stages, Schmitt triggers, debouncing, memory-mapped I/O</p>
+</header>
+
+<section id="l7a">
+  <h2><span class="n">01</span>Digital Signal Specifications &amp; Thresholds</h2>
   <p>A GPIO pin can be configured for input (floating/high-impedance, pull-down, pull-up, analog, or alternate function) or output (open-drain or push-pull, with optional pull-up/pull-down, or alternate function).</p>
   <p>For the STM32F407 (V<sub>DD</sub> = 3.3 V):</p>
   <ul>
@@ -53,8 +47,8 @@
   </ul>
 </section>
 
-<section class="lecture" id="l7b">
-  <h2>Output Configurations</h2>
+<section id="l7b">
+  <h2><span class="n">02</span>Output Configurations</h2>
   <table>
     <thead><tr><th>Configuration</th><th>How it drives the pin</th></tr></thead>
     <tbody>
@@ -130,8 +124,8 @@
   <p>On input, a pin is configured high-impedance (with the option of an internal pull-up or pull-down resistor); the voltage present on the pin is sampled into the input data register on every AHB clock cycle.</p>
 </section>
 
-<section class="lecture" id="l7c">
-  <h2>Schmitt Triggers &amp; Switch Debouncing</h2>
+<section id="l7c">
+  <h2><span class="n">03</span>Schmitt Triggers &amp; Switch Debouncing</h2>
   <h3>Schmitt trigger</h3>
   <p>A gate's input has an "uncertain" voltage range where the interpretation as HIGH or LOW is not clearly defined; a single threshold point at that boundary means AC noise superimposed on a slowly-changing signal can cause erratic, rapid toggling of the gate's output.</p>
   <p>A <strong>Schmitt trigger</strong> is a comparator circuit that uses positive feedback to implement <strong>hysteresis</strong> — two distinct threshold voltages instead of one: a positive-going threshold V<sub>T+</sub> (for rising edges) and a negative-going threshold V<sub>T−</sub> (for falling edges). The output holds its value until the input crosses far enough to trigger a change, which removes noise-induced oscillation and produces a clean, "square" digital transition from a noisy or slowly-varying analog input.</p>
@@ -198,17 +192,19 @@
   </table>
 </section>
 
-<section class="lecture" id="l7d">
-  <h2>Memory-Mapped I/O</h2>
+<section id="l7d">
+  <h2><span class="n">04</span>Memory-Mapped I/O</h2>
   <p>A portion of the address space is dedicated to I/O devices rather than memory — on this microcontroller, the range <code>0x4000 0000</code> to <code>0x5FFF FFFF</code> is used for I/O. Each I/O device is assigned one or more addresses within this range: a store to that address sends data to the device, and a load receives data from it. This technique — using ordinary load/store instructions to talk to peripherals rather than dedicated I/O instructions — is called <strong>memory-mapped I/O</strong>.</p>
   <p>Internally, an address decoder examines the address and the write-enable signal to determine which device the CPU is addressing, and generates the appropriate control/select signals; a multiplexer then selects between memory and the various I/O devices for reads, while write-enabled registers latch the values written to each device.</p>
 </section>
 
-<footer class="pagefoot">
-  <span>CS245 — Computer Systems 245</span>
-  <span><a href="../programming/week3.html">See the Programming notes for Week 3 →</a></span>
+<footer>
+<p>Computer Systems 245 &middot; Theory &middot; Week 3. <a href="../programming/week3.html">See the Programming notes for Week 3 →</a></p>
 </footer>
-
+</main>
 </div>
+
+<script src="../../assets/ask-gemini.js" data-store="cs245-theory-w3" data-course="Computer Systems 245" data-topic="Theory track, week 3: Digital I/O Hardware"></script>
+<script src="../../assets/page.js"></script>
 </body>
 </html>

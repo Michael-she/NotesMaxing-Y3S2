@@ -1,148 +1,50 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DA344 — Week 3: Data Quality and Preparation</title>
-<style>
-/* ============================================================
-   DA344 Notes — shared stylesheet. DO NOT EDIT PER-WEEK.
-   Copy this whole <style> block verbatim into each week file.
-   ============================================================ */
-:root{
-  --bg:#12151a; --ink:#e6e9ed; --muted:#9aa5b1; --rule:#2c3238; --soft:#1a1e24;
-  --accent:#7bb0e8; --accent-soft:#182634;
-  --warn:#e3b565; --warn-soft:#2b2211;
-  --ok:#7fd1a3; --ok-soft:#123023;
-  --maxw:52rem;
-}
-*{box-sizing:border-box}
-html{font-size:16px}
-body{
-  margin:0 auto; padding:2.5rem 1.5rem 5rem; max-width:var(--maxw);
-  font-family:"Charter","Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
-  color:var(--ink); background:var(--bg); line-height:1.62;
-  -webkit-font-smoothing:antialiased;
-}
-/* ---- headings ---- */
-h1,h2,h3{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;line-height:1.25;color:var(--ink)}
-h1{font-size:2.1rem;font-weight:700;margin:0 0 .3rem;letter-spacing:-.02em}
-.subtitle{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;color:var(--muted);font-size:1.05rem;margin:0 0 2rem}
-h2{font-size:1.45rem;font-weight:650;margin:3rem 0 .9rem;padding-bottom:.35rem;border-bottom:2px solid var(--accent)}
-h3{font-size:1.13rem;font-weight:650;margin:2rem 0 .6rem;color:var(--accent)}
-p{margin:0 0 1rem}
-ul,ol{margin:0 0 1rem;padding-left:1.4rem}
-li{margin:.3rem 0}
-strong{font-weight:650}
-a{color:var(--accent)}
-
-/* ---- document header block ---- */
-.docmeta{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 .6rem}
-
-/* ---- boxes ---- */
-.box{border:1px solid var(--rule);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;background:var(--soft);page-break-inside:avoid}
-.box>:first-child{margin-top:0}
-.box>:last-child{margin-bottom:0}
-.box .label{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
-.def{background:var(--accent-soft);border-color:#2c4a6e}
-.def .label{color:var(--accent)}
-.watch{background:var(--warn-soft);border-color:#4a3b1a}
-.watch .label{color:var(--warn)}
-.exam{background:var(--ok-soft);border-color:#2f5940}
-.exam .label{color:var(--ok)}
-.intuition{background:var(--bg);border-style:dashed}
-
-/* ---- summary sheet (tier 1) ---- */
-.summary{border:2px solid var(--accent);border-radius:8px;padding:1.4rem 1.6rem;margin:0 0 2.5rem;page-break-after:always}
-.summary h2{margin-top:0;border:none;padding:0;font-size:1.2rem}
-.summary h3{margin:1.2rem 0 .4rem;font-size:.95rem}
-.summary ul{margin-bottom:.6rem}
-.summary li{margin:.15rem 0;font-size:.94rem}
-
-/* ---- tables ---- */
-table{border-collapse:collapse;width:100%;margin:1.2rem 0;font-size:.92rem;page-break-inside:avoid}
-caption{caption-side:bottom;font-size:.82rem;color:var(--muted);text-align:left;padding-top:.5rem}
-th,td{border:1px solid var(--rule);padding:.45rem .6rem;text-align:left;vertical-align:top}
-th{background:var(--soft);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-weight:650;font-size:.86rem}
-td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
-.tablewrap{overflow-x:auto}
-
-/* ---- maths ---- */
-.eq{margin:1.2rem 0;text-align:center;font-size:1.02rem;page-break-inside:avoid}
-.eq .eqbody{display:inline-block;padding:.2rem .6rem}
-var{font-style:italic;font-family:Cambria,Georgia,serif}
-.frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .25em}
-.frac .top{display:block;border-bottom:1px solid currentColor;padding:0 .35em}
-.frac .bot{display:block;padding:0 .35em}
-sub,sup{font-size:.72em;line-height:0}
-
-/* ---- figures / SVG diagrams ---- */
-figure{margin:1.8rem 0;text-align:center;page-break-inside:avoid}
-figure svg{max-width:100%;height:auto;background:#eef1f6;border-radius:10px;padding:10px;box-sizing:border-box;border:1px solid #d9dee5}
-figcaption{font-size:.85rem;color:var(--muted);text-align:left;margin-top:.6rem;padding-top:.4rem;border-top:1px solid var(--rule)}
-figcaption b{color:var(--ink)}
-
-/* ---- reading refs ---- */
-.reading{font-size:.9rem;background:var(--bg);border-left:3px solid var(--accent);padding:.15rem 0 .15rem 1rem;margin:1.2rem 0;color:var(--muted)}
-.reading b{color:var(--ink);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
-
-/* ---- worked solutions ---- */
-.qa{border-top:1px solid var(--rule);padding-top:1.2rem;margin-top:1.8rem}
-.qa .qnum{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-weight:700;color:var(--accent)}
-.soln{border-left:3px solid var(--ok);padding-left:1rem;margin:.8rem 0 0}
-
-
-
-/* ---- week navigation ---- */
-.weeknav{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .9rem;
-  font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:.85rem;
-  margin:0 0 2rem;padding:.7rem 1rem;background:var(--soft);
-  border:1px solid var(--rule);border-radius:8px}
-.weeknav a{color:var(--accent);text-decoration:none}
-.weeknav a:hover{text-decoration:underline}
-.weeknav .sep{color:var(--muted)}
-.weeknav .cur{color:var(--muted);margin-left:auto;font-weight:650}
-
-/* ---- print / PDF ---- */
-@page{size:A4;margin:18mm 16mm}
-@media print{
-
-  /* force a light, ink-friendly palette for printed/PDF output regardless of on-screen dark mode */
-  :root{
-    --bg:#fff; --ink:#1a1a1a; --muted:#555; --rule:#d8d8d8; --soft:#f6f7f9;
-    --accent:#1d4e89; --accent-soft:#e8eef6;
-    --warn:#8a5a00; --warn-soft:#fdf4e3;
-    --ok:#1f6b45; --ok-soft:#e8f4ee;
-  }
-  .def{border-color:#bccfe4}
-  .watch{border-color:#e6d3a8}
-  .exam{border-color:#bfdfcd}
-  .weeknav{display:none}
-
-  html{font-size:10.5pt}
-  body{max-width:none;padding:0}
-  h2{page-break-after:avoid}
-  h3{page-break-after:avoid}
-  .box,figure,table,.eq,.summary{page-break-inside:avoid}
-  a{color:var(--ink);text-decoration:none}
-}
-</style>
+<title>Week 3: Data Quality and Data Preparation · DA344</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../assets/notes.css">
+<link rel="stylesheet" href="../assets/page.css">
 </head>
 <body>
-
-<p class="docmeta">Data Analytics 344 &middot; 2026</p>
-<h1>Week 3 — Data Quality and Data Preparation</h1>
-<p class="subtitle">Data Exploration Part 2: deciding how to correct quality issues, encoding categorical features, transforming continuous features, and preventing data leakage — all documented in a data quality plan.</p>
-
-<nav class="weeknav">
-  <a href="../index.html#da344">&larr; Course Notes</a>
-  <span class="sep">&middot;</span><a href="Week2_Data_Exploration.html">&larr; Week 2: Data Exploration</a>
-  <span class="sep">&middot;</span><a href="Week4_Clustering_and_Cluster_Analysis.html">Week 4: Clustering and Cluster Analysis &rarr;</a>
-  <span class="cur">Week 3 of 6</span>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../index.html#da344">&larr; All modules</a>
+  <div class="k">DA344 &middot; Week 3</div>
+  <ol>
+    <li><a href="#summary">At a glance</a></li>
+    <li><a href="#s1">1. From diagnosis to action: where Week 3 fits</a></li>
+    <li><a href="#s2">2. Classifying issues and understanding their impact</a></li>
+    <li><a href="#s3">3. Missing values: amount, location and pattern</a></li>
+    <li><a href="#s4">4. Responding to missing values</a></li>
+    <li><a href="#s5">5. The data quality plan</a></li>
+    <li><a href="#s6">6. Invalid values, inconsistent labels, duplicates and irregular cardinality</a></li>
+    <li><a href="#s7">7. Outliers and noise</a></li>
+    <li><a href="#s8">8. Class imbalance in the target</a></li>
+    <li><a href="#s9">9. Feature removal and recoding before modelling</a></li>
+    <li><a href="#s10">10. Encoding categorical features</a></li>
+    <li><a href="#s11">11. Transforming continuous features</a></li>
+    <li><a href="#s12">12. Preventing data leakage during preparation</a></li>
+    <li><a href="#s13">13. Validating the prepared table and closing the loop</a></li>
+    <li><a href="#s14">14. Where to practise</a></li>
+  </ol>
+  <div class="k">Weeks</div>
+  <div class="weeks"><a href="Week1_Introduction_to_Data_Analytics.html">1</a><a href="Week2_Data_Exploration.html">2</a><a href="Week3_Data_Quality_and_Preparation.html" class="cur" aria-current="page">3</a><a href="Week4_Clustering_and_Cluster_Analysis.html">4</a><a href="Week5_Prototype_Learning_and_SOMs.html">5</a><a href="Week6_Rule_Based_Knowledge_Discovery.html">6</a></div>
 </nav>
 
+<main>
+<header class="top">
+  <div class="kicker">DATA ANALYTICS 344 &middot; WEEK 3</div>
+  <h1>Data Quality and Data Preparation</h1>
+  <p>Data Exploration Part 2: deciding how to correct quality issues, encoding categorical features, transforming continuous features, and preventing data leakage — all documented in a data quality plan.</p>
+</header>
+
 <!-- ===== TIER 1: ONE-PAGE SUMMARY SHEET ===== -->
-<section class="summary">
+<section class="summary" id="summary">
   <h2>Week 3 at a glance</h2>
   <h3>Core ideas</h3>
   <ul>
@@ -193,7 +95,8 @@ figcaption b{color:var(--ink)}
 
 <!-- ===== TIER 2: FULL NOTES ===== -->
 
-<h2>1. From diagnosis to action: where Week 3 fits</h2>
+<section id="s1">
+<h2><span class="n">01</span>From diagnosis to action: where Week 3 fits</h2>
 <p>Week 2 built the <strong>data quality report</strong> to understand an analytical base table (ABT) and flag potential problems. Week 3 keeps that report as the starting point, but the question changes from <em>&ldquo;what looks unusual?&rdquo;</em> to <em>&ldquo;what do we do about it, why, and how do we check the result?&rdquo;</em> The week ends with a prepared ABT that is encoded, transformed and documented — ready for modelling. (The practical component of this week is implemented in R; the notes below focus on the theory, which is tool-agnostic.)</p>
 
 <h3>1.1 The data quality report, recap</h3>
@@ -228,8 +131,10 @@ figcaption b{color:var(--ink)}
 </ul>
 <p>Each flagged issue now needs a decision, a justification, and a validation step — the machinery of the rest of these notes.</p>
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch 3 §3.1–3.3 — data quality report and issue identification (Week 2 foundation). This week: Ch 3 §3.4–3.7 — responding to data quality issues and preparing features.</p>
+</section>
 
-<h2>2. Classifying issues and understanding their impact</h2>
+<section id="s2">
+<h2><span class="n">02</span>Classifying issues and understanding their impact</h2>
 <div class="box def"><span class="label">Definition</span>
 <p>A <strong>data quality issue</strong> is loosely defined as anything unusual about the data in an ABT. Common families: missing values, disguised missing values, irregular cardinality, skew/imbalanced target, outliers and noise. Issues arise either from <strong>invalid data</strong> (errors in the process that generated the ABT, often in derived-feature calculations) or from <strong>valid data</strong> that is unusual for domain-specific reasons.</p>
 </div>
@@ -267,8 +172,10 @@ figcaption b{color:var(--ink)}
 <div class="box watch"><span class="label">Common mistake</span>
 <p>Acting before classifying. Removing, imputing or capping a value that is actually <em>valid and informative</em> destroys signal; conversely, keeping a confirmed error contaminates everything downstream. Classify first, then choose a response, then validate.</p>
 </div>
+</section>
 
-<h2>3. Missing values: amount, location and pattern</h2>
+<section id="s3">
+<h2><span class="n">03</span>Missing values: amount, location and pattern</h2>
 <div class="box def"><span class="label">Definition</span>
 <p><strong>Disguised missing values</strong> are placeholders submitted or recorded in place of an unknown value — e.g. users entering incorrect values for mandatory fields they do not want to disclose, or systems writing codes like 999 or &minus;99&nbsp;999. They must be recoded to genuine missing values before any analysis.</p>
 </div>
@@ -290,8 +197,10 @@ figcaption b{color:var(--ink)}
   <li><strong>Information content</strong> — ask: does the fact that a value is missing help predict the target? If yes, preserve that signal (retain missingness or add an indicator).</li>
 </ul>
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch 3 §3.4–3.7 — handling missing, noisy and duplicate data. The lectures additionally illustrate missingness heatmaps, co-occurrence plots, surrogate splits and imputation with reference to Chapter 8 of a supplementary feature-engineering text; treat that material as supporting context.</p>
+</section>
 
-<h2>4. Responding to missing values</h2>
+<section id="s4">
+<h2><span class="n">04</span>Responding to missing values</h2>
 <p>Whatever the cause, an explicit decision must be made. The five standard responses, with their trade-offs:</p>
 <div class="tablewrap">
 <table>
@@ -431,8 +340,10 @@ figcaption b{color:var(--ink)}
 </ul>
 </div>
 </div>
+</section>
 
-<h2>5. The data quality plan</h2>
+<section id="s5">
+<h2><span class="n">05</span>The data quality plan</h2>
 <div class="box def"><span class="label">Definition</span>
 <p>The <strong>data quality plan</strong> records every identified data quality issue together with its handling strategy — one row per issue, with the affected feature, the issue observed, and the action to implement. It is the audit trail that connects evidence to decisions.</p>
 </div>
@@ -517,8 +428,10 @@ figcaption b{color:var(--ink)}
 </div>
 </div>
 <p>After implementation, the plan is <strong>updated</strong> to record what was actually done and the evidence that the prepared data are suitable (Section 13).</p>
+</section>
 
-<h2>6. Invalid values, inconsistent labels, duplicates and irregular cardinality</h2>
+<section id="s6">
+<h2><span class="n">06</span>Invalid values, inconsistent labels, duplicates and irregular cardinality</h2>
 <ul>
   <li><strong>Invalid values</strong> (confirmed errors, e.g. placeholder codes, impossible readings): recode — to missing, to a corrected value from a trusted source, or to a valid category. Never leave placeholders in as numbers.</li>
   <li><strong>Inconsistent category labels</strong> (Type A / typeA / A / Type-A; male / m / M): standardise to one canonical label per real category, using domain knowledge to decide which spellings are the same category. Irregular cardinalities commonly arise from exactly this kind of inconsistent encoding.</li>
@@ -534,8 +447,10 @@ figcaption b{color:var(--ink)}
 <div class="box watch"><span class="label">Common mistake</span>
 <p>Keeping an identifier (e.g. Machine ID) as an ordinary descriptive feature: with one unique value per instance it cannot generalise to new machines, and similarity- or rule-based models can memorise training rows instead of learning patterns.</p>
 </div>
+</section>
 
-<h2>7. Outliers and noise</h2>
+<section id="s7">
+<h2><span class="n">07</span>Outliers and noise</h2>
 <div class="box def"><span class="label">Definitions</span>
 <p>An <strong>outlier</strong> is an instance that is numerically different from the rest of the instances. <strong>Noise</strong> is unwanted disturbance in feature or target values: <em>stochastic noise</em> — random fluctuations with zero mean and small deviation; <em>systematic noise</em> — all values dragged in one direction, e.g. by a badly calibrated instrument.</p>
 </div>
@@ -548,7 +463,10 @@ figcaption b{color:var(--ink)}
 </ul>
 <div class="eq"><span class="eqbody">
   Suspected outlier fences: &nbsp; <var>x</var> &lt; Q1 &minus; 1.5 &times; IQR &nbsp;&nbsp;or&nbsp;&nbsp; <var>x</var> &gt; Q3 + 1.5 &times; IQR, &nbsp; where IQR = Q3 &minus; Q1
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>x</var></dt><dd>A value of the feature.</dd><dt>Q1</dt><dd>First quartile (25th percentile).</dd><dt>Q3</dt><dd>Third quartile (75th percentile).</dd><dt>IQR</dt><dd>Interquartile range, Q3 &minus; Q1: the spread of the middle 50%.</dd><dt>1.5</dt><dd>Conventional multiplier that sets how far beyond the quartiles a value must lie.</dd></dl>
+</div>
 <div class="box watch"><span class="label">Common mistake</span>
 <p>The <strong>maximum value is not necessarily an outlier</strong>, and an observation must never be removed <em>solely</em> because it is far from the mean or median. Statistical distance only raises suspicion; domain knowledge decides. Valid extremes are often the most valuable observations: a machine that ran 412 days without maintenance, or a rare fraud case, teaches the model about the regions it most needs to understand.</p>
 </div>
@@ -557,7 +475,10 @@ figcaption b{color:var(--ink)}
 <p>Standard options: (1) do nothing; (2) remove/neutralise outliers statistically, e.g. a clamp transformation; (3) remove outliers during training (e.g. by monitoring training errors — instances that persistently produce large errors while the rest of the training error shrinks form a second mode in the error distribution and can be removed); (4) keep outliers but use models/loss functions less sensitive to them (e.g. replacing squared-error loss with a loss that grows linearly for large errors).</p>
 <div class="eq"><span class="eqbody">
   Clamp transformation: &nbsp; <var>a</var>&prime;<sub><var>i</var></sub> = lower if <var>a</var><sub><var>i</var></sub> &lt; lower; &nbsp; <var>a</var>&prime;<sub><var>i</var></sub> = upper if <var>a</var><sub><var>i</var></sub> &gt; upper; &nbsp; <var>a</var>&prime;<sub><var>i</var></sub> = <var>a</var><sub><var>i</var></sub> otherwise
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>a</var><sub>i</sub></dt><dd>Original value of feature <var>a</var> for instance <var>i</var>.</dd><dt><var>a</var>&prime;<sub>i</sub></dt><dd>The value after clamping.</dd><dt>lower, upper</dt><dd>The chosen thresholds; values beyond them are pulled back to the threshold.</dd></dl>
+</div>
 <p>A common choice sets lower = Q1 &minus; 1.5&times;IQR and upper = Q3 + 1.5&times;IQR. Note the clamp <em>thresholds</em>, like all preparation parameters, must be computed from the training data only.</p>
 <div class="tablewrap">
 <table>
@@ -579,8 +500,10 @@ figcaption b{color:var(--ink)}
   <li>If noise is present and the model is too complex, overfitting results — the model memorises the noise.</li>
 </ul>
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch 3 §3.4–3.7 — treating missing, noisy and duplicate data, including clamping and related transformations.</p>
+</section>
 
-<h2>8. Class imbalance in the target</h2>
+<section id="s8">
+<h2><span class="n">08</span>Class imbalance in the target</h2>
 <div class="box def"><span class="label">Definition</span>
 <p>An <strong>imbalanced data set</strong> has skewed class proportions: the vast majority of instances belong to one class (the <strong>majority class</strong>) and few to the other (the <strong>minority class</strong>). Imbalance is common in medical classification and predictive maintenance. Degree of imbalance by minority-class proportion: mild 20–40%, moderate 1–20%, extreme &lt;1%. Class imbalance is considered for the <em>target</em> feature, because it is the classes the model must predict; imbalance in a descriptive feature is just a distribution fact.</p>
 </div>
@@ -648,8 +571,10 @@ figcaption b{color:var(--ink)}
 <p>(a) Yes, the target is imbalanced: the minority class is only 4% of the data (moderate imbalance on the 1–20% scale). (b) A model that always predicts &ldquo;No failure&rdquo; is correct on 4&nbsp;992 of 5&nbsp;200 instances: accuracy = 4992/5200 = 0.96 = <strong>96%</strong>. (c) This is misleading because the model detects no failures at all — the class that matters most is never predicted; accuracy rewards predicting the majority class. (d) Responses such as oversampling the minority, undersampling the majority, synthetic sampling, or class weighting should be considered, applied to the training data only (Figure 3.2).</p>
 </div>
 </div>
+</section>
 
-<h2>9. Feature removal and recoding before modelling</h2>
+<section id="s9">
+<h2><span class="n">09</span>Feature removal and recoding before modelling</h2>
 <p>Not every column of the ABT should enter the model as a descriptive feature. Decide for each feature whether to remove, retain or recode it:</p>
 <ul>
   <li><strong>Constant features</strong> (cardinality 1): no variation, no predictive power — remove.</li>
@@ -661,8 +586,10 @@ figcaption b{color:var(--ink)}
 <div class="box intuition"><span class="label">Intuition</span>
 <p>Ask of every feature: &ldquo;when I must predict for a new machine next week, will this value actually be available, and will it mean the same thing?&rdquo; If not, the feature cannot be used, however predictive it looks historically.</p>
 </div>
+</section>
 
-<h2>10. Encoding categorical features</h2>
+<section id="s10">
+<h2><span class="n">10</span>Encoding categorical features</h2>
 <p>Most machine-learning algorithms require numerical input, so categorical features must be encoded — and the encoding must respect the feature&rsquo;s type:</p>
 <ul>
   <li><strong>Nominal features</strong> (no natural order): use <strong>one-hot / dummy encoding</strong> — one binary column per level. A linear model can then learn a separate parameter per level.</li>
@@ -706,14 +633,19 @@ figcaption b{color:var(--ink)}
 <p><strong>Justification of the pairing:</strong> one-hot suits nominal features because it represents each level independently with no implied order or distance; ordered integers suit ordinal features because they preserve the rank order in one dimension. The encoding must also be compatible with the selected algorithm (e.g. similarity-based learners need encodings under which distances make sense).</p>
 </div>
 </div>
+</section>
 
-<h2>11. Transforming continuous features</h2>
+<section id="s11">
+<h2><span class="n">11</span>Transforming continuous features</h2>
 <p>Transformations change the <em>representation</em> of a feature — its scale or shape — so that algorithms whose mathematics assumes comparable scales or well-behaved distributions work properly. Every transformation changes what the numbers mean, and some information may be lost or distorted.</p>
 
 <h3>11.1 Logarithmic transformation</h3>
 <div class="eq"><span class="eqbody">
   <var>a</var>&prime;<sub><var>i</var></sub> = log(<var>a</var><sub><var>i</var></sub>)
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>a</var>&prime;<sub>i</sub></dt><dd>Transformed value.</dd><dt><var>a</var><sub>i</sub></dt><dd>Original value; must be positive.</dd><dt>log</dt><dd>Logarithm.</dd></dl>
+</div>
 <p>Applied to each (positive) value of a feature. The log compresses large values much more than small ones, so a long right tail is pulled in and a right-skewed distribution becomes more symmetric. Interpretation shifts from additive to multiplicative differences. Information distorted: original magnitudes are no longer directly comparable, and zero or negative values cannot be logged without adjustment.</p>
 
 <h3>11.2 Min–max (range) normalisation</h3>
@@ -722,7 +654,10 @@ figcaption b{color:var(--ink)}
   <var>a</var>&prime;<sub><var>i</var></sub> =
   <span class="frac"><span class="top"><var>a</var><sub><var>i</var></sub> &minus; min(<var>a</var>)</span><span class="bot">max(<var>a</var>) &minus; min(<var>a</var>)</span></span>
   &times; (<var>new</var> &minus; <var>old</var>) + <var>old</var>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>a</var>&prime;<sub>i</sub></dt><dd>Normalised value.</dd><dt><var>a</var><sub>i</sub></dt><dd>Original value.</dd><dt>min(<var>a</var>), max(<var>a</var>)</dt><dd>Smallest and largest value of the feature in the training data.</dd><dt>old, new</dt><dd>Lower and upper bound of the target range, written [old, new] in these notes; 0 and 1 for the usual case.</dd></dl>
+</div>
 <p>For the usual [0,1] range the multiplication and addition disappear and only the fraction remains. Works well when good bounds on the data are known and outliers are few (e.g. age); works poorly when one extreme value squeezes everyone else into a tiny part of the scale (e.g. income). New observations beyond the training range fall outside [0,1] — which is correct behaviour when training parameters are applied.</p>
 
 <h3>11.3 Standardisation (z-score)</h3>
@@ -731,7 +666,10 @@ figcaption b{color:var(--ink)}
   <var>a</var>&prime;<sub><var>i</var></sub> =
   <span class="frac"><span class="top"><var>a</var><sub><var>i</var></sub> &minus; <var>&#257;</var></span><span class="bot">sd(<var>a</var>)</span></span>
   &nbsp;&nbsp; where <var>&#257;</var> is the mean and sd(<var>a</var>) the standard deviation of the feature
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>a</var>&prime;<sub>i</sub></dt><dd>Standard score: how many standard deviations the value lies from the mean.</dd><dt><var>a</var><sub>i</sub></dt><dd>Original value.</dd><dt><var>a&#772;</var></dt><dd>Mean of the feature in the training data.</dd><dt>sd(<var>a</var>)</dt><dd>Standard deviation of the feature in the training data.</dd></dl>
+</div>
 <p>The transformed feature has mean 0 and standard deviation 1, but no fixed bounds — values can exceed &plusmn;1, which is fine. Standardisation is less distorted by extremes than min–max, but the results are less intuitively bounded.</p>
 
 <h3>11.4 Discretisation (binning)</h3>
@@ -838,8 +776,10 @@ figcaption b{color:var(--ink)}
 </div>
 </div>
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch 3 §3.4–3.7 — normalisation (range normalisation, standardisation), binning/discretisation and related feature transformations.</p>
+</section>
 
-<h2>12. Preventing data leakage during preparation</h2>
+<section id="s12">
+<h2><span class="n">12</span>Preventing data leakage during preparation</h2>
 <div class="box def"><span class="label">Definition</span>
 <p><strong>Data leakage</strong> in preparation occurs when information from the validation set, test set or future observations is used to shape how the model is built — directly or through preparation parameters — producing performance estimates that are too optimistic and behaviour that will not reproduce in deployment.</p>
 </div>
@@ -899,8 +839,10 @@ figcaption b{color:var(--ink)}
 <div class="box watch"><span class="label">Common mistake</span>
 <p>Running imputation, scaling or resampling on the <em>whole</em> table before splitting into training/validation/test. Even though no labels are used, the distributions of the held-out rows have then shaped the preparation — a subtle but real leak. Split first; fit preparation on the training part only.</p>
 </div>
+</section>
 
-<h2>13. Validating the prepared table and closing the loop</h2>
+<section id="s13">
+<h2><span class="n">13</span>Validating the prepared table and closing the loop</h2>
 <p>After all corrections, encodings and transformations, the prepared ABT must be checked before modelling — essentially a fresh, focused data quality report:</p>
 <ul>
   <li><strong>Dimensions</strong> — row count matches expectations after instance removals/deduplication; column count reflects removed, added (indicators, one-hot columns) and recoded features.</li>
@@ -912,16 +854,20 @@ figcaption b{color:var(--ink)}
   <li><strong>Target balance</strong> — training set rebalanced as planned; validation/test sets left at natural proportions.</li>
 </ul>
 <p>Finally, <strong>update the data quality plan</strong>: record the actions actually implemented and the validation evidence that the prepared data are suitable for modelling. The plan then documents the complete chain from raw ABT to modelling-ready table — which is exactly what an examiner (or an auditor) can question you on.</p>
+</section>
 
-<h2>14. Where to practise</h2>
+<section id="s14">
+<h2><span class="n">14</span>Where to practise</h2>
 <p>The Week 3 study guide contains eight practice questions; map them to these notes: Q1 (missing-value understanding) &rarr; Sections 3–4; Q2 (choosing responses) &rarr; Worked example 4; Q3 (errors vs unusual observations) &rarr; Section 2; Q4 (outliers and noise) &rarr; Section 7; Q5 (class imbalance) &rarr; Section 8; Q6 (encoding and transforming) &rarr; Sections 10–11, Worked examples 1 and 3; Q7 (data quality plan) &rarr; Section 5; Q8 (leakage) &rarr; Section 12, Worked example 2.</p>
+</section>
 
+<footer>
+<p>Data Analytics 344 &middot; Week 3 &middot; Data Quality and Data Preparation</p>
+</footer>
+</main>
+</div>
 
-<nav class="weeknav">
-  <a href="../index.html#da344">&larr; Course Notes</a>
-  <span class="sep">&middot;</span><a href="Week2_Data_Exploration.html">&larr; Week 2: Data Exploration</a>
-  <span class="sep">&middot;</span><a href="Week4_Clustering_and_Cluster_Analysis.html">Week 4: Clustering and Cluster Analysis &rarr;</a>
-  <span class="cur">Week 3 of 6</span>
-</nav>
+<script src="../assets/ask-gemini.js" data-store="da344-w3" data-course="Data Analytics 344" data-topic="Week 3: Data Quality and Data Preparation"></script>
+<script src="../assets/page.js"></script>
 </body>
 </html>

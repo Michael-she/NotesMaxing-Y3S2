@@ -1,49 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="stylesheet" href="../style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 5 Theory: Timers, Counters &amp; Clocks · CS245</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/notes.css">
+<link rel="stylesheet" href="../../assets/page.css">
 </head>
 <body>
-<div class="page">
-
-<div class="topnav">
-  <a href="../../index.html#cs245">CS245 Notes</a>
-  <span class="sep">/</span>
-  <span class="current">Theory</span>
-  <a href="../programming/week5.html">Programming</a>
-  <a href="../../index.html#cs245/papers">Papers</a>
-  <span class="sep">|</span>
-  <a href="week1.html">W1</a>
-  <a href="week2.html">W2</a>
-  <a href="week3.html">W3</a>
-  <a href="week4.html">W4</a>
-  <span class="current">W5</span>
-</div>
-
-<header class="hero">
-  <span class="kicker theory">Theory</span>
-  <h1 class="title">Week 5 — Timers, Counters &amp; Clocks</h1>
-  <p class="subtitle">CS245 · Lectures 12–14 · Timer/counter principles, PWM, SysTick, watchdogs, RTC, clock sources &amp; PLLs</p>
-</header>
-
-<nav class="toc">
-  <span class="toc-label">Contents</span>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../index.html#cs245">&larr; All modules</a>
+  <div class="k">CS245 &middot; Theory &middot; Week 5</div>
   <ol>
-    <li><a href="#l12a">Timer/Counter Operating Principles</a></li>
-    <li><a href="#l12b">Counter Modes</a></li>
-    <li><a href="#l12c">Output Compare &amp; Input Capture</a></li>
-    <li><a href="#l13a">Pulse-Width Modulation (PWM)</a></li>
-    <li><a href="#l13b">SysTick, Watchdogs &amp; RTC</a></li>
-    <li><a href="#l14a">Clock Sources</a></li>
-    <li><a href="#l14b">Phase-Locked Loop (PLL) &amp; Clock Distribution</a></li>
+    <li><a href="#l12a">1. Timer/Counter Operating Principles</a></li>
+    <li><a href="#l12b">2. Counter Modes</a></li>
+    <li><a href="#l12c">3. Output Compare &amp; Input Capture</a></li>
+    <li><a href="#l13a">4. Pulse-Width Modulation (PWM)</a></li>
+    <li><a href="#l13b">5. SysTick, Watchdogs &amp; RTC</a></li>
+    <li><a href="#l14a">6. Clock Sources</a></li>
+    <li><a href="#l14b">7. Phase-Locked Loop (PLL) &amp; Clock Distribution</a></li>
   </ol>
+  <div class="k">Theory weeks</div>
+  <div class="weeks"><a href="week1.html">1</a><a href="week2.html">2</a><a href="week3.html">3</a><a href="week4.html">4</a><a href="week5.html" class="cur" aria-current="page">5</a></div>
+  <ol class="alt"><li><a href="../programming/week5.html">Programming notes, week 5 &rarr;</a></li></ol>
 </nav>
 
-<section class="lecture" id="l12a">
-  <h2>Timer/Counter Operating Principles</h2>
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 &middot; THEORY &middot; WEEK 5</div>
+  <h1>Timers, Counters &amp; Clocks</h1>
+  <p>CS245 · Lectures 12–14 · Timer/counter principles, PWM, SysTick, watchdogs, RTC, clock sources &amp; PLLs</p>
+</header>
+
+<section id="l12a">
+  <h2><span class="n">01</span>Timer/Counter Operating Principles</h2>
   <p>Embedded systems routinely need to measure elapsed time and count the occurrence of events — a microwave oven, for instance, needs one timer to track time-of-day, another to time the cook cycle, another to pulse the turntable motor, and a fourth to control power level by switching the magnetron on for only a fraction of each second.</p>
   <ul>
     <li><strong>Hardware counter:</strong> a register (<code>TIMx_CNT</code>) that increments or decrements on every transition of an input signal.</li>
@@ -53,8 +47,8 @@
   <p>Key registers: <code>TIMx_CNT</code> (current count, 16- or 32-bit — wider registers give a greater counting range before wraparound), <code>TIMx_PSC</code> (16-bit prescaler, dividing the input clock by any factor from 1 to 65536), <code>TIMx_ARR</code> (auto-reload register, defining the counting ceiling), and up to four <code>TIMx_CCRx</code> capture/compare registers per timer. Most timers have 4 independent channels, usable for output compare, input capture, PWM generation, or one-pulse output. Interrupts can be generated on update (overflow/underflow/reset), trigger, output-compare, input-capture, and break-input events.</p>
 </section>
 
-<section class="lecture" id="l12b">
-  <h2>Counter Modes</h2>
+<section id="l12b">
+  <h2><span class="n">02</span>Counter Modes</h2>
   <ul>
     <li><strong>Upcounting:</strong> counts 0 → <code>TIMx_ARR</code>, then resets to 0, generating an Update Event (UEV) and setting the Update Interrupt Flag (UIF).</li>
     <li><strong>Downcounting:</strong> counts <code>TIMx_ARR</code> → 0, then reloads <code>TIMx_ARR</code> and generates a UEV.</li>
@@ -62,8 +56,8 @@
   </ul>
 </section>
 
-<section class="lecture" id="l12c">
-  <h2>Output Compare &amp; Input Capture</h2>
+<section id="l12c">
+  <h2><span class="n">03</span>Output Compare &amp; Input Capture</h2>
   <ul>
     <li><strong>Output compare:</strong> the counter is continuously compared against <code>TIMx_CCRx</code>; on a match, an output pin's logic level changes (set, clear, or toggle) — without requiring the CPU to be interrupted at all. Used to generate output waveforms, or simply to mark that a period of time has elapsed. Can also raise an interrupt if enabled.</li>
     <li><strong>Input capture:</strong> the timer free-runs on a known clock; when a configured edge is detected on the corresponding input-capture (ICx) signal, the current counter value is latched into <code>TIMx_CCRx</code>. This measures the time between edges of an external signal, without CPU polling. Extra features include programmable edge sensitivity (rising/falling/both), an event prescaler (capture every 1/2/4/8 events, reducing CPU load for high-frequency signals), and a 4-bit digital noise/debounce filter (able to reject glitches up to 15 sampling periods after the active edge).</li>
@@ -71,8 +65,8 @@
   <p>Typical uses of counter mode: an LMT01 temperature sensor outputs a number of pulses within a fixed time window that varies with temperature; an optical encoder outputs pulses at a rate proportional to rotation speed. Both are read by feeding the pulse train into a timer/counter's external input.</p>
 </section>
 
-<section class="lecture" id="l13a">
-  <h2>Pulse-Width Modulation (PWM)</h2>
+<section id="l13a">
+  <h2><span class="n">04</span>Pulse-Width Modulation (PWM)</h2>
   <p><strong>PWM</strong> generates a square wave with a programmable pulse width (duty cycle), which — after low-pass filtering, or simply as perceived by an LED/motor — behaves like a varying average DC voltage. Frequency is set by <code>TIMx_ARR</code>; duty cycle is set by <code>TIMx_CCRx</code>. The generated signal is called <strong>OCxREF</strong>.</p>
   <table>
     <thead><tr><th></th><th>Upcounting (CNT &lt; CCR)</th><th>Downcounting (CNT &gt; CCR)</th></tr></thead>
@@ -136,8 +130,8 @@
   <p>Generates a single pulse of programmable length in response to an external trigger event. <code>CCR1</code> defines when the pulse starts (optionally after a delay from the trigger), and <code>ARR</code> defines when it ends — the effective pulse width is <code>ARR − CCR1</code>.</p>
 </section>
 
-<section class="lecture" id="l13b">
-  <h2>SysTick, Watchdogs &amp; RTC</h2>
+<section id="l13b">
+  <h2><span class="n">05</span>SysTick, Watchdogs &amp; RTC</h2>
   <h3>SysTick timer</h3>
   <p>A 24-bit downcounter built into the Cortex-M4 core itself (dedicated primarily to RTOS use, but usable as a plain downcounter), with autoreload and maskable interrupt-on-zero. It is normally configured (in <code>HAL_Init()</code>) as a 1 ms tick that simply increments a counter variable on every interrupt; <code>HAL_Delay()</code> spins in a loop waiting for that counter to advance by the requested amount.</p>
   <div class="note-box"><span class="label">Critical rule</span>Never call <code>HAL_Delay()</code> from inside an interrupt handler unless SysTick has been given a strictly higher preemption priority than that handler — otherwise SysTick can never fire to advance the count, and the system deadlocks.</div>
@@ -157,8 +151,8 @@
   <p>An independent BCD (binary-coded decimal) calendar timer/counter, tracking seconds, minutes, hours (12/24-hour), weekday, date, month, and year — with automatic leap-year and month-length compensation. Provides a programmable alarm and periodic interrupts, and can wake the device from Stop/Standby low-power modes. Normally clocked by an external 32.768 kHz crystal (LSE), though it can fall back to the internal RC oscillator (less accurate) or the HSE divided by 128. It defaults to generating a 1-second time base from the 32.768 kHz source, and continues running across Run mode, low-power modes, and reset, as long as supply voltage stays in range.</p>
 </section>
 
-<section class="lecture" id="l14a">
-  <h2>Clock Sources</h2>
+<section id="l14a">
+  <h2><span class="n">06</span>Clock Sources</h2>
   <p>Every microcontroller needs a clock input, used by the CPU, memory, bus, and peripherals — it governs instruction execution rate, serial communication rate, and analog-to-digital sampling rate. Microcontrollers implement sequential logic (their output depends on input history, not just present inputs), and every logic gate has a finite <strong>propagation delay</strong>; the time between clock pulses must be long enough for all gate outputs to settle before the next pulse, or the circuit's behaviour becomes unreliable.</p>
   <table>
     <thead><tr><th>Source</th><th>Typical frequency</th><th>Trade-off</th></tr></thead>
@@ -172,12 +166,15 @@
   <p>An RC oscillator's imprecision comes from manufacturing tolerance in the resistor/capacitor values (which directly set the resonant frequency) and thermal drift in those same values. A crystal oscillator instead uses the mechanical (piezoelectric) resonance of a vibrating quartz crystal — deformed by an applied electric field (electrostriction), and generating its own field as it springs back — which is far more stable, though it still needs external circuitry to amplify and feed back the crystal's output.</p>
   <h3>Frequency error (ppm)</h3>
   <p>Oscillator accuracy is specified in parts-per-million (ppm):</p>
-  <div class="formula">Δf = f₀ × (ppm / 10⁶)</div>
+  <div class="formula">Δf = f₀ × (ppm / 10⁶)
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>&Delta;f</dt><dd>Frequency error in Hz.</dd><dt>f&#8320;</dt><dd>Nominal frequency of the clock source.</dd><dt>ppm</dt><dd>Tolerance in parts per million.</dd><dt>10&#8310;</dt><dd>One million, which converts ppm to a fraction.</dd></dl>
+</div>
   <p>Example: a 32.768 kHz crystal rated ±20 ppm gives Δf = 32,768 × 20 / 1,000,000 ≈ ±0.65536 Hz — the clock may drift by up to ≈20 seconds per million seconds, roughly 52 seconds over a month.</p>
 </section>
 
-<section class="lecture" id="l14b">
-  <h2>Phase-Locked Loop (PLL) &amp; Clock Distribution</h2>
+<section id="l14b">
+  <h2><span class="n">07</span>Phase-Locked Loop (PLL) &amp; Clock Distribution</h2>
   <p>Quartz crystals cannot physically resonate at hundreds of MHz, so a <strong>Phase-Locked Loop (PLL)</strong> multiplies a lower crystal (or RC) frequency up to the CPU's operating frequency (168 MHz on this board). A PLL consists of a phase-frequency detector, a charge pump, a low-pass loop filter, a voltage-controlled oscillator (VCO), and feedback frequency dividers (÷M, ×N, ÷P, ÷Q). The VCO output is fed back to the phase detector, forming a negative-feedback loop: if the output phase drifts, the resulting error signal drives the VCO in the opposite direction, locking the output phase to a fixed relationship with the input.</p>
   <figure class="diagram">
     <div class="diagram-svg">
@@ -238,11 +235,13 @@
   <p>Higher clock speed means faster transistor switching, which means higher power consumption and higher operating temperature — this is why modern microcontrollers allow individual peripheral clocks to be gated off, and support various low-power sleep states with wake-up capability.</p>
 </section>
 
-<footer class="pagefoot">
-  <span>CS245 — Computer Systems 245</span>
-  <span><a href="../programming/week5.html">See the Programming notes for Week 5 →</a></span>
+<footer>
+<p>Computer Systems 245 &middot; Theory &middot; Week 5. <a href="../programming/week5.html">See the Programming notes for Week 5 →</a></p>
 </footer>
-
+</main>
 </div>
+
+<script src="../../assets/ask-gemini.js" data-store="cs245-theory-w5" data-course="Computer Systems 245" data-topic="Theory track, week 5: Timers, Counters &amp; Clocks"></script>
+<script src="../../assets/page.js"></script>
 </body>
 </html>

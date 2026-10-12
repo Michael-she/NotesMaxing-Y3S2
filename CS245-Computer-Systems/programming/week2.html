@@ -1,51 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="stylesheet" href="../style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 2 Programming: Toolchain, Multi-File Projects &amp; the ARM Stack · CS245</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/notes.css">
+<link rel="stylesheet" href="../../assets/page.css">
 </head>
 <body>
-<div class="page">
-
-<div class="topnav">
-  <a href="../../index.html#cs245">CS245 Notes</a>
-  <span class="sep">/</span>
-  <a href="../theory/week2.html">Theory</a>
-  <span class="current">Programming</span>
-  <a href="../../index.html#cs245/papers">Papers</a>
-  <span class="sep">|</span>
-  <a href="week1.html">W1</a>
-  <span class="current">W2</span>
-  <a href="week3.html">W3</a>
-  <a href="week4.html">W4</a>
-  <a href="week5.html">W5</a>
-</div>
-
-<header class="hero">
-  <span class="kicker programming">Programming</span>
-  <h1 class="title">Week 2 — Toolchain, Multi-File Projects &amp; the ARM Stack</h1>
-  <p class="subtitle">CS245 · Lectures 4–6 · Build pipeline, mixing C/assembly, extern, function calls, the stack</p>
-</header>
-
-<nav class="toc">
-  <span class="toc-label">Contents</span>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../index.html#cs245">&larr; All modules</a>
+  <div class="k">CS245 &middot; Programming &middot; Week 2</div>
   <ol>
-    <li><a href="#l4a">Embedded Toolchain &amp; Compilation Pipeline</a></li>
-    <li><a href="#l4b">Mixing C and Assembly Code</a></li>
-    <li><a href="#l4c">Multi-File Projects: extern &amp; Header Files</a></li>
-    <li><a href="#l5">Global vs. Local Variables &amp; Style</a></li>
-    <li><a href="#l5c">Linker Script Mechanics</a></li>
-    <li><a href="#l6a">Function Calls &amp; Branching</a></li>
-    <li><a href="#l6b">AAPCS: The ARM Calling Convention</a></li>
-    <li><a href="#l6c">The Stack Pointer &amp; Push/Pop Mechanics</a></li>
-    <li><a href="#l6d">Saving Registers &amp; Multiple Load/Store</a></li>
+    <li><a href="#l4a">1. Embedded Toolchain &amp; Compilation Pipeline</a></li>
+    <li><a href="#l4b">2. Mixing C and Assembly Code</a></li>
+    <li><a href="#l4c">3. Multi-File Projects: extern &amp; Header Files</a></li>
+    <li><a href="#l5">4. Global vs. Local Variables &amp; Style</a></li>
+    <li><a href="#l5c">5. Linker Script Mechanics</a></li>
+    <li><a href="#l6a">6. Function Calls &amp; Branching</a></li>
+    <li><a href="#l6b">7. AAPCS: The ARM Calling Convention</a></li>
+    <li><a href="#l6c">8. The Stack Pointer &amp; Push/Pop Mechanics</a></li>
+    <li><a href="#l6d">9. Saving Registers &amp; Multiple Load/Store</a></li>
   </ol>
+  <div class="k">Programming weeks</div>
+  <div class="weeks"><a href="week1.html">1</a><a href="week2.html" class="cur" aria-current="page">2</a><a href="week3.html">3</a><a href="week4.html">4</a><a href="week5.html">5</a></div>
+  <ol class="alt"><li><a href="../theory/week2.html">Theory notes, week 2 &rarr;</a></li></ol>
 </nav>
 
-<section class="lecture" id="l4a">
-  <h2>Embedded Toolchain &amp; Compilation Pipeline</h2>
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 &middot; PROGRAMMING &middot; WEEK 2</div>
+  <h1>Toolchain, Multi-File Projects &amp; the ARM Stack</h1>
+  <p>CS245 · Lectures 4–6 · Build pipeline, mixing C/assembly, extern, function calls, the stack</p>
+</header>
+
+<section id="l4a">
+  <h2><span class="n">01</span>Embedded Toolchain &amp; Compilation Pipeline</h2>
   <ul>
     <li><strong>Cross-compiler (<code>arm-none-eabi-gcc</code>):</strong> runs on the host PC (x86_64) but emits machine code targeting the ARMv7-M architecture, with no underlying OS ("bare-metal"). A cross-compiler is, generally, any compiler that creates executable code for a platform other than the one it runs on — typical of embedded development.</li>
     <li>The compiler, assembler, and linker together are called the <strong>toolchain</strong>.</li>
@@ -113,8 +107,8 @@
   <p><strong>Build</strong> in the IDE is incremental (only changed files recompile); <strong>Clean</strong> deletes all <code>.o</code>/<code>.elf</code> output so the next Build starts from scratch — useful when you see unexplained behaviour. <strong>Debug</strong> programs the binary into Flash, starts execution, and lets the IDE pause the processor at breakpoints, single-step, and inspect or modify registers/memory while halted.</p>
 </section>
 
-<section class="lecture" id="l4b">
-  <h2>Mixing C and Assembly Code</h2>
+<section id="l4b">
+  <h2><span class="n">02</span>Mixing C and Assembly Code</h2>
   <p>There are two ways to add ARM assembly to a project:</p>
   <h3>Method 1 — separate assembly file (<code>.s</code>)</h3>
   <pre><code>    .global set_leds
@@ -141,8 +135,8 @@ set_leds:
 }</code></pre>
 </section>
 
-<section class="lecture" id="l4c">
-  <h2>Multi-File Projects: extern &amp; Header Files</h2>
+<section id="l4c">
+  <h2><span class="n">03</span>Multi-File Projects: extern &amp; Header Files</h2>
   <p>Often a global variable or function defined in one <code>.c</code> file needs to be used from another. Simply referencing it from a second file fails to compile — the compiler has no idea it exists ("<code>count</code> undeclared").</p>
   <p><strong>Solution:</strong> declare it <code>extern</code> in the file that uses it (or, better, in a shared header), and define it exactly once in its own <code>.c</code> file.</p>
   <div class="note-box"><span class="label">Rules</span>
@@ -154,8 +148,8 @@ set_leds:
   </div>
 </section>
 
-<section class="lecture" id="l5">
-  <h2>Global vs. Local Variables &amp; Style</h2>
+<section id="l5">
+  <h2><span class="n">04</span>Global vs. Local Variables &amp; Style</h2>
   <table>
     <thead><tr><th></th><th>Declared</th><th>Visible from</th><th>Lives in</th></tr></thead>
     <tbody>
@@ -176,8 +170,8 @@ set_leds:
   <p>Use <code>malloc()</code> and <code>free()</code> (from <code>&lt;stdlib.h&gt;</code>) to allocate and release memory from the <strong>HEAP</strong> at run time.</p>
 </section>
 
-<section class="lecture" id="l5c">
-  <h2>Linker Script Mechanics</h2>
+<section id="l5c">
+  <h2><span class="n">05</span>Linker Script Mechanics</h2>
   <p>The linker script tells the linker exactly where each section of the program should be placed in the address space. A simplified example (sizes here are illustrative — see the datasheet's memory map for the exact Flash/SRAM sizes on this board):</p>
   <pre><code>MEMORY
 {
@@ -209,8 +203,8 @@ SECTIONS
   <p>The key idea: <code>.data</code> is mapped to run <em>in</em> RAM (<code>&gt;RAM</code>) but its initial values are stored (loaded) from Flash (<code>AT&gt; FLASH</code>) — startup code copies that image from Flash into RAM before <code>main()</code> runs. <code>.bss</code> holds no data in the binary at all; startup code simply zeroes that RAM range.</p>
 </section>
 
-<section class="lecture" id="l6a">
-  <h2>Function Calls &amp; Branching</h2>
+<section id="l6a">
+  <h2><span class="n">06</span>Function Calls &amp; Branching</h2>
   <table>
     <thead><tr><th>Mnemonic</th><th>Name</th><th>Meaning</th></tr></thead>
     <tbody>
@@ -253,8 +247,8 @@ DONE:</code></pre>
   <p>If <code>func1</code> calls <code>func2</code> using <code>BL</code>, the second <code>BL</code> overwrites LR (and probably R0–R3) — <code>func1</code> now has nowhere to return to. The LR value must therefore be saved somewhere before making a nested call. That "somewhere" is the stack.</p>
 </section>
 
-<section class="lecture" id="l6b">
-  <h2>AAPCS: The ARM Calling Convention</h2>
+<section id="l6b">
+  <h2><span class="n">07</span>AAPCS: The ARM Calling Convention</h2>
   <p>The <strong>ARM Architecture Procedure Call Standard (AAPCS)</strong> is the contract between a calling function and a called function, so that hand-written assembly interoperates correctly with C.</p>
   <ul>
     <li><strong>Parameter passing:</strong> the first four 32-bit arguments go in R0–R3, left to right. A double-word argument (e.g. a 64-bit value) is passed in a consecutive pair of registers (R0:R1 or R2:R3). Additional arguments beyond the first four are passed on the stack.</li>
@@ -264,15 +258,18 @@ DONE:</code></pre>
   </ul>
 </section>
 
-<section class="lecture" id="l6c">
-  <h2>The Stack Pointer &amp; Push/Pop Mechanics</h2>
+<section id="l6c">
+  <h2><span class="n">08</span>The Stack Pointer &amp; Push/Pop Mechanics</h2>
   <ul>
     <li><strong>SP (R13)</strong> is an ordinary register that, by convention, holds the address of the top of the stack. It starts at a high address and decrements as the stack grows.</li>
     <li>ARM does not have dedicated push/pop hardware — it uses ordinary load/store instructions, with the compiler (or the assembly programmer) applying an auto increment/decrement to SP.</li>
   </ul>
   <div class="formula">PUSH (Full Descending):        POP (Full Descending):
 1. SP = SP − 4                  1. data = *SP
-2. *SP = data                   2. SP = SP + 4</div>
+2. *SP = data                   2. SP = SP + 4
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>SP</dt><dd>Stack pointer: the address of the top of the stack.</dd><dt>*SP</dt><dd>The memory word at the address held in SP.</dd><dt>data</dt><dd>The 32-bit value being pushed or popped.</dd><dt>4</dt><dd>Bytes in one 32-bit word.</dd><dt>Full Descending</dt><dd>SP points at the last item stored, and the stack grows towards lower addresses.</dd></dl>
+</div>
   <p>Worked example: stack base <code>0x0008 0000</code>, SP currently <code>0x0007 FFDC</code> (9 elements on the stack).</p>
   <ul>
     <li><strong>Push</strong> <code>0x8359 6900</code>: SP decrements first to <code>0x0007 FFD8</code>, then the value is stored there — stack now has 10 elements.</li>
@@ -342,8 +339,8 @@ DONE:</code></pre>
   </figure>
 </section>
 
-<section class="lecture" id="l6d">
-  <h2>Saving Registers &amp; Multiple Load/Store</h2>
+<section id="l6d">
+  <h2><span class="n">09</span>Saving Registers &amp; Multiple Load/Store</h2>
   <p>A function should compute its return value and otherwise have no side effects on registers it does not own. The naive version of <code>diffofsums</code> below violates this — it clobbers R4, R8, and R9:</p>
   <pre><code>DIFFOFSUMS:
     add R8, R0, R1    // R8 = f + g
@@ -394,11 +391,13 @@ PUSH {r4, lr}   ≡  STMDB sp!, {r4, lr}
 POP  {r4, pc}   ≡  LDMIA sp!, {r4, pc}   // pops straight into PC = return!</code></pre>
 </section>
 
-<footer class="pagefoot">
-  <span>CS245 — Computer Systems 245</span>
-  <span><a href="../theory/week2.html">See the Theory notes for Week 2 →</a></span>
+<footer>
+<p>Computer Systems 245 &middot; Programming &middot; Week 2. <a href="../theory/week2.html">See the Theory notes for Week 2 →</a></p>
 </footer>
-
+</main>
 </div>
+
+<script src="../../assets/ask-gemini.js" data-store="cs245-programming-w2" data-course="Computer Systems 245" data-topic="Programming track, week 2: Toolchain, Multi-File Projects &amp; the ARM Stack"></script>
+<script src="../../assets/page.js"></script>
 </body>
 </html>

@@ -1,0 +1,31 @@
+/* Behaviour shared by every page, including self-contained ones: the collapsible side menu
+   and the per-formula "Annotate terms" list. Relies on the colour and font tokens
+   (--rule, --ink-2, --genoa, --f-display ...) that each page defines. Pairs with page.js. */
+[hidden]{display:none!important}
+
+/* ---- collapsible side menu ---- */
+.rail-toggle{font-family:var(--f-display);font-size:12px;line-height:1.2;border:1px solid var(--rule);background:var(--surface);color:var(--ink-2);
+  border-radius:6px;padding:5px 10px;cursor:pointer}
+.rail-toggle:hover{border-color:var(--genoa);color:var(--genoa)}
+.rail-toggle:focus-visible{outline:2px solid var(--genoa);outline-offset:1px}
+nav .rail-toggle{display:block;margin:0 0 14px}
+#railShow{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:12px;z-index:30;display:none;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+body.rail-collapsed #railShow{display:block}
+body.rail-collapsed nav.toc,body.rail-collapsed nav.rail{display:none}
+body.rail-collapsed .wrap{display:block;max-width:880px;padding-top:56px}
+body.rail-collapsed main{margin-inline:auto}
+
+/* ---- formula term annotations ---- */
+.annot{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:6px;font-family:var(--f-display);font-size:12px;
+  line-height:1.2;color:var(--ink-2);cursor:pointer;user-select:none;max-width:none}
+.annot input{margin:0;accent-color:var(--genoa);cursor:pointer}
+.annot:hover{color:var(--genoa)}
+dl.terms{display:grid;grid-template-columns:minmax(0,max-content) minmax(0,1fr);gap:6px 16px;margin:8px 0 2px;padding-top:10px;border-top:1px solid var(--rule);
+  font-family:var(--f-body);font-size:14.5px;line-height:1.45;text-align:left}
+/* Kept in the layout while closed (not display:none) so MathJax can measure the equations in it */
+.eq,.formula{position:relative}
+dl.terms:not(.on){position:absolute;left:0;width:100%;visibility:hidden;height:0;overflow:hidden;margin:0;padding:0;border:0;pointer-events:none}
+dl.terms dt{color:var(--genoa);font-weight:600;max-width:18em}
+dl.terms dd{margin:0;color:var(--ink)}
+@media (max-width:560px){dl.terms{grid-template-columns:minmax(0,1fr);gap:0}dl.terms dd{margin-bottom:8px}}
+@media print{.rail-toggle,.annot{display:none!important}}

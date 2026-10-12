@@ -1,144 +1,45 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DA344 — Week 1: Introduction to Data Analytics</title>
-<style>
-/* ============================================================
-   DA344 Notes — shared stylesheet. DO NOT EDIT PER-WEEK.
-   Copy this whole <style> block verbatim into each week file.
-   ============================================================ */
-:root{
-  --bg:#12151a; --ink:#e6e9ed; --muted:#9aa5b1; --rule:#2c3238; --soft:#1a1e24;
-  --accent:#7bb0e8; --accent-soft:#182634;
-  --warn:#e3b565; --warn-soft:#2b2211;
-  --ok:#7fd1a3; --ok-soft:#123023;
-  --maxw:52rem;
-}
-*{box-sizing:border-box}
-html{font-size:16px}
-body{
-  margin:0 auto; padding:2.5rem 1.5rem 5rem; max-width:var(--maxw);
-  font-family:"Charter","Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
-  color:var(--ink); background:var(--bg); line-height:1.62;
-  -webkit-font-smoothing:antialiased;
-}
-/* ---- headings ---- */
-h1,h2,h3{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;line-height:1.25;color:var(--ink)}
-h1{font-size:2.1rem;font-weight:700;margin:0 0 .3rem;letter-spacing:-.02em}
-.subtitle{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;color:var(--muted);font-size:1.05rem;margin:0 0 2rem}
-h2{font-size:1.45rem;font-weight:650;margin:3rem 0 .9rem;padding-bottom:.35rem;border-bottom:2px solid var(--accent)}
-h3{font-size:1.13rem;font-weight:650;margin:2rem 0 .6rem;color:var(--accent)}
-p{margin:0 0 1rem}
-ul,ol{margin:0 0 1rem;padding-left:1.4rem}
-li{margin:.3rem 0}
-strong{font-weight:650}
-a{color:var(--accent)}
-
-/* ---- document header block ---- */
-.docmeta{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 .6rem}
-
-/* ---- boxes ---- */
-.box{border:1px solid var(--rule);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;background:var(--soft);page-break-inside:avoid}
-.box>:first-child{margin-top:0}
-.box>:last-child{margin-bottom:0}
-.box .label{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
-.def{background:var(--accent-soft);border-color:#2c4a6e}
-.def .label{color:var(--accent)}
-.watch{background:var(--warn-soft);border-color:#4a3b1a}
-.watch .label{color:var(--warn)}
-.exam{background:var(--ok-soft);border-color:#2f5940}
-.exam .label{color:var(--ok)}
-.intuition{background:var(--bg);border-style:dashed}
-
-/* ---- summary sheet (tier 1) ---- */
-.summary{border:2px solid var(--accent);border-radius:8px;padding:1.4rem 1.6rem;margin:0 0 2.5rem;page-break-after:always}
-.summary h2{margin-top:0;border:none;padding:0;font-size:1.2rem}
-.summary h3{margin:1.2rem 0 .4rem;font-size:.95rem}
-.summary ul{margin-bottom:.6rem}
-.summary li{margin:.15rem 0;font-size:.94rem}
-
-/* ---- tables ---- */
-table{border-collapse:collapse;width:100%;margin:1.2rem 0;font-size:.92rem;page-break-inside:avoid}
-caption{caption-side:bottom;font-size:.82rem;color:var(--muted);text-align:left;padding-top:.5rem}
-th,td{border:1px solid var(--rule);padding:.45rem .6rem;text-align:left;vertical-align:top}
-th{background:var(--soft);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-weight:650;font-size:.86rem}
-td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
-
-/* ---- maths ---- */
-.eq{margin:1.2rem 0;text-align:center;font-size:1.02rem;page-break-inside:avoid}
-.eq .eqbody{display:inline-block;padding:.2rem .6rem}
-var{font-style:italic;font-family:Cambria,Georgia,serif}
-.frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .25em}
-.frac .top{display:block;border-bottom:1px solid currentColor;padding:0 .35em}
-.frac .bot{display:block;padding:0 .35em}
-sub,sup{font-size:.72em;line-height:0}
-
-/* ---- figures / SVG diagrams ---- */
-figure{margin:1.8rem 0;text-align:center;page-break-inside:avoid}
-figure svg{max-width:100%;height:auto;background:#eef1f6;border-radius:10px;padding:10px;box-sizing:border-box;border:1px solid #d9dee5}
-figcaption{font-size:.85rem;color:var(--muted);text-align:left;margin-top:.6rem;padding-top:.4rem;border-top:1px solid var(--rule)}
-figcaption b{color:var(--ink)}
-
-/* ---- reading refs ---- */
-.reading{font-size:.9rem;background:var(--bg);border-left:3px solid var(--accent);padding:.15rem 0 .15rem 1rem;margin:1.2rem 0;color:var(--muted)}
-.reading b{color:var(--ink);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
-
-/* ---- worked solutions ---- */
-
-hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
-
-
-/* ---- week navigation ---- */
-.weeknav{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .9rem;
-  font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:.85rem;
-  margin:0 0 2rem;padding:.7rem 1rem;background:var(--soft);
-  border:1px solid var(--rule);border-radius:8px}
-.weeknav a{color:var(--accent);text-decoration:none}
-.weeknav a:hover{text-decoration:underline}
-.weeknav .sep{color:var(--muted)}
-.weeknav .cur{color:var(--muted);margin-left:auto;font-weight:650}
-
-/* ---- print / PDF ---- */
-@page{size:A4;margin:18mm 16mm}
-@media print{
-
-  /* force a light, ink-friendly palette for printed/PDF output regardless of on-screen dark mode */
-  :root{
-    --bg:#fff; --ink:#1a1a1a; --muted:#555; --rule:#d8d8d8; --soft:#f6f7f9;
-    --accent:#1d4e89; --accent-soft:#e8eef6;
-    --warn:#8a5a00; --warn-soft:#fdf4e3;
-    --ok:#1f6b45; --ok-soft:#e8f4ee;
-  }
-  .def{border-color:#bccfe4}
-  .watch{border-color:#e6d3a8}
-  .exam{border-color:#bfdfcd}
-  .weeknav{display:none}
-
-  html{font-size:10.5pt}
-  body{max-width:none;padding:0}
-  h2{page-break-after:avoid}
-  h3{page-break-after:avoid}
-  .box,figure,table,.eq,.summary{page-break-inside:avoid}
-  a{color:var(--ink);text-decoration:none}
-}
-</style>
+<title>Week 1: Introduction to Data Analytics · DA344</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../assets/notes.css">
+<link rel="stylesheet" href="../assets/page.css">
 </head>
 <body>
-
-<p class="docmeta">Data Analytics 344 &middot; 2026</p>
-<h1>Week 1 — Introduction to Data Analytics</h1>
-<p class="subtitle">Topics 1 &amp; 2: what data analytics is, how machine-learning problems are recognised and formulated, how data is structured for prediction (analytics base table), and how models are developed and evaluated within CRISP-DM.</p>
-
-<nav class="weeknav">
-  <a href="../index.html#da344">&larr; Course Notes</a>
-  <span class="sep">&middot;</span><a href="Week2_Data_Exploration.html">Week 2: Data Exploration &rarr;</a>
-  <span class="cur">Week 1 of 6</span>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../index.html#da344">&larr; All modules</a>
+  <div class="k">DA344 &middot; Week 1</div>
+  <ol>
+    <li><a href="#summary">At a glance</a></li>
+    <li><a href="#s1">1. Data analytics: from data to decisions</a></li>
+    <li><a href="#s2">2. Machine learning and the three learning paradigms</a></li>
+    <li><a href="#s3">3. From business problem to analytics problem</a></li>
+    <li><a href="#s4">4. Domain concepts and feature design</a></li>
+    <li><a href="#s5">5. The analytics base table</a></li>
+    <li><a href="#s6">6. The CRISP-DM process</a></li>
+    <li><a href="#s7">7. Generalisation, underfitting and overfitting</a></li>
+    <li><a href="#s8">8. Evaluating classification models</a></li>
+    <li><a href="#s9">9. Evaluating regression models</a></li>
+  </ol>
+  <div class="k">Weeks</div>
+  <div class="weeks"><a href="Week1_Introduction_to_Data_Analytics.html" class="cur" aria-current="page">1</a><a href="Week2_Data_Exploration.html">2</a><a href="Week3_Data_Quality_and_Preparation.html">3</a><a href="Week4_Clustering_and_Cluster_Analysis.html">4</a><a href="Week5_Prototype_Learning_and_SOMs.html">5</a><a href="Week6_Rule_Based_Knowledge_Discovery.html">6</a></div>
 </nav>
 
+<main>
+<header class="top">
+  <div class="kicker">DATA ANALYTICS 344 &middot; WEEK 1</div>
+  <h1>Introduction to Data Analytics</h1>
+  <p>Topics 1 &amp; 2: what data analytics is, how machine-learning problems are recognised and formulated, how data is structured for prediction (analytics base table), and how models are developed and evaluated within CRISP-DM.</p>
+</header>
+
 <!-- ===== TIER 1: ONE-PAGE SUMMARY SHEET ===== -->
-<section class="summary">
+<section class="summary" id="summary">
   <h2>Week 1 at a glance</h2>
 
   <h3>Core ideas</h3>
@@ -192,7 +93,8 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
 
 <!-- ===== TIER 2: FULL NOTES ===== -->
 
-<h2>1. Data analytics: from data to decisions</h2>
+<section id="s1">
+<h2><span class="n">01</span>Data analytics: from data to decisions</h2>
 
 <p>Organisations in almost every industry are now data-capturing: sensors, transactions, images, documents and logs are collected continuously. On its own this data is an untapped asset. <strong>Data analytics</strong> is what turns it into value — improved revenue, reduced costs, business agility, better customer experience, and new or improved products — by revealing meaningful information that supports better decision-making. The lectures open with examples where tiny data-driven edges decide outcomes (the Olympic crouching start, <em>Moneyball</em>&rsquo;s Oakland A&rsquo;s recruitment, Formula&nbsp;1 cars streaming over a million data points per second from ~300 sensors).</p>
 
@@ -231,8 +133,10 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
 <p><strong>Predictive analytics</strong> is the branch of analytics that builds models of the past in order to predict future or unknown outcomes. Its core tool is <strong>machine learning</strong>, covered next. Sample business cases from the lectures: predicting when a component will fail (remaining useful life), detecting anomalies in engineering systems, forecasting building energy consumption, and improving autonomous-vehicle navigation.</p>
 
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;1 &sect;1.1&ndash;1.3 — introduces predictive data analytics, the data-science context and the core concepts used throughout the book.</p>
+</section>
 
-<h2>2. Machine learning and the three learning paradigms</h2>
+<section id="s2">
+<h2><span class="n">02</span>Machine learning and the three learning paradigms</h2>
 
 <div class="box def"><span class="label">Definition — machine learning</span>
 <p>&ldquo;Machine learning is the field of study that gives computers the ability to learn without being explicitly programmed&rdquo; (Arthur Samuel, 1959). It is a subfield of artificial intelligence in which models <em>learn or self-discover</em> the business logic or rules from historic data, rather than having the rules hand-coded by a domain expert.</p>
@@ -295,8 +199,10 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
 </ul>
 
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;1 &sect;1.1&ndash;1.3 — the concepts of predictive data analytics, learning problems and how predictive models are framed.</p>
+</section>
 
-<h2>3. From business problem to analytics problem</h2>
+<section id="s3">
+<h2><span class="n">03</span>From business problem to analytics problem</h2>
 
 <p>Before any data is touched, a real-world engineering or business problem must be translated into a precisely defined analytics problem. The lectures structure this as <strong>three key questions</strong>:</p>
 <ol>
@@ -332,8 +238,10 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
 </div>
 
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;2 &sect;2.1 — formulating a predictive-analytics problem from a business problem. Further: the remaining sections of Ch&nbsp;2 develop the full case study.</p>
+</section>
 
-<h2>4. Domain concepts and feature design</h2>
+<section id="s4">
+<h2><span class="n">04</span>Domain concepts and feature design</h2>
 
 <h3>4.1 Domain concept diagrams</h3>
 <p>Selecting the features for an analytics base table is based on <strong>domain knowledge</strong> and on analysis of relationships between features. The recommended starting point is a <strong>domain concept diagram</strong> — a hierarchy that begins with the analytics solution and branches into high-level abstractions of the prediction subject:</p>
@@ -373,8 +281,10 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
 </div>
 
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;2 &sect;2.1&ndash;2.3 — domain concepts, the analytics base table and feature design considerations.</p>
+</section>
 
-<h2>5. The analytics base table</h2>
+<section id="s5">
+<h2><span class="n">05</span>The analytics base table</h2>
 
 <div class="box def"><span class="label">Definition — analytics base table (ABT)</span>
 <p>The analytics base table is the flat tabular data structure used to represent a predictive-analytics problem. Each <strong>column</strong> is a <em>feature</em> (also called attribute, field or variable); the columns divide into <strong>descriptive features</strong> and a single <strong>target feature</strong>. Each <strong>row</strong> is an <em>instance</em> (also called example, record or observation) containing values for both the descriptive features and the target — one subject for which a prediction can be made. This is the &ldquo;<strong>one-row-per-subject</strong>&rdquo; structure.</p>
@@ -467,8 +377,10 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
 </div>
 
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;2 &sect;2.2&ndash;2.3 — the analytics base table, features, and preparing data for predictive analytics.</p>
+</section>
 
-<h2>6. The CRISP-DM process</h2>
+<section id="s6">
+<h2><span class="n">06</span>The CRISP-DM process</h2>
 
 <div class="box def"><span class="label">Definition — CRISP-DM</span>
 <p>The <strong>CR</strong>oss <strong>I</strong>ndustry <strong>S</strong>tandard <strong>P</strong>rocess for <strong>D</strong>ata <strong>M</strong>ining (CRISP-DM) is the commonly used approach for solving a data-analytics problem. It defines the six key phases of the data-analytics project lifecycle.</p>
@@ -546,8 +458,10 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
 </div>
 
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;1 &sect;1.5&ndash;1.6 — the data-science project lifecycle and how a predictive-analytics project is organised end to end.</p>
+</section>
 
-<h2>7. Generalisation, underfitting and overfitting</h2>
+<section id="s7">
+<h2><span class="n">07</span>Generalisation, underfitting and overfitting</h2>
 
 <div class="box def"><span class="label">Definition — generalisation</span>
 <p>A model <strong>generalises</strong> when it performs well not only on the historic instances it was built from but also on <em>unseen</em> instances. Searching for a model is really searching for a model that will generalise — this is the criterion that replaces mere consistency with the training data (Section&nbsp;2.3), since consistent models can simply memorise and then disagree on unseen data.</p>
@@ -642,8 +556,10 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
 </div>
 
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;9 &sect;9.1&ndash;9.3 — model evaluation, generalisation, and how training/validation/test data are used.</p>
+</section>
 
-<h2>8. Evaluating classification models</h2>
+<section id="s8">
+<h2><span class="n">08</span>Evaluating classification models</h2>
 
 <h3>8.1 The confusion matrix</h3>
 <p>A <strong>confusion matrix</strong> compares predicted values against actual values: instances are grouped by their actual label and their predicted label, which visualises exactly what kinds of errors a model makes. By convention, the outcome that is most important for the business is treated as the <strong>positive</strong> class (e.g. defective, fraud, churn). For a binary target there are four outcomes:</p>
@@ -689,14 +605,20 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
 <div class="eq"><span class="eqbody">
   Accuracy = <span class="frac"><span class="top">TP + TN</span><span class="bot">TP + FP + FN + TN</span></span>
   &nbsp;&nbsp;&nbsp; Error rate = <span class="frac"><span class="top">FP + FN</span><span class="bot">TP + FP + FN + TN</span></span>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>TP</dt><dd>True positives: positive instances predicted positive.</dd><dt>TN</dt><dd>True negatives: negative instances predicted negative.</dd><dt>FP</dt><dd>False positives: negative instances predicted positive.</dd><dt>FN</dt><dd>False negatives: positive instances predicted negative.</dd><dt>TP + FP + FN + TN</dt><dd>All instances in the confusion matrix.</dd><dt>Error rate</dt><dd>Fraction misclassified; equal to 1 &minus; accuracy.</dd></dl>
+</div>
 
 <p>Accuracy divides the number of correct predictions (true positives + true negatives) by the total number of predictions.</p>
 
 <div class="eq"><span class="eqbody">
   Precision = <span class="frac"><span class="top">TP</span><span class="bot">TP + FP</span></span>
   &nbsp;&nbsp;&nbsp; Recall = <span class="frac"><span class="top">TP</span><span class="bot">TP + FN</span></span>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>TP</dt><dd>True positives.</dd><dt>FP</dt><dd>False positives.</dd><dt>FN</dt><dd>False negatives.</dd><dt>TP + FP</dt><dd>Everything the model predicted as positive.</dd><dt>TP + FN</dt><dd>Everything that actually is positive.</dd></dl>
+</div>
 
 <ul>
   <li><strong>Precision</strong> — &ldquo;if the model predicts positive, how often is it correct?&rdquo; It measures how trustworthy positive predictions are (penalised by false positives).</li>
@@ -705,7 +627,10 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
 
 <div class="eq"><span class="eqbody">
   F1 = 2 &times; <span class="frac"><span class="top">Precision &times; Recall</span><span class="bot">Precision + Recall</span></span>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>F<sub>1</sub></dt><dd>Harmonic mean of precision and recall; high only when both are high.</dd><dt>Precision</dt><dd>Fraction of predicted positives that are correct.</dd><dt>Recall</dt><dd>Fraction of actual positives that were found.</dd></dl>
+</div>
 
 <p>The <strong>F1 score</strong> is the harmonic mean of precision and recall, ranging from 0 to 1; a classifier with a high F1 must have both good precision and good recall. It is a useful single number when the data set is imbalanced.</p>
 
@@ -782,8 +707,10 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
 </ul>
 
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;9 &sect;9.4.1.1 and &sect;9.4.2 — performance evaluation for classification problems (confusion-matrix-based measures and prediction scores/ROC analysis).</p>
+</section>
 
-<h2>9. Evaluating regression models</h2>
+<section id="s9">
+<h2><span class="n">09</span>Evaluating regression models</h2>
 
 <p>For regression, the error of each instance is the difference between the target value <var>t</var><sub><var>i</var></sub> and the model prediction <var>M</var>(<var>d</var><sub><var>i</var></sub>). To get an overall measure, the per-instance errors are aggregated — commonly by summing either absolute or squared errors — and divided by the number of instances so that the measure is comparable across data sets of different sizes.</p>
 
@@ -794,11 +721,17 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
   MSE = <span class="frac"><span class="top">1</span><span class="bot"><var>n</var></span></span>
   &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
   (<var>t</var><sub><var>i</var></sub> &minus; <var>M</var>(<var>d</var><sub><var>i</var></sub>))<sup>2</sup> = <span class="frac"><span class="top">SSE</span><span class="bot"><var>n</var></span></span>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt><var>t</var><sub>i</sub></dt><dd>Target (true) value of instance <var>i</var>.</dd><dt><var>d</var><sub>i</sub></dt><dd>Descriptive features of instance <var>i</var>.</dd><dt>M(<var>d</var><sub>i</sub>)</dt><dd>The model's prediction for that instance.</dd><dt><var>n</var></dt><dd>Number of instances.</dd><dt>SSE</dt><dd>Sum of squared errors.</dd><dt>MSE</dt><dd>Mean squared error: SSE divided by <var>n</var>.</dd></dl>
+</div>
 
 <div class="eq"><span class="eqbody">
   RMSE = &radic;<span style="text-decoration:overline">MSE</span>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>RMSE</dt><dd>Root mean squared error, in the same units as the target.</dd><dt>MSE</dt><dd>Mean squared error.</dd></dl>
+</div>
 
 <ul>
   <li><strong>SSE</strong> (sum of squared errors) — total squared prediction error; grows with data-set size.</li>
@@ -810,7 +743,10 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
   R<sup>2</sup> = 1 &minus; <span class="frac"><span class="top">SSE</span><span class="bot">SST</span></span>
   &nbsp;&nbsp;&nbsp; where &nbsp;&nbsp; SST = &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
   (<var>t</var><sub><var>i</var></sub> &minus; <span style="text-decoration:overline"><var>t</var></span>)<sup>2</sup>
-</span></div>
+</span>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>R<sup>2</sup></dt><dd>Share of the target's variation that the model explains.</dd><dt>SSE</dt><dd>Sum of squared errors of the model.</dd><dt>SST</dt><dd>Total sum of squares: squared deviations of the targets from their mean.</dd><dt><var>t</var><sub>i</sub></dt><dd>Target value of instance <var>i</var>.</dd><dt><var>t&#772;</var></dt><dd>Mean of the target values.</dd><dt><var>n</var></dt><dd>Number of instances.</dd></dl>
+</div>
 
 <p>The <strong>R&sup2; coefficient</strong> is a domain-independent measure: it compares the model against the naive model that always predicts the average target value <span style="text-decoration:overline"><var>t</var></span>. SST is the total sum of squares about the mean — the error the naive model makes. An R&sup2; of 0 means the model explains none of the variance (it is no better than predicting the mean); an R&sup2; of 1 means it explains all the variability (perfect predictions, SSE = 0).</p>
 
@@ -835,15 +771,15 @@ hr{border:none;border-top:1px solid var(--rule);margin:2.5rem 0}
 </div>
 
 <p class="reading"><b>Reading</b> &nbsp;Kelleher et al. (2e), Ch&nbsp;9 &sect;9.4.5 — performance evaluation for regression problems. Further reading for the full treatment of the Week&nbsp;1 case-study material: Kelleher Ch&nbsp;1 &sect;1.4 and the remaining sections of Ch&nbsp;2.</p>
+</section>
 
-<hr>
-<p style="font-size:.88rem;color:var(--muted)">These notes cover the Week&nbsp;1 theory (Topics 1 &amp; 2). The module&rsquo;s practical sessions use R; the practical work is not covered here. Sources: DA344 Week&nbsp;1 lecture slides (Dr&nbsp;LE&nbsp; Burger, 2026), the Week&nbsp;1 study guide learning outcomes and practice questions, and the prescribed textbook referenced by chapter/section above.</p>
+<footer>
+<p style="font-size:.88rem;color:var(--ink-2)">These notes cover the Week&nbsp;1 theory (Topics 1 &amp; 2). The module&rsquo;s practical sessions use R; the practical work is not covered here. Sources: DA344 Week&nbsp;1 lecture slides (Dr&nbsp;LE&nbsp; Burger, 2026), the Week&nbsp;1 study guide learning outcomes and practice questions, and the prescribed textbook referenced by chapter/section above.</p>
+</footer>
+</main>
+</div>
 
-
-<nav class="weeknav">
-  <a href="../index.html#da344">&larr; Course Notes</a>
-  <span class="sep">&middot;</span><a href="Week2_Data_Exploration.html">Week 2: Data Exploration &rarr;</a>
-  <span class="cur">Week 1 of 6</span>
-</nav>
+<script src="../assets/ask-gemini.js" data-store="da344-w1" data-course="Data Analytics 344" data-topic="Week 1: Introduction to Data Analytics"></script>
+<script src="../assets/page.js"></script>
 </body>
 </html>

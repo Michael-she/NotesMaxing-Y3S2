@@ -1,49 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week 5 — Programming | CS245</title>
-<link rel="stylesheet" href="../style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 5 Programming: Timer Formulas &amp; the HAL Timer/RTC API · CS245</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="../../assets/notes.css">
+<link rel="stylesheet" href="../../assets/page.css">
 </head>
 <body>
-<div class="page">
-
-<div class="topnav">
-  <a href="../../index.html#cs245">CS245 Notes</a>
-  <span class="sep">/</span>
-  <a href="../theory/week5.html">Theory</a>
-  <span class="current">Programming</span>
-  <a href="../../index.html#cs245/papers">Papers</a>
-  <span class="sep">|</span>
-  <a href="week1.html">W1</a>
-  <a href="week2.html">W2</a>
-  <a href="week3.html">W3</a>
-  <a href="week4.html">W4</a>
-  <span class="current">W5</span>
-</div>
-
-<header class="hero">
-  <span class="kicker programming">Programming</span>
-  <h1 class="title">Week 5 — Timer Formulas &amp; the HAL Timer/RTC API</h1>
-  <p class="subtitle">CS245 · Lectures 12–14 · Timer math, HAL calls for OC/IC/PWM, watchdog kicking, RTC</p>
-</header>
-
-<nav class="toc">
-  <span class="toc-label">Contents</span>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../index.html#cs245">&larr; All modules</a>
+  <div class="k">CS245 &middot; Programming &middot; Week 5</div>
   <ol>
-    <li><a href="#formula">Timer Frequency &amp; Period Formulas</a></li>
-    <li><a href="#apb">Timer-to-Bus Mapping</a></li>
-    <li><a href="#oc">HAL: Output Compare</a></li>
-    <li><a href="#ic">HAL: Input Capture</a></li>
-    <li><a href="#pwm">HAL: PWM</a></li>
-    <li><a href="#wdg">Kicking the Watchdog</a></li>
-    <li><a href="#rtc">HAL: Real-Time Clock</a></li>
+    <li><a href="#formula">1. Timer Frequency &amp; Period Formulas</a></li>
+    <li><a href="#apb">2. Timer-to-Bus Mapping</a></li>
+    <li><a href="#oc">3. HAL: Output Compare</a></li>
+    <li><a href="#ic">4. HAL: Input Capture</a></li>
+    <li><a href="#pwm">5. HAL: PWM</a></li>
+    <li><a href="#wdg">6. Kicking the Watchdog</a></li>
+    <li><a href="#rtc">7. HAL: Real-Time Clock</a></li>
   </ol>
+  <div class="k">Programming weeks</div>
+  <div class="weeks"><a href="week1.html">1</a><a href="week2.html">2</a><a href="week3.html">3</a><a href="week4.html">4</a><a href="week5.html" class="cur" aria-current="page">5</a></div>
+  <ol class="alt"><li><a href="../theory/week5.html">Theory notes, week 5 &rarr;</a></li></ol>
 </nav>
 
-<section class="lecture" id="formula">
-  <h2>Timer Frequency &amp; Period Formulas</h2>
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 &middot; PROGRAMMING &middot; WEEK 5</div>
+  <h1>Timer Formulas &amp; the HAL Timer/RTC API</h1>
+  <p>CS245 · Lectures 12–14 · Timer math, HAL calls for OC/IC/PWM, watchdog kicking, RTC</p>
+</header>
+
+<section id="formula">
+  <h2><span class="n">01</span>Timer Frequency &amp; Period Formulas</h2>
   <figure class="diagram">
     <div class="diagram-svg">
       <svg viewBox="0 0 620 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timer/counter clock distribution: the input clock f_clk feeds a prescaler that divides by N (TIMx_PSC plus 1), which feeds the counter register TIMx_CNT; when the count matches the auto-reload register ARR, an update event UEV and update interrupt flag UIF are generated">
@@ -89,16 +83,21 @@
     f_timer = f_clk / N&emsp;&emsp;where N = TIMx_PSC + 1 (never 0, avoiding a divide-by-zero)<br>
     T = (R + 1) / f_timer&emsp;&emsp;where R = TIMx_ARR
     <span class="note">R + 1 because both 0 and R are included in the count — counting 0..3 is 4 steps, not 3.</span>
-  </div>
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>f_timer</dt><dd>Counter clock frequency, after the prescaler.</dd><dt>f_clk</dt><dd>Clock frequency fed to the timer.</dd><dt>N</dt><dd>Division ratio of the prescaler.</dd><dt>TIMx_PSC</dt><dd>Prescaler register.</dd><dt>T</dt><dd>Period between overflows (update events).</dd><dt>R, TIMx_ARR</dt><dd>Auto-reload register: the count at which the counter wraps back to 0.</dd></dl>
+</div>
 
   <h3>Worked example</h3>
   <p>The input clock to the timer module (<code>CK_PSC</code>) is 10 MHz, with a prescaler value <code>TIMx_PSC</code> = 1024, counting up from 0. What auto-reload value gives a ≈1 s interrupt period?</p>
-  <div class="formula">TIMx_ARR = 10⁷ / (1024 + 1) − 1 ≈ 9746</div>
+  <div class="formula">TIMx_ARR = 10⁷ / (1024 + 1) − 1 ≈ 9746
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>TIMx_ARR</dt><dd>Auto-reload value being solved for.</dd><dt>10&#8311;</dt><dd>Input clock, 10 MHz, times the 1 s period wanted.</dd><dt>1024 + 1</dt><dd>Prescaler division ratio, TIMx_PSC + 1.</dd><dt>&minus; 1</dt><dd>Because the count includes 0.</dd></dl>
+</div>
   <p>Because 9746 is rounded down to an integer, the resulting period is not exactly 1 s — it works out to ≈0.9990675 s. Some timer hardware compensates for this rounding automatically; check the specific device's datasheet.</p>
 </section>
 
-<section class="lecture" id="apb">
-  <h2>Timer-to-Bus Mapping</h2>
+<section id="apb">
+  <h2><span class="n">02</span>Timer-to-Bus Mapping</h2>
   <table>
     <thead><tr><th>Bus</th><th>Timers / peripherals</th></tr></thead>
     <tbody>
@@ -108,15 +107,15 @@
   </table>
 </section>
 
-<section class="lecture" id="oc">
-  <h2>HAL: Output Compare</h2>
+<section id="oc">
+  <h2><span class="n">03</span>HAL: Output Compare</h2>
   <pre><code>// Start outside the while(1) loop:
 HAL_TIM_OC_Start(&amp;htim4, TIM_CHANNEL_1);</code></pre>
   <p><code>htim4</code> is auto-generated by STM32CubeIDE from the timer's device-configuration settings — use the handle matching the timer, and the channel matching the output pin you configured.</p>
 </section>
 
-<section class="lecture" id="ic">
-  <h2>HAL: Input Capture</h2>
+<section id="ic">
+  <h2><span class="n">04</span>HAL: Input Capture</h2>
   <pre><code>// Start (with interrupt) outside the while(1) loop:
 HAL_TIM_IC_Start_IT(&amp;htim5, TIM_CHANNEL_1);
 
@@ -132,8 +131,8 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
   <div class="note-box"><span class="label">Note</span>The captured value is written from inside an interrupt callback — if you store it into a variable read elsewhere (e.g. the main loop), that variable must be <code>volatile</code>.</div>
 </section>
 
-<section class="lecture" id="pwm">
-  <h2>HAL: PWM</h2>
+<section id="pwm">
+  <h2><span class="n">05</span>HAL: PWM</h2>
   <pre><code>// Start outside the while(1) loop:
 HAL_TIM_PWM_Start(&amp;htim4, TIM_CHANNEL_1);
 
@@ -141,15 +140,15 @@ HAL_TIM_PWM_Start(&amp;htim4, TIM_CHANNEL_1);
 htim4.Instance-&gt;CCR1 = newDutyCycle;</code></pre>
 </section>
 
-<section class="lecture" id="wdg">
-  <h2>Kicking the Watchdog</h2>
+<section id="wdg">
+  <h2><span class="n">06</span>Kicking the Watchdog</h2>
   <p>The Independent Watchdog (IWDG) resets the MCU when its counter reaches <code>0x000</code>. Writing the key value <code>0xAAAA</code> into <code>IWDG_KR</code> reloads the counter from <code>IWDG_RLR</code> and prevents the reset — this is the "kick".</p>
   <pre><code>#define IWDG_KR (*((volatile uint32_t *)0x40003000))
 IWDG_KR = 0xAAAA;   // reload the watchdog counter — call periodically</code></pre>
 </section>
 
-<section class="lecture" id="rtc">
-  <h2>HAL: Real-Time Clock</h2>
+<section id="rtc">
+  <h2><span class="n">07</span>HAL: Real-Time Clock</h2>
   <pre><code>RTC_TimeTypeDef sTime = {0};
 RTC_DateTypeDef sDate = {0};
 
@@ -166,11 +165,13 @@ HAL_RTC_GetDate(&amp;hrtc, &amp;sDate, RTC_FORMAT_BIN);</code></pre>
 }</code></pre>
 </section>
 
-<footer class="pagefoot">
-  <span>CS245 — Computer Systems 245</span>
-  <span><a href="../theory/week5.html">See the Theory notes for Week 5 →</a></span>
+<footer>
+<p>Computer Systems 245 &middot; Programming &middot; Week 5. <a href="../theory/week5.html">See the Theory notes for Week 5 →</a></p>
 </footer>
-
+</main>
 </div>
+
+<script src="../../assets/ask-gemini.js" data-store="cs245-programming-w5" data-course="Computer Systems 245" data-topic="Programming track, week 5: Timer Formulas &amp; the HAL Timer/RTC API"></script>
+<script src="../../assets/page.js"></script>
 </body>
 </html>
