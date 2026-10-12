@@ -14,7 +14,8 @@
         <label class="annot"><input type="checkbox"> Annotate terms</label>
         <dl class="terms"><dt>term</dt><dd>meaning</dd>...</dl>
 
-      shows the list only while its checkbox is ticked. Always starts unticked. */
+      shows the list only while its checkbox is ticked. Always starts unticked.
+   5. Figure line toggles: checkboxes that show or hide families of lines on a figure. */
 (function(){
   const store = {
     get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
@@ -100,7 +101,25 @@
     });
   }
 
-  function init(){ buildThemeButton(); buildMenuToggle(); wireAnnotations(); }
+  // ---------- 5. figure line toggles ----------
+  // <input type="checkbox" data-toggle="zeta"> inside a <figure data-group="g"> shows or hides the
+  // elements with class req-zeta in every figure of that group, and keeps the group's checkboxes in step.
+  function wireFigureToggles(){
+    function apply(cb){
+      const fig = cb.closest('figure[data-group]');
+      if (!fig) return;
+      document.querySelectorAll('figure[data-group="' + fig.dataset.group + '"]').forEach(f => {
+        f.classList.toggle('hide-' + cb.dataset.toggle, !cb.checked);
+        f.querySelectorAll('input[data-toggle="' + cb.dataset.toggle + '"]').forEach(other => { other.checked = cb.checked; });
+      });
+    }
+    document.querySelectorAll('input[data-toggle]').forEach(cb => { cb.checked = cb.defaultChecked; });
+    document.addEventListener('change', e => {
+      if (e.target.matches && e.target.matches('input[data-toggle]')) apply(e.target);
+    });
+  }
+
+  function init(){ buildThemeButton(); buildMenuToggle(); wireAnnotations(); wireFigureToggles(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
