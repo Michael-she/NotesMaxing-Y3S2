@@ -1,0 +1,23 @@
+# Secrets
+.env
+*.env
+!.env.example
+
+# Backups and generated files
+*.bak
+__pycache__/
+*.pyc
+slprj/
+*.slxc
+*.autosave
+*.asv
+
+# Course-issued material is not redistributed here
+*.pdf
+*.mp4
+*.pptx
+
+# OS clutter
+Thumbs.db
+desktop.ini
+.DS_Store
