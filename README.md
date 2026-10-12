@@ -1,4 +1,4 @@
-# Notes
+# notesmaxing
 
 Study notes and past papers for third year, second semester (Stellenbosch University).
 
@@ -18,6 +18,7 @@ run_notes.bat         double-click launcher for serve_notes.py (Windows)
 api/chat.js, health.js  Ask Gemini endpoints for the Vercel deployment
 vercel.json           routes every page's api/ calls to those functions
 assets/
+    favicon.svg       the tab icon, linked from every page
     site.css          the one stylesheet: every page's look comes from here
     site.js           light/dark theme, collapsible menu, formula annotations, maths settings
     ask-gemini.js     the Ask Gemini panel, one script tag per page
