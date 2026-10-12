@@ -333,17 +333,27 @@
     raf = requestAnimationFrame(frame);
   }
   function stop(){ cancelAnimationFrame(raf); raf = 0; playBtn.textContent = 'Play'; }
-  playBtn.onclick = () => {
-    if (raf) return stop();
+  function play(){
+    if (raf) return;
     const lam = +slider.value;       // carry on from where the slider is (or restart from a finished run)
     from = lam >= 0.999 ? 0 : RUN * (lam <= 0 ? 0 : (function inv(){ let lo = 0, hi = 1; for (let i = 0; i < 30; i++){ const m = (lo + hi) / 2; ease(m) < lam ? lo = m : hi = m; } return lo; })());
     t0 = performance.now(); playBtn.textContent = 'Pause'; raf = requestAnimationFrame(frame);
-  };
-  slider.addEventListener('input', () => { stop(); draw(+slider.value); });
+  }
+  // Plays by default while the figure is on screen. Pausing or scrubbing by hand turns that off,
+  // and it stays still for readers whose system asks for reduced motion.
+  let auto = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  playBtn.onclick = () => { auto = false; raf ? stop() : play(); };
+  slider.addEventListener('input', () => { auto = false; stop(); draw(+slider.value); });
+  if (auto && 'IntersectionObserver' in window){
+    new IntersectionObserver(entries => {
+      if (!auto) return;
+      entries[0].isIntersecting ? play() : stop();
+    }, {threshold: 0.35}).observe(svg);
+  }
   draw(0);
 })();
 </script>
-<figcaption><b>Figure 4.1, animated.</b> The strip of the s-plane bending into the unit disc of the z-plane. Press Play or drag the slider.</figcaption>
+<figcaption><b>Figure 4.1, animated.</b> The strip of the s-plane bending into the unit disc of the z-plane. Pause it or drag the slider to step through.</figcaption>
 </figure>
 <p class="fignote"><b>Figure 4.1 (animated):</b> The dark line is the \(j\omega\) axis between \(-\pi/T\) and \(\pi/T\); it curls round into the unit circle. Vertical lines of constant \(\sigma\) (dotted, constant settling time) become circles of radius \(e^{\sigma T}\), horizontal lines of constant \(\omega\) become spokes at angle \(\omega T\), the constant-\(\zeta\) rays (teal) wind into spirals, and the constant-\(\omega_n\) semicircles (amber, dashed) become the curved contours that meet the unit circle. Four poles are tracked: A at \(s = -0.5/T\) lands at \(z = 0.607\); B at \(s = (-0.35 + j1.2)/T\) lands at radius 0.705, angle \(69^\circ\); C at \(s = (-1.2 + j2.4)/T\) lands at radius 0.301, angle \(138^\circ\); D at \(s = j\pi/T\), the Nyquist frequency, lands at \(z = -1\). The two ends are exact. The frames in between are only a visual aid: the blend \(\frac{e^{\lambda sT} - 1}{\lambda} + \lambda\) with \(\lambda\) going from 0 to 1.</p>
 <figure>
