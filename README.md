@@ -17,9 +17,9 @@ run_notes.bat         double-click launcher for serve_notes.py (Windows)
 api/chat.js, health.js  Ask Gemini endpoints for the Vercel deployment
 vercel.json           routes every page's api/ calls to those functions
 assets/
-    notes.css         shared page design (taken from the CS354 Week 12 page)
+    site.css          the one stylesheet: every page's look comes from here
+    site.js           header, light/dark theme, collapsible menu, formula annotations
     ask-gemini.js     the Ask Gemini panel, one script tag per page
-    page.css, page.js collapsible side menu and formula annotations, used by every page
 
 CS354-Control-Systems/
     Week12-Digital-Control/Week12_Digital_Control_Notes.html
@@ -50,18 +50,21 @@ Folders starting with `_` or `.` and files named `index.html` are never listed. 
 
 ## Page design
 
-Every notes page uses the design of the CS354 Week 12 page: a contents rail on the left, one reading column, the same fonts and colours, light and dark themes. The CS354 page carries its own styles; the other pages link `assets/notes.css`. A new page gets the full set with these tags (adjust `../` to the page's depth):
+The look of the whole site lives in one file, `assets/site.css`: colours, fonts, spacing, the header, the hero band behind page titles, and every component the notes use. No page carries its own styles, so editing that file restyles the hub and every notes page at once. The tokens at the top of the file (`--genoa`, `--bg`, `--f-body`, ...) are the place to change a colour or a font. The design follows greylinkiot.com: IBM Plex Sans and Mono, a teal accent on off-white paper, small uppercase mono labels, a dark hero with a dot grid, and a light and a dark theme.
+
+A page needs these tags (adjust `../` to the page's depth):
 
 ```html
-<link rel="stylesheet" href="../assets/notes.css">
-<link rel="stylesheet" href="../assets/page.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
 ...
 <script src="../assets/ask-gemini.js" data-store="da344-w7" data-course="Data Analytics 344" data-topic="Week 7: Topic"></script>
-<script src="../assets/page.js"></script>
 ```
 
-`DA344-Data-Analytics/_template/NOTES_TEMPLATE.html` is a working skeleton; after copying it into the module folder, change its `../../` paths to `../`.
+and this skeleton: `<div class="wrap">`, holding `<nav class="toc">` (the side menu) and `<main>` with a `<header class="top">` (kicker, `<h1>`, one-line summary) followed by one `<section id="...">` per `<h2>`. `DA344-Data-Analytics/_template/NOTES_TEMPLATE.html` is a working example; after copying it into the module folder, change its `../../` paths to `../`.
 
+- **Header:** added to every page by `site.js`, with a link to each module and a light/dark button. The theme follows the system until the button is used, then the choice is remembered.
 - **Side menu:** the "Hide menu" button at the top of the contents rail collapses it, and a "Menu" button brings it back. The choice is remembered across pages.
 - **Formula annotations:** every displayed formula has an "Annotate terms" checkbox, off by default, that lists what each term means. To annotate a new formula, end its box (`.eq` or `.formula`) with:
 

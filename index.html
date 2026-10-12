@@ -6,84 +6,9 @@
 <title>Y3S2 Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
-<style>
-/* Same tokens as the notes pages, so the hub and the notes read as one site */
-:root{
-  --bg:#FAFAFB; --surface:#FFFFFF; --ink:#3C3C3C; --ink-2:#6A6E70; --rule:#DCE3E5;
-  --genoa:#157686; --breaker:#5DA19A; --amber:#B8741A; --wash:#E8F2F3; --warnwash:#FBF3E6;
-  --f-display:"Archivo", "Helvetica Neue", Arial, sans-serif;
-  --f-body:"Source Serif 4", Georgia, "Times New Roman", serif;
-  --f-mono:"JetBrains Mono", Consolas, "Courier New", monospace;
-}
-@media (prefers-color-scheme: dark){:root{
-  --bg:#1E2122; --surface:#262A2B; --ink:#E6E8E8; --ink-2:#A5ADAF; --rule:#3A4144;
-  --genoa:#4FB3C4; --breaker:#7CC2BA; --amber:#E0A04A; --wash:#22363A; --warnwash:#3A3022; color-scheme:dark}}
-*{box-sizing:border-box}
-[hidden]{display:none!important}
-html{scroll-behavior:smooth}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55}
-a{color:var(--genoa)}
-.wrap{display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;max-width:1180px;margin:0 auto;padding:32px 24px 80px}
-
-nav.rail{position:sticky;top:20px;align-self:start;font-family:var(--f-display);font-size:14px;max-height:calc(100vh - 40px);overflow:auto}
-nav.rail .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin-bottom:10px}
-nav.rail ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
-nav.rail a{display:flex;justify-content:space-between;gap:10px;padding:6px 10px;color:var(--ink);text-decoration:none;border-left:2px solid var(--rule)}
-nav.rail a:hover,nav.rail a:focus-visible,nav.rail a.on{border-left-color:var(--genoa);color:var(--genoa);outline:none}
-nav.rail a .c{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-2)}
-nav.rail a.empty{color:var(--ink-2)}
-
-main{min-width:0;max-width:820px}
-header.top{padding-bottom:22px;border-bottom:2px solid var(--ink);margin-bottom:8px}
-header.top .kicker{font-family:var(--f-mono);font-size:12.5px;color:var(--genoa);letter-spacing:.04em}
-h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,4.4vw,46px);line-height:1.08;margin:.25em 0 .35em;letter-spacing:-.01em}
-header.top p{margin:0;color:var(--ink-2);max-width:62ch}
-#search{width:100%;margin-top:18px;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;background:var(--surface);color:var(--ink);font-family:var(--f-display);font-size:15px}
-#search:focus{outline:2px solid var(--genoa);outline-offset:0;border-color:transparent}
-
-section.mod{padding-top:8px;scroll-margin-top:12px}
-section.mod h2{font-family:var(--f-display);font-weight:750;font-size:27px;line-height:1.2;margin:1.5em 0 .1em;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
-section.mod h2 .n{font-family:var(--f-mono);font-size:14px;color:var(--genoa);font-weight:500}
-h3{font-family:var(--f-display);font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin:1.5em 0 .5em;scroll-margin-top:12px}
-ul.rows{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
-ul.rows li+li{border-top:1px solid var(--rule)}
-.row{display:grid;grid-template-columns:74px minmax(0,1fr) auto;gap:12px;align-items:baseline;width:100%;padding:10px 14px;color:var(--ink);text-decoration:none;
-  background:none;border:0;text-align:left;font:inherit;cursor:pointer}
-.row:hover,.row:focus-visible{background:var(--wash);outline:none}
-.row:hover .t,.row:focus-visible .t{color:var(--genoa)}
-.row .w{font-family:var(--f-mono);font-size:12.5px;color:var(--genoa);white-space:nowrap}
-.row .t{font-family:var(--f-display);font-weight:600;font-size:15.5px;overflow-wrap:anywhere}
-.row .m{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-2);white-space:nowrap}
-.tag{display:inline-block;font-family:var(--f-display);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:4px;padding:1px 6px;margin-left:8px;
-  background:var(--wash);color:var(--genoa);vertical-align:1px}
-.tag.memo{background:var(--warnwash);color:var(--amber)}
-p.none{margin:0;padding:12px 14px;border:1px dashed var(--rule);border-radius:6px;color:var(--ink-2);font-family:var(--f-display);font-size:14px}
-p.none code,footer code{font-family:var(--f-mono);font-size:.88em}
-footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--rule);color:var(--ink-2);font-family:var(--f-display);font-size:13.5px;max-width:70ch}
-
-/* Past paper viewer */
-#viewer{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;background:var(--bg)}
-#viewer .bar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--surface);font-family:var(--f-display)}
-#viewer .bar .name{flex:1;min-width:0;font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#viewer .btn{border:1px solid var(--rule);background:var(--bg);color:var(--ink);border-radius:6px;padding:6px 11px;font-family:var(--f-display);font-size:13px;cursor:pointer;text-decoration:none;white-space:nowrap}
-#viewer .btn:hover{border-color:var(--genoa);color:var(--genoa)}
-#viewer .btn:focus-visible{outline:2px solid var(--genoa);outline-offset:1px}
-#viewer .btn:disabled{opacity:.4;cursor:default;border-color:var(--rule);color:var(--ink)}
-#viewer iframe{flex:1;width:100%;border:0;background:#525659}
-body.viewing{overflow:hidden}
-
-@media (max-width:820px){
-  .wrap{grid-template-columns:minmax(0,1fr);gap:20px;padding:20px 16px 60px}
-  nav.rail{position:static;max-height:none}
-  nav.rail ol{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
-  .row{grid-template-columns:64px minmax(0,1fr)}
-  .row .m{display:none}
-  #viewer .btn.opt{display:none}
-}
-</style>
-<link rel="stylesheet" href="assets/page.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -266,6 +191,5 @@ body.viewing{overflow:hidden}
   });
 })();
 </script>
-<script src="assets/page.js"></script>
 </body>
 </html>
