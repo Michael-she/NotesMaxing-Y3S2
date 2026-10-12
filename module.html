@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+<!-- One page for every module: module.html?m=<id>, with ids from modules.json.
+     module.html?m=<id>#papers jumps to the past papers. -->
+<div class="wrap solo">
+<main>
+<header class="top">
+  <a class="home" href="index.html">&larr; Modules</a>
+  <div class="kicker" id="code"></div>
+  <h1 id="name">Module</h1>
+  <input id="search" type="search" placeholder="Search this module…" aria-label="Search this module" autocomplete="off" hidden>
+</header>
+
+<div id="content"></div>
+<p class="none" id="noHits" hidden>Nothing matches that search.</p>
+<noscript><p class="none">This page needs JavaScript to list the notes. The files are in the module folders next to it.</p></noscript>
+</main>
+</div>
+
+<div id="viewer" hidden role="dialog" aria-modal="true" aria-label="Past paper viewer">
+  <div class="bar">
+    <span class="name" id="vName"></span>
+    <button class="btn opt" id="vPrev" type="button" title="Previous paper">&larr; Prev</button>
+    <button class="btn opt" id="vNext" type="button" title="Next paper">Next &rarr;</button>
+    <a class="btn" id="vOpen" target="_blank" rel="noopener">Open in new tab</a>
+    <a class="btn opt" id="vSave" download>Download</a>
+    <button class="btn" id="vClose" type="button" title="Close (Esc)">Close</button>
+  </div>
+  <iframe id="vFrame" title="Past paper"></iframe>
+</div>
+
+<script src="manifest.js"></script>
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const modules = (window.NOTES_MANIFEST && window.NOTES_MANIFEST.modules) || [];
+  const id = new URLSearchParams(location.search).get('m');
+  const mod = modules.find(m => m.id === id);
+  const contentEl = $('#content'), searchEl = $('#search');
+
+  function el(tag, cls, text){
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  // hrefs come from file names, which may hold spaces or other characters that need escaping
+  const url = href => href.split('/').map(encodeURIComponent).join('/');
+  const size = b => b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' kB';
+  const paperLabel = p => p.file.replace(/\.pdf$/i, '').replace(/_/g, ' ');
+
+  if (!mod){
+    $('#name').textContent = 'Module not found';
+    const p = el('p', 'none', 'There is no module with that id. '); const a = el('a', '', 'Back to the list of modules.');
+    a.href = 'index.html'; p.append(a); contentEl.append(p);
+    return;
+  }
+  document.title = mod.name;
+  $('#name').textContent = mod.name;
+  $('#code').textContent = mod.code || '';
+  $('#code').hidden = !mod.code;
+
+  function noteRow(n){
+    const a = el('a', 'row'); a.href = url(n.href);
+    a.append(el('span', 'w', n.week != null ? 'Week ' + n.week : ''));
+    const t = el('span', 't', n.title);
+    if (n.track) t.append(el('span', 'tag', n.track));
+    a.append(t, el('span', 'm', ''));
+    a.dataset.find = (n.title + ' week ' + (n.week ?? '') + ' ' + n.track).toLowerCase();
+    return a;
+  }
+  function paperRow(p, i){
+    const b = el('button', 'row'); b.type = 'button';
+    b.append(el('span', 'w', p.year != null ? String(p.year) : ''));
+    const t = el('span', 't', paperLabel(p));
+    if (p.memo) t.append(el('span', 'tag memo', 'Memo'));
+    b.append(t, el('span', 'm', size(p.size)));
+    b.dataset.find = (p.file + ' ' + (p.memo ? 'memo ' : '') + 'paper').toLowerCase();
+    b.onclick = () => openPaper(i);
+    return b;
+  }
+  function list(rows){
+    const ul = el('ul', 'rows');
+    rows.forEach(r => { const li = el('li'); li.append(r); ul.append(li); });
+    return ul;
+  }
+  function none(text, folder){
+    const p = el('p', 'none', text + ' ');
+    p.append(el('code', '', folder));
+    return p;
+  }
+  function group(title, anchor, body){
+    const sec = el('section', 'mod'); sec.id = anchor;
+    sec.append(el('h2', '', title), body);
+    contentEl.append(sec);
+  }
+  group('Notes', 'notes', mod.notes.length ? list(mod.notes.map(noteRow))
+    : none('No notes yet. Add an .html file to', mod.folder + '/'));
+  group('Past papers', 'papers', mod.papers.length ? list(mod.papers.map(paperRow))
+    : none('No past papers yet. Add PDFs to', mod.folder + '/papers/'));
+  if (location.hash === '#papers') document.getElementById('papers').scrollIntoView();
+
+  // ---------- search ----------
+  searchEl.hidden = mod.notes.length + mod.papers.length < 6;
+  searchEl.addEventListener('input', () => {
+    const terms = searchEl.value.toLowerCase().split(/\s+/).filter(Boolean);
+    let shown = 0;
+    contentEl.querySelectorAll('section.mod').forEach(sec => {
+      const rows = [...sec.querySelectorAll('.row')];
+      let here = 0;
+      rows.forEach(r => {
+        const hit = terms.every(t => r.dataset.find.includes(t));
+        r.parentNode.hidden = !hit; if (hit) here++;
+      });
+      sec.hidden = terms.length > 0 && here === 0;
+      shown += here;
+    });
+    $('#noHits').hidden = shown > 0 || !terms.length;
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && !searchEl.hidden && document.activeElement !== searchEl && $('#viewer').hidden){ e.preventDefault(); searchEl.focus(); }
+  });
+
+  // ---------- past paper viewer ----------
+  const viewer = $('#viewer'), frame = $('#vFrame');
+  let cur = -1, opener = null;
+  function openPaper(i){
+    if (viewer.hidden) opener = document.activeElement;
+    cur = i;
+    const p = mod.papers[i], href = url(p.href);
+    $('#vName').textContent = paperLabel(p) + (p.memo ? ' (memo)' : '');
+    $('#vOpen').href = href; $('#vSave').href = href;
+    $('#vPrev').disabled = i === 0; $('#vNext').disabled = i === mod.papers.length - 1;
+    frame.src = href;
+    viewer.hidden = false; document.body.classList.add('viewing');
+    $('#vClose').focus();
+  }
+  function closePaper(){
+    viewer.hidden = true; document.body.classList.remove('viewing'); frame.removeAttribute('src'); cur = -1;
+    if (opener) opener.focus();
+  }
+  function step(d){
+    const i = cur + d;
+    if (cur >= 0 && i >= 0 && i < mod.papers.length) openPaper(i);
+  }
+  $('#vClose').onclick = closePaper;
+  $('#vPrev').onclick = () => step(-1);
+  $('#vNext').onclick = () => step(1);
+  document.addEventListener('keydown', e => {
+    if (viewer.hidden) return;
+    if (e.key === 'Escape') closePaper();
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === 'ArrowRight') step(1);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,16 +1,16 @@
 /* ==========================================================================
-   Y3S2 Notes: the one stylesheet for the whole site.
+   The one stylesheet for the whole site.
    Every page (the hub and every notes page) links this file and nothing else
-   for its look, so a change here changes the site.
+   for its look, so a change here changes the site. Plain on purpose: no logo, no branding.
 
    Contents
      1. Tokens (colours, fonts, sizes), light and dark
      2. Base elements
      3. Site header (injected by site.js)
-     4. Page layout: side menu + reading column, hero
+     4. Page layout: side menu + reading column, page title
      5. Notes components: figures, equations, callouts, tables, examples
      6. Module-specific components (DA344, CS245)
-     7. Hub: module lists, search, past paper viewer
+     7. Module list and module pages: rows, search, past paper viewer
      8. Ask Gemini panel (markup from ask-gemini.js)
      9. Collapsible side menu and formula annotations (site.js)
     10. Print
@@ -28,11 +28,9 @@
   --genoa:#157686;         /* the teal: links, accents, buttons */
   --teal-light:#1595B7;
   --breaker:#599AA4;       /* mid teal: second accent */
-  --tower:#9FB7BA;         /* pale teal: text on the dark hero */
   --wash:#E6F1F3;          /* teal tint for highlights */
   --amber:#B8741A;         /* cautions only */
   --warnwash:#FBF3E6;
-  --hero:#091C21;          /* dark band behind page titles */
   --on-teal:#FAFAFB;       /* text on a teal button */
   --shadow:0 6px 18px rgba(9,28,33,.12);
 
@@ -53,11 +51,11 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141A1C; --surface:#1C2427; --mist:#232B2E; --ink:#EDEEEE; --text:#C6CECF; --ink-2:#93A6A9; --rule:#2C373A;
   --genoa:#1FA3C4; --teal-light:#1595B7; --breaker:#6FB0BA; --wash:#16303A; --amber:#E0A04A; --warnwash:#33291A;
-  --hero:#0C1011; --on-teal:#0C1011; --shadow:0 6px 18px rgba(0,0,0,.4); color-scheme:dark}}
+  --on-teal:#0C1011; --shadow:0 6px 18px rgba(0,0,0,.4); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141A1C; --surface:#1C2427; --mist:#232B2E; --ink:#EDEEEE; --text:#C6CECF; --ink-2:#93A6A9; --rule:#2C373A;
   --genoa:#1FA3C4; --teal-light:#1595B7; --breaker:#6FB0BA; --wash:#16303A; --amber:#E0A04A; --warnwash:#33291A;
-  --hero:#0C1011; --on-teal:#0C1011; --shadow:0 6px 18px rgba(0,0,0,.4); color-scheme:dark}
+  --on-teal:#0C1011; --shadow:0 6px 18px rgba(0,0,0,.4); color-scheme:dark}
 
 /* ---------- 2. Base elements ---------- */
 *{box-sizing:border-box}
@@ -81,16 +79,15 @@ hr{border:0;border-top:1px solid var(--rule);margin:2.5em 0}
 ::selection{background:rgba(21,149,183,.28)}
 .lede{font-size:18px}
 /* the small uppercase mono label used all over the site */
-.kicker,nav.toc .k,nav.rail .k,.eq .tag,.note .tag,.key .tag,.box .label,.note-box .label,.reading b,.summary h3,.sheet h4,section.mod h3,.msg.model .who{
+.kicker,nav.toc .k,nav.rail .k,.eq .tag,.note .tag,.key .tag,.box .label,.note-box .label,.reading b,.summary h3,.sheet h4,.msg.model .who{
   font-family:var(--f-mono);font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
 
 /* ---------- 3. Site header ---------- */
 .site-head{position:fixed;top:0;left:0;right:0;z-index:40;height:var(--head-h);background:color-mix(in srgb,var(--bg) 86%,transparent);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
 .site-head .in{display:flex;align-items:stretch;gap:28px;height:100%;max-width:1240px;margin:0 auto;padding:0 24px}
-.site-head .brand{display:flex;align-items:center;gap:10px;flex:none;text-decoration:none;color:var(--ink);font-weight:600;font-size:16px;letter-spacing:-.01em}
-.site-head .brand svg{width:22px;height:22px;color:var(--genoa)}
-.site-head .brand b{color:var(--genoa);font-weight:600}
+.site-head .home{display:flex;align-items:center;flex:none;text-decoration:none;color:var(--ink);font-weight:600;font-size:15px}
+.site-head .home:hover,.site-head .home:focus-visible{color:var(--genoa);outline:none}
 .site-nav{display:flex;align-items:stretch;gap:26px;flex:1;justify-content:center;min-width:0;overflow:hidden}
 .site-nav a{display:flex;align-items:center;white-space:nowrap;font-size:14px;font-weight:500;color:var(--text);text-decoration:none;
   border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
@@ -129,16 +126,16 @@ nav.rail ol a{display:flex;justify-content:space-between;gap:10px;padding:6px 10
 nav.rail ol a .c{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-2)}
 nav.rail ol a.empty{color:var(--ink-2)}
 
-/* hero: the dark band that carries the page title */
-header.top{position:relative;overflow:hidden;background:var(--hero);border-radius:14px;padding:34px 36px 36px;margin-bottom:34px}
-header.top::after{content:"";position:absolute;top:0;right:0;bottom:0;width:46%;pointer-events:none;
-  background-image:radial-gradient(circle,rgba(21,149,183,.75) 1.6px,transparent 2.1px);background-size:20px 20px;background-position:right 18px center;
-  -webkit-mask-image:radial-gradient(ellipse 70% 75% at 78% 50%,#000 10%,transparent 72%);mask-image:radial-gradient(ellipse 70% 75% at 78% 50%,#000 10%,transparent 72%)}
-header.top>*{position:relative;z-index:1}
-header.top .kicker{color:#599AA4}
-header.top h1{color:#EDEEEE}
-header.top p{margin:0;color:#9FB7BA;max-width:56ch}
-header.top code{color:#C6CECF}
+/* page title block */
+header.top{padding-bottom:22px;border-bottom:2px solid var(--ink);margin-bottom:30px}
+header.top .kicker{color:var(--genoa)}
+header.top p{margin:0;color:var(--ink-2);max-width:62ch}
+header.top a.home{display:inline-block;margin-bottom:18px;font-size:14px;font-weight:500;text-decoration:none}
+header.top a.home:hover{text-decoration:underline}
+
+/* pages without a side menu: the module list and each module's contents */
+.wrap.solo{display:block;max-width:880px}
+.wrap.solo main{max-width:none}
 
 footer{margin-top:4em;padding-top:16px;border-top:1px solid var(--rule);font-size:14px;color:var(--ink-2)}
 footer p{max-width:none;margin:.4em 0}
@@ -148,8 +145,6 @@ footer code{font-size:.9em}
   .wrap{grid-template-columns:minmax(0,1fr);gap:20px;padding:20px 16px 60px}
   nav.toc,nav.rail{position:static;max-height:none;border:1px solid var(--rule);border-radius:var(--r);padding:14px;background:var(--surface)}
   nav.rail ol{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
-  header.top{padding:26px 22px 28px}
-  header.top::after{opacity:.5}
 }
 
 /* ---------- 5. Notes components ---------- */
@@ -274,14 +269,12 @@ pre.diagram{font-size:12.5px;line-height:1.35;color:var(--ink-2)}
 .trace-tables tr.highlight td{background:var(--warnwash);font-weight:600}
 .trace-tables em{font-style:normal;color:var(--amber);font-weight:600}
 
-/* ---------- 7. Hub ---------- */
-#search{width:100%;margin-top:22px;border:1px solid rgba(159,183,186,.3);border-radius:var(--r);padding:11px 14px;background:rgba(255,255,255,.06);color:#EDEEEE;
+/* ---------- 7. Module list and module pages ---------- */
+#search{width:100%;margin-top:20px;border:1px solid var(--rule);border-radius:var(--r);padding:11px 14px;background:var(--surface);color:var(--text);
   font-family:var(--f-body);font-size:15px}
-#search::placeholder{color:#7F979B}
-#search:focus{outline:2px solid #1595B7;outline-offset:0;border-color:transparent}
+#search:focus{outline:2px solid var(--genoa);outline-offset:0;border-color:transparent}
 section.mod{padding-top:4px}
-section.mod h2{margin:1.6em 0 .1em;flex-wrap:wrap}
-section.mod h3{color:var(--ink-2);margin:1.6em 0 .6em;scroll-margin-top:calc(var(--head-h) + 16px)}
+section.mod h2{font-size:21px;margin:1.6em 0 .6em}
 ul.rows{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
 ul.rows li{max-width:none}
 ul.rows li+li{border-top:1px solid var(--rule)}
@@ -391,9 +384,6 @@ dl.terms dd{margin:0;color:var(--text)}
   body{padding-top:0}
   .wrap{display:block;max-width:none;padding:0}
   main{max-width:none}
-  header.top{background:none;padding:0;border-bottom:2px solid #000;border-radius:0}
-  header.top::after{display:none}
-  header.top h1,header.top p,header.top .kicker{color:#000}
   .box,.qa,.ex,figure,table,.eq,.formula{break-inside:avoid}
   h2,h3{break-after:avoid}
 }

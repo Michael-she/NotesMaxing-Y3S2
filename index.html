@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Y3S2 Notes</title>
+<title>Modules</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
@@ -11,184 +11,41 @@
 <script src="assets/site.js"></script>
 </head>
 <body>
-<div class="wrap">
-<nav class="rail" aria-label="Modules">
-  <div class="k">Modules</div>
-  <ol id="rail"></ol>
-</nav>
-
+<div class="wrap solo">
 <main>
 <header class="top">
-  <div class="kicker">STELLENBOSCH UNIVERSITY · YEAR 3 · SEMESTER 2</div>
-  <h1>Y3S2 Notes</h1>
-  <p>Weekly study notes and past papers for every module. Pick a module on the left, or search across all of them.</p>
-  <input id="search" type="search" placeholder="Search notes and papers…" aria-label="Search notes and papers" autocomplete="off">
+  <h1>Modules</h1>
+  <p>Pick a module to see its notes and past papers.</p>
 </header>
 
-<div id="modules"></div>
-<p class="none" id="noHits" hidden style="margin-top:24px">Nothing matches that search.</p>
-<noscript><p class="none" style="margin-top:24px">This page needs JavaScript to list the notes. The files are in the module folders next to it.</p></noscript>
-
-<footer>
-  The Ask Gemini panel in the notes needs the local server: run <code>run_notes.bat</code> (or <code>python serve_notes.py</code>) in this folder and use the page it opens. Everything else works straight from the files.
-</footer>
+<ul class="rows" id="modules"></ul>
+<noscript><p class="none">This page needs JavaScript to list the modules. The notes are in the module folders next to it.</p></noscript>
 </main>
-</div>
-
-<div id="viewer" hidden role="dialog" aria-modal="true" aria-label="Past paper viewer">
-  <div class="bar">
-    <span class="name" id="vName"></span>
-    <button class="btn opt" id="vPrev" type="button" title="Previous paper in this module">&larr; Prev</button>
-    <button class="btn opt" id="vNext" type="button" title="Next paper in this module">Next &rarr;</button>
-    <a class="btn" id="vOpen" target="_blank" rel="noopener">Open in new tab</a>
-    <a class="btn opt" id="vSave" download>Download</a>
-    <button class="btn" id="vClose" type="button" title="Close (Esc)">Close</button>
-  </div>
-  <iframe id="vFrame" title="Past paper"></iframe>
 </div>
 
 <script src="manifest.js"></script>
 <script>
 (function(){
-  const $ = s => document.querySelector(s);
   const modules = (window.NOTES_MANIFEST && window.NOTES_MANIFEST.modules) || [];
-  const modulesEl = $('#modules'), railEl = $('#rail'), searchEl = $('#search');
-
+  const list = document.getElementById('modules');
   function el(tag, cls, text){
     const e = document.createElement(tag);
     if (cls) e.className = cls;
     if (text != null) e.textContent = text;
     return e;
   }
-  // hrefs come from file names, which may hold spaces or other characters that need escaping
-  const url = href => href.split('/').map(encodeURIComponent).join('/');
-  const size = b => b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' kB';
-  const paperLabel = p => p.file.replace(/\.pdf$/i, '').replace(/_/g, ' ');
-
-  function noteRow(n){
-    const a = el('a', 'row'); a.href = url(n.href);
-    a.append(el('span', 'w', n.week != null ? 'Week ' + n.week : ''));
-    const t = el('span', 't', n.title);
-    if (n.track) t.append(el('span', 'tag', n.track));
-    a.append(t, el('span', 'm', ''));
-    a.dataset.find = (n.title + ' week ' + (n.week ?? '') + ' ' + n.track).toLowerCase();
-    return a;
-  }
-  function paperRow(mod, i){
-    const p = mod.papers[i];
-    const b = el('button', 'row'); b.type = 'button';
-    b.append(el('span', 'w', p.year != null ? String(p.year) : ''));
-    const t = el('span', 't', paperLabel(p));
-    if (p.memo) t.append(el('span', 'tag memo', 'Memo'));
-    b.append(t, el('span', 'm', size(p.size)));
-    b.dataset.find = (p.file + ' ' + (p.memo ? 'memo ' : '') + 'paper').toLowerCase();
-    b.onclick = () => openPaper(mod, i);
-    return b;
-  }
-  function list(rows){
-    const ul = el('ul', 'rows');
-    rows.forEach(r => { const li = el('li'); li.append(r); ul.append(li); });
-    return ul;
-  }
-  function none(text, folder){
-    const p = el('p', 'none', text + ' ');
-    p.append(el('code', '', folder));
-    return p;
-  }
+  const plural = (n, word) => n + ' ' + word + (n === 1 ? '' : 's');
 
   modules.forEach(mod => {
-    const sec = el('section', 'mod'); sec.id = mod.id;
-    const h2 = el('h2');
-    if (mod.code) h2.append(el('span', 'n', mod.code));
-    h2.append(document.createTextNode(mod.name));
-    sec.append(h2);
-
-    sec.append(el('h3', '', 'Notes'));
-    sec.append(mod.notes.length ? list(mod.notes.map(noteRow))
-      : none('No notes yet. Add an .html file to', mod.folder + '/'));
-
-    const ph = el('h3', '', 'Past papers'); ph.id = mod.id + '/papers';
-    sec.append(ph);
-    sec.append(mod.papers.length ? list(mod.papers.map((p, i) => paperRow(mod, i)))
-      : none('No past papers yet. Add PDFs to', mod.folder + '/papers/'));
-    modulesEl.append(sec);
-
-    const li = el('li'), a = el('a', mod.notes.length || mod.papers.length ? '' : 'empty');
-    a.href = '#' + mod.id;
-    a.append(el('span', '', mod.name), el('span', 'c', mod.notes.length + ' · ' + mod.papers.length));
-    a.title = mod.notes.length + ' notes, ' + mod.papers.length + ' past papers';
-    li.append(a); railEl.append(li);
+    const a = el('a', 'row'); a.href = 'module.html?m=' + encodeURIComponent(mod.id);
+    a.append(el('span', 'w', mod.code || ''), el('span', 't', mod.name),
+      el('span', 'm', plural(mod.notes.length, 'note') + ' · ' + plural(mod.papers.length, 'paper')));
+    const li = el('li'); li.append(a); list.append(li);
   });
-  if (!modules.length) modulesEl.append(none('No manifest found. Run', 'python build_manifest.py'));
-
-  // ---------- search ----------
-  searchEl.addEventListener('input', () => {
-    const terms = searchEl.value.toLowerCase().split(/\s+/).filter(Boolean);
-    let any = false;
-    document.querySelectorAll('section.mod').forEach(sec => {
-      const modText = sec.querySelector('h2').textContent.toLowerCase();
-      let shown = 0;
-      sec.querySelectorAll('.row').forEach(r => {
-        const hit = terms.every(t => (r.dataset.find + ' ' + modText).includes(t));
-        r.parentNode.hidden = !hit; if (hit) shown++;
-      });
-      sec.querySelectorAll('ul.rows').forEach(ul => {
-        const empty = !ul.querySelector('li:not([hidden])');
-        ul.hidden = empty; ul.previousElementSibling.hidden = empty;
-      });
-      sec.querySelectorAll('p.none').forEach(p => { p.hidden = !!terms.length; p.previousElementSibling.hidden = !!terms.length; });
-      sec.hidden = terms.length > 0 && shown === 0;
-      if (!sec.hidden) any = true;
-    });
-    $('#noHits').hidden = any || !terms.length;
-  });
-  document.addEventListener('keydown', e => {
-    if (e.key === '/' && document.activeElement !== searchEl && $('#viewer').hidden){ e.preventDefault(); searchEl.focus(); }
-  });
-
-  // ---------- module links: #cs245 or #cs245/papers ----------
-  function goToHash(){
-    const id = decodeURIComponent(location.hash.slice(1));
-    const target = id && document.getElementById(id);
-    if (target) target.scrollIntoView();
-    const modId = id.split('/')[0];
-    railEl.querySelectorAll('a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + modId));
+  if (!modules.length){
+    const p = el('p', 'none', 'No manifest found. Run '); p.append(el('code', '', 'python build_manifest.py'));
+    list.replaceWith(p);
   }
-  window.addEventListener('hashchange', goToHash);
-  goToHash();
-
-  // ---------- past paper viewer ----------
-  const viewer = $('#viewer'), frame = $('#vFrame');
-  let cur = null, opener = null;
-  function openPaper(mod, i){
-    if (viewer.hidden) opener = document.activeElement;
-    cur = {mod, i};
-    const p = mod.papers[i], href = url(p.href);
-    $('#vName').textContent = (mod.code || mod.name) + ' · ' + paperLabel(p) + (p.memo ? ' (memo)' : '');
-    $('#vOpen').href = href; $('#vSave').href = href;
-    $('#vPrev').disabled = i === 0; $('#vNext').disabled = i === mod.papers.length - 1;
-    frame.src = href;
-    viewer.hidden = false; document.body.classList.add('viewing');
-    $('#vClose').focus();
-  }
-  function closePaper(){
-    viewer.hidden = true; document.body.classList.remove('viewing'); frame.removeAttribute('src'); cur = null;
-    if (opener) opener.focus();
-  }
-  function step(d){
-    if (!cur) return;
-    const i = cur.i + d;
-    if (i >= 0 && i < cur.mod.papers.length) openPaper(cur.mod, i);
-  }
-  $('#vClose').onclick = closePaper;
-  $('#vPrev').onclick = () => step(-1);
-  $('#vNext').onclick = () => step(1);
-  document.addEventListener('keydown', e => {
-    if (viewer.hidden) return;
-    if (e.key === 'Escape') closePaper();
-    if (e.key === 'ArrowLeft') step(-1);
-    if (e.key === 'ArrowRight') step(1);
-  });
 })();
 </script>
 </body>

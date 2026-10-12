@@ -6,9 +6,9 @@
    0. Maths: the MathJax settings every page shares.
    1. Theme: follows the system setting until the reader picks light or dark with the header
       button; the choice is remembered. Applied before the page paints, hence the <head> load.
-   2. Site header: brand, a link to each module (from manifest.js) and the theme button.
-   3. Collapsible side menu: "Hide menu" on the page's <nav class="toc"> (or <nav class="rail">
-      on the hub) and a floating "Menu" button to bring it back. Remembered across pages.
+   2. Site header: a link to the module list, one to each module (from manifest.js), and the
+      theme button. No logo or branding.
+   3. Collapsible side menu: "Hide menu" on the page's <nav class="toc"> (or <nav class="rail">) and a floating "Menu" button to bring it back. Remembered across pages.
    4. Formula annotations: a formula box (.eq or .formula) that ends with
 
         <label class="annot"><input type="checkbox"> Annotate terms</label>
@@ -42,7 +42,6 @@
   const ICON = {
     moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
     sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
-    mark: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2" opacity=".45"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2" opacity=".45"/><circle cx="19" cy="12" r="2" opacity=".2"/><circle cx="5" cy="19" r="2" opacity=".45"/><circle cx="12" cy="19" r="2" opacity=".2"/></svg>',
   };
 
   function el(tag, cls, text){
@@ -55,8 +54,7 @@
   // ---------- 2. site header ----------
   function buildHeader(){
     const head = el('header', 'site-head'), inner = el('div', 'in');
-    const brand = el('a', 'brand'); brand.href = ROOT + 'index.html';
-    brand.innerHTML = ICON.mark + '<span>Y3S2 <b>Notes</b></span>';
+    const home = el('a', 'home', 'Modules'); home.href = ROOT + 'index.html';
     const nav = el('nav', 'site-nav'); nav.setAttribute('aria-label', 'Modules');
     const theme = el('button', 'theme-btn'); theme.type = 'button';
     function paint(){
@@ -69,14 +67,15 @@
       document.documentElement.dataset.theme = next; store.set(THEME, next); paint();
     };
     paint();
-    inner.append(brand, nav, theme); head.append(inner); document.body.prepend(head);
+    inner.append(home, nav, theme); head.append(inner); document.body.prepend(head);
 
     function fillNav(){
       const modules = (window.NOTES_MANIFEST && window.NOTES_MANIFEST.modules) || [];
       const here = decodeURIComponent(location.pathname);
       modules.forEach(m => {
-        const a = el('a', here.includes('/' + m.folder + '/') ? 'on' : '', m.name);
-        a.href = ROOT + 'index.html#' + m.id;
+        const on = here.includes('/' + m.folder + '/') || new URLSearchParams(location.search).get('m') === m.id;
+        const a = el('a', on ? 'on' : '', m.name);
+        a.href = ROOT + 'module.html?m=' + encodeURIComponent(m.id);
         nav.append(a);
       });
     }
