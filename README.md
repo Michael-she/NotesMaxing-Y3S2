@@ -19,7 +19,7 @@ api/chat.js, health.js  Ask Gemini endpoints for the Vercel deployment
 vercel.json           routes every page's api/ calls to those functions
 assets/
     site.css          the one stylesheet: every page's look comes from here
-    site.js           header, light/dark theme, collapsible menu, formula annotations
+    site.js           light/dark theme, collapsible menu, formula annotations, maths settings
     ask-gemini.js     the Ask Gemini panel, one script tag per page
 
 CS354-Control-Systems/
@@ -51,7 +51,7 @@ Folders starting with `_` or `.` and files named `index.html` are never listed. 
 
 ## Page design
 
-The look of the whole site lives in one file, `assets/site.css`: colours, fonts, spacing, the header, the page title block, and every component the notes use. No page carries its own styles, so editing that file restyles every page at once. The tokens at the top of the file (`--genoa`, `--bg`, `--f-body`, ...) are the place to change a colour or a font. The design borrows its type and colours from greylinkiot.com (IBM Plex Sans and Mono, a teal accent on off-white paper, small uppercase mono labels, light and dark themes) and is deliberately plain: no logo and no branding.
+The look of the whole site lives in one file, `assets/site.css`: colours, fonts, spacing, the page title block, and every component the notes use. No page carries its own styles, so editing that file restyles every page at once. The tokens at the top of the file (`--genoa`, `--bg`, `--f-body`, ...) are the place to change a colour or a font. The design borrows its type and colours from greylinkiot.com (IBM Plex Sans and Mono, a teal accent on off-white paper, small uppercase mono labels, light and dark themes) and is deliberately plain: no logo and no branding.
 
 A page needs these tags (adjust `../` to the page's depth):
 
@@ -65,7 +65,7 @@ A page needs these tags (adjust `../` to the page's depth):
 
 and this skeleton: `<div class="wrap">`, holding `<nav class="toc">` (the side menu) and `<main>` with a `<header class="top">` (kicker, `<h1>`, one-line summary) followed by one `<section id="...">` per `<h2>`. `DA344-Data-Analytics/_template/NOTES_TEMPLATE.html` is a working example; after copying it into the module folder, change its `../../` paths to `../`.
 
-- **Header:** added to every page by `site.js`, with a link to the module list, one to each module, and a light/dark button. The theme follows the system until the button is used, then the choice is remembered.
+- **No top bar.** Pages link to each other through their own back links (notes to their module, a module to the module list). The only shared control is the light/dark button at the top right, added by `site.js`; the theme follows the system until the button is used, then the choice is remembered.
 - **Side menu:** the "Hide menu" button at the top of the contents rail collapses it, and a "Menu" button brings it back. The choice is remembered across pages.
 - **Formula annotations:** every displayed formula has an "Annotate terms" checkbox, off by default, that lists what each term means. To annotate a new formula, end its box (`.eq` or `.formula`) with:
 
