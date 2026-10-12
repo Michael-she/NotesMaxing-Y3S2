@@ -51,9 +51,9 @@
   }
   // Pages without equations do not load MathJax themselves; Gemini's answers still need it.
   // typeset:false leaves the notes alone, so a literal $ in the text is never read as maths.
-  if (!window.MathJax){
-    window.MathJax = {tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\\]'],['$$','$$']],tags:'none'},
-      svg:{fontCache:'global'}, startup:{typeset:false}};
+  if (!(window.MathJax && MathJax.version)){
+    window.MathJax = Object.assign({tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\\]'],['$$','$$']],tags:'none'},
+      svg:{fontCache:'global'}}, window.MathJax, {startup:{typeset:false}});
     loadScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js');
   }
   if (!window.marked) loadScript('https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js');

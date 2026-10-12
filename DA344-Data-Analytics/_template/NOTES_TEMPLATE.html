@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
 <link rel="stylesheet" href="../../assets/site.css">
 <script src="../../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -66,11 +67,7 @@
 <figcaption><b>Figure N.1</b> — caption explaining what the reader should take away.</figcaption>
 </figure>
 
-<div class="eq"><span class="eqbody">
-  MSE = <span class="frac"><span class="top">1</span><span class="bot"><var>n</var></span></span>
-  &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
-  (<var>y</var><sub><var>i</var></sub> &minus; <var>ŷ</var><sub><var>i</var></sub>)<sup>2</sup>
-</span>
+<div class="eq">\[ \text{MSE} = \frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2 \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>MSE</dt><dd>Mean squared error.</dd><dt><var>n</var></dt><dd>Number of instances.</dd><dt><var>y</var><sub>i</sub></dt><dd>Target value of instance <var>i</var>.</dd><dt><var>&#375;</var><sub>i</sub></dt><dd>Predicted value for instance <var>i</var>.</dd></dl>
 </div>

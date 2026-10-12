@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -142,28 +143,19 @@
 
 <h3>2.1 Numerical features: Euclidean, Manhattan, Minkowski</h3>
 
-<div class="eq"><span class="eqbody">
-  Euclidean(<var>a</var>, <var>b</var>) = &#8214;<var>a</var> &minus; <var>b</var>&#8214;<sub>2</sub> =
-  &radic;<span style="text-decoration:overline">&nbsp;&sum;<sub><var>i</var>=1</sub><sup><var>m</var></sup> (<var>a</var><sub><var>i</var></sub> &minus; <var>b</var><sub><var>i</var></sub>)<sup>2</sup>&nbsp;</span>
-</span>
+<div class="eq">\[ \text{Euclidean}(a,b) = \lVert a-b \rVert_2 = \sqrt{\sum_{i=1}^{m}(a_i-b_i)^2} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>a</var>, <var>b</var></dt><dd>The two instances being compared.</dd><dt><var>a</var><sub>i</sub>, <var>b</var><sub>i</sub></dt><dd>Their values for feature <var>i</var>.</dd><dt><var>m</var></dt><dd>Number of features.</dd><dt>&Vert;&middot;&Vert;<sub>2</sub></dt><dd>The L2 norm: straight-line length.</dd></dl>
 </div>
 
-<div class="eq"><span class="eqbody">
-  Manhattan(<var>a</var>, <var>b</var>) = &#8214;<var>a</var> &minus; <var>b</var>&#8214;<sub>1</sub> =
-  &sum;<sub><var>i</var>=1</sub><sup><var>m</var></sup> abs(<var>a</var><sub><var>i</var></sub> &minus; <var>b</var><sub><var>i</var></sub>)
-</span>
+<div class="eq">\[ \text{Manhattan}(a,b) = \lVert a-b \rVert_1 = \sum_{i=1}^{m}\operatorname{abs}(a_i-b_i) \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>a</var><sub>i</sub>, <var>b</var><sub>i</sub></dt><dd>Values of the two instances for feature <var>i</var>.</dd><dt><var>m</var></dt><dd>Number of features.</dd><dt>abs</dt><dd>Absolute value.</dd><dt>&Vert;&middot;&Vert;<sub>1</sub></dt><dd>The L1 norm: sum of axis-aligned steps.</dd></dl>
 </div>
 
 <p>Both are special cases of the <strong>Minkowski</strong> family of distances:</p>
 
-<div class="eq"><span class="eqbody">
-  Minkowski(<var>a</var>, <var>b</var>) = &#8214;<var>a</var> &minus; <var>b</var>&#8214;<sub><var>p</var></sub> =
-  <span style="white-space:nowrap">( &sum;<sub><var>i</var>=1</sub><sup><var>m</var></sup> abs(<var>a</var><sub><var>i</var></sub> &minus; <var>b</var><sub><var>i</var></sub>)<sup><var>p</var></sup> )</span><sup>1/<var>p</var></sup>
-</span>
+<div class="eq">\[ \text{Minkowski}(a,b) = \lVert a-b \rVert_p = \left(\sum_{i=1}^{m}\operatorname{abs}(a_i-b_i)^p\right)^{1/p} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>p</var></dt><dd>Order of the distance: <var>p</var> = 1 gives Manhattan, <var>p</var> = 2 gives Euclidean.</dd><dt><var>a</var><sub>i</sub>, <var>b</var><sub>i</sub></dt><dd>Values of the two instances for feature <var>i</var>.</dd><dt><var>m</var></dt><dd>Number of features.</dd></dl>
 </div>
@@ -208,11 +200,7 @@
 <h3>2.2 Binary features: simple matching proportion</h3>
 <p>For instances described by <var>m</var> binary features, the distance can be the <strong>proportion of features that are not equal</strong> (simple matching):</p>
 
-<div class="eq"><span class="eqbody">
-  <var>d</var><sub>SSM</sub> =
-  <span class="frac"><span class="top"><var>f</var><sub>01</sub> + <var>f</var><sub>10</sub></span>
-  <span class="bot"><var>f</var><sub>01</sub> + <var>f</var><sub>10</sub> + <var>f</var><sub>00</sub> + <var>f</var><sub>11</sub></span></span>
-</span>
+<div class="eq">\[ d_{\text{SSM}} = \frac{f_{01}+f_{10}}{f_{01}+f_{10}+f_{00}+f_{11}} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>d</var><sub>SSM</sub></dt><dd>Simple-matching distance: the proportion of binary features that differ.</dd><dt><var>f</var><sub>01</sub></dt><dd>Number of features where <var>a</var> is 0 and <var>b</var> is 1.</dd><dt><var>f</var><sub>10</sub></dt><dd>Number of features where <var>a</var> is 1 and <var>b</var> is 0.</dd><dt><var>f</var><sub>00</sub></dt><dd>Number of features where both are 0.</dd><dt><var>f</var><sub>11</sub></dt><dd>Number of features where both are 1.</dd></dl>
 </div>
@@ -226,10 +214,7 @@
 
 <h3>2.4 Categorical (non-ordinal) features: proportion non-matching</h3>
 
-<div class="eq"><span class="eqbody">
-  <var>d</var>(<var>a</var>, <var>b</var>) =
-  <span class="frac"><span class="top"><var>m</var> &minus; <var>j</var></span><span class="bot"><var>m</var></span></span>
-</span>
+<div class="eq">\[ d(a,b) = \frac{m-j}{m} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>d</var>(<var>a</var>, <var>b</var>)</dt><dd>Distance between two instances described by categorical features.</dd><dt><var>m</var></dt><dd>Number of features.</dd><dt><var>j</var></dt><dd>Number of features on which the two instances match.</dd><dt><var>m</var> &minus; <var>j</var></dt><dd>Number of features that differ.</dd></dl>
 </div>
@@ -275,11 +260,7 @@
   <li>Compute:</li>
 </ol>
 
-<div class="eq"><span class="eqbody">
-  <var>H</var> =
-  <span class="frac"><span class="top">&sum;<sub><var>i</var>=1</sub><sup><var>m</var></sup> <var>r</var><sub><var>i</var></sub></span>
-  <span class="bot">&sum;<sub><var>i</var>=1</sub><sup><var>m</var></sup> <var>a</var><sub><var>i</var></sub> + &sum;<sub><var>i</var>=1</sub><sup><var>m</var></sup> <var>r</var><sub><var>i</var></sub></span></span>
-</span>
+<div class="eq">\[ H = \frac{\sum_{i=1}^{m} r_i}{\sum_{i=1}^{m} a_i + \sum_{i=1}^{m} r_i} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>H</var></dt><dd>Hopkins statistic: about 0.5 for uniform data, close to 1 for clustered data.</dd><dt><var>m</var></dt><dd>Number of points sampled.</dd><dt><var>r</var><sub>i</sub></dt><dd>Distance from uniform random point <var>q</var><sub>i</sub> to its nearest instance in the data.</dd><dt><var>a</var><sub>i</sub></dt><dd>Distance from sampled real instance <var>p</var><sub>i</sub> to its nearest instance in the data.</dd></dl>
 </div>
@@ -341,9 +322,7 @@
 
 <p>K-means is the most well-known clustering algorithm: easy to understand, computationally efficient, and generally producing good results. It divides <var>n</var> instances into <var>k</var> disjoint clusters (<var>k</var> is user-specified), with each instance assigned to exactly one cluster, by minimising the within-cluster sum of squared error:</p>
 
-<div class="eq"><span class="eqbody">
-  SSE = &sum;<sub><var>j</var>=1</sub><sup><var>k</var></sup> &sum;<sub><var>d<sub>i</sub></var> &isin; <var>C<sub>j</sub></var></sub> Dist(<var>d<sub>i</sub></var>, <var>c<sub>j</sub></var>)<sup>2</sup>
-</span>
+<div class="eq">\[ \text{SSE} = \sum_{j=1}^{k}\ \sum_{d_i \in C_j} \operatorname{Dist}(d_i, c_j)^2 \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>SSE</dt><dd>Within-cluster sum of squared errors; K-means tries to make it small.</dd><dt><var>k</var></dt><dd>Number of clusters.</dd><dt><var>C</var><sub>j</sub></dt><dd>Cluster <var>j</var>.</dd><dt><var>d</var><sub>i</sub></dt><dd>An instance belonging to that cluster.</dd><dt><var>c</var><sub>j</sub></dt><dd>Centroid of cluster <var>j</var>.</dd><dt>Dist</dt><dd>The distance measure, usually Euclidean.</dd></dl>
 </div>
@@ -415,11 +394,7 @@
   <li>Choose the next centroid from the instances with probability proportional to the selection weight</li>
 </ol>
 
-<div class="eq"><span class="eqbody">
-  <var>w</var>(<var>d<sub>i</sub></var>) =
-  <span class="frac"><span class="top">Dist(<var>d<sub>i</sub></var>)<sup>2</sup></span>
-  <span class="bot">&sum;<sub><var>p</var>=1</sub><sup><var>n</var></sup> Dist(<var>d<sub>p</sub></var>)<sup>2</sup></span></span>
-</span>
+<div class="eq">\[ w(d_i) = \frac{\operatorname{Dist}(d_i)^2}{\sum_{p=1}^{n}\operatorname{Dist}(d_p)^2} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>w</var>(<var>d</var><sub>i</sub>)</dt><dd>Probability that instance <var>d</var><sub>i</sub> is picked as the next centroid.</dd><dt>Dist(<var>d</var><sub>i</sub>)</dt><dd>Distance from the instance to the nearest centroid already chosen.</dd><dt>Denominator</dt><dd>Sum of the squared distances over all instances, so the weights add up to 1.</dd><dt><var>n</var></dt><dd>Number of instances.</dd></dl>
 </div>
@@ -462,21 +437,11 @@
   <li>C3 = {3, 9, 10, 13, 14}</li>
 </ul>
 <p><strong>Step 2 — new centroids.</strong> Each new centroid is the feature-wise mean of its members. For C1 (members 1, 2, 5, 11, 12), fully worked out:</p>
-<div class="eq"><span class="eqbody">
-  <var>c</var><sub>1</sub>&prime; =
-  (<span class="frac"><span class="top">&minus;0.392 &minus; 0.251 &minus; 0.736 &minus; 0.288 &minus; 0.597</span><span class="bot">5</span></span>,
-  <span class="frac"><span class="top">&minus;1.258 &minus; 1.781 &minus; 1.694 &minus; 2.116 &minus; 1.577</span><span class="bot">5</span></span>,
-  <span class="frac"><span class="top">&minus;0.666 &minus; 1.495 &minus; 0.686 &minus; 1.165 &minus; 0.618</span><span class="bot">5</span></span>)
-</span>
+<div class="eq">\[ \begin{aligned} c_1' = \Big(\ &amp; \dfrac{-0.392-0.251-0.736-0.288-0.597}{5}, \\[8pt] &amp; \dfrac{-1.258-1.781-1.694-2.116-1.577}{5}, \\[8pt] &amp; \dfrac{-0.666-1.495-0.686-1.165-0.618}{5}\ \Big) \end{aligned} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>c</var><sub>1</sub>&prime;</dt><dd>Updated centroid of cluster 1.</dd><dt>Each fraction</dt><dd>Mean of one feature over the instances now assigned to the cluster (members 1, 2, 5, 11, 12).</dd><dt>5</dt><dd>Number of instances in the cluster.</dd></dl>
 </div>
-<div class="eq"><span class="eqbody">
-  = (<span class="frac"><span class="top">&minus;2.264</span><span class="bot">5</span></span>,
-  <span class="frac"><span class="top">&minus;8.426</span><span class="bot">5</span></span>,
-  <span class="frac"><span class="top">&minus;4.630</span><span class="bot">5</span></span>)
-  = (&minus;0.453, &minus;1.685, &minus;0.926)
-</span>
+<div class="eq">\[ = \left(\frac{-2.264}{5},\ \frac{-8.426}{5},\ \frac{-4.630}{5}\right) = (-0.453,\ -1.685,\ -0.926) \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>Numerators</dt><dd>Sum of each feature over the cluster's five members.</dd><dt>5</dt><dd>Number of members.</dd><dt>Result</dt><dd>Coordinates of the new centroid, one per feature.</dd></dl>
 </div>
@@ -533,19 +498,12 @@
 
 <p>The linkage rule defines the distance between two clusters C1 and C2:</p>
 
-<div class="eq"><span class="eqbody">
-  Single: <var>d</var>(<var>C</var><sub>1</sub>,<var>C</var><sub>2</sub>) = min<sub><var>i</var>&isin;<var>C</var><sub>1</sub>, <var>j</var>&isin;<var>C</var><sub>2</sub></sub> <var>d</var>(<var>i</var>,<var>j</var>)
-  &nbsp;&nbsp;&nbsp; Complete: <var>d</var>(<var>C</var><sub>1</sub>,<var>C</var><sub>2</sub>) = max<sub><var>i</var>&isin;<var>C</var><sub>1</sub>, <var>j</var>&isin;<var>C</var><sub>2</sub></sub> <var>d</var>(<var>i</var>,<var>j</var>)
-</span>
+<div class="eq">\[ \text{Single: } d(C_1,C_2) = \min_{i\in C_1,\ j\in C_2} d(i,j) \qquad \text{Complete: } d(C_1,C_2) = \max_{i\in C_1,\ j\in C_2} d(i,j) \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>d</var>(C<sub>1</sub>,C<sub>2</sub>)</dt><dd>Distance between the two clusters.</dd><dt><var>i</var>, <var>j</var></dt><dd>An instance from C<sub>1</sub> and one from C<sub>2</sub>.</dd><dt><var>d</var>(<var>i</var>,<var>j</var>)</dt><dd>Distance between those two instances.</dd><dt>min</dt><dd>Single linkage: the closest pair decides.</dd><dt>max</dt><dd>Complete linkage: the farthest pair decides.</dd></dl>
 </div>
 
-<div class="eq"><span class="eqbody">
-  Average: <var>d</var>(<var>C</var><sub>1</sub>,<var>C</var><sub>2</sub>) =
-  <span class="frac"><span class="top">1</span><span class="bot">|<var>C</var><sub>1</sub>|&middot;|<var>C</var><sub>2</sub>|</span></span>
-  &sum;<sub><var>i</var>&isin;<var>C</var><sub>1</sub>, <var>j</var>&isin;<var>C</var><sub>2</sub></sub> <var>d</var>(<var>i</var>,<var>j</var>)
-</span>
+<div class="eq">\[ \text{Average: } d(C_1,C_2) = \frac{1}{|C_1|\cdot|C_2|}\sum_{i\in C_1,\ j\in C_2} d(i,j) \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>|C<sub>1</sub>|, |C<sub>2</sub>|</dt><dd>Number of instances in each cluster.</dd><dt><var>d</var>(<var>i</var>,<var>j</var>)</dt><dd>Distance between an instance of C<sub>1</sub> and one of C<sub>2</sub>.</dd><dt>&sum;</dt><dd>Sum over every cross-cluster pair, so the result is the mean pairwise distance.</dd></dl>
 </div>
@@ -645,15 +603,7 @@
   <li><var>b</var>(<var>i</var>) — the average distance between <var>d<sub>i</sub></var> and the instances of the <strong>nearest other cluster</strong> (the lowest average over all clusters <var>d<sub>i</sub></var> does not belong to).</li>
 </ul>
 
-<div class="eq"><span class="eqbody">
-  <var>s</var>(<var>i</var>) =
-  <span class="frac"><span class="top"><var>b</var>(<var>i</var>) &minus; <var>a</var>(<var>i</var>)</span>
-  <span class="bot">max(<var>a</var>(<var>i</var>), <var>b</var>(<var>i</var>))</span></span>
-  &nbsp;&nbsp;&nbsp;&nbsp; overall: &nbsp;
-  <var>s&#772;</var> =
-  <span class="frac"><span class="top">1</span><span class="bot"><var>n</var></span></span>
-  &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup> <var>s</var>(<var>i</var>)
-</span>
+<div class="eq">\[ s(i) = \frac{b(i)-a(i)}{\max\big(a(i),\,b(i)\big)} \qquad \text{overall: } \bar{s} = \frac{1}{n}\sum_{i=1}^{n} s(i) \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>s</var>(<var>i</var>)</dt><dd>Silhouette of instance <var>i</var>, between &minus;1 and +1.</dd><dt><var>a</var>(<var>i</var>)</dt><dd>Average distance to the other instances in its own cluster.</dd><dt><var>b</var>(<var>i</var>)</dt><dd>Average distance to the instances of the nearest other cluster.</dd><dt><var>s&#772;</var></dt><dd>Overall silhouette: the mean over all instances.</dd><dt><var>n</var></dt><dd>Number of instances.</dd></dl>
 </div>
@@ -730,11 +680,7 @@
   <li>The Dunn index divides separation by diameter:</li>
 </ol>
 
-<div class="eq"><span class="eqbody">
-  DI =
-  <span class="frac"><span class="top">min inter-cluster distance (separation)</span>
-  <span class="bot">max intra-cluster distance (diameter)</span></span>
-</span>
+<div class="eq">\[ \text{DI} = \frac{\text{min inter-cluster distance (separation)}}{\text{max intra-cluster distance (diameter)}} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>DI</dt><dd>Dunn index; larger means compact, well separated clusters.</dd><dt>Separation</dt><dd>Smallest distance between any two clusters.</dd><dt>Diameter</dt><dd>Largest distance between two instances inside one cluster.</dd></dl>
 </div>
@@ -775,11 +721,7 @@
   <li>Compute the <strong>mean Jaccard coefficient per cluster</strong> across the resamples.</li>
 </ol>
 
-<div class="eq"><span class="eqbody">
-  Jaccard(<var>A</var>, <var>B</var>) =
-  <span class="frac"><span class="top">|<var>A</var> &cap; <var>B</var>|</span><span class="bot">|<var>A</var> &cup; <var>B</var>|</span></span>
-  &nbsp;&nbsp; (number of instances in both clusters &divide; number of instances in either cluster)
-</span>
+<div class="eq">\[ \begin{gathered} \text{Jaccard}(A,B) = \frac{|A\cap B|}{|A\cup B|} \\ \text{(instances in both clusters, divided by instances in either cluster)} \end{gathered} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>A, B</dt><dd>Two clusters, as sets of instances, for example from two runs.</dd><dt>|A &cap; B|</dt><dd>Number of instances in both.</dd><dt>|A &cup; B|</dt><dd>Number of instances in either.</dd></dl>
 </div>

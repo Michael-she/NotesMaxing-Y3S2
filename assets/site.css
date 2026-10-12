@@ -203,7 +203,10 @@ svg [stroke="#999"]{stroke:var(--ink-2)}
 .frac .bot{display:block;padding:0 .35em}
 .formula{font-family:var(--f-mono);font-size:14.5px;color:var(--ink)}
 .formula .note{display:block;background:none;border:0;border-radius:0;padding:0;margin:4px 0 0;font-family:var(--f-body);font-size:13px;color:var(--ink-2)}
-mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 0}
+mjx-container{color:var(--ink)}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 0;margin:.5em 0!important}
+/* a displayed equation wider than its box shrinks to fit instead of scrolling */
+mjx-container[display="true"]>svg{max-width:100%;height:auto}
 
 /* callouts */
 .note{background:var(--warnwash);border-left:3px solid var(--amber);padding:12px 16px;margin:1.4em 0;border-radius:0 var(--r) var(--r) 0}

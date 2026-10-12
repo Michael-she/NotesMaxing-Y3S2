@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -106,9 +107,7 @@ in which each individual rule <var>r</var><sub><var>j</var></sub> (also called a
 <em>classification rule</em>) has the form
 </p>
 
-<div class="eq"><span class="eqbody">
-  <var>r</var><sub><var>j</var></sub> : &nbsp; IF <var>condition</var> THEN <var>prediction</var>
-</span>
+<div class="eq">\[ r_j:\quad \text{IF } \textit{condition} \text{ THEN } \textit{prediction} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>r</var><sub>j</sub></dt><dd>Rule number <var>j</var> in the rule set.</dd><dt>condition</dt><dd>The antecedent: one or more feature tests joined by AND.</dd><dt>prediction</dt><dd>The consequent: the class assigned when the condition holds.</dd></dl>
 </div>
@@ -352,21 +351,12 @@ consequent.
 
 <p>Writing <var>t</var> for the number of instances covered by the rule and <var>p</var> for the number of covered instances that belong to the target class:</p>
 
-<div class="eq"><span class="eqbody">
-  accuracy(<var>r</var>) =
-  <span class="frac"><span class="top"><var>p</var></span><span class="bot"><var>t</var></span></span>
-  =
-  <span class="frac"><span class="top">covered instances of the target class</span><span class="bot">all instances covered by the rule</span></span>
-</span>
+<div class="eq">\[ \text{accuracy}(r) = \frac{p}{t} = \frac{\text{covered instances of the target class}}{\text{all instances covered by the rule}} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>accuracy(<var>r</var>)</dt><dd>Fraction of the instances the rule covers that it classifies correctly.</dd><dt><var>p</var></dt><dd>Number of covered instances that belong to the target class.</dd><dt><var>t</var></dt><dd>Number of instances covered by the rule.</dd></dl>
 </div>
 
-<div class="eq"><span class="eqbody">
-  coverage(<var>r</var>) =
-  <span class="frac"><span class="top">instances satisfying the antecedent of <var>r</var></span><span class="bot"><var>N</var> (all instances)</span></span>
-  &nbsp;&nbsp;(often reported simply as the count <var>t</var>)
-</span>
+<div class="eq">\[ \begin{gathered} \text{coverage}(r) = \frac{\text{instances satisfying the antecedent of } r}{N \text{ (all instances)}} \\ \text{(often reported simply as the count } t\text{)} \end{gathered} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>coverage(<var>r</var>)</dt><dd>Fraction of all instances that the rule applies to.</dd><dt><var>N</var></dt><dd>Total number of instances.</dd><dt><var>t</var></dt><dd>Number of instances that satisfy the antecedent.</dd></dl>
 </div>
@@ -394,10 +384,7 @@ increasingly specific rules that describe only a handful of training instances: 
   <li>Rule B is triggered by 5 observations; all 5 belong to the class predicted by the rule.</li>
 </ul>
 <p><strong>Step 1 &mdash; accuracies.</strong></p>
-<div class="eq"><span class="eqbody">
-  accuracy(A) = <span class="frac"><span class="top">36</span><span class="bot">40</span></span> = 0.90 &nbsp;&nbsp;&nbsp;
-  accuracy(B) = <span class="frac"><span class="top">5</span><span class="bot">5</span></span> = 1.00
-</span>
+<div class="eq">\[ \text{accuracy}(A) = \frac{36}{40} = 0.90 \qquad \text{accuracy}(B) = \frac{5}{5} = 1.00 \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>36 / 40</dt><dd>Rule A is triggered by 40 observations, 36 of them in the predicted class.</dd><dt>5 / 5</dt><dd>Rule B is triggered by 5 observations, all in the predicted class.</dd></dl>
 </div>
@@ -804,14 +791,7 @@ that cover many target instances while being accurate (lecture formulation, with
 correct/incorrect coverage of the old rule and <var>c</var>&prime;, <var>i</var>&prime; those of the new rule):
 </p>
 
-<div class="eq"><span class="eqbody">
-  FOIL_Gain = <var>c</var>&prime; &times;
-  ( log<sub>2</sub>
-  <span class="frac"><span class="top"><var>c</var>&prime;</span><span class="bot"><var>c</var>&prime; + <var>i</var>&prime;</span></span>
-  &minus; log<sub>2</sub>
-  <span class="frac"><span class="top"><var>c</var></span><span class="bot"><var>c</var> + <var>i</var></span></span>
-  )
-</span>
+<div class="eq">\[ \text{FOIL\_Gain} = c' \times \left( \log_2\frac{c'}{c'+i'} - \log_2\frac{c}{c+i} \right) \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>c</var>, <var>i</var></dt><dd>Instances the old rule covers correctly and incorrectly.</dd><dt><var>c</var>&prime;, <var>i</var>&prime;</dt><dd>The same counts for the new rule, after adding a conjunct.</dd><dt>log<sub>2</sub> of each fraction</dt><dd>Log of the rule's accuracy; the difference is the improvement in accuracy.</dd><dt><var>c</var>&prime; &times;</dt><dd>Weights the improvement by how many correct instances the new rule still covers.</dd></dl>
 </div>
@@ -871,18 +851,12 @@ for which the rule is correct.
 </p>
 </div>
 
-<div class="eq"><span class="eqbody">
-  support(<var>X</var>) = number of instances containing all items in <var>X</var>
-  &nbsp;&nbsp;(sometimes normalised by <var>N</var>)
-</span>
+<div class="eq">\[ \begin{gathered} \text{support}(X) = \text{number of instances containing all items in } X \\ \text{(sometimes normalised by } N\text{)} \end{gathered} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>support(<var>X</var>)</dt><dd>How often the itemset occurs.</dd><dt><var>X</var></dt><dd>An itemset: a set of items or attribute values.</dd><dt><var>N</var></dt><dd>Total number of instances (transactions).</dd></dl>
 </div>
 
-<div class="eq"><span class="eqbody">
-  confidence(<var>X</var> &rArr; <var>Y</var>) =
-  <span class="frac"><span class="top">support(<var>X</var> &cup; <var>Y</var>)</span><span class="bot">support(<var>X</var>)</span></span>
-</span>
+<div class="eq">\[ \text{confidence}(X \Rightarrow Y) = \frac{\text{support}(X\cup Y)}{\text{support}(X)} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>confidence(<var>X</var> &rArr; <var>Y</var>)</dt><dd>Of the instances containing <var>X</var>, the fraction that also contain <var>Y</var>.</dd><dt><var>X</var></dt><dd>Antecedent itemset.</dd><dt><var>Y</var></dt><dd>Consequent itemset.</dd><dt>support(<var>X</var> &cup; <var>Y</var>)</dt><dd>Number of instances containing every item of both.</dd></dl>
 </div>

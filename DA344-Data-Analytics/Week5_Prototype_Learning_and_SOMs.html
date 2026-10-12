@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -164,11 +165,7 @@
   <li><strong>Principal component learning (&sect;4.3):</strong> Oja's rule extends Hebbian learning with a feedback/forgetting term so that the network extracts the <em>principal components</em> of the data — the directions of largest variance. This is the neural-network route to dimensionality reduction, and it previews why networks such as the SOM can project high-dimensional data to a lower-dimensional map.</li>
 </ul>
 
-<div class="eq"><span class="eqbody">
-  &Delta;<var>u<sub>ki</sub></var>(<var>t</var>) = &eta;&middot;<var>o<sub>k,p</sub></var>&middot;<var>z<sub>i,p</sub></var>
-  &nbsp;&nbsp;&rArr;&nbsp;&nbsp;
-  <var>u<sub>ki</sub></var>(<var>t</var>) = <var>u<sub>ki</sub></var>(<var>t</var>&minus;1) + &Delta;<var>u<sub>ki</sub></var>(<var>t</var>)
-</span>
+<div class="eq">\[ \Delta u_{ki}(t) = \eta\, o_{k,p}\, z_{i,p} \quad\Rightarrow\quad u_{ki}(t) = u_{ki}(t-1) + \Delta u_{ki}(t) \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>&Delta;<var>u</var><sub>ki</sub>(<var>t</var>)</dt><dd>Change in the weight from input <var>i</var> to output unit <var>k</var> at step <var>t</var>.</dd><dt>&eta;</dt><dd>Learning rate.</dd><dt><var>o</var><sub>k,p</sub></dt><dd>Output of unit <var>k</var> for pattern <var>p</var>.</dd><dt><var>z</var><sub>i,p</sub></dt><dd>Value of input <var>i</var> for pattern <var>p</var>.</dd><dt><var>u</var><sub>ki</sub>(<var>t</var>)</dt><dd>The weight after the update.</dd></dl>
 </div>
@@ -215,11 +212,7 @@
 </div>
 
 <h3>Distance and winner selection</h3>
-<div class="eq"><span class="eqbody">
-  <var>d<sub>k,p</sub></var>(<var>z<sub>p</sub></var>, <var>u<sub>k</sub></var>) =
-  &radic;<span style="text-decoration:overline">&nbsp;&sum;<sub><var>i</var>=1</sub><sup><var>I</var></sup> (<var>z<sub>i,p</sub></var> &minus; <var>u<sub>ki</sub></var>)&sup2;&nbsp;</span>
-  &nbsp;&nbsp;&nbsp; winner = arg&thinsp;min<sub>&forall;<var>k</var></sub> <var>d<sub>k,p</sub></var>
-</span>
+<div class="eq">\[ d_{k,p}(z_p,u_k) = \sqrt{\sum_{i=1}^{I}(z_{i,p}-u_{ki})^2} \qquad \text{winner} = \arg\min_{\forall k}\, d_{k,p} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>d</var><sub>k,p</sub></dt><dd>Distance between pattern <var>p</var> and the prototype of unit <var>k</var>.</dd><dt><var>z</var><sub>p</sub></dt><dd>Input pattern <var>p</var>.</dd><dt><var>u</var><sub>k</sub></dt><dd>Weight (prototype) vector of output unit <var>k</var>.</dd><dt><var>z</var><sub>i,p</sub>, <var>u</var><sub>ki</sub></dt><dd>Component <var>i</var> of the pattern and of the prototype.</dd><dt><var>I</var></dt><dd>Number of input features.</dd><dt>arg min</dt><dd>The unit with the smallest distance wins.</dd></dl>
 </div>
@@ -227,10 +220,7 @@
 <h3>LVQ1 weight-update rule</h3>
 <p>When output unit <var>o<sub>k</sub></var> wins, its prototype vector <var>u<sub>k</sub></var> is moved towards the input instance. The size of the adjustment is controlled by the learning rate &eta;(<var>t</var>):</p>
 
-<div class="eq"><span class="eqbody">
-  <var>u<sub>k</sub></var>(<var>t</var>) = <var>u<sub>k</sub></var>(<var>t</var>&minus;1) + &eta;(<var>t</var>)[<var>z<sub>p</sub></var> &minus; <var>u<sub>k</sub></var>(<var>t</var>&minus;1)]
-  &nbsp;&nbsp;&nbsp; (equivalently&nbsp; <var>w</var><sub>new</sub> = <var>w</var><sub>old</sub> + &alpha;(<var>x</var> &minus; <var>w</var><sub>old</sub>))
-</span>
+<div class="eq">\[ \begin{gathered} u_k(t) = u_k(t-1) + \eta(t)\,\big[z_p - u_k(t-1)\big] \\ \text{(equivalently } w_{\text{new}} = w_{\text{old}} + \alpha\,(x - w_{\text{old}})\text{)} \end{gathered} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>u</var><sub>k</sub>(<var>t</var>)</dt><dd>The winning prototype after the update.</dd><dt><var>u</var><sub>k</sub>(<var>t</var>&minus;1)</dt><dd>The same prototype before the update.</dd><dt>&eta;(<var>t</var>)</dt><dd>Learning rate at step <var>t</var>; it decays over time.</dd><dt><var>z</var><sub>p</sub></dt><dd>The input pattern just presented.</dd><dt>[<var>z</var><sub>p</sub> &minus; <var>u</var><sub>k</sub>]</dt><dd>Vector from the prototype to the input: the direction it moves.</dd><dt><var>w</var>, &alpha;, <var>x</var></dt><dd>The same prototype, learning rate and input in generic notation.</dd></dl>
 </div>
@@ -249,17 +239,11 @@
 <h3>Conscience factor — penalising frequent winners</h3>
 <p>A common problem: one output unit may win too frequently, so that many observations end up represented by the same prototype while other prototypes never win. To level the playing field, LVQ1 introduces a <strong>conscience factor</strong> that <em>modifies the distance used to select the winning unit</em>: prototypes that have won frequently are penalised, giving other prototypes a greater opportunity to win.</p>
 
-<div class="eq"><span class="eqbody">
-  <var>o<sub>k,p</sub></var> = 1 for min<sub>&forall;<var>k</var></sub>{ <var>d<sub>k,p</sub></var>(<var>z<sub>p</sub></var>, <var>u<sub>k</sub></var>) &minus; <var>b<sub>k</sub></var>(<var>t</var>) }, &nbsp; 0 otherwise
-</span>
+<div class="eq">\[ o_{k,p} = \begin{cases} 1 &amp; \text{for } \min_{\forall k}\big\{ d_{k,p}(z_p,u_k) - b_k(t) \big\} \\ 0 &amp; \text{otherwise} \end{cases} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>o</var><sub>k,p</sub></dt><dd>1 for the winning unit, 0 for all others.</dd><dt><var>d</var><sub>k,p</sub></dt><dd>Distance between pattern <var>p</var> and unit <var>k</var>.</dd><dt><var>b</var><sub>k</sub>(<var>t</var>)</dt><dd>Conscience bias of unit <var>k</var>; negative for frequent winners, which penalises them.</dd><dt>min<sub>&forall;k</sub></dt><dd>Taken over all output units.</dd></dl>
 </div>
-<div class="eq"><span class="eqbody">
-  <var>b<sub>k</sub></var>(<var>t</var>) = &gamma;(<span class="frac"><span class="top">1</span><span class="bot"><var>I</var></span></span> &minus; <var>g<sub>k</sub></var>(<var>t</var>))
-  &nbsp;&nbsp;&nbsp;
-  <var>g<sub>k</sub></var>(<var>t</var>) = <var>g<sub>k</sub></var>(<var>t</var>&minus;1) + &beta;(<var>o<sub>k,p</sub></var> &minus; <var>g<sub>k</sub></var>(<var>t</var>&minus;1))
-</span>
+<div class="eq">\[ b_k(t) = \gamma\left(\frac{1}{I} - g_k(t)\right) \qquad g_k(t) = g_k(t-1) + \beta\,\big(o_{k,p} - g_k(t-1)\big) \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>b</var><sub>k</sub>(<var>t</var>)</dt><dd>Conscience bias of unit <var>k</var>.</dd><dt>&gamma;</dt><dd>Scaling constant, typically 10.</dd><dt><var>I</var></dt><dd>Number of inputs, as in the distance formula; 1/<var>I</var> is the reference share that <var>g</var><sub>k</sub> is compared against.</dd><dt><var>g</var><sub>k</sub>(<var>t</var>)</dt><dd>Running estimate of how often unit <var>k</var> wins; starts at 0.</dd><dt>&beta;</dt><dd>Small update constant, typically 0.0001.</dd><dt><var>o</var><sub>k,p</sub></dt><dd>1 if unit <var>k</var> won for pattern <var>p</var>, otherwise 0.</dd></dl>
 </div>
@@ -273,10 +257,7 @@
 <h3>Stopping conditions and quantisation error</h3>
 <p>Training stops when (i) a maximum number of epochs is reached, (ii) weight adjustments become sufficiently small, or (iii) the quantisation error is sufficiently small:</p>
 
-<div class="eq"><span class="eqbody">
-  <var>Q<sub>T</sub></var> = <span class="frac"><span class="top">1</span><span class="bot"><var>P<sub>T</sub></var></span></span>
-  &sum;<sub><var>p</var>=1</sub><sup><var>P<sub>T</sub></var></sup> ||<var>z<sub>p</sub></var> &minus; <var>u<sub>k</sub></var>||&sup2;<sub>2</sub>
-</span>
+<div class="eq">\[ Q_T = \frac{1}{P_T}\sum_{p=1}^{P_T} \lVert z_p - u_k \rVert_2^2 \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>Q</var><sub>T</sub></dt><dd>Quantisation error: average squared distance between patterns and their prototypes.</dd><dt><var>P</var><sub>T</sub></dt><dd>Number of training patterns.</dd><dt><var>z</var><sub>p</sub></dt><dd>Training pattern <var>p</var>.</dd><dt><var>u</var><sub>k</sub></dt><dd>Prototype of that pattern's best matching unit.</dd><dt>&Vert;&middot;&Vert;&sup2;<sub>2</sub></dt><dd>Squared Euclidean distance.</dd></dl>
 </div>
@@ -500,9 +481,7 @@
 <h3>Step 1 — Competition: finding the best matching unit</h3>
 <p>The Euclidean distance from each codebook vector to the input vector is computed, and the closest neuron wins:</p>
 
-<div class="eq"><span class="eqbody">
-  ||<var>w<sub>mn</sub></var> &minus; <var>z<sub>p</sub></var>||&sup2;<sub>2</sub> = min<sub>&forall;<var>kj</var></sub>{ ||<var>w<sub>kj</sub></var> &minus; <var>z<sub>p</sub></var>||&sup2;<sub>2</sub> }
-</span>
+<div class="eq">\[ \lVert w_{mn} - z_p \rVert_2^2 = \min_{\forall kj}\big\{ \lVert w_{kj} - z_p \rVert_2^2 \big\} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>w</var><sub>mn</sub></dt><dd>Codebook vector of the winning neuron, at row <var>m</var>, column <var>n</var> of the map.</dd><dt><var>w</var><sub>kj</sub></dt><dd>Codebook vector of the neuron at row <var>k</var>, column <var>j</var>.</dd><dt><var>z</var><sub>p</sub></dt><dd>The input pattern.</dd><dt>min<sub>&forall;kj</sub></dt><dd>Taken over every neuron on the map.</dd></dl>
 </div>
@@ -512,9 +491,7 @@
 <h3>Step 2 — Collaboration: the neighbourhood function</h3>
 <p>The SOM differs from LVQ1 in that neighbours of the winner also adapt. The amount of collaboration is controlled by a <strong>neighbourhood function</strong>; a Gaussian kernel is commonly used:</p>
 
-<div class="eq"><span class="eqbody">
-  <var>h<sub>mn,kj</sub></var>(<var>t</var>) = &eta;(<var>t</var>)&middot;<var>e</var><sup>&nbsp;&minus; ||<var>c<sub>mn</sub></var> &minus; <var>c<sub>kj</sub></var>||&sup2;<sub>2</sub> / 2&sigma;&sup2;(<var>t</var>)</sup>
-</span>
+<div class="eq">\[ h_{mn,kj}(t) = \eta(t)\,\exp\!\left(-\frac{\lVert c_{mn}-c_{kj} \rVert_2^2}{2\sigma^2(t)}\right) \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>h</var><sub>mn,kj</sub>(<var>t</var>)</dt><dd>Neighbourhood function: how strongly neuron <var>kj</var> is updated when <var>mn</var> wins.</dd><dt>&eta;(<var>t</var>)</dt><dd>Learning rate at step <var>t</var>.</dd><dt>&sigma;(<var>t</var>)</dt><dd>Neighbourhood width at step <var>t</var>.</dd><dt><var>c</var><sub>mn</sub>, <var>c</var><sub>kj</sub></dt><dd>Map coordinates of the winner and of the neuron being updated.</dd><dt>&Vert;<var>c</var><sub>mn</sub> &minus; <var>c</var><sub>kj</sub>&Vert;&sup2;<sub>2</sub></dt><dd>Squared distance between them on the grid, not in the data space.</dd></dl>
 </div>
@@ -529,9 +506,7 @@
 <p>The exponential term depends only on the <strong>grid distance</strong> between the winner and the neuron being updated: at the BMU itself the distance is 0 and the exponential equals 1; the further away a neuron sits on the grid, the smaller its update factor. For convergence, the neighbourhood function must go to 0 as training proceeds.</p>
 
 <h3>Step 3 — Learning: the SOM weight-update rule</h3>
-<div class="eq"><span class="eqbody">
-  <var>w<sub>kj</sub></var>(<var>t</var>+1) = <var>w<sub>kj</sub></var>(<var>t</var>) + <var>h<sub>mn,kj</sub></var>(<var>t</var>)&middot;[<var>x<sub>p</sub></var> &minus; <var>w<sub>kj</sub></var>(<var>t</var>)]
-</span>
+<div class="eq">\[ w_{kj}(t+1) = w_{kj}(t) + h_{mn,kj}(t)\,\big[x_p - w_{kj}(t)\big] \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>w</var><sub>kj</sub>(<var>t</var>+1)</dt><dd>Codebook vector of neuron <var>kj</var> after the update.</dd><dt><var>w</var><sub>kj</sub>(<var>t</var>)</dt><dd>The same vector before the update.</dd><dt><var>h</var><sub>mn,kj</sub>(<var>t</var>)</dt><dd>Neighbourhood function value for this neuron.</dd><dt><var>x</var><sub>p</sub></dt><dd>The input pattern (written <var>z</var><sub>p</sub> elsewhere).</dd><dt>[<var>x</var><sub>p</sub> &minus; <var>w</var><sub>kj</sub>]</dt><dd>Vector from the codebook vector to the input.</dd></dl>
 </div>
@@ -685,11 +660,7 @@
 <h3>Learning rate and neighbourhood width decay over time</h3>
 <p>Both the learning rate and the neighbourhood width are monotonically decreasing functions of time. A relatively large learning rate and a wide neighbourhood are used initially, then both are reduced:</p>
 
-<div class="eq"><span class="eqbody">
-  &eta;(<var>t</var>) = &eta;(0)&middot;<var>e</var><sup>&minus;<var>t</var>/&tau;<sub>2</sub></sup>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  &sigma;(<var>t</var>) = &sigma;(0)&middot;<var>e</var><sup>&minus;<var>t</var>/&tau;<sub>1</sub></sup>
-</span>
+<div class="eq">\[ \eta(t) = \eta(0)\,e^{-t/\tau_2} \qquad \sigma(t) = \sigma(0)\,e^{-t/\tau_1} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>&eta;(<var>t</var>), &eta;(0)</dt><dd>Learning rate at step <var>t</var> and its initial value.</dd><dt>&sigma;(<var>t</var>), &sigma;(0)</dt><dd>Neighbourhood width at step <var>t</var> and its initial value.</dd><dt>&tau;<sub>1</sub>, &tau;<sub>2</sub></dt><dd>Time constants that set how quickly each one decays.</dd><dt><var>t</var></dt><dd>Training step.</dd></dl>
 </div>

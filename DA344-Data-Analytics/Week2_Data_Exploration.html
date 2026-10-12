@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -207,13 +208,7 @@
 </table>
 </div>
 
-<div class="eq"><span class="eqbody">
-  <span class="v">s</span> = &radic;<span style="white-space:nowrap">(</span>
-  <span class="frac"><span class="top">1</span><span class="bot"><var>n</var> &minus; 1</span></span>
-  &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
-  (<var>x</var><sub><var>i</var></sub> &minus; <var>x&#772;</var>)<sup>2</sup>
-  <span style="white-space:nowrap">)</span>
-</span>
+<div class="eq">\[ s = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>s</var></dt><dd>Sample standard deviation.</dd><dt><var>x</var><sub>i</sub></dt><dd>Value of the feature for instance <var>i</var>.</dd><dt><var>x&#772;</var></dt><dd>Sample mean of the feature.</dd><dt><var>n</var></dt><dd>Number of instances.</dd><dt><var>n</var> &minus; 1</dt><dd>Used instead of <var>n</var> because this is a sample, not the whole population.</dd></dl>
 </div>
@@ -401,12 +396,7 @@
 
 <h3>8.2 Covariance</h3>
 <p>For two features <var>a</var> and <var>b</var> over <var>n</var> instances, the sample covariance is</p>
-<div class="eq"><span class="eqbody">
-  cov(<var>a</var>, <var>b</var>) =
-  <span class="frac"><span class="top">1</span><span class="bot"><var>n</var> &minus; 1</span></span>
-  &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
-  (<var>a</var><sub><var>i</var></sub> &minus; <var>a&#772;</var>)(&nbsp;<var>b</var><sub><var>i</var></sub> &minus; <var>b&#772;</var>&nbsp;)
-</span>
+<div class="eq">\[ \operatorname{cov}(a,b) = \frac{1}{n-1}\sum_{i=1}^{n}(a_i-\bar{a})(b_i-\bar{b}) \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>cov(<var>a</var>, <var>b</var>)</dt><dd>Sample covariance of features <var>a</var> and <var>b</var>.</dd><dt><var>a</var><sub>i</sub>, <var>b</var><sub>i</sub></dt><dd>Values of the two features for instance <var>i</var>.</dd><dt><var>a&#772;</var>, <var>b&#772;</var></dt><dd>Means of the two features.</dd><dt><var>n</var></dt><dd>Number of instances.</dd></dl>
 </div>
@@ -414,20 +404,11 @@
 
 <h3>8.3 Correlation</h3>
 <p>Correlation is the normalised version of covariance, obtained by dividing by the two standard deviations, so it always lies between &minus;1 and +1:</p>
-<div class="eq"><span class="eqbody">
-  corr(<var>a</var>, <var>b</var>) =
-  <span class="frac"><span class="top">cov(<var>a</var>, <var>b</var>)</span><span class="bot">&sigma;<sub><var>a</var></sub> &times; &sigma;<sub><var>b</var></sub></span></span>
-</span>
+<div class="eq">\[ \operatorname{corr}(a,b) = \frac{\operatorname{cov}(a,b)}{\sigma_a \times \sigma_b} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>corr(<var>a</var>, <var>b</var>)</dt><dd>Correlation, between &minus;1 and +1.</dd><dt>cov(<var>a</var>, <var>b</var>)</dt><dd>Covariance of the two features.</dd><dt>&sigma;<sub>a</sub>, &sigma;<sub>b</sub></dt><dd>Standard deviations of the two features; dividing by them removes the units.</dd></dl>
 </div>
-<div class="eq"><span class="eqbody">
-  <var>r</var> =
-  <span class="frac">
-    <span class="top">&sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup> (<var>x</var><sub><var>i</var></sub> &minus; <var>x&#772;</var>)(<var>y</var><sub><var>i</var></sub> &minus; <var>y&#772;</var>)</span>
-    <span class="bot">&radic;<span style="white-space:nowrap">[</span> &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup> (<var>x</var><sub><var>i</var></sub> &minus; <var>x&#772;</var>)<sup>2</sup> &middot; &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup> (<var>y</var><sub><var>i</var></sub> &minus; <var>y&#772;</var>)<sup>2</sup> <span style="white-space:nowrap">]</span></span>
-  </span>
-</span>
+<div class="eq">\[ r = \frac{\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})}{\sqrt{\sum_{i=1}^{n}(x_i-\bar{x})^2 \cdot \sum_{i=1}^{n}(y_i-\bar{y})^2}} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>r</var></dt><dd>Pearson correlation coefficient.</dd><dt><var>x</var><sub>i</sub>, <var>y</var><sub>i</sub></dt><dd>Values of the two features for instance <var>i</var>.</dd><dt><var>x&#772;</var>, <var>y&#772;</var></dt><dd>Means of the two features.</dd><dt>Numerator</dt><dd>How the two features vary together about their means.</dd><dt>Denominator</dt><dd>How much each varies on its own; scales the result into &minus;1 to +1.</dd><dt><var>n</var></dt><dd>Number of instances.</dd></dl>
 </div>
@@ -541,26 +522,19 @@
 <ol>
   <li><b>Null hypothesis H&#8320;:</b> the two categorical features are independent (no association). Any deviation between observed and expected counts is due to random chance.</li>
   <li><b>Expected frequencies.</b> Under independence, the expected count of each cell is
-    <div class="eq"><span class="eqbody">
-      <var>E</var> = <span class="frac"><span class="top">row total &times; column total</span><span class="bot">grand total (&nbsp;<var>n</var>&nbsp;)</span></span>
-    </span>
+    <div class="eq">\[ E = \frac{\text{row total} \times \text{column total}}{\text{grand total } (n)} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>E</var></dt><dd>Expected count in a cell if the two features were independent.</dd><dt>row total</dt><dd>Total count of the cell's row.</dd><dt>column total</dt><dd>Total count of the cell's column.</dd><dt>grand total (<var>n</var>)</dt><dd>Total number of instances in the table.</dd></dl>
 </div>
   </li>
   <li><b>Test statistic.</b> Sum, over all cells, the squared deviation between observed (<var>O</var>) and expected (<var>E</var>) counts, divided by the expected count:
-    <div class="eq"><span class="eqbody">
-      &chi;<sup>2</sup> = &sum;<span style="white-space:nowrap"> </span>
-      <span class="frac"><span class="top">(<var>O</var> &minus; <var>E</var>)<sup>2</sup></span><span class="bot"><var>E</var></span></span>
-    </span>
+    <div class="eq">\[ \chi^2 = \sum \frac{(O-E)^2}{E} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>&chi;<sup>2</sup></dt><dd>Chi-square test statistic.</dd><dt><var>O</var></dt><dd>Observed count in a cell.</dd><dt><var>E</var></dt><dd>Expected count in that cell under independence.</dd><dt>&sum;</dt><dd>Sum over every cell of the contingency table.</dd></dl>
 </div>
     Large deviations produce a large &chi;&sup2;.</li>
   <li><b>Degrees of freedom:</b>
-    <div class="eq"><span class="eqbody">
-      df = (<var>r</var> &minus; 1) &times; (<var>c</var> &minus; 1)
-    </span>
+    <div class="eq">\[ \text{df} = (r-1)\times(c-1) \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>df</dt><dd>Degrees of freedom of the test.</dd><dt><var>r</var></dt><dd>Number of rows (levels of the first feature).</dd><dt><var>c</var></dt><dd>Number of columns (levels of the second feature).</dd></dl>
 </div>

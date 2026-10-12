@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -461,9 +462,7 @@
   <li>Examine distributions: the textbook&rsquo;s rule of thumb flags suspected outliers when Q1 &minus; min &gt;&gt; median &minus; Q1, or max &minus; Q3 &gt;&gt; Q3 &minus; median; a common formal rule flags values beyond 1.5 &times; IQR from the quartiles.</li>
   <li>Clustering: values that fall outside all clusters are candidate outliers.</li>
 </ul>
-<div class="eq"><span class="eqbody">
-  Suspected outlier fences: &nbsp; <var>x</var> &lt; Q1 &minus; 1.5 &times; IQR &nbsp;&nbsp;or&nbsp;&nbsp; <var>x</var> &gt; Q3 + 1.5 &times; IQR, &nbsp; where IQR = Q3 &minus; Q1
-</span>
+<div class="eq">\[ \begin{gathered} x \lt \text{Q1} - 1.5 \times \text{IQR} \quad\text{or}\quad x \gt \text{Q3} + 1.5 \times \text{IQR} \\ \text{(suspected outlier fences, where } \text{IQR} = \text{Q3} - \text{Q1}\text{)} \end{gathered} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>x</var></dt><dd>A value of the feature.</dd><dt>Q1</dt><dd>First quartile (25th percentile).</dd><dt>Q3</dt><dd>Third quartile (75th percentile).</dd><dt>IQR</dt><dd>Interquartile range, Q3 &minus; Q1: the spread of the middle 50%.</dd><dt>1.5</dt><dd>Conventional multiplier that sets how far beyond the quartiles a value must lie.</dd></dl>
 </div>
@@ -473,9 +472,7 @@
 
 <h3>7.2 Handling outliers — and comparing consequences</h3>
 <p>Standard options: (1) do nothing; (2) remove/neutralise outliers statistically, e.g. a clamp transformation; (3) remove outliers during training (e.g. by monitoring training errors — instances that persistently produce large errors while the rest of the training error shrinks form a second mode in the error distribution and can be removed); (4) keep outliers but use models/loss functions less sensitive to them (e.g. replacing squared-error loss with a loss that grows linearly for large errors).</p>
-<div class="eq"><span class="eqbody">
-  Clamp transformation: &nbsp; <var>a</var>&prime;<sub><var>i</var></sub> = lower if <var>a</var><sub><var>i</var></sub> &lt; lower; &nbsp; <var>a</var>&prime;<sub><var>i</var></sub> = upper if <var>a</var><sub><var>i</var></sub> &gt; upper; &nbsp; <var>a</var>&prime;<sub><var>i</var></sub> = <var>a</var><sub><var>i</var></sub> otherwise
-</span>
+<div class="eq">\[ a'_i = \begin{cases} \text{lower} &amp; \text{if } a_i \lt \text{lower} \\ \text{upper} &amp; \text{if } a_i \gt \text{upper} \\ a_i &amp; \text{otherwise} \end{cases} \qquad \text{(clamp transformation)} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>a</var><sub>i</sub></dt><dd>Original value of feature <var>a</var> for instance <var>i</var>.</dd><dt><var>a</var>&prime;<sub>i</sub></dt><dd>The value after clamping.</dd><dt>lower, upper</dt><dd>The chosen thresholds; values beyond them are pulled back to the threshold.</dd></dl>
 </div>
@@ -640,9 +637,7 @@
 <p>Transformations change the <em>representation</em> of a feature — its scale or shape — so that algorithms whose mathematics assumes comparable scales or well-behaved distributions work properly. Every transformation changes what the numbers mean, and some information may be lost or distorted.</p>
 
 <h3>11.1 Logarithmic transformation</h3>
-<div class="eq"><span class="eqbody">
-  <var>a</var>&prime;<sub><var>i</var></sub> = log(<var>a</var><sub><var>i</var></sub>)
-</span>
+<div class="eq">\[ a'_i = \log(a_i) \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>a</var>&prime;<sub>i</sub></dt><dd>Transformed value.</dd><dt><var>a</var><sub>i</sub></dt><dd>Original value; must be positive.</dd><dt>log</dt><dd>Logarithm.</dd></dl>
 </div>
@@ -650,11 +645,7 @@
 
 <h3>11.2 Min–max (range) normalisation</h3>
 <p>Linear scaling of the original values into a chosen range, typically [0,1] (or [&minus;1,1]). The general form scales into [<var>old</var>, <var>new</var>]:</p>
-<div class="eq"><span class="eqbody">
-  <var>a</var>&prime;<sub><var>i</var></sub> =
-  <span class="frac"><span class="top"><var>a</var><sub><var>i</var></sub> &minus; min(<var>a</var>)</span><span class="bot">max(<var>a</var>) &minus; min(<var>a</var>)</span></span>
-  &times; (<var>new</var> &minus; <var>old</var>) + <var>old</var>
-</span>
+<div class="eq">\[ a'_i = \frac{a_i - \min(a)}{\max(a) - \min(a)} \times (\text{new} - \text{old}) + \text{old} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>a</var>&prime;<sub>i</sub></dt><dd>Normalised value.</dd><dt><var>a</var><sub>i</sub></dt><dd>Original value.</dd><dt>min(<var>a</var>), max(<var>a</var>)</dt><dd>Smallest and largest value of the feature in the training data.</dd><dt>old, new</dt><dd>Lower and upper bound of the target range, written [old, new] in these notes; 0 and 1 for the usual case.</dd></dl>
 </div>
@@ -662,11 +653,7 @@
 
 <h3>11.3 Standardisation (z-score)</h3>
 <p>Expresses how many standard deviations a value lies from the mean:</p>
-<div class="eq"><span class="eqbody">
-  <var>a</var>&prime;<sub><var>i</var></sub> =
-  <span class="frac"><span class="top"><var>a</var><sub><var>i</var></sub> &minus; <var>&#257;</var></span><span class="bot">sd(<var>a</var>)</span></span>
-  &nbsp;&nbsp; where <var>&#257;</var> is the mean and sd(<var>a</var>) the standard deviation of the feature
-</span>
+<div class="eq">\[ \begin{gathered} a'_i = \frac{a_i - \bar{a}}{\operatorname{sd}(a)} \\ \text{where } \bar{a} \text{ is the mean and } \operatorname{sd}(a) \text{ the standard deviation of the feature} \end{gathered} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>a</var>&prime;<sub>i</sub></dt><dd>Standard score: how many standard deviations the value lies from the mean.</dd><dt><var>a</var><sub>i</sub></dt><dd>Original value.</dd><dt><var>a&#772;</var></dt><dd>Mean of the feature in the training data.</dd><dt>sd(<var>a</var>)</dt><dd>Standard deviation of the feature in the training data.</dd></dl>
 </div>

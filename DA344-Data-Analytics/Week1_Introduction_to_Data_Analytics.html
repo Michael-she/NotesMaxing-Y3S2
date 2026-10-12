@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -602,20 +603,14 @@
 
 <h3>8.2 Accuracy, precision, recall, F1</h3>
 
-<div class="eq"><span class="eqbody">
-  Accuracy = <span class="frac"><span class="top">TP + TN</span><span class="bot">TP + FP + FN + TN</span></span>
-  &nbsp;&nbsp;&nbsp; Error rate = <span class="frac"><span class="top">FP + FN</span><span class="bot">TP + FP + FN + TN</span></span>
-</span>
+<div class="eq">\[ \text{Accuracy} = \frac{TP + TN}{TP + FP + FN + TN} \qquad \text{Error rate} = \frac{FP + FN}{TP + FP + FN + TN} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>TP</dt><dd>True positives: positive instances predicted positive.</dd><dt>TN</dt><dd>True negatives: negative instances predicted negative.</dd><dt>FP</dt><dd>False positives: negative instances predicted positive.</dd><dt>FN</dt><dd>False negatives: positive instances predicted negative.</dd><dt>TP + FP + FN + TN</dt><dd>All instances in the confusion matrix.</dd><dt>Error rate</dt><dd>Fraction misclassified; equal to 1 &minus; accuracy.</dd></dl>
 </div>
 
 <p>Accuracy divides the number of correct predictions (true positives + true negatives) by the total number of predictions.</p>
 
-<div class="eq"><span class="eqbody">
-  Precision = <span class="frac"><span class="top">TP</span><span class="bot">TP + FP</span></span>
-  &nbsp;&nbsp;&nbsp; Recall = <span class="frac"><span class="top">TP</span><span class="bot">TP + FN</span></span>
-</span>
+<div class="eq">\[ \text{Precision} = \frac{TP}{TP + FP} \qquad \text{Recall} = \frac{TP}{TP + FN} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>TP</dt><dd>True positives.</dd><dt>FP</dt><dd>False positives.</dd><dt>FN</dt><dd>False negatives.</dd><dt>TP + FP</dt><dd>Everything the model predicted as positive.</dd><dt>TP + FN</dt><dd>Everything that actually is positive.</dd></dl>
 </div>
@@ -625,9 +620,7 @@
   <li><strong>Recall</strong> — &ldquo;of all the actual positive cases, how many did we catch?&rdquo; It measures coverage of the positive class (penalised by false negatives).</li>
 </ul>
 
-<div class="eq"><span class="eqbody">
-  F1 = 2 &times; <span class="frac"><span class="top">Precision &times; Recall</span><span class="bot">Precision + Recall</span></span>
-</span>
+<div class="eq">\[ F_1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>F<sub>1</sub></dt><dd>Harmonic mean of precision and recall; high only when both are high.</dd><dt>Precision</dt><dd>Fraction of predicted positives that are correct.</dd><dt>Recall</dt><dd>Fraction of actual positives that were found.</dd></dl>
 </div>
@@ -714,21 +707,12 @@
 
 <p>For regression, the error of each instance is the difference between the target value <var>t</var><sub><var>i</var></sub> and the model prediction <var>M</var>(<var>d</var><sub><var>i</var></sub>). To get an overall measure, the per-instance errors are aggregated — commonly by summing either absolute or squared errors — and divided by the number of instances so that the measure is comparable across data sets of different sizes.</p>
 
-<div class="eq"><span class="eqbody">
-  SSE = &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
-  (<var>t</var><sub><var>i</var></sub> &minus; <var>M</var>(<var>d</var><sub><var>i</var></sub>))<sup>2</sup>
-  &nbsp;&nbsp;&nbsp;
-  MSE = <span class="frac"><span class="top">1</span><span class="bot"><var>n</var></span></span>
-  &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
-  (<var>t</var><sub><var>i</var></sub> &minus; <var>M</var>(<var>d</var><sub><var>i</var></sub>))<sup>2</sup> = <span class="frac"><span class="top">SSE</span><span class="bot"><var>n</var></span></span>
-</span>
+<div class="eq">\[ \text{SSE} = \sum_{i=1}^{n} \big(t_i - M(d_i)\big)^2 \qquad \text{MSE} = \frac{1}{n}\sum_{i=1}^{n} \big(t_i - M(d_i)\big)^2 = \frac{\text{SSE}}{n} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt><var>t</var><sub>i</sub></dt><dd>Target (true) value of instance <var>i</var>.</dd><dt><var>d</var><sub>i</sub></dt><dd>Descriptive features of instance <var>i</var>.</dd><dt>M(<var>d</var><sub>i</sub>)</dt><dd>The model's prediction for that instance.</dd><dt><var>n</var></dt><dd>Number of instances.</dd><dt>SSE</dt><dd>Sum of squared errors.</dd><dt>MSE</dt><dd>Mean squared error: SSE divided by <var>n</var>.</dd></dl>
 </div>
 
-<div class="eq"><span class="eqbody">
-  RMSE = &radic;<span style="text-decoration:overline">MSE</span>
-</span>
+<div class="eq">\[ \text{RMSE} = \sqrt{\text{MSE}} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>RMSE</dt><dd>Root mean squared error, in the same units as the target.</dd><dt>MSE</dt><dd>Mean squared error.</dd></dl>
 </div>
@@ -739,11 +723,7 @@
   <li><strong>RMSE</strong> (root mean squared error) — back in the units of the target; interpretable as a typical prediction error. Squaring penalises large errors more than small ones.</li>
 </ul>
 
-<div class="eq"><span class="eqbody">
-  R<sup>2</sup> = 1 &minus; <span class="frac"><span class="top">SSE</span><span class="bot">SST</span></span>
-  &nbsp;&nbsp;&nbsp; where &nbsp;&nbsp; SST = &sum;<sub><var>i</var>=1</sub><sup><var>n</var></sup>
-  (<var>t</var><sub><var>i</var></sub> &minus; <span style="text-decoration:overline"><var>t</var></span>)<sup>2</sup>
-</span>
+<div class="eq">\[ R^2 = 1 - \frac{\text{SSE}}{\text{SST}} \qquad \text{where } \text{SST} = \sum_{i=1}^{n} (t_i - \bar{t}\,)^2 \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>R<sup>2</sup></dt><dd>Share of the target's variation that the model explains.</dd><dt>SSE</dt><dd>Sum of squared errors of the model.</dd><dt>SST</dt><dd>Total sum of squares: squared deviations of the targets from their mean.</dd><dt><var>t</var><sub>i</sub></dt><dd>Target value of instance <var>i</var>.</dd><dt><var>t&#772;</var></dt><dd>Mean of the target values.</dd><dt><var>n</var></dt><dd>Number of instances.</dd></dl>
 </div>

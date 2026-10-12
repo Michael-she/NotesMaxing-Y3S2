@@ -3,6 +3,7 @@
      <link rel="stylesheet" href="../assets/site.css">
      <script src="../assets/site.js"></script>
 
+   0. Maths: the MathJax settings every page shares.
    1. Theme: follows the system setting until the reader picks light or dark with the header
       button; the choice is remembered. Applied before the page paints, hence the <head> load.
    2. Site header: brand, a link to each module (from manifest.js) and the theme button.
@@ -19,6 +20,16 @@
   const store = {
     get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
     set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} },
+  };
+
+  // ---------- 0. maths ----------
+  // One MathJax configuration for the site. A page with equations loads MathJax after this
+  // file; pages without them get it on demand from ask-gemini.js. The scale is below 1 because
+  // MathJax's maths font runs visibly larger than IBM Plex Sans at the same font size.
+  if (!window.MathJax) window.MathJax = {
+    tex: {inlineMath: [['\\(','\\)'], ['$','$']], displayMath: [['\\[','\\]'], ['$$','$$']], tags: 'none'},
+    svg: {fontCache: 'global', matchFontHeight: false, scale: 0.92, mtextInheritFont: true},
+    options: {skipHtmlTags: ['script','noscript','style','textarea','pre','code']},
   };
 
   // ---------- 1. theme ----------
