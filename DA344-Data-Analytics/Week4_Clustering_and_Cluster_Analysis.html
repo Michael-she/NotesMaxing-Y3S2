@@ -195,8 +195,9 @@
   <text x="150" y="248" fill="#1d4e89" font-weight="650">Euclidean = &radic;13 &asymp; 3.6</text>
   <text x="262" y="90" fill="#1a1a1a">Manhattan = 2 + 3 = 5</text>
 </svg>
-<figcaption><b>Figure 2.1</b> — Euclidean distance is the straight-line (&ldquo;as the crow flies&rdquo;) distance between two points; Manhattan distance is the sum of axis-aligned steps. For a (2, 5) and b (4, 2): Euclidean = &radic;((4&minus;2)&sup2; + (2&minus;5)&sup2;) = &radic;13 &asymp; 3.6, Manhattan = |4&minus;2| + |2&minus;5| = 5.</figcaption>
+<figcaption><b>Figure 2.1</b> — Euclidean distance (straight line) and Manhattan distance (axis-aligned steps) between two points.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 2.1:</b> For a (2, 5) and b (4, 2): Euclidean = &radic;((4&minus;2)&sup2; + (2&minus;5)&sup2;) = &radic;13 &asymp; 3.6, Manhattan = |4&minus;2| + |2&minus;5| = 5.</p>
 
 <h3>2.2 Binary features: simple matching proportion</h3>
 <p>For instances described by <var>m</var> binary features, the distance can be the <strong>proportion of features that are not equal</strong> (simple matching):</p>
@@ -308,8 +309,9 @@
   <text x="780" y="245" text-anchor="middle" fill="#1a1a1a" font-weight="650">Ordered dissimilarity image</text>
   <text x="780" y="263" text-anchor="middle" fill="#555">3 diagonal blocks &rarr; try k = 3</text>
 </svg>
-<figcaption><b>Figure 4.1</b> — Cluster-tendency intuition. Left: uniformly scattered points (Hopkins &asymp; 0.5, no diagonal blocks in the ODI) — clustering would only invent groups. Right: three compact groups (Hopkins close to 1). In an ODI, low-dissimilarity blocks along the diagonal (light squares) reveal candidate clusters and suggest how many.</figcaption>
+<figcaption><b>Figure 4.1</b> — Cluster-tendency intuition.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 4.1:</b> Left: uniformly scattered points (Hopkins &asymp; 0.5, no diagonal blocks in the ODI) — clustering would only invent groups. Right: three compact groups (Hopkins close to 1). In an ODI, low-dissimilarity blocks along the diagonal (light squares) reveal candidate clusters and suggest how many.</p>
 
 <div class="box intuition"><span class="label">Intuition</span>
 <p>Worked reasoning of the kind asked in the study guide (Q6): a scatter plot that is broadly scattered with no visible groups, a Hopkins statistic of 0.51, and an ODI without block structure all agree — that data set has no meaningful cluster structure, and clustering it is not appropriate. A data set with Hopkins 0.89 and three diagonal ODI blocks does contain structure, and <var>k</var> = 3 is a sensible first value to investigate. Assessing tendency first avoids spending effort interpreting clusters that are pure artefacts.</p>
@@ -381,8 +383,9 @@
     <path d="M180 140 L 192 90" stroke="#1d4e89" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#w4-km)" fill="none"/>
   </g>
 </svg>
-<figcaption><b>Figure 5.1</b> — One K-means cycle. Panel 1: two initial centroids (squares). Panel 2: every point joins the cluster of its nearest centroid — the circled point is temporarily misassigned because the initial centroids were poorly placed. Panel 3: centroids move to the mean of their members; distances are recomputed and the misassigned point switches back to the correct cluster. Repeat until no instance changes cluster.</figcaption>
+<figcaption><b>Figure 5.1</b> — One K-means cycle.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 5.1:</b> Panel 1: two initial centroids (squares). Panel 2: every point joins the cluster of its nearest centroid — the circled point is temporarily misassigned because the initial centroids were poorly placed. Panel 3: centroids move to the mean of their members; distances are recomputed and the misassigned point switches back to the correct cluster. Repeat until no instance changes cluster.</p>
 
 <h3>5.2 Sensitivity to initialisation and K-means++</h3>
 
@@ -549,8 +552,9 @@
   <text x="390" y="310" text-anchor="middle" fill="#1d4e89" font-weight="650">cluster 2</text>
   <text x="550" y="310" text-anchor="middle" fill="#1d4e89" font-weight="650">cluster 3</text>
 </svg>
-<figcaption><b>Figure 7.1</b> — A dendrogram built by agglomerative clustering. d1 and d2 merge first (lowest bar, most similar), then d4 and d5, then {d1,d2} with d3, then {d4,d5} with d6, and finally everything into one cluster. Cutting horizontally at the dashed line crosses three vertical lines, giving k = 3 clusters: {d1,d2,d3}, {d4,d5} and {d6}. Cutting higher or lower yields fewer or more clusters.</figcaption>
+<figcaption><b>Figure 7.1</b> — A dendrogram built by agglomerative clustering.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 7.1:</b> d1 and d2 merge first (lowest bar, most similar), then d4 and d5, then {d1,d2} with d3, then {d4,d5} with d6, and finally everything into one cluster. Cutting horizontally at the dashed line crosses three vertical lines, giving k = 3 clusters: {d1,d2,d3}, {d4,d5} and {d6}. Cutting higher or lower yields fewer or more clusters.</p>
 
 <div class="box intuition"><span class="label">Advantages and limitations</span>
 <p><strong>Hierarchical vs partition-based.</strong> Advantage: no need to fix <var>k</var> in advance — the dendrogram exposes every possible number of clusters, and a cut can be chosen afterwards; the hierarchy itself is informative. Limitation: computationally more expensive than K-means, and once two clusters are merged the decision can never be undone (a bad early merge contaminates everything above it). K-means is fast and simple but needs <var>k</var> up front, is sensitive to initialisation, and finds only one flat partition.</p>
@@ -646,8 +650,9 @@
   <text x="330" y="326" text-anchor="middle" fill="#555">on the boundary</text>
   <text x="580" y="326" text-anchor="middle" fill="#555">well matched</text>
 </svg>
-<figcaption><b>Figure 8.1</b> — Silhouette geometry. a(i) is the mean distance from instance d<sub>i</sub> to the other members of its own cluster; b(i) is the mean distance to the nearest neighbouring cluster. s(i) = (b&minus;a)/max(a,b): close to +1 the instance is firmly in its cluster, near 0 it sits between clusters, and negative values mean it is, on average, closer to the other cluster. Bottom: the interpretation scale.</figcaption>
+<figcaption><b>Figure 8.1</b> — Silhouette geometry.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 8.1:</b> a(i) is the mean distance from instance d<sub>i</sub> to the other members of its own cluster; b(i) is the mean distance to the nearest neighbouring cluster. s(i) = (b&minus;a)/max(a,b): close to +1 the instance is firmly in its cluster, near 0 it sits between clusters, and negative values mean it is, on average, closer to the other cluster. Bottom: the interpretation scale.</p>
 
 <div class="box exam"><span class="label">Worked example — silhouette values (study guide Q2)</span>
 <p>Two clusterings of the oil-well data are compared: <var>k</var> = 2 and <var>k</var> = 3. For each instance, <var>a</var>(<var>i</var>) and <var>b</var>(<var>i</var>) are given; compute <var>s</var>(<var>i</var>) = (<var>b</var>&minus;<var>a</var>)/max(<var>a</var>,<var>b</var>).</p>

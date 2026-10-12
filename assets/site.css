@@ -140,6 +140,8 @@ footer code{font-size:.9em}
 figure{margin:1.6em 0;background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:14px 14px 10px;overflow-x:auto}
 figcaption{font-size:13.5px;color:var(--ink-2);margin-top:8px;line-height:1.5}
 figcaption b{color:var(--ink)}
+/* captions stay short; anything longer is a note under the figure that names it */
+.fignote{font-size:15px;line-height:1.6;margin:-.7em 0 1.8em;padding-left:14px;border-left:2px solid var(--rule)}
 figure>svg{display:block;width:100%;max-width:680px;height:auto;margin:0 auto}
 svg.fig{width:100%;max-width:none;height:auto;min-width:520px;display:block}
 svg.fig.small{min-width:380px;max-width:460px;margin:0 auto}

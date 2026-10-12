@@ -182,8 +182,9 @@ the instance <em>lemur</em> (gives_birth = yes, body_temperature = warm, &hellip
   <text x="538" y="241" text-anchor="middle" fill="#1a1a1a">conjunct 2 false: not triggered</text>
   <text x="538" y="258" text-anchor="middle" fill="#555">rule makes no prediction</text>
 </svg>
-<figcaption><b>Figure 6.1</b> &mdash; Anatomy of a classification rule. The antecedent is a conjunction of feature tests (conjuncts); the consequent is the predicted class. Instance A satisfies every conjunct, so the rule triggers and predicts <em>Reject</em>; instance B fails one conjunct, so the rule does not trigger.</figcaption>
+<figcaption><b>Figure 6.1</b> &mdash; Anatomy of a classification rule.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 6.1:</b> The antecedent is a conjunction of feature tests (conjuncts); the consequent is the predicted class. Instance A satisfies every conjunct, so the rule triggers and predicts <em>Reject</em>; instance B fails one conjunct, so the rule does not trigger.</p>
 
 <div class="box intuition"><span class="label">Intuition</span>
 <p>
@@ -273,8 +274,9 @@ prediction) supplies the prediction when no rule triggers.
   <text x="340" y="360" text-anchor="middle" fill="#ffffff" >default rule:</text>
   <text x="340" y="374" text-anchor="middle" fill="#ffffff" >predict default class</text>
 </svg>
-<figcaption><b>Figure 6.2</b> &mdash; Decision flow of an <b>ordered</b> rule set (decision list). Rules are tested in priority order; the first rule that triggers fixes the prediction and the process stops. An instance that triggers no rule falls through to the default rule, so every instance receives a prediction.</figcaption>
+<figcaption><b>Figure 6.2</b> &mdash; Decision flow of an <b>ordered</b> rule set (decision list).</figcaption>
 </figure>
+<p class="fignote"><b>Figure 6.2:</b> Rules are tested in priority order; the first rule that triggers fixes the prediction and the process stops. An instance that triggers no rule falls through to the default rule, so every instance receives a prediction.</p>
 
 <p>
 In an ordered set, rule <em>position</em> is part of the model: a rule that appears earlier overrides
@@ -614,8 +616,9 @@ Key properties of this scheme:
   <circle cx="486" cy="325" r="6" fill="#d8d8d8" stroke="#1a1a1a"/>
   <text x="498" y="329" fill="#1a1a1a" >class b</text>
 </svg>
-<figcaption><b>Figure 6.3</b> &mdash; Covering (separate-and-conquer) in a two-dimensional instance space, mirroring Witten et al. Figure 4.6(a). The first rule for class <em>a</em> adds the test x &gt; 1.2, then y &gt; 2.6, carving out a rectangular region that covers most <em>a</em>&rsquo;s while excluding <em>b</em>&rsquo;s; a second rule covers the remaining <em>a</em>. Each conjunct is an axis-aligned cut, so every rule corresponds to a rectangle; covered instances are then removed and the next rule is learned on the remainder.</figcaption>
+<figcaption><b>Figure 6.3</b> &mdash; Covering (separate-and-conquer) in a two-dimensional instance space.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 6.3:</b> This mirrors Witten et al. Figure 4.6(a). The first rule for class <em>a</em> adds the test x &gt; 1.2, then y &gt; 2.6, carving out a rectangular region that covers most <em>a</em>&rsquo;s while excluding <em>b</em>&rsquo;s; a second rule covers the remaining <em>a</em>. Each conjunct is an axis-aligned cut, so every rule corresponds to a rectangle; covered instances are then removed and the next rule is learned on the remainder.</p>
 
 <h3>PRISM: learning one rule</h3>
 
@@ -709,8 +712,9 @@ default rule is used, in which case explicit rules for the final class are unnec
   <rect x="320" y="474" width="12" height="12" fill="#d8d8d8"/>
   <text x="338" y="484" fill="#555" >other classes</text>
 </svg>
-<figcaption><b>Figure 6.4</b> &mdash; PRISM rule construction on the contact-lens data (target class <em>hard</em>). Left: candidate first conjuncts scored by the fraction of target-class instances they cover; the maximum (4/12, a tie resolved arbitrarily) is added to the rule. Right: as conjuncts accumulate, the covered set narrows from 24 instances to 3 while accuracy climbs from about 17% to 100% &mdash; progressive narrowing of covered instances is the core mechanism of PRISM.</figcaption>
+<figcaption><b>Figure 6.4</b> &mdash; PRISM rule construction on the contact-lens data (target class <em>hard</em>).</figcaption>
 </figure>
+<p class="fignote"><b>Figure 6.4:</b> Left: candidate first conjuncts scored by the fraction of target-class instances they cover; the maximum (4/12, a tie resolved arbitrarily) is added to the rule. Right: as conjuncts accumulate, the covered set narrows from 24 instances to 3 while accuracy climbs from about 17% to 100% &mdash; progressive narrowing of covered instances is the core mechanism of PRISM.</p>
 
 <div class="box exam"><span class="label">Worked example &mdash; PRISM condition selection (study guide Question 5)</span>
 <p>PRISM is constructing a rule for the target class <code>Quality = Reject</code>. Candidate conditions and their target/non-target counts:</p>
@@ -932,8 +936,9 @@ the example is the mechanism (support filtering, then confidence filtering), not
   <text x="24" y="262" fill="#555" >At minimum accuracy 100% this rule is discarded, but the rule with antecedent</text>
   <text x="24" y="278" fill="#555" >(humidity = normal and windy = false) has confidence 4/4 = 100% and is kept.</text>
 </svg>
-<figcaption><b>Figure 6.5</b> &mdash; Support and confidence for association rules. Each square is one instance (day). The itemset {humidity = normal, windy = false, play = yes} has support 4 (dark squares). The rule&rsquo;s confidence divides that support by the support of its antecedent (all light + dark squares, 7), giving 4/7. Only rules meeting both the minimum support and minimum confidence thresholds survive.</figcaption>
+<figcaption><b>Figure 6.5</b> &mdash; Support and confidence for association rules.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 6.5:</b> Each square is one instance (day). The itemset {humidity = normal, windy = false, play = yes} has support 4 (dark squares). The rule&rsquo;s confidence divides that support by the support of its antecedent (all light + dark squares, 7), giving 4/7. Only rules meeting both the minimum support and minimum confidence thresholds survive.</p>
 
 <div class="box intuition"><span class="label">Intuition</span>
 <p>

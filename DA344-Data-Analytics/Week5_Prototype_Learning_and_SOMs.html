@@ -156,8 +156,9 @@
   <line x1="150" y1="208" x2="458" y2="204" stroke="#d8d8d8" stroke-width="1"/>
   <text x="300" y="30" text-anchor="middle" fill="#555" >fully connected weight matrix u (associations stored in the weights)</text>
 </svg>
-<figcaption><b>Figure 5.1</b> — Structure of an associative memory neural network: a two-layer, fully connected network in which the weight matrix stores pattern associations; a partial or noisy input cue still recalls the associated output pattern.</figcaption>
+<figcaption><b>Figure 5.1</b> — Structure of an associative memory neural network.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 5.1:</b> A two-layer, fully connected network in which the weight matrix stores pattern associations; a partial or noisy input cue still recalls the associated output pattern.</p>
 
 <h3>Background learning rules (Engelbrecht &sect;4.2&ndash;4.3)</h3>
 <p>Engelbrecht develops associative learning through two classic rules, which you should know as background:</p>
@@ -307,8 +308,9 @@
   <text x="400" y="236" fill="#1d4e89" font-weight="bold">&#8730;2 &#8776; 1.41 &mdash; winner</text>
   <text x="400" y="254" fill="#1d4e89">new w2 = (4.8, 3.8)</text>
 </svg>
-<figcaption><b>Figure 5.2</b> — LVQ1 geometry for the worked example: the input x = (4,3) is compared with all three prototypes by Euclidean distance; the closest prototype (w2) wins and is moved towards x by a fraction &alpha; of the gap. Non-winning prototypes stay put.</figcaption>
+<figcaption><b>Figure 5.2</b> — LVQ1 geometry for the worked example.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 5.2:</b> The input x = (4,3) is compared with all three prototypes by Euclidean distance; the closest prototype (w2) wins and is moved towards x by a fraction &alpha; of the gap. Non-winning prototypes stay put.</p>
 
 <div class="box exam"><span class="label">Worked example 1 — LVQ1 winner and update</span>
 <p><strong>Setup.</strong> Prototypes w1 = (1,2), w2 = (5,4), w3 = (7,7); input x = (4,3); learning rate &alpha; = 0.2; Euclidean distance.</p>
@@ -443,8 +445,9 @@
   <text x="430" y="320" text-anchor="middle" fill="#555" >map neurons on a K &#215; J grid, each with a codebook vector w</text>
   <text x="390" y="26" text-anchor="middle" fill="#1d4e89" >neighbourhood of the BMU</text>
 </svg>
-<figcaption><b>Figure 5.3</b> — SOM architecture: every input feature connects to every map neuron. For a presented input, the neuron whose codebook vector is closest becomes the BMU (dark); its grid neighbours (dashed outline) collaborate during the update.</figcaption>
+<figcaption><b>Figure 5.3</b> — SOM architecture: every input feature connects to every map neuron.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 5.3:</b> For a presented input, the neuron whose codebook vector is closest becomes the BMU (dark); its grid neighbours (dashed outline) collaborate during the update.</p>
 
 <p class="reading"><b>Reading</b> &nbsp;Engelbrecht &sect;4.5 (introduction) — motivation from the cerebral cortex, the SOM as multidimensional scaling, and map structure. Lecture: Topic 5, &ldquo;Self-organising map: Definition&rdquo;.</p>
 </section>
@@ -599,8 +602,9 @@
   <text x="530" y="316" fill="#555" >3</text>
   <text x="582" y="316" fill="#555" >4</text>
 </svg>
-<figcaption><b>Figure 5.4</b> — Gaussian neighbourhood for a 5&times;5 map with winner at (2,2) and &sigma; = 2 (left): shading shows the update factor of each cell — brightest at the BMU, decaying with grid distance. Right: the decay of h = exp(&minus;d&sup2;/2&sigma;&sup2;) with grid distance d: d = 0 &rarr; 1.000, d = 1 &rarr; 0.882, d = &radic;2 &rarr; 0.779, d = 2 &rarr; 0.607, d = 3 &rarr; 0.325.</figcaption>
+<figcaption><b>Figure 5.4</b> — Gaussian neighbourhood on a 5&times;5 map, and its decay with grid distance.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 5.4:</b> Left: winner at (2,2) with &sigma; = 2; shading shows the update factor of each cell, brightest at the BMU and decaying with grid distance. Right: h = exp(&minus;d&sup2;/2&sigma;&sup2;) against grid distance d: d = 0 &rarr; 1.000, d = 1 &rarr; 0.882, d = &radic;2 &rarr; 0.779, d = 2 &rarr; 0.607, d = 3 &rarr; 0.325.</p>
 
 <div class="box exam"><span class="label">Worked example 2 — finding the winning neuron of a SOM</span>
 <p>A 5&times;5 SOM represents colours; each neuron's weight vector holds RGB values (study guide Question 5):</p>
@@ -691,8 +695,9 @@
   <text x="175" y="270" text-anchor="middle" fill="#555">early: coarse ordering</text>
   <text x="480" y="270" text-anchor="middle" fill="#555">late: local fine-tuning</text>
 </svg>
-<figcaption><b>Figure 5.5</b> — Training schedule: both the learning rate &eta;(t) (solid) and the neighbourhood width &sigma;(t) (dashed) start large and decay exponentially, so training moves from global ordering to local refinement.</figcaption>
+<figcaption><b>Figure 5.5</b> — Training schedule: learning rate and neighbourhood width over time.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 5.5:</b> Both the learning rate &eta;(t) (solid) and the neighbourhood width &sigma;(t) (dashed) start large and decay exponentially, so training moves from global ordering to local refinement.</p>
 
 <h3>Improving convergence and computational efficiency</h3>
 <p>SOM training is computationally expensive: for every training instance the distance to many codebook vectors must be computed to find the BMU, and the neighbourhood codebook vectors must then be updated. Three standard remedies:</p>
@@ -790,8 +795,9 @@
   <text x="340" y="182" fill="#555">valleys (low) = clusters,</text>
   <text x="340" y="204" fill="#555">ridges (high) = cluster boundaries.</text>
 </svg>
-<figcaption><b>Figure 5.6</b> — U-matrix schematic for the 4&times;4 example: columns 1&ndash;2 and 4 show low average neighbour distances (similar neurons), while column 3 forms a vertical band of high distances — a boundary separating two clusters.</figcaption>
+<figcaption><b>Figure 5.6</b> — U-matrix schematic for the 4&times;4 example.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 5.6:</b> Columns 1&ndash;2 and 4 show low average neighbour distances (similar neurons), while column 3 forms a vertical band of high distances: a boundary separating two clusters.</p>
 
 <div class="box exam"><span class="label">Worked example 4 — interpreting a U-matrix</span>
 <p>A trained 4&times;4 SOM; the table gives the average distance between each neuron and its neighbours (study guide Question 9):</p>

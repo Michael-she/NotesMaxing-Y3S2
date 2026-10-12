@@ -299,8 +299,9 @@
   <text x="340" y="250" text-anchor="middle" fill="#1a1a1a">Whiskers show the spread of the lower and upper quarters;</text>
   <text x="340" y="266" text-anchor="middle" fill="#1a1a1a">points beyond them are plotted individually as outliers.</text>
 </svg>
-<figcaption><b>Figure 6.1</b> — Anatomy of a box plot: the box spans Q1 to Q3 (the middle 50% of values), the thick line marks the median, the whiskers show the spread of the lower and upper quarters, and isolated points beyond the whiskers are outliers. Symmetry of the box and whiskers indicates a symmetric distribution; a lopsided box with unequal whiskers indicates skew.</figcaption>
+<figcaption><b>Figure 6.1</b> — Anatomy of a box plot.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 6.1:</b> The box spans Q1 to Q3 (the middle 50% of values), the thick line marks the median, the whiskers show the spread of the lower and upper quarters, and isolated points beyond the whiskers are outliers. Symmetry of the box and whiskers indicates a symmetric distribution; a lopsided box with unequal whiskers indicates skew.</p>
 
 <p>While compact, a box plot <b>cannot identify distributions with multiple peaks</b> (modes). To detect multimodality, use a histogram or a <b>violin plot</b> — a compact density-based visualisation that retains histogram-like characteristics (a density curve and its mirror image), optionally with the quartiles and median added.</p>
 
@@ -378,8 +379,9 @@
   <path d="M455 238 H 495" stroke="#1d4e89" stroke-width="1.5" marker-end="url(#w2-arrsel)"/>
   <text x="340" y="300" text-anchor="middle" fill="#1a1a1a" >Select the visualisation and the measure of association from the data types of the two features.</text>
 </svg>
-<figcaption><b>Figure 7.1</b> — Visualisation-selection guide for bivariate exploration. Each combination of feature types maps to a default plot and an appropriate measure or test of association. When a continuous feature is paired with a categorical one (including a binary target), split the continuous feature by the categorical levels and compare distributions; when both are categorical, tabulate counts and test independence.</figcaption>
+<figcaption><b>Figure 7.1</b> — Visualisation-selection guide for bivariate exploration.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 7.1:</b> Each combination of feature types maps to a default plot and an appropriate measure or test of association. When a continuous feature is paired with a categorical one (including a binary target), split the continuous feature by the categorical levels and compare distributions; when both are categorical, tabulate counts and test independence.</p>
 
 <p>The following three sections work through the rows of Figure 7.1 in detail.</p>
 </section>
@@ -464,8 +466,9 @@
   <text x="557" y="30" text-anchor="middle" fill="#1a1a1a" font-weight="bold">outlier-driven</text>
   <text x="557" y="222" text-anchor="middle" fill="#1a1a1a" >one extreme point inflates r</text>
 </svg>
-<figcaption><b>Figure 8.1</b> — Three relationships that correlation summarises very differently. Left: a strong positive linear trend — <var>r</var> close to +1 is an honest summary. Middle: a clear U-shaped relationship whose correlation is close to 0 — <var>r</var> is blind to non-linear form. Right: a flat cloud of points plus one extreme observation, which alone can inflate <var>r</var> and create the illusion of a relationship. In every case the scatter plot, not <var>r</var> alone, is the basis for interpretation.</figcaption>
+<figcaption><b>Figure 8.1</b> — Three relationships that correlation summarises very differently.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 8.1:</b> Left: a strong positive linear trend — <var>r</var> close to +1 is an honest summary. Middle: a clear U-shaped relationship whose correlation is close to 0 — <var>r</var> is blind to non-linear form. Right: a flat cloud of points plus one extreme observation, which alone can inflate <var>r</var> and create the illusion of a relationship. In every case the scatter plot, not <var>r</var> alone, is the basis for interpretation.</p>
 
 <div class="box exam"><span class="label">Worked example — interpreting a strong positive correlation</span>
 <p><b>Setting.</b> Exploring ten weekly machine assessments, the scatter plot of <em>average vibration</em> against <em>maximum temperature</em> shows points tightly clustered around an upward-sloping straight line, and the computed correlation is strongly positive (close to +1).</p>
@@ -577,8 +580,9 @@
   <text x="616" y="104" text-anchor="middle" fill="#1a1a1a">interpret pattern</text>
   <text x="340" y="155" text-anchor="middle" fill="#1a1a1a">Large &#967;&#178; (observed far from expected) &#8594; small p-value &#8594; evidence of association.</text>
 </svg>
-<figcaption><b>Figure 10.1</b> — Chi-square workflow: tabulate the observed counts, compute the expected counts under independence from the row and column totals, combine the cell-wise deviations into the &chi;&sup2; statistic, compare it with the &chi;&sup2; distribution using df = (<var>r</var>&minus;1)(<var>c</var>&minus;1), and draw a conclusion about association.</figcaption>
+<figcaption><b>Figure 10.1</b> — The chi-square workflow.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 10.1:</b> Tabulate the observed counts, compute the expected counts under independence from the row and column totals, combine the cell-wise deviations into the &chi;&sup2; statistic, compare it with the &chi;&sup2; distribution using df = (<var>r</var>&minus;1)(<var>c</var>&minus;1), and draw a conclusion about association.</p>
 
 <div class="box exam"><span class="label">Worked example — chi-square test of independence</span>
 <p><b>Setting.</b> Three machine types (A, B, C), 200 machines of each type, are observed for failure in the next seven days:</p>

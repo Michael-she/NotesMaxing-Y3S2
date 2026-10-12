@@ -302,8 +302,9 @@
   <text x="350" y="406" text-anchor="middle" fill="#1a1a1a">adding a missing-value indicator</text>
   <text x="350" y="448" text-anchor="middle" fill="#555555">Whatever the choice: record it in the data quality plan and validate the result.</text>
 </svg>
-<figcaption><b>Figure 3.1</b> — Decision flowchart for a feature with missing values. Informative missingness is preserved (retain or impute + indicator); otherwise the choice between removing the feature, removing instances, or imputing depends on how much is missing, how informative the feature is, and how much data can be spared. The % missing is one input to this decision, never the only one.</figcaption>
+<figcaption><b>Figure 3.1</b> — Decision flowchart for a feature with missing values.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 3.1:</b> Informative missingness is preserved (retain or impute + indicator); otherwise the choice between removing the feature, removing instances, or imputing depends on how much is missing, how informative the feature is, and how much data can be spared. The % missing is one input to this decision, never the only one.</p>
 
 <div class="qa">
 <p><span class="qnum">Worked example 4.</span> <strong>Choosing missing-value responses (study guide Q2 data).</strong> An ABT predicts whether an industrial machine fails within the next 7 days; one row = one machine at a weekly assessment date.</p>
@@ -560,8 +561,9 @@
   <rect x="20" y="320" width="660" height="30" rx="6" fill="#e8eef6" stroke="#1d4e89"/>
   <text x="350" y="340" text-anchor="middle" fill="#1a1a1a">Resample the TRAINING data only — never artificially balance validation or test data</text>
 </svg>
-<figcaption><b>Figure 3.2</b> — Four standard responses to an imbalanced categorical target. All four operate on the training data only; validation and test sets keep the true class proportions so that performance estimates stay honest.</figcaption>
+<figcaption><b>Figure 3.2</b> — Four standard responses to an imbalanced categorical target.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 3.2:</b> All four operate on the training data only; validation and test sets keep the true class proportions so that performance estimates stay honest.</p>
 
 <div class="qa">
 <p><span class="qnum">Worked example (imbalance arithmetic).</span> The ABT has 5&nbsp;200 instances: 4&nbsp;992 &ldquo;No failure&rdquo; (96%) and 208 &ldquo;Failure&rdquo; (4%).</p>
@@ -730,8 +732,9 @@
   <text x="475" y="262" fill="#555555">the training max lands outside [0,1]. Standardised values</text>
   <text x="475" y="279" fill="#555555">may legitimately exceed ±1 (e.g. z = 3.0).</text>
 </svg>
-<figcaption><b>Figure 3.3</b> — Left: a log transform pulls in the long right tail of a skewed distribution, making it more symmetric. Right: min–max normalisation bounds values to [0,1] and is dominated by the extremes, while standardisation centres on mean 0 with unit standard deviation and no fixed bounds.</figcaption>
+<figcaption><b>Figure 3.3</b> — Three transformations of a continuous feature: log, min&ndash;max normalisation and standardisation.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 3.3:</b> Left: a log transform pulls in the long right tail of a skewed distribution, making it more symmetric. Right: min&ndash;max normalisation bounds values to [0,1] and is dominated by the extremes, while standardisation centres on mean 0 with unit standard deviation and no fixed bounds.</p>
 
 <div class="qa">
 <p><span class="qnum">Worked example 1.</span> <strong>Min–max normalisation with a new observation (study guide Q6 data).</strong> Training values: Vibration = 2.0, 4.0, 6.0, 8.0 and Days since maintenance = 10, 30, 50, 70.</p>
@@ -821,8 +824,9 @@
   <text x="30" y="162" fill="#1a1a1a">LEAK: estimating parameters from</text>
   <text x="30" y="179" fill="#1a1a1a">held-out or full data</text>
 </svg>
-<figcaption><b>Figure 3.4</b> — Leakage-free preparation. All preparation parameters are fitted on the training data and the identical rules are applied to validation, test and future data (solid path). If held-out data influence the parameters (dashed path), information about the evaluation data leaks into the model and performance estimates become optimistically biased.</figcaption>
+<figcaption><b>Figure 3.4</b> — Leakage-free preparation.</figcaption>
 </figure>
+<p class="fignote"><b>Figure 3.4:</b> All preparation parameters are fitted on the training data and the identical rules are applied to validation, test and future data (solid path). If held-out data influence the parameters (dashed path), information about the evaluation data leaks into the model and performance estimates become optimistically biased.</p>
 
 <div class="box watch"><span class="label">Common mistake</span>
 <p>Running imputation, scaling or resampling on the <em>whole</em> table before splitting into training/validation/test. Even though no labels are used, the distributions of the held-out rows have then shaped the preparation — a subtle but real leak. Split first; fit preparation on the training part only.</p>
