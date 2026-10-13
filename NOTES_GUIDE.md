@@ -185,5 +185,5 @@ the page.
 3. Every side-menu link lands on its section, and the back link opens the right module.
 4. Every formula box has its annotation list, and every figure has a one-sentence caption.
 5. Nothing scrolls sideways at phone width except wide tables and figures inside their own boxes.
-6. The Ask Gemini button appears and `data-store` is unique.
+6. The Ask The Lovely Lady button appears and `data-store` is unique.
 7. Run `python build_manifest.py`, then commit the page and `manifest.js`.

@@ -77,9 +77,9 @@ and this skeleton: `<div class="wrap">`, holding `<nav class="toc">` (the side m
 <dl class="terms"><dt>term</dt><dd>What it means.</dd></dl>
 ```
 
-## Ask Gemini panel
+## Chat panel (The Lovely Lady)
 
-Every notes page has a chat panel that sends questions, plus any text you select in the notes, to Google Gemini. Click **Ask Gemini** (or press Ctrl+K), select lines in the notes to attach them, and press Ctrl+Enter to send. The API key stays on the server and never reaches the browser.
+Every notes page has a chat panel, named The Lovely Lady on the site, that sends questions, plus any text you select in the notes, to Google Gemini. A line under the conversation counts the tokens used: the last reply's tokens in and out, and the total for that page's chat (New chat resets it). The problem generator shows the same count for each problem. Click **Ask The Lovely Lady** (or press Ctrl+K), select lines in the notes to attach them, and press Ctrl+Enter to send. The API key stays on the server and never reaches the browser.
 
 On a desktop-width screen the panel can be resized by dragging its left edge, or popped out with **Pop out** into a floating window that moves by its title bar and resizes from its bottom-right corner. **Dock** puts it back. The size and position are remembered.
 

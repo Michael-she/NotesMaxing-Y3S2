@@ -171,10 +171,10 @@ class Handler(SimpleHTTPRequestHandler):
                 detail = json.loads(detail)["error"]["message"]
             except Exception:
                 pass
-            self._json(err.code, {"error": f"Gemini returned {err.code}: {detail}"})
+            self._json(err.code, {"error": f"The Lovely Lady returned {err.code}: {detail}"})
             return
         except urllib.error.URLError as err:
-            self._json(502, {"error": f"Could not reach Gemini: {err.reason}"})
+            self._json(502, {"error": f"Could not reach The Lovely Lady: {err.reason}"})
             return
 
         # Relay the server-sent events stream to the page as it arrives.

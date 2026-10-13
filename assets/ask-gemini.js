@@ -1,4 +1,4 @@
-/* Ask Gemini panel for notes pages. Same panel as the CS354 Week 12 page, packaged so a page
+/* The chat panel for notes pages ("The Lovely Lady"; the model behind it is Google Gemini). Same panel as the CS354 Week 12 page, packaged so a page
    only needs one tag at the end of <body>:
 
      <script src="../assets/ask-gemini.js" data-store="da344-w2"
@@ -21,14 +21,13 @@
   document.body.insertAdjacentHTML('beforeend', `
 <button id="askBtn" type="button" aria-controls="chat" aria-expanded="false">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
-  Ask Gemini
+  Ask The Lovely Lady
 </button>
 
-<aside id="chat" hidden aria-label="Ask Gemini about these notes">
+<aside id="chat" hidden aria-label="Ask The Lovely Lady about these notes">
   <div id="chatGrip" title="Drag to resize" aria-hidden="true"></div>
   <div class="bar">
-    <h2>Ask Gemini</h2>
-    <span class="model" id="modelName"></span>
+    <h2 id="chatTitle">The Lovely Lady</h2>
     <button class="iconbtn" id="newChat" type="button" title="Clear the conversation">New chat</button>
     <button class="iconbtn" id="popChat" type="button">Pop out</button>
     <button class="iconbtn" id="closeChat" type="button" title="Close (Esc)">Close</button>
@@ -36,6 +35,7 @@
   <div class="status" id="chatStatus" hidden></div>
   <p class="hint" id="chatHint">While this panel is open, select any text in the notes (equations included) and it is attached as context for your next question.</p>
   <div id="msgs" aria-live="polite"></div>
+  <div class="tokens" id="tokens" hidden></div>
   <div id="ctx" aria-label="Attached excerpts"></div>
   <form id="composer">
     <textarea id="q" rows="2" placeholder="Ask about the notes, or about what you selected. Ctrl+Enter to send."></textarea>
@@ -226,7 +226,7 @@
       const t = document.createElement('div'); t.textContent = m.text; t.style.whiteSpace = 'pre-wrap'; d.append(t);
     } else if (m.role === 'model'){
       d.className = 'msg model';
-      d.innerHTML = '<div class="who">Gemini</div><div class="body"></div>';
+      d.innerHTML = '<div class="who">The Lovely Lady</div><div class="body"></div>';
       d.querySelector('.body').innerHTML = renderMarkdownWithMath(m.text);
     } else { d.className = 'msg err'; d.textContent = m.text; }
     return d;
@@ -242,8 +242,35 @@
   function save(){ try{ localStorage.setItem(STORE, JSON.stringify(history.slice(-40))); }catch(e){} }
   function load(){ try{ const v = JSON.parse(localStorage.getItem(STORE) || '[]'); if (Array.isArray(v)) history = v; }catch(e){} }
 
+  // ---------- token counter ----------
+  // Gemini reports what each request used: tokens read (the notes, the conversation so far, the question)
+  // and tokens written (the answer, plus any thinking). The tally is for this page's conversation.
+  const TOKENS = STORE + '-tokens', tokensEl = $('#tokens');
+  let tally = {in: 0, out: 0, lastIn: 0, lastOut: 0};
+  try{ tally = Object.assign(tally, JSON.parse(localStorage.getItem(TOKENS) || '{}')); }catch(e){}
+  function showTokens(){
+    const n = v => Number(v || 0).toLocaleString();
+    tokensEl.hidden = !(tally.in + tally.out);
+    tokensEl.textContent = 'Tokens · last reply ' + n(tally.lastIn) + ' in, ' + n(tally.lastOut) + ' out · this chat ' + n(tally.in + tally.out);
+    tokensEl.title = 'This chat: ' + n(tally.in) + ' tokens read, ' + n(tally.out) + ' written';
+  }
+  function countTokens(u){
+    if (!u) return;
+    tally.lastIn = u.promptTokenCount || 0;
+    tally.lastOut = (u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0);
+    tally.in += tally.lastIn; tally.out += tally.lastOut;
+    try{ localStorage.setItem(TOKENS, JSON.stringify(tally)); }catch(e){}
+    showTokens();
+  }
+  function resetTokens(){
+    tally = {in: 0, out: 0, lastIn: 0, lastOut: 0};
+    try{ localStorage.removeItem(TOKENS); }catch(e){}
+    showTokens();
+  }
+  showTokens();
+
   // ---------- server status ----------
-  const RUN_HELP = 'Ask Gemini cannot be reached from here. Reload the page, or if you opened this file straight from disk, use the deployed site instead.';
+  const RUN_HELP = 'The Lovely Lady cannot be reached from here. Reload the page, or if you opened this file straight from disk, use the deployed site instead.';
   async function checkServer(){
     statusEl.hidden = true;
     if (location.protocol === 'file:'){ setStatus(RUN_HELP); serverOK = false; return; }
@@ -251,7 +278,7 @@
       const r = await fetch('api/health', {cache:'no-store'});
       if (!r.ok) throw new Error();
       const h = await r.json();
-      $('#modelName').textContent = h.model || '';
+      if (h.model) $('#chatTitle').title = 'Model: ' + h.model;
       if (!h.hasKey){ setStatus('The server has no Gemini API key yet (<code>GEMINI_API_KEY</code>).'); }
       serverOK = true;
     }catch(e){ setStatus(RUN_HELP); serverOK = false; }
@@ -297,7 +324,7 @@
         try{ msg = (await r.json()).error || msg; }catch(e){}
         throw new Error(msg);
       }
-      const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '', lastPaint = 0;
+      const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '', lastPaint = 0, usage = null;
       for(;;){
         const {done, value} = await reader.read();
         if (done) break;
@@ -309,8 +336,9 @@
           try{
             const j = JSON.parse(line.slice(5));
             const parts = j.candidates?.[0]?.content?.parts || [];
+            if (j.usageMetadata) usage = j.usageMetadata;   // the last one in the stream is the final count
             for (const p of parts) if (p.text && !p.thought) live.text += p.text;
-            if (j.promptFeedback?.blockReason) live.text += '\n\n(Blocked by Gemini: ' + j.promptFeedback.blockReason + ')';
+            if (j.promptFeedback?.blockReason) live.text += '\n\n(Blocked by The Lovely Lady: ' + j.promptFeedback.blockReason + ')';
           }catch(e){}
         }
         const now = performance.now();
@@ -322,7 +350,7 @@
       if (!live.text) live.text = '(No answer came back. Try again or rephrase.)';
       liveEl.querySelector('.body').innerHTML = renderMarkdownWithMath(live.text);
       typeset(liveEl);
-      history.push(live); save();
+      history.push(live); save(); countTokens(usage);
     }catch(err){
       liveEl.remove();
       const e = {role:'error', text: String(err.message || err)};
@@ -349,7 +377,7 @@
 
   askBtn.onclick = openChat;
   $('#closeChat').onclick = closeChat;
-  $('#newChat').onclick = () => { history = []; attached = []; save(); renderChips(); renderAll(); qEl.focus(); };
+  $('#newChat').onclick = () => { history = []; attached = []; save(); resetTokens(); renderChips(); renderAll(); qEl.focus(); };
   $('#composer').addEventListener('submit', e => { e.preventDefault(); send(); });
   qEl.addEventListener('input', autosize);
   qEl.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); send(); } });

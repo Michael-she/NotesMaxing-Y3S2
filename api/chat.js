@@ -55,12 +55,12 @@ export default async function handler(req) {
       body: JSON.stringify(payload),
     });
   } catch (e) {
-    return json(502, { error: 'Could not reach Gemini.' });
+    return json(502, { error: 'Could not reach The Lovely Lady.' });
   }
   if (!upstream.ok) {
     let detail = await upstream.text();
     try { detail = JSON.parse(detail).error.message; } catch (e) {}
-    return json(upstream.status, { error: `Gemini returned ${upstream.status}: ${detail}` });
+    return json(upstream.status, { error: `The Lovely Lady returned ${upstream.status}: ${detail}` });
   }
 
   // Relay the server-sent events stream to the page as it arrives.
