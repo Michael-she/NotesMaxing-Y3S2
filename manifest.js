@@ -14,7 +14,22 @@ window.NOTES_MANIFEST = {
      "href": "CS354-Control-Systems/Week12-Digital-Control/Week12_Digital_Control_Notes.html"
     }
    ],
-   "papers": []
+   "papers": [
+    {
+     "file": "CS354_2026_A1.pdf",
+     "year": 2026,
+     "memo": false,
+     "size": 894002,
+     "href": "CS354-Control-Systems/papers/CS354_2026_A1.pdf"
+    },
+    {
+     "file": "CS354_2026_A1_Memo.pdf",
+     "year": 2026,
+     "memo": true,
+     "size": 1730953,
+     "href": "CS354-Control-Systems/papers/CS354_2026_A1_Memo.pdf"
+    }
+   ]
   },
   {
    "id": "vibration",
