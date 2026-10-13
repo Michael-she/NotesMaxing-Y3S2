@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problem generator · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+</head>
+<body>
+<!-- Problem generator for one module: problems.html?m=<id>, with ids from modules.json.
+     Gemini writes a new problem and a worked solution from a description, the ticked notes and
+     past papers, and any attached files. Requests go through api/chat, like the Ask Gemini panel.
+     Generated problems are kept in this browser's localStorage under "notes-problems". -->
+<div class="wrap solo">
+<main>
+<header class="top">
+  <a class="home" id="back" href="index.html">&larr; Modules</a>
+  <div class="kicker" id="code"></div>
+  <h1>Problem generator</h1>
+  <p id="intro">Describe a problem. Gemini writes a new one with a worked solution, using the notes and files you attach.</p>
+</header>
+
+<ul class="rows" id="modules" hidden></ul>
+
+<form class="gen" id="gen" hidden>
+  <div>
+    <label class="lab" for="topic">What should the problem be about?</label>
+    <textarea id="topic" placeholder="e.g. Design a lead compensator by emulation and find its difference equation, exam difficulty. Ctrl+Enter to generate."></textarea>
+  </div>
+  <fieldset>
+    <legend>Notes</legend>
+    <div class="pick" id="notes"></div>
+  </fieldset>
+  <fieldset>
+    <legend>Past papers</legend>
+    <div class="pick" id="papers"></div>
+  </fieldset>
+  <div>
+    <label class="lab" for="files">Tutorials and other files</label>
+    <input id="files" type="file" multiple accept=".pdf,.txt,.md,.tex,.csv,image/*">
+    <div class="pick" id="fileList" hidden></div>
+    <p class="hint">PDFs, images and text files. Attachments are limited to about 3 MB per problem.</p>
+  </div>
+  <div class="go">
+    <button class="btn primary" id="go" type="submit" title="Generate (Ctrl+Enter)">Generate problem</button>
+    <span class="gen-status" id="status" role="status"></span>
+  </div>
+</form>
+
+<article class="prob" id="out" hidden>
+  <h2 id="pTitle"></h2>
+  <p class="meta" id="pMeta"></p>
+  <div id="pBody"></div>
+  <div class="acts">
+    <button class="btn" id="showSol" type="button" aria-expanded="false">Show worked solution</button>
+    <button class="btn" id="again" type="button" title="Generate a different problem from the same request">Another like this</button>
+    <button class="btn" id="del" type="button">Delete</button>
+  </div>
+  <div class="sol" id="pSol" hidden></div>
+</article>
+
+<section class="mod" id="savedSec" hidden>
+  <h2>Saved problems</h2>
+  <ul class="rows" id="saved"></ul>
+  <p class="none" id="noSaved">Nothing saved yet. Every problem you generate is kept here.</p>
+  <div class="acts">
+    <button class="btn" id="export" type="button" title="Download every saved problem as one file">Export</button>
+    <button class="btn" id="import" type="button" title="Add problems from an exported file">Import</button>
+    <input id="importFile" type="file" accept=".json,application/json" hidden>
+  </div>
+  <p class="hint">Saved problems live in this browser. Use Export and Import to move them to another device.</p>
+</section>
+<noscript><p class="none">This page needs JavaScript.</p></noscript>
+</main>
+</div>
+
+<script src="manifest.js"></script>
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const modules = (window.NOTES_MANIFEST && window.NOTES_MANIFEST.modules) || [];
+  const id = new URLSearchParams(location.search).get('m');
+  const mod = modules.find(m => m.id === id);
+
+  function el(tag, cls, text){
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  const url = href => href.split('/').map(encodeURIComponent).join('/');
+  const size = b => b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' kB';
+  const paperLabel = p => p.file.replace(/\.pdf$/i, '').replace(/_/g, ' ');
+  const noteLabel = n => (n.week != null ? 'Week ' + n.week + ': ' : '') + n.title + (n.track ? ' (' + n.track + ')' : '');
+
+  // Without a module in the address, offer the list of modules.
+  if (!mod){
+    const list = $('#modules'); list.hidden = false;
+    $('#intro').textContent = 'Pick a module to write problems for.';
+    modules.forEach(m => {
+      const a = el('a', 'row'); a.href = 'problems.html?m=' + encodeURIComponent(m.id);
+      a.append(el('span', 'w', m.code || ''), el('span', 't', m.name), el('span', 'm', ''));
+      const li = el('li'); li.append(a); list.append(li);
+    });
+    return;
+  }
+  const course = (mod.code ? mod.code + ' ' : '') + mod.name;
+  document.title = 'Problems · ' + mod.name + ' · notesmaxing';
+  $('#back').href = 'module.html?m=' + encodeURIComponent(mod.id);
+  $('#back').textContent = '← ' + mod.name;
+  $('#code').textContent = mod.code || ''; $('#code').hidden = !mod.code;
+  $('#gen').hidden = false; $('#savedSec').hidden = false;
+
+  // ---------- what to attach ----------
+  function pickRow(box, tag, text, meta, value){
+    const lab = el('label');
+    const cb = el('input'); cb.type = 'checkbox'; cb.value = value; cb.autocomplete = 'off';
+    lab.append(cb, el('span', 'w', tag), el('span', '', text));
+    if (meta) lab.append(el('span', 'm', meta));
+    box.append(lab);
+  }
+  function emptyPick(box, text){ box.replaceWith(el('p', 'none', text)); }
+  if (mod.notes.length) mod.notes.forEach((n, i) => pickRow($('#notes'), n.week != null ? 'Week ' + n.week : '', n.title + (n.track ? ' (' + n.track + ')' : ''), '', i));
+  else emptyPick($('#notes'), 'This module has no notes yet.');
+  if (mod.papers.length) mod.papers.forEach((p, i) => pickRow($('#papers'), p.year != null ? String(p.year) : '', paperLabel(p), size(p.size), i));
+  else emptyPick($('#papers'), 'This module has no past papers yet.');
+
+  let uploads = [];
+  const fileList = $('#fileList');
+  function renderUploads(){
+    fileList.innerHTML = ''; fileList.hidden = !uploads.length;
+    uploads.forEach((f, i) => {
+      const row = el('div', 'file');
+      const x = el('button', 'btn', 'Remove'); x.type = 'button';
+      x.onclick = () => { uploads.splice(i, 1); renderUploads(); };
+      row.append(el('span', '', f.name), el('span', 'm', size(f.size)), x);
+      fileList.append(row);
+    });
+  }
+  $('#files').addEventListener('change', e => {
+    for (const f of e.target.files) if (!uploads.some(u => u.name === f.name && u.size === f.size)) uploads.push(f);
+    e.target.value = ''; renderUploads();
+  });
+
+  // ---------- reading the attachments ----------
+  const b64 = blob => new Promise((ok, bad) => {
+    const r = new FileReader();
+    r.onload = () => ok(String(r.result).split(',', 2)[1] || '');
+    r.onerror = () => bad(new Error('Could not read a file.'));
+    r.readAsDataURL(blob);
+  });
+  async function get(href){
+    const r = await fetch(url(href));
+    if (!r.ok) throw new Error('Could not load ' + href.split('/').pop() + ' (' + r.status + ').');
+    return r;
+  }
+  // The text of a notes page: its <main>, without scripts, drawings and navigation. Equations stay as TeX.
+  async function noteText(n){
+    const doc = new DOMParser().parseFromString(await (await get(n.href)).text(), 'text/html');
+    const main = doc.querySelector('main') || doc.body;
+    main.querySelectorAll('script,style,svg,nav,noscript,.annot,.fig-toggles,.anim-controls').forEach(x => x.remove());
+    main.querySelectorAll('p,li,h1,h2,h3,h4,tr,dt,dd,div,figcaption,pre').forEach(x => x.append('\n'));
+    return main.textContent.replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n').trim();
+  }
+  const isText = f => /^text\//.test(f.type) || /\.(txt|md|tex|csv)$/i.test(f.name);
+  async function buildParts(request){
+    const parts = [], sources = [];
+    for (const cb of document.querySelectorAll('#notes input:checked')){
+      const n = mod.notes[+cb.value];
+      parts.push({text: 'NOTES — ' + noteLabel(n) + '\n\n' + await noteText(n)});
+      sources.push(n.week != null ? 'Week ' + n.week + ' notes' : n.title);
+    }
+    for (const cb of document.querySelectorAll('#papers input:checked')){
+      const p = mod.papers[+cb.value];
+      parts.push({text: 'PAST PAPER' + (p.memo ? ' MEMO' : '') + ' — ' + paperLabel(p) + ' (next attachment)'});
+      parts.push({inline_data: {mime_type: 'application/pdf', data: await b64(await (await get(p.href)).blob())}});
+      sources.push(paperLabel(p));
+    }
+    for (const f of uploads){
+      if (isText(f)) parts.push({text: 'ATTACHED FILE — ' + f.name + '\n\n' + await f.text()});
+      else if (f.type === 'application/pdf' || /\.pdf$/i.test(f.name) || /^image\//.test(f.type)){
+        parts.push({text: 'ATTACHED FILE — ' + f.name + ' (next attachment)'});
+        parts.push({inline_data: {mime_type: /\.pdf$/i.test(f.name) ? 'application/pdf' : f.type, data: await b64(f)}});
+      } else throw new Error(f.name + ' is not a PDF, image or text file.');
+      sources.push(f.name);
+    }
+    parts.push({text: 'REQUEST\n\n' + request});
+    return {parts, sources};
+  }
+
+  const SEP = '===SOLUTION===';
+  function systemPrompt(){
+    const done = loadAll().filter(p => p.module === mod.id).slice(0, 40).map(p => '- ' + p.title);
+    return [
+      `You write practice problems for a university engineering student taking ${course}.`,
+      'Write ONE new problem of the kind described under REQUEST, then a fully worked solution.',
+      'The attached notes, tutorials and past papers show the syllabus, the notation and the level expected. Match their style, notation and difficulty, and use only methods they cover (or, with nothing attached, methods standard for the course).',
+      'The problem must be new: never copy an attached question. Change the scenario, the system and the numbers. Choose numbers that work out cleanly where the method allows.',
+      'The problem must be self-contained: state every value, table and assumption needed. There are no images, so describe any diagram in words or give its data in a table. Split it into parts (a), (b), ... with marks if the attached papers do.',
+      'The solution shows every step in order, says which result or formula each step uses, and ends each part with the final answer and its units. Check the arithmetic before you finish; the answers must follow from the numbers given.',
+      'Format: Markdown. Maths in LaTeX, \\( ... \\) inline and \\[ ... \\] for display. No headings other than the title.',
+      'Output exactly this layout and nothing else:',
+      '# <a short title for the problem>\n<the problem>\n' + SEP + '\n<the worked solution>',
+      done.length ? 'Problems already generated for this student. Write something clearly different from each:\n' + done.join('\n') : '',
+    ].filter(Boolean).join('\n\n');
+  }
+
+  // ---------- rendering ----------
+  function render(text){
+    const stash = [];
+    const keep = m => { stash.push(m); return `@@MATH${stash.length-1}@@`; };
+    const src = text
+      .replace(/\$\$[\s\S]+?\$\$/g, keep)
+      .replace(/\\\[[\s\S]+?\\\]/g, keep)
+      .replace(/\\\([\s\S]+?\\\)/g, keep)
+      .replace(/(^|[^\\$])\$(?!\s)([^\n$]+?)\$/g, (m, pre, body) => pre + keep('$' + body + '$'));
+    const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    let html = window.marked ? marked.parse(src, {breaks:false, gfm:true}) : '<p>' + esc(src).replace(/\n\n/g, '</p><p>') + '</p>';
+    if (window.DOMPurify) html = DOMPurify.sanitize(html);
+    return html.replace(/@@MATH(\d+)@@/g, (m, i) => esc(stash[+i]));
+  }
+  function typeset(node){
+    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([node]).catch(() => {});
+  }
+  // "# Title\nproblem\n===SOLUTION===\nsolution" -> its three pieces
+  function split(text){
+    const i = text.indexOf(SEP);
+    // while the answer streams in, a half-arrived separator is not part of the problem
+    let problem = (i < 0 ? text.replace(/\n=+[A-Z]*=*$/, '') : text.slice(0, i)).trim(), title = '';
+    const m = problem.match(/^#+\s*(.+)\n?/);
+    if (m){ title = m[1].replace(/[*_`]/g, '').trim(); problem = problem.slice(m[0].length).trim(); }
+    return {title, problem, solution: i < 0 ? '' : text.slice(i + SEP.length).trim()};
+  }
+
+  const out = $('#out'), solEl = $('#pSol'), showSol = $('#showSol');
+  let current = null;   // the saved problem on show
+  function setSolution(open){
+    solEl.hidden = !open;
+    showSol.textContent = open ? 'Hide worked solution' : 'Show worked solution';
+    showSol.setAttribute('aria-expanded', String(open));
+  }
+  function paint(p, live){
+    $('#pTitle').textContent = p.title || 'Writing the problem…';
+    const when = p.created ? new Date(p.created).toLocaleDateString(undefined, {day: 'numeric', month: 'short', year: 'numeric'}) : '';
+    $('#pMeta').textContent = [when, p.sources && p.sources.length ? 'From ' + p.sources.join(', ') : '', p.request ? 'Asked for: ' + p.request : ''].filter(Boolean).join(' · ');
+    $('#pBody').innerHTML = render(p.problem) + (live && !p.solution ? '<span class="typing"></span>' : '');
+    solEl.innerHTML = render(p.solution || '');
+    showSol.disabled = !p.solution; $('#again').disabled = !!live; $('#del').disabled = !!live;
+    out.hidden = false;
+    if (!live){ typeset($('#pBody')); typeset(solEl); }
+  }
+  function show(p){ current = p; setSolution(false); paint(p, false); out.scrollIntoView({block: 'start'}); }
+  showSol.onclick = () => setSolution(solEl.hidden);
+
+  // ---------- saved problems ----------
+  const KEY = 'notes-problems';
+  function loadAll(){
+    try{ const v = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(v) ? v : []; }catch(e){ return []; }
+  }
+  function saveAll(list){
+    try{ localStorage.setItem(KEY, JSON.stringify(list)); return true; }catch(e){ return false; }
+  }
+  function renderSaved(){
+    const mine = loadAll().filter(p => p.module === mod.id);
+    const list = $('#saved'); list.innerHTML = '';
+    list.hidden = !mine.length; $('#noSaved').hidden = mine.length > 0;
+    mine.forEach(p => {
+      const b = el('button', 'row'); b.type = 'button';
+      b.append(el('span', 'w', new Date(p.created).toLocaleDateString(undefined, {day: 'numeric', month: 'short'})),
+        el('span', 't', p.title), el('span', 'm', ''));
+      b.onclick = () => show(p);
+      const li = el('li'); li.append(b); list.append(li);
+    });
+  }
+  $('#del').onclick = () => {
+    if (!current || !confirm('Delete "' + current.title + '"?')) return;
+    saveAll(loadAll().filter(p => p.id !== current.id));
+    current = null; out.hidden = true; renderSaved();
+  };
+  $('#export').onclick = () => {
+    const a = el('a'); a.download = 'notesmaxing-problems.json';
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(loadAll(), null, 1)], {type: 'application/json'}));
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  $('#import').onclick = () => $('#importFile').click();
+  $('#importFile').addEventListener('change', async e => {
+    const f = e.target.files[0]; e.target.value = '';
+    if (!f) return;
+    try{
+      const incoming = JSON.parse(await f.text());
+      if (!Array.isArray(incoming)) throw new Error();
+      const all = loadAll(), have = new Set(all.map(p => p.id));
+      const fresh = incoming.filter(p => p && p.id && p.module && p.title && typeof p.problem === 'string' && !have.has(p.id));
+      all.push(...fresh); all.sort((a, b) => b.created - a.created);
+      status(saveAll(all) ? 'Imported ' + fresh.length + ' problem' + (fresh.length === 1 ? '' : 's') + '.' : 'This browser has no room left to store them.', !saveAll(all));
+      renderSaved();
+    }catch(err){ status('That file is not an export from this page.', true); }
+  });
+
+  // ---------- generating ----------
+  const statusEl = $('#status'), goBtn = $('#go'), topicEl = $('#topic');
+  function status(text, bad){ statusEl.textContent = text; statusEl.classList.toggle('err', !!bad); }
+  const MAX_BODY = 4200000;   // characters; the hosted site refuses request bodies over about 4.5 MB
+  let busy = false;
+
+  async function generate(){
+    if (busy) return;
+    const request = topicEl.value.trim();
+    if (!request){ status('Say what the problem should be about first.', true); topicEl.focus(); return; }
+    busy = true; goBtn.disabled = true; status('Reading the attachments…');
+    const live = {id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), module: mod.id, request, title: '', problem: '', solution: '', sources: [], created: Date.now()};
+    try{
+      const {parts, sources} = await buildParts(request);
+      live.sources = sources;
+      const body = JSON.stringify({system: systemPrompt(), temperature: 1, contents: [{role: 'user', parts}]});
+      if (body.length > MAX_BODY) throw new Error('The attachments come to ' + (body.length * 0.75 / 1048576).toFixed(1) + ' MB. The limit is about 3 MB per problem, so untick a paper or attach a smaller file.');
+      status('Writing the problem…');
+      const r = await fetch('api/chat', {method: 'POST', headers: {'Content-Type': 'application/json'}, body});
+      if (!r.ok){
+        let msg = r.status === 413 ? 'The attachments are too large. Untick a paper or attach a smaller file.' : 'Request failed (' + r.status + ').';
+        try{ msg = (await r.json()).error || msg; }catch(e){}
+        throw new Error(msg);
+      }
+      current = null; setSolution(false); paint(live, true);
+      const reader = r.body.getReader(), dec = new TextDecoder();
+      let buf = '', text = '', lastPaint = 0, blocked = '';
+      for(;;){
+        const {done, value} = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, {stream: true});
+        let idx;
+        while ((idx = buf.indexOf('\n')) >= 0){
+          const line = buf.slice(0, idx).trim(); buf = buf.slice(idx + 1);
+          if (!line.startsWith('data:')) continue;
+          try{
+            const j = JSON.parse(line.slice(5));
+            for (const p of j.candidates?.[0]?.content?.parts || []) if (p.text && !p.thought) text += p.text;
+            if (j.promptFeedback?.blockReason) blocked = j.promptFeedback.blockReason;
+          }catch(e){}
+        }
+        const now = performance.now();
+        if (now - lastPaint > 150){
+          Object.assign(live, split(text)); paint(live, true); lastPaint = now;
+          if (live.solution) status('Writing the worked solution…');
+        }
+      }
+      Object.assign(live, split(text));
+      if (blocked) throw new Error('Gemini blocked the request: ' + blocked + '.');
+      if (!live.problem) throw new Error('No problem came back. Try again.');
+      if (!live.title) live.title = request.length > 70 ? request.slice(0, 67) + '…' : request;
+      if (!live.solution){ paint(live, false); throw new Error('The answer stopped before the worked solution, so it was not saved. Try again.'); }
+      const all = loadAll(); all.unshift(live);
+      const stored = saveAll(all);
+      current = live; paint(live, false); renderSaved();
+      status(stored ? 'Saved.' : 'Generated, but this browser has no room left to save it. Export and delete some old problems.', !stored);
+    }catch(err){
+      const msg = String(err.message || err);
+      status(/Failed to fetch|NetworkError|Load failed/i.test(msg) ? 'Could not reach the server. Check your connection and try again.' : msg, true);
+      if (!live.problem) out.hidden = current == null; else { $('#again').disabled = false; }
+    }finally{
+      busy = false; goBtn.disabled = false;
+    }
+  }
+  $('#gen').addEventListener('submit', e => { e.preventDefault(); generate(); });
+  topicEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); generate(); }
+  });
+  $('#again').onclick = () => {
+    if (current && current.request) topicEl.value = current.request;
+    $('#gen').scrollIntoView({block: 'start'}); generate();
+  };
+
+  renderSaved();
+})();
+</script>
+</body>
+</html>

@@ -1,11 +1,11 @@
-// Vercel function behind the Ask Gemini panel on the deployed site. It does the same job as
+// Vercel function behind the Ask Gemini panel and the problem generator on the deployed site. It does the same job as
 // do_POST in serve_notes.py: add the API key (kept in the project's environment variables,
 // never sent to the browser), forward the conversation to Gemini, and stream the answer back.
 export const config = { runtime: 'edge' };
 
 const DEFAULT_MODEL = 'gemini-2.5-flash';
 const DEFAULT_BASE = 'https://generativelanguage.googleapis.com/v1beta';
-const MAX_BODY = 600_000; // characters; a full week of notes plus a long conversation is well under this
+const MAX_BODY = 4_400_000; // characters; Vercel refuses bodies over 4.5 MB. Room for the PDFs the problem generator attaches
 
 function json(status, obj) {
   return new Response(JSON.stringify(obj), {
@@ -33,7 +33,7 @@ export default async function handler(req) {
   let body;
   try {
     const raw = await req.text();
-    if (raw.length > MAX_BODY) return json(413, { error: 'That conversation is too long. Start a new chat.' });
+    if (raw.length > MAX_BODY) return json(413, { error: 'That request is too large. Start a new chat, or attach less.' });
     body = JSON.parse(raw || '{}');
   } catch (e) {
     return json(400, { error: 'Bad request body.' });
@@ -43,6 +43,8 @@ export default async function handler(req) {
     contents: Array.isArray(body.contents) ? body.contents : [],
     generationConfig: { temperature: 0.4 },
   };
+  // The problem generator asks for more variety than the chat's default.
+  if (typeof body.temperature === 'number') payload.generationConfig.temperature = Math.min(2, Math.max(0, body.temperature));
   if (body.system) payload.systemInstruction = { parts: [{ text: String(body.system) }] };
 
   let upstream;

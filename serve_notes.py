@@ -151,6 +151,8 @@ class Handler(SimpleHTTPRequestHandler):
             "contents": req.get("contents", []),
             "generationConfig": {"temperature": 0.4},
         }
+        if isinstance(req.get("temperature"), (int, float)):   # the problem generator asks for more variety
+            payload["generationConfig"]["temperature"] = min(2, max(0, req["temperature"]))
         if req.get("system"):
             payload["systemInstruction"] = {"parts": [{"text": req["system"]}]}
 
@@ -162,7 +164,7 @@ class Handler(SimpleHTTPRequestHandler):
             method="POST",
         )
         try:
-            resp = urllib.request.urlopen(upstream, timeout=120)
+            resp = urllib.request.urlopen(upstream, timeout=300)
         except urllib.error.HTTPError as err:
             detail = err.read().decode("utf-8", "replace")
             try:

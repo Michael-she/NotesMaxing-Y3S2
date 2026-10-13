@@ -110,6 +110,14 @@
     : none('No notes yet. Add an .html file to', mod.folder + '/'));
   group('Past papers', 'papers', mod.papers.length ? list(mod.papers.map(paperRow))
     : none('No past papers yet. Add PDFs to', mod.folder + '/papers/'));
+  {
+    const a = el('a', 'row'); a.href = 'problems.html?m=' + encodeURIComponent(mod.id);
+    let saved = 0;
+    try{ saved = JSON.parse(localStorage.getItem('notes-problems') || '[]').filter(p => p.module === mod.id).length; }catch(e){}
+    a.append(el('span', 'w', ''), el('span', 't', 'Problem generator'), el('span', 'm', saved ? saved + ' saved' : ''));
+    a.dataset.find = 'problem generator practice questions';
+    group('Practice', 'practice', list([a]));
+  }
   if (location.hash === '#papers') document.getElementById('papers').scrollIntoView();
 
   // ---------- search ----------

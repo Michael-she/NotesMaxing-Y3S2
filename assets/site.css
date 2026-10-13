@@ -13,7 +13,8 @@
      7. Module list and module pages: rows, search, past paper viewer
      8. Ask Gemini panel (markup from ask-gemini.js)
      9. Collapsible side menu and formula annotations (site.js)
-    10. Print
+    10. Problem generator (problems.html)
+    11. Print
    ========================================================================== */
 
 /* ---------- 1. Tokens ---------- */
@@ -406,7 +407,42 @@ dl.terms dt{color:var(--genoa);font-weight:600;max-width:18em}
 dl.terms dd{margin:0;color:var(--text)}
 @media (max-width:560px){dl.terms{grid-template-columns:minmax(0,1fr);gap:0}dl.terms dd{margin-bottom:8px}}
 
-/* ---------- 10. Print ---------- */
+
+/* ---------- 10. Problem generator ---------- */
+.gen{display:grid;gap:20px}
+.gen>*{min-width:0}
+.gen fieldset{border:0;margin:0;padding:0}
+.gen .lab,.gen legend{display:block;padding:0;margin-bottom:7px;font-weight:600;font-size:14.5px;color:var(--ink)}
+.gen textarea{display:block;width:100%;min-height:96px;resize:vertical;border:1px solid var(--rule);border-radius:var(--r);padding:11px 14px;background:var(--surface);color:var(--text);
+  font-family:var(--f-body);font-size:15px;line-height:1.5}
+.gen textarea:focus{outline:2px solid var(--genoa);outline-offset:0;border-color:transparent}
+.gen input[type=file]{font-family:var(--f-body);font-size:14px;color:var(--text);max-width:100%}
+.gen p.none{max-width:none}
+.pick{border:1px solid var(--rule);border-radius:var(--r);background:var(--surface);max-height:236px;overflow:auto}
+.pick label,.pick .file{display:flex;gap:10px;align-items:baseline;padding:8px 14px;font-size:14.5px;max-width:none}
+.pick label{cursor:pointer}
+.pick label+label,.pick .file+.file{border-top:1px solid var(--rule)}
+.pick label:hover{background:var(--wash)}
+.pick input{accent-color:var(--genoa);margin:0;flex:none;position:relative;top:1px;cursor:pointer}
+.pick .w{flex:none;min-width:64px;font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--genoa);white-space:nowrap}
+.pick .m{margin-left:auto;font-family:var(--f-mono);font-size:11.5px;color:var(--ink-2);white-space:nowrap}
+.pick .file span:first-child{overflow-wrap:anywhere}
+.pick .file .btn{padding:3px 9px;font-size:12px}
+#fileList{margin-top:10px}
+.hint{font-size:13px;color:var(--ink-2);margin:8px 0 0;max-width:none}
+.gen .go,.acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn.primary{background:var(--genoa);border-color:var(--genoa);color:var(--on-teal);font-weight:600;font-size:14.5px;padding:9px 16px}
+.btn.primary:hover{color:var(--on-teal);filter:brightness(1.08)}
+.gen-status{font-size:13.5px;color:var(--ink-2)}
+.gen-status.err{color:var(--amber)}
+.prob{margin-top:36px;padding-top:6px;border-top:2px solid var(--ink)}
+.prob h2{margin:1em 0 .2em}
+.prob .meta{font-size:13px;color:var(--ink-2);margin:0 0 16px;max-width:none}
+.prob .acts{margin-top:20px}
+.prob .sol{margin-top:18px;padding:6px 20px;background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);overflow-x:auto}
+#savedSec .acts{margin-top:12px}
+
+/* ---------- 11. Print ---------- */
 @media print{
   .theme-btn,nav.toc,nav.rail,#askBtn,#chat,.toast,.rail-toggle,.annot{display:none!important}
   body{padding-top:0}

@@ -93,6 +93,19 @@ A page calls `api/health` and `api/chat` relative to its own location, and both 
 
 The server uses only the Python standard library, binds to `127.0.0.1`, and refuses to serve dotfiles (`.env`, `.git`) or `.py` files.
 
+## Problem generator
+
+`problems.html?m=<id>` (linked from each module page under Practice) asks Gemini for a new practice
+problem and a worked solution. You describe the problem, tick the weeks of notes and the past papers it
+should draw on, and attach tutorials or other files (PDF, image or text). It uses the same `api/chat`
+endpoint and key as the Ask Gemini panel.
+
+- Ticked notes are sent as text, PDFs and images as files. One request can carry about 3 MB of attachments,
+  because the hosted site refuses request bodies over 4.5 MB.
+- Every generated problem is saved in the browser (`localStorage`, key `notes-problems`) and listed under
+  Saved problems. Export and Import move them between browsers as one JSON file.
+- The titles of the problems already saved for a module are sent with each request so the next one differs.
+
 ## Notes on sources
 
 The notes are my own write-up of the course content. Lecture slides, videos and textbook material are not included in this repository.
