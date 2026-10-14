@@ -332,7 +332,7 @@
       }
       current = null; setSolution(false); paint(live, true);
       const reader = r.body.getReader(), dec = new TextDecoder();
-      let buf = '', text = '', lastPaint = 0, blocked = '', usage = null;
+      let buf = '', text = '', lastPaint = 0, blocked = '', usage = null, streamErr = '';
       for(;;){
         const {done, value} = await reader.read();
         if (done) break;
@@ -346,6 +346,7 @@
             for (const p of j.candidates?.[0]?.content?.parts || []) if (p.text && !p.thought) text += p.text;
             if (j.promptFeedback?.blockReason) blocked = j.promptFeedback.blockReason;
             if (j.usageMetadata) usage = j.usageMetadata;   // the last one in the stream is the final count
+            if (j.error) streamErr = j.error.message || 'The request failed.';
           }catch(e){}
         }
         const now = performance.now();
@@ -356,6 +357,7 @@
       }
       Object.assign(live, split(text));
       if (usage) live.tokens = {in: usage.promptTokenCount || 0, out: (usage.candidatesTokenCount || 0) + (usage.thoughtsTokenCount || 0)};
+      if (streamErr) throw new Error(streamErr);
       if (blocked) throw new Error('The Lovely Lady blocked the request: ' + blocked + '.');
       if (!live.problem) throw new Error('No problem came back. Try again.');
       if (!live.title) live.title = request.length > 70 ? request.slice(0, 67) + '…' : request;

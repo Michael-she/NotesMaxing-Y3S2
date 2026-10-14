@@ -324,7 +324,7 @@
         try{ msg = (await r.json()).error || msg; }catch(e){}
         throw new Error(msg);
       }
-      const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '', lastPaint = 0, usage = null;
+      const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '', lastPaint = 0, usage = null, streamErr = '';
       for(;;){
         const {done, value} = await reader.read();
         if (done) break;
@@ -337,6 +337,7 @@
             const j = JSON.parse(line.slice(5));
             const parts = j.candidates?.[0]?.content?.parts || [];
             if (j.usageMetadata) usage = j.usageMetadata;   // the last one in the stream is the final count
+            if (j.error) streamErr = j.error.message || 'The request failed.';
             for (const p of parts) if (p.text && !p.thought) live.text += p.text;
             if (j.promptFeedback?.blockReason) live.text += '\n\n(Blocked by The Lovely Lady: ' + j.promptFeedback.blockReason + ')';
           }catch(e){}
@@ -347,6 +348,8 @@
           msgsEl.scrollTop = msgsEl.scrollHeight; lastPaint = now;
         }
       }
+      if (streamErr && !live.text) throw new Error(streamErr);
+      if (streamErr) live.text += '\n\n(The answer stopped early: ' + streamErr + ')';
       if (!live.text) live.text = '(No answer came back. Try again or rephrase.)';
       liveEl.querySelector('.body').innerHTML = renderMarkdownWithMath(live.text);
       typeset(liveEl);

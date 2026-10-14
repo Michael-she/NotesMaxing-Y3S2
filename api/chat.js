@@ -47,24 +47,47 @@ export default async function handler(req) {
   if (typeof body.temperature === 'number') payload.generationConfig.temperature = Math.min(2, Math.max(0, body.temperature));
   if (body.system) payload.systemInstruction = { parts: [{ text: String(body.system) }] };
 
-  let upstream;
-  try {
-    upstream = await fetch(`${base}/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      body: JSON.stringify(payload),
-    });
-  } catch (e) {
-    return json(502, { error: 'Could not reach The Lovely Lady.' });
-  }
-  if (!upstream.ok) {
-    let detail = await upstream.text();
-    try { detail = JSON.parse(detail).error.message; } catch (e) {}
-    return json(upstream.status, { error: `The Lovely Lady returned ${upstream.status}: ${detail}` });
-  }
-
-  // Relay the server-sent events stream to the page as it arrives.
-  return new Response(upstream.body, {
-    headers: { 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store' },
+  // A Vercel edge function must start answering within about 25 seconds or the caller gets a 504, and a
+  // big request (attached PDFs, a long written answer) can take longer than that before Gemini sends its
+  // first byte. So the response starts at once, a comment line goes out every few seconds while Gemini
+  // works, and any failure after that point is sent as an error event the page reads (data: {"error": ...}).
+  const enc = new TextEncoder();
+  const fail = (controller, message) => {
+    controller.enqueue(enc.encode('data: ' + JSON.stringify({ error: { message } }) + '\n\n'));
+  };
+  const stream = new ReadableStream({
+    async start(controller) {
+      controller.enqueue(enc.encode(': start\n\n'));
+      const ping = setInterval(() => {
+        try { controller.enqueue(enc.encode(': keep-alive\n\n')); } catch (e) {}
+      }, 8000);
+      try {
+        const upstream = await fetch(`${base}/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+          body: JSON.stringify(payload),
+        });
+        if (!upstream.ok) {
+          let detail = await upstream.text();
+          try { detail = JSON.parse(detail).error.message; } catch (e) {}
+          fail(controller, `The Lovely Lady returned ${upstream.status}: ${detail}`);
+        } else {
+          const reader = upstream.body.getReader();
+          for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            controller.enqueue(value);
+          }
+        }
+      } catch (e) {
+        fail(controller, 'Could not reach The Lovely Lady.');
+      } finally {
+        clearInterval(ping);
+        try { controller.close(); } catch (e) {}
+      }
+    },
+  });
+  return new Response(stream, {
+    headers: { 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store', 'X-Accel-Buffering': 'no' },
   });
 }
