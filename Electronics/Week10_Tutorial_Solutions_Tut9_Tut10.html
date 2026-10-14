@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 10: Tutorial Solutions: MOSFET Questions · EL245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=electronics">&larr; Electronics</a>
+  <div class="k">EL245 · Week 10</div>
+  <ol>
+    <li><a href="#method">1. The common method</a></li>
+    <li><a href="#t9q3">2. Tutorial 9 Q3: width and regions</a></li>
+    <li><a href="#t9q4">3. Tutorial 9 Q4: NMOS divider design</a></li>
+    <li><a href="#t9q5">4. Tutorial 9 Q5: PMOS with a source resistor</a></li>
+    <li><a href="#t10q1">5. Tutorial 10 Q1: depletion PMOS</a></li>
+    <li><a href="#t10q2">6. Tutorial 10 Q2: PMOS with split supplies</a></li>
+    <li><a href="#t10q3">7. Tutorial 10 Q3: diode-connected stack</a></li>
+    <li><a href="#t10q4">8. Tutorial 10 Q4: PMOS LED switch</a></li>
+    <li><a href="#answers">9. Answer check</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">ELECTRONICS 245 · TUTORIAL 9 Q3 TO Q5 · TUTORIAL 10 Q1 TO Q4</div>
+  <h1>Tutorial Solutions: MOSFET Questions</h1>
+  <p>Full worked solutions to the MOSFET questions of Tutorials 9 and 10, with the memo discrepancies flagged.</p>
+</header>
+
+<section id="method">
+<h2><span class="n">01</span>The common method</h2>
+<p>Every question below uses the same skeleton, so learn it once.</p>
+<ol>
+<li>Work out the gate voltage or the control voltage \(V_{GS}\) (or \(V_{SG}\)) from the circuit.</li>
+<li>Assume saturation and use \(I_D = K(\text{overdrive})^2\). Solve for the overdrive with the <i>positive</i> square root.</li>
+<li>Check the assumption: output voltage against the edge of saturation. A switch is the one case where the answer is non-saturation by design.</li>
+<li>Find the resistors from Ohm's law and the divider formulas.</li>
+</ol><div class="eq"><span class="tag">Divider with specified input resistance</span>\[ R_1 = \frac{R_{in}(V^+ - V^-)}{V_G - V^-} \qquad R_2 = \frac{R_1R_{in}}{R_1 - R_{in}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(R_1, R_2\)</dt><dd>Upper and lower divider resistors, in \(\Omega\).</dd><dt>\(R_{in}\)</dt><dd>\(R_1 \parallel R_2\), in \(\Omega\).</dd><dt>\(V^+, V^-\)</dt><dd>Supplies across the divider, in V. Use \(V^- = 0\) for a single supply.</dd><dt>\(V_G\)</dt><dd>Required gate voltage, in V.</dd></dl>
+</div>
+<div class="eq"><span class="tag">Divider with a bias-current limit</span>\[ R_1 + R_2 = \frac{V^+ - V^-}{f\,I_D} \qquad \frac{R_2}{R_1+R_2} = \frac{V_G - V^-}{V^+ - V^-} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(f\)</dt><dd>Allowed fraction of \(I_D\), for example 0.1.</dd><dt>\(I_D\)</dt><dd>Drain current, in A.</dd><dt>\(V_G\)</dt><dd>Gate voltage, in V.</dd></dl>
+</div>
+<div class="key"><span class="tag">Key idea</span>Questions 4 and 5 of Tutorial 9 and all of Tutorial 10 are the same two moves: find the gate voltage, then size or solve the divider. Tutorial 10 Q3 and Q4 are the odd ones: a diode-connected stack and a switch.</div>
+</section>
+<section id="t9q3">
+<h2><span class="n">02</span>Tutorial 9 Q3: width and regions</h2>
+<p><b>Question.</b> An NMOS has \(V_{TN} = 0.8\ \text{V}\), \(L = 0.8\ \mu\text{m}\) and \(k_n' = 120\ \mu\text{A/V}^2\). In saturation at \(V_{GS} = 1.4\ \text{V}\) it carries \(I_D = 0.6\ \text{mA}\). (a) Find \(W\). (b) Find \(I_D\) when \(V_{DS} = 0.4\ \text{V}\). (c) Find the \(V_{DS}\) at the edge of saturation.</p><div class="ex"><div class="hd">Worked example T9.3 <span>Width, triode current and edge of saturation</span></div><div class="bd">
+<p>Work in the order of the question, because each part uses the previous one.</p>
+<div class="step"><i>1</i><div>Saturation at the measured point, so \(K_n = I_D/(V_{GS} - V_{TN})^2 = 0.6\ \text{mA}/(0.6\ \text{V})^2 = 1.6667\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>2</i><div>(a) \(W/L = 2K_n/k_n' = 2(1.6667\ \text{mA/V}^2)/(120\ \mu\text{A/V}^2) = 27.78\), so \(W = (27.78)(0.8\ \mu\text{m}) = 22.2\ \mu\text{m}\).</div></div>
+<div class="step"><i>3</i><div>(c) first, because (b) needs it: \(V_{DS}(sat) = V_{GS} - V_{TN} = 1.4 - 0.8 = 0.6\ \text{V}\).</div></div>
+<div class="step"><i>4</i><div>(b) \(V_{DS} = 0.4\ \text{V}\) is below \(0.6\ \text{V}\), so non-saturation: \(I_D = K_n[2(0.6)(0.4) - 0.4^2] = 1.6667(0.32) = 0.533\ \text{mA}\).</div></div>
+<div class="ans">(a) \(W = 22.2\ \mu\text{m}\); (b) \(I_D = 0.533\ \text{mA}\); (c) \(V_{DS}(sat) = 0.6\ \text{V}\).</div>
+</div></div>
+<div class="note"><span class="tag">Memo discrepancy</span>The memo prints \(V_{DS}(sat) = 0.5\ \text{V}\) for part (c). The definition gives \(V_{GS} - V_{TN} = 1.4 - 0.8 = 0.6\ \text{V}\), and the memo's own part (b) answer of \(0.533\ \text{mA}\) only works with an edge of \(0.6\ \text{V}\). Treat \(0.5\ \text{V}\) as a typing slip.</div>
+<div class="box watch"><span class="label">Watch out</span>The question prints \(L = 0.8\ \mu\text{A}\). The unit has to be micrometres. Using \(0.8\ \mu\text{m}\) is the only reading that reproduces \(W = 22.2\ \mu\text{m}\).</div>
+</section>
+<section id="t9q4">
+<h2><span class="n">03</span>Tutorial 9 Q4: NMOS divider design</h2>
+<p><b>Question.</b> An NMOS with \(V_{TN} = 0.4\ \text{V}\), \(k_n' = 120\ \mu\text{A/V}^2\) and \(W/L = 80\) sits in a common-source stage: \(V_{DD} = 1.8\ \text{V}\), \(R_D = 0.5\ \text{k}\Omega\), the source is grounded and the divider \(R_1\) (supply to gate), \(R_2\) (gate to ground) feeds the gate. Design for \(I_{DQ} = 0.8\ \text{mA}\) and \(R_{in} = R_1 \parallel R_2 = 200\ \text{k}\Omega\).</p><div class="ex"><div class="hd">Worked example T9.4 <span>NMOS divider with a given input resistance</span></div><div class="bd">
+<p>The gate voltage comes from the current, and the divider is then sized from the input resistance.</p>
+<div class="step"><i>1</i><div>\(K_n = (k_n'/2)(W/L) = (60\ \mu\text{A/V}^2)(80) = 4.8\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>2</i><div>Assume saturation: \(V_{GS} - V_{TN} = \sqrt{I_D/K_n} = \sqrt{0.8/4.8} = 0.4082\ \text{V}\), so \(V_{GS} = V_G = 0.8082\ \text{V}\) (positive root only).</div></div>
+<div class="step"><i>3</i><div>Check: \(V_{DS} = V_{DD} - I_DR_D = 1.8 - (0.8\ \text{mA})(0.5\ \text{k}\Omega) = 1.40\ \text{V}\), above \(0.408\ \text{V}\). Saturation holds.</div></div>
+<div class="step"><i>4</i><div>\(R_1 = R_{in}V_{DD}/V_G = (200\ \text{k}\Omega)(1.8)/0.8082 = 445.4\ \text{k}\Omega\).</div></div>
+<div class="step"><i>5</i><div>\(R_2 = R_1R_{in}/(R_1 - R_{in}) = 363.0\ \text{k}\Omega\).</div></div>
+<div class="ans">\(R_1 = 445.4\ \text{k}\Omega\) and \(R_2 = 363\ \text{k}\Omega\), matching the memo (\(445.4\ \text{k}\Omega\), \(363\ \text{k}\Omega\)).</div>
+</div></div>
+<div class="key"><span class="tag">Key idea</span>Marks follow the chain: \(K_n\), then the overdrive, then \(V_G\), then the saturation check, then the two resistors. The saturation check is easy to forget and is what makes the design valid.</div>
+</section>
+<section id="t9q5">
+<h2><span class="n">04</span>Tutorial 9 Q5: PMOS with a source resistor</h2>
+<p><b>Question.</b> A PMOS with \(K_p = 0.5\ \text{mA/V}^2\) and \(V_{TP} = -0.8\ \text{V}\) has \(+3\ \text{V}\) and \(-3\ \text{V}\) supplies. The divider \(R_1 = 8\ \text{k}\Omega\) (from \(+3\ \text{V}\)) and \(R_2 = 22\ \text{k}\Omega\) (to \(-3\ \text{V}\)) sets the gate. The source connects to \(+3\ \text{V}\) through \(R_S = 0.5\ \text{k}\Omega\), and the drain connects to \(-3\ \text{V}\) through \(R_D = 5\ \text{k}\Omega\). Find \(I_D\), \(V_{SG}\) and \(V_{SD}\).</p><div class="ex"><div class="hd">Worked example T9.5 <span>PMOS with a source resistor and split supplies</span></div><div class="bd">
+<p>The source resistor couples the current back into \(V_{SG}\), so the loop equation and the device equation have to be solved together.</p>
+<div class="step"><i>1</i><div>Gate voltage from the divider: \(V_G = -3 + 6 \times 22/30 = 1.40\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>Source voltage: \(V_S = 3 - I_DR_S\), so \(V_{SG} = V_S - V_G = 1.60 - 0.5\,I_D\) (with \(I_D\) in mA).</div></div>
+<div class="step"><i>3</i><div>Assume saturation: \(I_D = 0.5(V_{SG} - 0.8)^2 = 0.5(0.80 - 0.5I_D)^2\). Expanding gives \(0.125\,I_D^2 - 1.4\,I_D + 0.32 = 0\).</div></div>
+<div class="step"><i>4</i><div>Roots: \(I_D = 0.2334\ \text{mA}\) and \(10.97\ \text{mA}\). The large root would give \(V_{SG} = −3.88\ \text{V}\), below threshold, so reject it.</div></div>
+<div class="step"><i>5</i><div>\(V_{SG} = 1.60 - 0.5(0.2334) = 1.483\ \text{V}\).</div></div>
+<div class="step"><i>6</i><div>Drain loop: \(V_{SD} = 6 - I_D(R_S + R_D) = 6 - (0.2334\ \text{mA})(5.5\ \text{k}\Omega) = 4.72\ \text{V}\).</div></div>
+<div class="step"><i>7</i><div>Check: \(V_{SD}(sat) = V_{SG} + V_{TP} = 0.683\ \text{V}\), and \(4.72 \gt 0.683\). Saturation holds.</div></div>
+<div class="ans">\(I_D = 233.4\ \mu\text{A}\), \(V_{SG} = 1.48\ \text{V}\), \(V_{SD} = 4.72\ \text{V}\).</div>
+</div></div>
+<div class="note"><span class="tag">Rounding</span>The memo's \(231.2\ \mu\text{A}\) and \(4.73\ \text{V}\) come from rounding \(V_{SG}\) to \(1.48\ \text{V}\) first: \(0.5(1.48-0.8)^2 = 231.2\ \mu\text{A}\). The unrounded solution is \(233.4\ \mu\text{A}\) and \(4.72\ \text{V}\). Both round to the same \(V_{SG}\), so state which you used.</div>
+<div class="box watch"><span class="label">Watch out</span>With a source resistor you cannot read \(V_{SG}\) straight off the divider. Solving \(I_D = K_p(V_{SG}+V_{TP})^2\) alone with \(V_{SG} = V_{DD} - V_G\) ignores the drop across \(R_S\) and gives the wrong current.</div>
+</section>
+<section id="t10q1">
+<h2><span class="n">05</span>Tutorial 10 Q1: depletion PMOS</h2>
+<p><b>Question (P3.41).</b> Depletion PMOS, \(V_{TP} = +1.5\ \text{V}\), \(K_p = 0.5\ \text{mA/V}^2\). \(R_S = 2\ \text{k}\Omega\) connects the source to \(+5\ \text{V}\), the drain is grounded, and the divider \(R_1, R_2\) runs from \(+5\ \text{V}\) to \(-5\ \text{V}\). Design for \(V_{SD} = 2.5\ \text{V}\) with divider current at most 10 % of \(I_D\).</p><div class="ex"><div class="hd">Worked example T10.1 <span>Depletion PMOS, current-limited divider</span></div><div class="bd">
+<p>The drain is at ground, so the source voltage and \(R_S\) fix \(I_D\) immediately.</p>
+<div class="step"><i>1</i><div>\(I_D = (5 - V_{SD})/R_S = 2.5/2\ \text{k}\Omega = 1.25\ \text{mA}\).</div></div>
+<div class="step"><i>2</i><div>\(v_{SG} + V_{TP} = \sqrt{I_D/K_p} = \sqrt{1.25/0.5} = 1.5811\ \text{V}\), so \(V_{SG} = 1.5811 - 1.5 = 0.0811\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>Saturation check: \(V_{SD}(sat) = 1.581\ \text{V} \lt 2.5\ \text{V}\). Holds.</div></div>
+<div class="step"><i>4</i><div>\(V_G = 5 - I_DR_S - V_{SG} = 5 - 2.5 - 0.0811 = 2.419\ \text{V}\).</div></div>
+<div class="step"><i>5</i><div>\(I_R = 0.1I_D = 125\ \mu\text{A}\), so \(R_1 + R_2 = 10/I_R = 80\ \text{k}\Omega\).</div></div>
+<div class="step"><i>6</i><div>\(R_2/(R_1+R_2) = (V_G+5)/10 = 0.7419\), so \(R_2 = 59.35\ \text{k}\Omega\) and \(R_1 = 20.65\ \text{k}\Omega\).</div></div>
+<div class="ans">\(R_1 \approx 20.64\ \text{k}\Omega\), \(R_2 \approx 59.36\ \text{k}\Omega\) (memo, with \(R_2/(R_1+R_2)\) rounded to 0.742). Unrounded: \(20.65\ \text{k}\Omega\) and \(59.35\ \text{k}\Omega\).</div>
+</div></div>
+<div class="box watch"><span class="label">Watch out</span>For a depletion PMOS \(V_{TP}\) is positive, so \(V_{SG} = \text{overdrive} - V_{TP}\) can be tiny or negative. The memo's second square-root value \(-3.081\ \text{V}\) is rejected because the overdrive would be negative. Keep the root with \(v_{SG} + V_{TP} \gt 0\).</div>
+</section>
+<section id="t10q2">
+<h2><span class="n">06</span>Tutorial 10 Q2: PMOS with split supplies</h2>
+<p><b>Question (P3.43).</b> PMOS with \(V_{TP} = -1.75\ \text{V}\), \(K_p = 3\ \text{mA/V}^2\). The source is grounded, \(R_D\) joins the drain to \(-10\ \text{V}\), and the divider runs between \(+5\ \text{V}\) and \(-5\ \text{V}\). Design for \(I_D = 5\ \text{mA}\), \(V_{SD} = 6\ \text{V}\) and \(R_{in} = R_1 \parallel R_2 = 80\ \text{k}\Omega\).</p><div class="ex"><div class="hd">Worked example T10.2 <span>Enhancement PMOS, split supplies, given Rin</span></div><div class="bd">
+<p>Here the source sits at 0 V, so the gate voltage is simply \(-V_{SG}\).</p>
+<div class="step"><i>1</i><div>Drain voltage \(= -6\ \text{V}\), so \(V_{R_D} = -6 - (-10) = 4\ \text{V}\) and \(R_D = 4/5\ \text{mA} = 800\ \Omega\).</div></div>
+<div class="step"><i>2</i><div>\(v_{SG} + V_{TP} = \sqrt{5/3} = 1.2910\ \text{V}\), so \(V_{SG} = 3.041\ \text{V}\) (the other root, \(0.459\ \text{V}\), is below threshold).</div></div>
+<div class="step"><i>3</i><div>Check: \(V_{SD}(sat) = 1.291\ \text{V} \lt 6\ \text{V}\). Saturation holds.</div></div>
+<div class="step"><i>4</i><div>\(V_G = -V_{SG} = −3.041\ \text{V}\), so \(R_2/(R_1+R_2) = (V_G + 5)/10 = 0.1959\).</div></div>
+<div class="step"><i>5</i><div>\(R_{in} = R_1R_2/(R_1+R_2) = R_1 \times 0.1959 = 80\ \text{k}\Omega\), so \(R_1 = 408.4\ \text{k}\Omega\) and \(R_2 = 99.5\ \text{k}\Omega\).</div></div>
+<div class="ans">\(R_D = 800\ \Omega\), \(R_1 = 408.4\ \text{k}\Omega\), \(R_2 = 99.5\ \text{k}\Omega\), matching the memo.</div>
+</div></div>
+<div class="key"><span class="tag">Key idea</span>The shortcut \(R_{in} = R_1 \times R_2/(R_1+R_2)\) turns the two simultaneous equations into one division. Equivalent general form: \(R_1 = R_{in}(V^+ - V^-)/(V_G - V^-)\).</div>
+</section>
+<section id="t10q3">
+<h2><span class="n">07</span>Tutorial 10 Q3: diode-connected stack</h2>
+<p><b>Question (P3.46c).</b> Two NMOS transistors in series from \(V_{DD} = 5\ \text{V}\) to ground. Both have gate tied to drain: \(M_1\) at \(V_{DD}\), \(M_2\) at \(V_o\). \(V_{TN} = 0.4\ \text{V}\), \(k_n' = 120\ \mu\text{A/V}^2\), \((W/L)_1 = 15\), \((W/L)_2 = 30\). Find \(V_{GS1}\), \(V_{GS2}\), \(V_o\), \(I_D\), and show both are always saturated.</p><div class="ex"><div class="hd">Worked example T10.3 <span>Diode-connected stack</span></div><div class="bd">
+<p>Two unknown voltages, one shared current: use the loop and the equal-current condition.</p>
+<div class="step"><i>1</i><div>\(K_1 = 60 \times 15 = 0.9\ \text{mA/V}^2\) and \(K_2 = 60 \times 30 = 1.8\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>2</i><div>Loop: \(V_{GS1} + V_{GS2} = 5\). Equal current: \(K_1(V_{GS1}-0.4)^2 = K_2(V_{GS2}-0.4)^2\).</div></div>
+<div class="step"><i>3</i><div>Square roots (overdrives positive): \(V_{GS1} - 0.4 = \sqrt{K_2/K_1}\,(V_{GS2} - 0.4) = 1.4142(V_{GS2}-0.4)\). With \(V_{GS1}-0.4 + V_{GS2}-0.4 = 4.2\): \(V_{GS2} - 0.4 = 1.7397\ \text{V}\).</div></div>
+<div class="step"><i>4</i><div>\(V_{GS1} = 2.860\ \text{V}\), \(V_{GS2} = V_o = 2.140\ \text{V}\).</div></div>
+<div class="step"><i>5</i><div>\(I_D = K_1(V_{GS1}-0.4)^2 = 0.9(2.4603)^2 = 5.448\ \text{mA}\).</div></div>
+<div class="step"><i>6</i><div>Region: \(V_{DS} = V_{GS}\) for each, so \(V_{DS} - V_{DS}(sat) = V_{GS} - (V_{GS} - V_{TN}) = V_{TN} = 0.4\ \text{V} \gt 0\). Always saturated, for any supply or \(W/L\).</div></div>
+<div class="ans">\(V_{GS1} = 2.86\ \text{V}\), \(V_{GS2} = V_o = 2.14\ \text{V}\), \(I_D = 5.45\ \text{mA}\).</div>
+</div></div>
+<p><b>The memo's route.</b> Substitute \(V_{GS2} = V_{DD} - V_{GS1}\) and square out: \(V_{GS1}^2 - 17.6\,V_{GS1} + 42.16 = 0\), with roots \(2.86\ \text{V}\) and \(14.74\ \text{V}\). Keep the one between \(V_{TN}\) and \(V_{DD}\). It gives the same answer as the square-root route, which avoids the quadratic.</p></section>
+<section id="t10q4">
+<h2><span class="n">08</span>Tutorial 10 Q4: PMOS LED switch</h2>
+<p><b>Question (P3.52).</b> A PMOS switches an LED (\(V_\gamma = 1.6\ \text{V}\)) from \(+5\ \text{V}\). The source is at the supply, the gate is \(V_I\), and \(R_D\) in series with the LED goes to ground. \(V_{TP} = -0.6\ \text{V}\), \(k_p' = 40\ \mu\text{A/V}^2\), \(\lambda = 0\). Design \(R_D\) and \(W/L\) for \(I_D = 15\ \text{mA}\) at \(V_I = 0\) with \(V_{SD} = 0.2\ \text{V}\), and verify the state.</p><div class="ex"><div class="hd">Worked example T10.4 <span>PMOS LED switch</span></div><div class="bd">
+<p>The transistor is deliberately in non-saturation, so the triode equation is the one to use.</p>
+<div class="step"><i>1</i><div>Output loop: \(5 = V_{SD} + I_DR_D + V_\gamma\), so \(R_D = (5 - 0.2 - 1.6)/15\ \text{mA} = 213.3\ \Omega\).</div></div>
+<div class="step"><i>2</i><div>\(V_I = 0\) gives \(V_{SG} = 5\ \text{V}\) and \(V_{SD}(sat) = 5 - 0.6 = 4.4\ \text{V}\). The design value \(0.2\ \text{V}\) is far below, so non-saturation, as assumed.</div></div>
+<div class="step"><i>3</i><div>\(K_p = I_D/[2(V_{SG}+V_{TP})V_{SD} - V_{SD}^2] = 15/[2(4.4)(0.2) - 0.04] = 8.721\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>4</i><div>\(W/L = 2K_p/k_p' = 2(8.721)/0.04 = 436.0\).</div></div>
+<div class="ans">\(R_D = 213.3\ \Omega\) and \(W/L \approx 436\). Verified: \(V_{SD} = 0.2\ \text{V} \lt V_{SD}(sat) = 4.4\ \text{V}\).</div>
+</div></div>
+<div class="box watch"><span class="label">Watch out</span>Using the saturation formula here gives \(K_p = 15/4.4^2 = 0.775\ \text{mA/V}^2\), a transistor about eleven times too small. The question asks to verify the assumed state; the check \(V_{SD} \lt V_{SD}(sat)\) is the verification.</div>
+</section>
+<section id="answers">
+<h2><span class="n">09</span>Answer check</h2>
+<div class="tbl"><table><thead><tr><th>Question</th><th>Memo or answer sheet</th><th>This page</th></tr></thead><tbody><tr><td>Tut 9 Q3</td><td>W = 22.2 µm; 0.533 mA; 0.6 V</td><td>22.2 µm; 0.533 mA; memo prints 0.5 V (typo)</td></tr><tr><td>Tut 9 Q4</td><td>R1 = 445.4 kΩ; R2 = 363 kΩ</td><td>same</td></tr><tr><td>Tut 9 Q5</td><td>231.2 µA; 1.48 V; 4.73 V</td><td>233.4 µA; 1.48 V; 4.72 V (memo rounds VSG first)</td></tr><tr><td>Tut 10 Q1</td><td>20.64 kΩ; 59.36 kΩ</td><td>20.65 kΩ; 59.35 kΩ (rounding)</td></tr><tr><td>Tut 10 Q2</td><td>800 Ω; 408.4 kΩ; 99.5 kΩ</td><td>same</td></tr><tr><td>Tut 10 Q3</td><td>2.86 V; 2.14 V; 2.14 V; 5.45 mA</td><td>same</td></tr><tr><td>Tut 10 Q4</td><td>213.3 Ω; W/L = 436</td><td>same</td></tr></tbody></table></div>
+<p>Tutorial 9 has five questions (Q1 and Q2 are the BJT circuits covered in the Week 9 notes). There is no Q6 in either tutorial, so Tutorial 9 Q3 to Q5 and Tutorial 10 Q1 to Q4 are all of the MOSFET questions. Tutorial 9 had no memo file in the folder, so its answers are from the answer sheet at the end of the question paper.</p></section>
+
+<footer>Sources: tut9_eng.pdf (question paper and answer sheet), tut10_eng.pdf and tut10_memo.pdf. The circuits were read from the question sheets. Numbers are computed unrounded and compared with the printed answers. The method is taken from Lectures 22 to 25.</footer>
+</main>
+</div>
+
+<script src="../assets/ask-gemini.js" data-store="electronics-w10-tuts" data-course="EL245 Electronics 245"
+        data-topic="Week 10: Tutorial 9 Q3-Q5 and Tutorial 10 Q1-Q4 worked solutions (MOSFET bias and design)"></script>
+</body>
+</html>

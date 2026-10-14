@@ -263,6 +263,12 @@ window.NOTES_MANIFEST = {
      "week": 10,
      "track": "",
      "href": "Electronics/Week10_MOSFETs_and_Common_Source_DC_Analysis.html"
+    },
+    {
+     "title": "Tutorial Solutions: MOSFET Questions",
+     "week": 10,
+     "track": "",
+     "href": "Electronics/Week10_Tutorial_Solutions_Tut9_Tut10.html"
     }
    ],
    "papers": []
