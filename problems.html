@@ -55,6 +55,11 @@
   </div>
 </form>
 
+<section class="progress" id="prog" hidden aria-live="polite">
+  <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bar"><i id="barFill"></i></div>
+  <ol class="steps" id="steps"></ol>
+</section>
+
 <article class="prob" id="out" hidden>
   <h2 id="pTitle"></h2>
   <p class="meta" id="pMeta"></p>
@@ -228,7 +233,8 @@
     return html.replace(/@@MATH(\d+)@@/g, (m, i) => esc(stash[+i]));
   }
   function typeset(node){
-    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([node]).catch(() => {});
+    if (window.MathJax && MathJax.typesetPromise) return MathJax.typesetPromise([node]).catch(() => {});
+    return Promise.resolve();
   }
   // "# Title\nproblem\n===SOLUTION===\nsolution" -> its three pieces
   function split(text){
@@ -309,6 +315,32 @@
   // ---------- generating ----------
   const statusEl = $('#status'), goBtn = $('#go'), topicEl = $('#topic');
   function status(text, bad){ statusEl.textContent = text; statusEl.classList.toggle('err', !!bad); }
+  // The progress bar: the problem is only shown once it is complete, so this is what you watch meanwhile.
+  const STEPS = [
+    ['read', 'Reading your attachments'],
+    ['send', 'Sending the request to The Lovely Lady'],
+    ['got', 'The Lovely Lady has received it'],
+    ['gen', 'The Lovely Lady is generating your question'],
+    ['sol', 'The Lovely Lady is writing the worked solution'],
+    ['check', 'Checking the answer is complete'],
+    ['save', 'Saving the question'],
+    ['draw', 'Rendering the question']
+  ];
+  const progEl = $('#prog'), barEl = $('#bar'), fillEl = $('#barFill'), stepsEl = $('#steps');
+  const stepLis = {};
+  STEPS.forEach(([k, label]) => { const li = el('li', '', label); li.dataset.k = k; stepsEl.append(li); stepLis[k] = li; });
+  function setBar(pct){ pct = Math.max(0, Math.min(100, pct)); fillEl.style.width = pct + '%'; barEl.setAttribute('aria-valuenow', String(Math.round(pct))); }
+  function stage(k, pct){
+    let before = true;
+    for (const [key] of STEPS){
+      const li = stepLis[key];
+      li.className = key === k ? 'now' : before ? 'done' : '';
+      if (key === k) before = false;
+    }
+    if (pct != null) setBar(pct);
+    progEl.hidden = false;
+  }
+  function progressEnd(){ progEl.hidden = true; }
   const MAX_BODY = 4200000;   // characters; the hosted site refuses request bodies over about 4.5 MB
   let busy = false;
 
@@ -316,21 +348,23 @@
     if (busy) return;
     const request = topicEl.value.trim();
     if (!request){ status('Say what the problem should be about first.', true); topicEl.focus(); return; }
-    busy = true; goBtn.disabled = true; status('Reading the attachments…');
+    busy = true; goBtn.disabled = true; status('');
+    out.hidden = true; progEl.classList.remove('err'); stage('read', 3);
     const live = {id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), module: mod.id, request, title: '', problem: '', solution: '', sources: [], created: Date.now()};
     try{
       const {parts, sources} = await buildParts(request);
       live.sources = sources;
       const body = JSON.stringify({system: systemPrompt(), temperature: 1, contents: [{role: 'user', parts}]});
       if (body.length > MAX_BODY) throw new Error('The attachments come to ' + (body.length * 0.75 / 1048576).toFixed(1) + ' MB. The limit is about 3 MB per problem, so untick a paper or attach a smaller file.');
-      status('Writing the problem…');
+      stage('send', 10);
       const r = await fetch('api/chat', {method: 'POST', headers: {'Content-Type': 'application/json'}, body});
       if (!r.ok){
         let msg = r.status === 413 ? 'The attachments are too large. Untick a paper or attach a smaller file.' : 'Request failed (' + r.status + ').';
         try{ msg = (await r.json()).error || msg; }catch(e){}
         throw new Error(msg);
       }
-      current = null; setSolution(false); paint(live, true);
+      current = null; setSolution(false);
+      stage('got', 16);
       const reader = r.body.getReader(), dec = new TextDecoder();
       let buf = '', text = '', lastPaint = 0, blocked = '', usage = null, streamErr = '';
       for(;;){
@@ -343,6 +377,7 @@
           if (!line.startsWith('data:')) continue;
           try{
             const j = JSON.parse(line.slice(5));
+            if (stepLis.got.className === 'now' && !j.error) stage('gen', 24);   // Gemini has begun to answer
             for (const p of j.candidates?.[0]?.content?.parts || []) if (p.text && !p.thought) text += p.text;
             if (j.promptFeedback?.blockReason) blocked = j.promptFeedback.blockReason;
             if (j.usageMetadata) usage = j.usageMetadata;   // the last one in the stream is the final count
@@ -350,9 +385,11 @@
           }catch(e){}
         }
         const now = performance.now();
-        if (now - lastPaint > 150){
-          Object.assign(live, split(text)); paint(live, true); lastPaint = now;
-          if (live.solution) status('Writing the worked solution…');
+        if (text && now - lastPaint > 150){
+          Object.assign(live, split(text)); lastPaint = now;
+          // length of answer so far against a typical full answer, easing off so it never reaches the end early
+          const frac = 1 - Math.exp(-text.length / 5000);
+          if (live.solution) stage('sol', 24 + 60 * frac); else stage('gen', 24 + 60 * frac);
         }
       }
       Object.assign(live, split(text));
@@ -361,16 +398,24 @@
       if (blocked) throw new Error('The Lovely Lady blocked the request: ' + blocked + '.');
       if (!live.problem) throw new Error('No problem came back. Try again.');
       if (!live.title) live.title = request.length > 70 ? request.slice(0, 67) + '…' : request;
-      if (!live.solution){ paint(live, false); throw new Error('The answer stopped before the worked solution, so it was not saved. Try again.'); }
+      stage('check', 86);
+      if (!live.solution){ throw new Error('The answer stopped before the worked solution, so it was not saved. Try again.'); }
+      stage('save', 91);
       const all = loadAll(); all.unshift(live);
       const stored = saveAll(all);
-      current = live; paint(live, false); renderSaved();
+      renderSaved();
+      stage('draw', 95);
+      current = live; paint(live, false);
+      await Promise.all([typeset($('#pBody')), typeset(solEl)]);
+      setBar(100); progressEnd();
+      out.scrollIntoView({block: 'start'});
       const used = live.tokens ? ' Used ' + live.tokens.in.toLocaleString() + ' tokens in, ' + live.tokens.out.toLocaleString() + ' out.' : '';
       status(stored ? 'Saved.' + used : 'Generated, but this browser has no room left to save it. Export and delete some old problems.', !stored);
     }catch(err){
       const msg = String(err.message || err);
       status(/Failed to fetch|NetworkError|Load failed/i.test(msg) ? 'Could not reach the server. Check your connection and try again.' : msg, true);
-      if (!live.problem) out.hidden = current == null; else { $('#again').disabled = false; }
+      progEl.classList.add('err'); progressEnd();
+      out.hidden = current == null;
     }finally{
       busy = false; goBtn.disabled = false;
     }
