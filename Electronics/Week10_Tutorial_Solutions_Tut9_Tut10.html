@@ -70,7 +70,47 @@
 </section>
 <section id="t9q4">
 <h2><span class="n">03</span>Tutorial 9 Q4: NMOS divider design</h2>
-<p><b>Question.</b> An NMOS with \(V_{TN} = 0.4\ \text{V}\), \(k_n' = 120\ \mu\text{A/V}^2\) and \(W/L = 80\) sits in a common-source stage: \(V_{DD} = 1.8\ \text{V}\), \(R_D = 0.5\ \text{k}\Omega\), the source is grounded and the divider \(R_1\) (supply to gate), \(R_2\) (gate to ground) feeds the gate. Design for \(I_{DQ} = 0.8\ \text{mA}\) and \(R_{in} = R_1 \parallel R_2 = 200\ \text{k}\Omega\).</p><div class="ex"><div class="hd">Worked example T9.4 <span>NMOS divider with a given input resistance</span></div><div class="bd">
+<p><b>Question.</b> An NMOS with \(V_{TN} = 0.4\ \text{V}\), \(k_n' = 120\ \mu\text{A/V}^2\) and \(W/L = 80\) sits in a common-source stage: \(V_{DD} = 1.8\ \text{V}\), \(R_D = 0.5\ \text{k}\Omega\), the source is grounded and the divider \(R_1\) (supply to gate), \(R_2\) (gate to ground) feeds the gate. Design for \(I_{DQ} = 0.8\ \text{mA}\) and \(R_{in} = R_1 \parallel R_2 = 200\ \text{k}\Omega\).</p>
+<figure>
+<svg viewBox="0 0 300 280" class="fig small" role="img" aria-label="NMOS common-source stage with a resistor divider on the gate">
+<circle class="ln c4" cx="170" cy="24" r="3.5"/>
+<polyline class="ln c4" points="170,27.5 170,48"/>
+<text class="lab" x="182" y="28" text-anchor="start">V<tspan dy="3" font-size="75%">DD</tspan><tspan dy="-3"> = 1.8 V</tspan></text>
+<polyline class="ln c4" points="100,48 240,48"/>
+<circle class="c4f" cx="170" cy="48" r="2.6"/>
+<polyline class="ln c4" points="100,48 100,66.5 107,72.9 93,79.3 107,85.8 93,92.2 107,98.7 93,105.1 100,111.6 100,130"/>
+<circle class="c4f" cx="100" cy="130" r="2.6"/>
+<polyline class="ln c4" points="100,130 100,152 107,158.9 93,165.7 107,172.6 93,179.4 107,186.3 93,193.1 100,200 100,222"/>
+<polyline class="ln c4" points="100,222 100,250 240,250"/>
+<circle class="c4f" cx="170" cy="250" r="2.6"/>
+<polyline class="ln c4" points="170,250 170,256"/>
+<polyline class="ln c4" points="161,256 179,256"/>
+<polyline class="ln c4" points="165,260 175,260"/>
+<polyline class="ln c4" points="168,264 172,264"/>
+<polyline class="ln c4" points="16,130 90,130"/>
+<polyline class="ln c4 thin dash" points="50,116 50,144"/>
+<polyline class="ln c3 thin" points="16,106 42,106"/>
+<polygon class="c3f" points="46,106 39,109 39,103"/>
+<text class="lab" x="16" y="96" text-anchor="start">R<tspan dy="3" font-size="75%">in</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="100,130 160,130"/>
+<polyline class="ln c4" points="160,116 160,144"/>
+<polyline class="ln c4" points="166,114 166,121"/>
+<polyline class="ln c4" points="166,125 166,135"/>
+<polyline class="ln c4" points="166,139 166,146"/>
+<polyline class="ln c4" points="166,117 240,117"/>
+<polyline class="ln c4" points="166,143 240,143"/>
+<polygon class="c4f" points="180,143 172,146.5 172,139.5"/>
+<polyline class="ln c4" points="240,48 240,63.5 247,68.9 233,74.4 247,79.8 233,85.2 247,90.6 233,96.1 240,101.5 240,117"/>
+<polyline class="ln c4" points="240,143 240,250"/>
+<text class="lab" x="89" y="94" text-anchor="end">R<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="89" y="182" text-anchor="end">R<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="251" y="75" text-anchor="start">R<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="251" y="91" text-anchor="start">0.5 kΩ</text>
+</svg>
+<figcaption><b>Figure 3.1</b> Circuit for Tutorial 9 Q4: NMOS with a divider on the gate.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> The source is grounded and the drain joins \(V_{DD}\) through \(R_D = 0.5\ \text{k}\Omega\). \(R_{in}\) is the resistance seen looking into the divider. The gate draws no current, so \(R_{in} = R_1 \parallel R_2\).</p>
+<div class="ex"><div class="hd">Worked example T9.4 <span>NMOS divider with a given input resistance</span></div><div class="bd">
 <p>The gate voltage comes from the current, and the divider is then sized from the input resistance.</p>
 <div class="step"><i>1</i><div>\(K_n = (k_n'/2)(W/L) = (60\ \mu\text{A/V}^2)(80) = 4.8\ \text{mA/V}^2\).</div></div>
 <div class="step"><i>2</i><div>Assume saturation: \(V_{GS} - V_{TN} = \sqrt{I_D/K_n} = \sqrt{0.8/4.8} = 0.4082\ \text{V}\), so \(V_{GS} = V_G = 0.8082\ \text{V}\) (positive root only).</div></div>
@@ -83,7 +123,45 @@
 </section>
 <section id="t9q5">
 <h2><span class="n">04</span>Tutorial 9 Q5: PMOS with a source resistor</h2>
-<p><b>Question.</b> A PMOS with \(K_p = 0.5\ \text{mA/V}^2\) and \(V_{TP} = -0.8\ \text{V}\) has \(+3\ \text{V}\) and \(-3\ \text{V}\) supplies. The divider \(R_1 = 8\ \text{k}\Omega\) (from \(+3\ \text{V}\)) and \(R_2 = 22\ \text{k}\Omega\) (to \(-3\ \text{V}\)) sets the gate. The source connects to \(+3\ \text{V}\) through \(R_S = 0.5\ \text{k}\Omega\), and the drain connects to \(-3\ \text{V}\) through \(R_D = 5\ \text{k}\Omega\). Find \(I_D\), \(V_{SG}\) and \(V_{SD}\).</p><div class="ex"><div class="hd">Worked example T9.5 <span>PMOS with a source resistor and split supplies</span></div><div class="bd">
+<p><b>Question.</b> A PMOS with \(K_p = 0.5\ \text{mA/V}^2\) and \(V_{TP} = -0.8\ \text{V}\) has \(+3\ \text{V}\) and \(-3\ \text{V}\) supplies. The divider \(R_1 = 8\ \text{k}\Omega\) (from \(+3\ \text{V}\)) and \(R_2 = 22\ \text{k}\Omega\) (to \(-3\ \text{V}\)) sets the gate. The source connects to \(+3\ \text{V}\) through \(R_S = 0.5\ \text{k}\Omega\), and the drain connects to \(-3\ \text{V}\) through \(R_D = 5\ \text{k}\Omega\). Find \(I_D\), \(V_{SG}\) and \(V_{SD}\).</p>
+<figure>
+<svg viewBox="0 0 320 345" class="fig small" role="img" aria-label="PMOS stage with a source resistor, a drain resistor and a resistor divider on the gate">
+<circle class="ln c4" cx="175" cy="24" r="3.5"/>
+<polyline class="ln c4" points="175,27.5 175,48"/>
+<text class="lab" x="187" y="28" text-anchor="start">+3 V</text>
+<polyline class="ln c4" points="110,48 240,48"/>
+<circle class="c4f" cx="175" cy="48" r="2.6"/>
+<polyline class="ln c4" points="110,48 110,86 117,92.9 103,99.7 117,106.6 103,113.4 117,120.3 103,127.1 110,134 110,172"/>
+<circle class="c4f" cx="110" cy="172" r="2.6"/>
+<polyline class="ln c4" points="110,172 110,212 117,218.9 103,225.7 117,232.6 103,239.4 117,246.3 103,253.1 110,260 110,300"/>
+<polyline class="ln c4" points="110,300 240,300"/>
+<circle class="c4f" cx="175" cy="300" r="2.6"/>
+<polyline class="ln c4" points="175,300 175,322.5"/>
+<circle class="ln c4" cx="175" cy="326" r="3.5"/>
+<text class="lab" x="187" y="330" text-anchor="start">−3 V</text>
+<polyline class="ln c4" points="110,172 170,172"/>
+<polyline class="ln c4" points="170,158 170,186"/>
+<polyline class="ln c4" points="176,156 176,163"/>
+<polyline class="ln c4" points="176,167 176,177"/>
+<polyline class="ln c4" points="176,181 176,188"/>
+<polyline class="ln c4" points="176,159 240,159"/>
+<polyline class="ln c4" points="176,185 240,185"/>
+<polygon class="c4f" points="180,159 188,155.5 188,162.5"/>
+<polyline class="ln c4" points="240,48 240,79.5 247,86.4 233,93.2 247,100.1 233,106.9 247,113.8 233,120.6 240,127.5 240,159"/>
+<polyline class="ln c4" points="240,185 240,218.5 247,225.4 233,232.2 247,239.1 233,245.9 247,252.8 233,259.6 240,266.5 240,300"/>
+<text class="lab" x="99" y="105" text-anchor="end">R<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="99" y="121" text-anchor="end">8 kΩ</text>
+<text class="lab" x="99" y="238" text-anchor="end">R<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="99" y="254" text-anchor="end">22 kΩ</text>
+<text class="lab" x="251" y="98" text-anchor="start">R<tspan dy="3" font-size="75%">S</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="251" y="114" text-anchor="start">0.5 kΩ</text>
+<text class="lab" x="251" y="238" text-anchor="start">R<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="251" y="254" text-anchor="start">5 kΩ</text>
+</svg>
+<figcaption><b>Figure 4.1</b> Circuit for Tutorial 9 Q5: PMOS with a source resistor and split supplies.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> \(R_S\) joins the source to \(+3\ \text{V}\) and \(R_D\) joins the drain to \(-3\ \text{V}\). The divider \(R_1\), \(R_2\) spans both supplies, so the gate voltage is measured from \(-3\ \text{V}\) as in step 1.</p>
+<div class="ex"><div class="hd">Worked example T9.5 <span>PMOS with a source resistor and split supplies</span></div><div class="bd">
 <p>The source resistor couples the current back into \(V_{SG}\), so the loop equation and the device equation have to be solved together.</p>
 <div class="step"><i>1</i><div>Gate voltage from the divider: \(V_G = -3 + 6 \times 22/30 = 1.40\ \text{V}\).</div></div>
 <div class="step"><i>2</i><div>Source voltage: \(V_S = 3 - I_DR_S\), so \(V_{SG} = V_S - V_G = 1.60 - 0.5\,I_D\) (with \(I_D\) in mA).</div></div>
@@ -99,7 +177,40 @@
 </section>
 <section id="t10q1">
 <h2><span class="n">05</span>Tutorial 10 Q1: depletion PMOS</h2>
-<p><b>Question (P3.41).</b> Depletion PMOS, \(V_{TP} = +1.5\ \text{V}\), \(K_p = 0.5\ \text{mA/V}^2\). \(R_S = 2\ \text{k}\Omega\) connects the source to \(+5\ \text{V}\), the drain is grounded, and the divider \(R_1, R_2\) runs from \(+5\ \text{V}\) to \(-5\ \text{V}\). Design for \(V_{SD} = 2.5\ \text{V}\) with divider current at most 10 % of \(I_D\).</p><div class="ex"><div class="hd">Worked example T10.1 <span>Depletion PMOS, current-limited divider</span></div><div class="bd">
+<p><b>Question (P3.41).</b> Depletion PMOS, \(V_{TP} = +1.5\ \text{V}\), \(K_p = 0.5\ \text{mA/V}^2\). \(R_S = 2\ \text{k}\Omega\) connects the source to \(+5\ \text{V}\), the drain is grounded, and the divider \(R_1, R_2\) runs from \(+5\ \text{V}\) to \(-5\ \text{V}\). Design for \(V_{SD} = 2.5\ \text{V}\) with divider current at most 10 % of \(I_D\).</p>
+<figure>
+<svg viewBox="0 0 320 330" class="fig small" role="img" aria-label="Depletion PMOS with a source resistor and a divider between plus and minus 5 volts">
+<circle class="ln c4" cx="80" cy="24" r="3.5"/>
+<text class="lab" x="91" y="28" text-anchor="start">+5 V</text>
+<polyline class="ln c4" points="80,27.5 80,74.8 87,81.6 73,88.5 87,95.3 73,102.2 87,109 73,115.9 80,122.8 80,170"/>
+<circle class="c4f" cx="80" cy="170" r="2.6"/>
+<polyline class="ln c4" points="80,170 80,207 87,213.9 73,220.7 87,227.6 73,234.4 87,241.3 73,248.1 80,255 80,292"/>
+<polyline class="ln c4" points="80,292 80,307.5"/>
+<circle class="ln c4" cx="80" cy="311" r="3.5"/>
+<text class="lab" x="91" y="315" text-anchor="start">−5 V</text>
+<polyline class="ln c4" points="80,170 150,170"/>
+<polyline class="ln c4" points="150,156 150,184"/>
+<polyline class="ln c4" points="156,154 156,186"/>
+<polyline class="ln c4" points="156,157 230,157"/>
+<polyline class="ln c4" points="156,183 230,183"/>
+<polygon class="c4f" points="160,157 168,153.5 168,160.5"/>
+<circle class="ln c4" cx="230" cy="24" r="3.5"/>
+<text class="lab" x="241" y="28" text-anchor="start">+5 V</text>
+<polyline class="ln c4" points="230,27.5 230,68.2 237,75.1 223,82 237,88.8 223,95.7 237,102.5 223,109.4 230,116.2 230,157"/>
+<polyline class="ln c4" points="230,183 230,215"/>
+<polyline class="ln c4" points="230,215 230,221"/>
+<polyline class="ln c4" points="221,221 239,221"/>
+<polyline class="ln c4" points="225,225 235,225"/>
+<polyline class="ln c4" points="228,229 232,229"/>
+<text class="lab" x="91" y="100" text-anchor="start">R<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="91" y="238" text-anchor="start">R<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="241" y="85" text-anchor="start">R<tspan dy="3" font-size="75%">S</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="241" y="101" text-anchor="start">2 kΩ</text>
+</svg>
+<figcaption><b>Figure 5.1</b> Circuit for Tutorial 10 Q1: depletion PMOS with a source resistor.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.1:</b> The drain is grounded and \(R_S = 2\ \text{k}\Omega\) joins the source to \(+5\ \text{V}\). The divider \(R_1\), \(R_2\) runs from \(+5\ \text{V}\) to \(-5\ \text{V}\). The unbroken channel line is the depletion-mode symbol.</p>
+<div class="ex"><div class="hd">Worked example T10.1 <span>Depletion PMOS, current-limited divider</span></div><div class="bd">
 <p>The drain is at ground, so the source voltage and \(R_S\) fix \(I_D\) immediately.</p>
 <div class="step"><i>1</i><div>\(I_D = (5 - V_{SD})/R_S = 2.5/2\ \text{k}\Omega = 1.25\ \text{mA}\).</div></div>
 <div class="step"><i>2</i><div>\(v_{SG} + V_{TP} = \sqrt{I_D/K_p} = \sqrt{1.25/0.5} = 1.5811\ \text{V}\), so \(V_{SG} = 1.5811 - 1.5 = 0.0811\ \text{V}\).</div></div>
@@ -113,7 +224,47 @@
 </section>
 <section id="t10q2">
 <h2><span class="n">06</span>Tutorial 10 Q2: PMOS with split supplies</h2>
-<p><b>Question (P3.43).</b> PMOS with \(V_{TP} = -1.75\ \text{V}\), \(K_p = 3\ \text{mA/V}^2\). The source is grounded, \(R_D\) joins the drain to \(-10\ \text{V}\), and the divider runs between \(+5\ \text{V}\) and \(-5\ \text{V}\). Design for \(I_D = 5\ \text{mA}\), \(V_{SD} = 6\ \text{V}\) and \(R_{in} = R_1 \parallel R_2 = 80\ \text{k}\Omega\).</p><div class="ex"><div class="hd">Worked example T10.2 <span>Enhancement PMOS, split supplies, given Rin</span></div><div class="bd">
+<p><b>Question (P3.43).</b> PMOS with \(V_{TP} = -1.75\ \text{V}\), \(K_p = 3\ \text{mA/V}^2\). The source is grounded, \(R_D\) joins the drain to \(-10\ \text{V}\), and the divider runs between \(+5\ \text{V}\) and \(-5\ \text{V}\). Design for \(I_D = 5\ \text{mA}\), \(V_{SD} = 6\ \text{V}\) and \(R_{in} = R_1 \parallel R_2 = 80\ \text{k}\Omega\).</p>
+<figure>
+<svg viewBox="0 0 340 335" class="fig small" role="img" aria-label="PMOS with a grounded source, a drain resistor to minus 10 volts and a divider on the gate">
+<circle class="ln c4" cx="90" cy="24" r="3.5"/>
+<text class="lab" x="101" y="28" text-anchor="start">+5 V</text>
+<polyline class="ln c4" points="90,27.5 90,74.8 97,81.6 83,88.5 97,95.3 83,102.2 97,109 83,115.9 90,122.8 90,170"/>
+<circle class="c4f" cx="90" cy="170" r="2.6"/>
+<polyline class="ln c4" points="90,170 90,207 97,213.9 83,220.7 97,227.6 83,234.4 97,241.3 83,248.1 90,255 90,292"/>
+<polyline class="ln c4" points="90,292 90,307.5"/>
+<circle class="ln c4" cx="90" cy="311" r="3.5"/>
+<text class="lab" x="101" y="315" text-anchor="start">−5 V</text>
+<polyline class="ln c4" points="14,170 88,170"/>
+<polyline class="ln c4 thin dash" points="48,156 48,184"/>
+<polyline class="ln c3 thin" points="14,146 40,146"/>
+<polygon class="c3f" points="44,146 37,149 37,143"/>
+<text class="lab" x="14" y="136" text-anchor="start">R<tspan dy="3" font-size="75%">in</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="90,170 160,170"/>
+<polyline class="ln c4" points="160,156 160,184"/>
+<polyline class="ln c4" points="166,154 166,161"/>
+<polyline class="ln c4" points="166,165 166,175"/>
+<polyline class="ln c4" points="166,179 166,186"/>
+<polyline class="ln c4" points="166,157 240,157"/>
+<polyline class="ln c4" points="166,183 240,183"/>
+<polygon class="c4f" points="170,157 178,153.5 178,160.5"/>
+<polyline class="ln c4" points="240,157 240,100 310,100 310,128"/>
+<polyline class="ln c4" points="310,128 310,134"/>
+<polyline class="ln c4" points="301,134 319,134"/>
+<polyline class="ln c4" points="305,138 315,138"/>
+<polyline class="ln c4" points="308,142 312,142"/>
+<polyline class="ln c4" points="240,183 240,210 247,216.9 233,223.7 247,230.6 233,237.4 247,244.3 233,251.1 240,258 240,285"/>
+<polyline class="ln c4" points="240,285 240,307.5"/>
+<circle class="ln c4" cx="240" cy="311" r="3.5"/>
+<text class="lab" x="251" y="315" text-anchor="start">−10 V</text>
+<text class="lab" x="101" y="100" text-anchor="start">R<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="101" y="238" text-anchor="start">R<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="251" y="238" text-anchor="start">R<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"></tspan></text>
+</svg>
+<figcaption><b>Figure 6.1</b> Circuit for Tutorial 10 Q2: PMOS with a grounded source and split supplies.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 6.1:</b> The source is grounded, \(R_D\) joins the drain to \(-10\ \text{V}\) and the divider runs from \(+5\ \text{V}\) to \(-5\ \text{V}\). \(R_{in}\) is the divider resistance seen from the gate, \(R_1 \parallel R_2\).</p>
+<div class="ex"><div class="hd">Worked example T10.2 <span>Enhancement PMOS, split supplies, given Rin</span></div><div class="bd">
 <p>Here the source sits at 0 V, so the gate voltage is simply \(-V_{SG}\).</p>
 <div class="step"><i>1</i><div>Drain voltage \(= -6\ \text{V}\), so \(V_{R_D} = -6 - (-10) = 4\ \text{V}\) and \(R_D = 4/5\ \text{mA} = 800\ \Omega\).</div></div>
 <div class="step"><i>2</i><div>\(v_{SG} + V_{TP} = \sqrt{5/3} = 1.2910\ \text{V}\), so \(V_{SG} = 3.041\ \text{V}\) (the other root, \(0.459\ \text{V}\), is below threshold).</div></div>
@@ -126,7 +277,50 @@
 </section>
 <section id="t10q3">
 <h2><span class="n">07</span>Tutorial 10 Q3: diode-connected stack</h2>
-<p><b>Question (P3.46c).</b> Two NMOS transistors in series from \(V_{DD} = 5\ \text{V}\) to ground. Both have gate tied to drain: \(M_1\) at \(V_{DD}\), \(M_2\) at \(V_o\). \(V_{TN} = 0.4\ \text{V}\), \(k_n' = 120\ \mu\text{A/V}^2\), \((W/L)_1 = 15\), \((W/L)_2 = 30\). Find \(V_{GS1}\), \(V_{GS2}\), \(V_o\), \(I_D\), and show both are always saturated.</p><div class="ex"><div class="hd">Worked example T10.3 <span>Diode-connected stack</span></div><div class="bd">
+<p><b>Question (P3.46c).</b> Two NMOS transistors in series from \(V_{DD} = 5\ \text{V}\) to ground. Both have gate tied to drain: \(M_1\) at \(V_{DD}\), \(M_2\) at \(V_o\). \(V_{TN} = 0.4\ \text{V}\), \(k_n' = 120\ \mu\text{A/V}^2\), \((W/L)_1 = 15\), \((W/L)_2 = 30\). Find \(V_{GS1}\), \(V_{GS2}\), \(V_o\), \(I_D\), and show both are always saturated.</p>
+<figure>
+<svg viewBox="0 0 300 320" class="fig small" role="img" aria-label="Two NMOS transistors in series, each with its gate tied to its own drain">
+<circle class="ln c4" cx="160" cy="24" r="3.5"/>
+<text class="lab" x="172" y="28" text-anchor="start">V<tspan dy="3" font-size="75%">DD</tspan><tspan dy="-3"> = 5 V</tspan></text>
+<polyline class="ln c3 thin" points="190,36 190,64"/>
+<polygon class="c3f" points="190,66 187,59 193,59"/>
+<text class="lab" x="198" y="56" text-anchor="start">I<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="160,27.5 160,97"/>
+<circle class="c4f" cx="160" cy="50" r="2.6"/>
+<polyline class="ln c4" points="160,50 60,50 60,110 110,110"/>
+<polyline class="ln c4" points="110,96 110,124"/>
+<polyline class="ln c4" points="116,94 116,101"/>
+<polyline class="ln c4" points="116,105 116,115"/>
+<polyline class="ln c4" points="116,119 116,126"/>
+<polyline class="ln c4" points="116,97 160,97"/>
+<polyline class="ln c4" points="116,123 160,123"/>
+<polygon class="c4f" points="130,123 122,126.5 122,119.5"/>
+<polyline class="ln c4" points="160,123 160,190"/>
+<circle class="c4f" cx="160" cy="190" r="2.6"/>
+<polyline class="ln c4" points="160,190 236,190"/>
+<circle class="ln c4" cx="240" cy="190" r="3.5"/>
+<text class="lab" x="252" y="194" text-anchor="start">V<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="160,190 60,190 60,250 110,250"/>
+<polyline class="ln c4" points="110,236 110,264"/>
+<polyline class="ln c4" points="116,234 116,241"/>
+<polyline class="ln c4" points="116,245 116,255"/>
+<polyline class="ln c4" points="116,259 116,266"/>
+<polyline class="ln c4" points="116,237 160,237"/>
+<polyline class="ln c4" points="116,263 160,263"/>
+<polygon class="c4f" points="130,263 122,266.5 122,259.5"/>
+<polyline class="ln c4" points="160,237 160,190"/>
+<polyline class="ln c4" points="160,263 160,290"/>
+<polyline class="ln c4" points="160,290 160,296"/>
+<polyline class="ln c4" points="151,296 169,296"/>
+<polyline class="ln c4" points="155,300 165,300"/>
+<polyline class="ln c4" points="158,304 162,304"/>
+<text class="lab" x="172" y="114" text-anchor="start">M<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="172" y="254" text-anchor="start">M<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"></tspan></text>
+</svg>
+<figcaption><b>Figure 7.1</b> Circuit for Tutorial 10 Q3: two diode-connected NMOS transistors in series.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 7.1:</b> The gate of each transistor is tied to its own drain, so \(v_{DS} = v_{GS}\) for both. \(M_1\) has its drain at \(V_{DD}\), \(M_2\) has its source at ground, and \(V_o\) is the node between them.</p>
+<div class="ex"><div class="hd">Worked example T10.3 <span>Diode-connected stack</span></div><div class="bd">
 <p>Two unknown voltages, one shared current: use the loop and the equal-current condition.</p>
 <div class="step"><i>1</i><div>\(K_1 = 60 \times 15 = 0.9\ \text{mA/V}^2\) and \(K_2 = 60 \times 30 = 1.8\ \text{mA/V}^2\).</div></div>
 <div class="step"><i>2</i><div>Loop: \(V_{GS1} + V_{GS2} = 5\). Equal current: \(K_1(V_{GS1}-0.4)^2 = K_2(V_{GS2}-0.4)^2\).</div></div>
@@ -139,7 +333,46 @@
 <p><b>The memo's route.</b> Substitute \(V_{GS2} = V_{DD} - V_{GS1}\) and square out: \(V_{GS1}^2 - 17.6\,V_{GS1} + 42.16 = 0\), with roots \(2.86\ \text{V}\) and \(14.74\ \text{V}\). Keep the one between \(V_{TN}\) and \(V_{DD}\). It gives the same answer as the square-root route, which avoids the quadratic.</p></section>
 <section id="t10q4">
 <h2><span class="n">08</span>Tutorial 10 Q4: PMOS LED switch</h2>
-<p><b>Question (P3.52).</b> A PMOS switches an LED (\(V_\gamma = 1.6\ \text{V}\)) from \(+5\ \text{V}\). The source is at the supply, the gate is \(V_I\), and \(R_D\) in series with the LED goes to ground. \(V_{TP} = -0.6\ \text{V}\), \(k_p' = 40\ \mu\text{A/V}^2\), \(\lambda = 0\). Design \(R_D\) and \(W/L\) for \(I_D = 15\ \text{mA}\) at \(V_I = 0\) with \(V_{SD} = 0.2\ \text{V}\), and verify the state.</p><div class="ex"><div class="hd">Worked example T10.4 <span>PMOS LED switch</span></div><div class="bd">
+<p><b>Question (P3.52).</b> A PMOS switches an LED (\(V_\gamma = 1.6\ \text{V}\)) from \(+5\ \text{V}\). The source is at the supply, the gate is \(V_I\), and \(R_D\) in series with the LED goes to ground. \(V_{TP} = -0.6\ \text{V}\), \(k_p' = 40\ \mu\text{A/V}^2\), \(\lambda = 0\). Design \(R_D\) and \(W/L\) for \(I_D = 15\ \text{mA}\) at \(V_I = 0\) with \(V_{SD} = 0.2\ \text{V}\), and verify the state.</p>
+<figure>
+<svg viewBox="0 0 340 330" class="fig small" role="img" aria-label="PMOS switch driving an LED through a series resistor to ground">
+<circle class="ln c4" cx="210" cy="24" r="3.5"/>
+<text class="lab" x="222" y="28" text-anchor="start">+5 V</text>
+<polyline class="ln c4" points="210,27.5 210,97 176,97"/>
+<text class="lab" x="26" y="114" text-anchor="start">V<tspan dy="3" font-size="75%">I</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="52,110 170,110"/>
+<polyline class="ln c4" points="170,96 170,124"/>
+<polyline class="ln c4" points="176,94 176,101"/>
+<polyline class="ln c4" points="176,105 176,115"/>
+<polyline class="ln c4" points="176,119 176,126"/>
+<polyline class="ln c4" points="176,97 210,97"/>
+<polyline class="ln c4" points="176,123 210,123"/>
+<polygon class="c4f" points="180,97 188,93.5 188,100.5"/>
+<polyline class="ln c4" points="210,123 210,160"/>
+<polyline class="ln c4" points="210,160 210,176.2 217,181.9 203,187.5 217,193.2 203,198.8 217,204.5 203,210.1 210,215.8 210,232"/>
+<polyline class="ln c4" points="210,232 210,262"/>
+<polyline class="ln c4" points="202,262 218,262 210,278 202,262"/>
+<polyline class="ln c4" points="202,278 218,278"/>
+<polyline class="ln c4" points="210,278 210,300"/>
+<polyline class="ln c4" points="210,300 210,306"/>
+<polyline class="ln c4" points="201,306 219,306"/>
+<polyline class="ln c4" points="205,310 215,310"/>
+<polyline class="ln c4" points="208,314 212,314"/>
+<polyline class="ln c3 thin" points="186,172 186,214"/>
+<polygon class="c3f" points="186,216 183,209 189,209"/>
+<text class="lab" x="179" y="198" text-anchor="end">I<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="222" y="203" text-anchor="start">R<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="192" y="284" text-anchor="end">LED</text>
+<polyline class="ln c3 thin" points="228,272 248,254"/>
+<polygon class="c3f" points="250,252 247.2,259.1 242.9,254.8"/>
+<polyline class="ln c3 thin" points="228,284 248,266"/>
+<polygon class="c3f" points="250,264 247.2,271.1 242.9,266.8"/>
+<text class="lab" x="258" y="264" text-anchor="start">Light output</text>
+</svg>
+<figcaption><b>Figure 8.1</b> Circuit for Tutorial 10 Q4: PMOS switching an LED.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 8.1:</b> The source is at \(+5\ \text{V}\) and the gate is driven by \(V_I\). With \(V_I = 0\) the transistor conducts, and \(I_D\) flows through \(R_D\) and the LED to ground.</p>
+<div class="ex"><div class="hd">Worked example T10.4 <span>PMOS LED switch</span></div><div class="bd">
 <p>The transistor is deliberately in non-saturation, so the triode equation is the one to use.</p>
 <div class="step"><i>1</i><div>Output loop: \(5 = V_{SD} + I_DR_D + V_\gamma\), so \(R_D = (5 - 0.2 - 1.6)/15\ \text{mA} = 213.3\ \Omega\).</div></div>
 <div class="step"><i>2</i><div>\(V_I = 0\) gives \(V_{SG} = 5\ \text{V}\) and \(V_{SD}(sat) = 5 - 0.6 = 4.4\ \text{V}\). The design value \(0.2\ \text{V}\) is far below, so non-saturation, as assumed.</div></div>

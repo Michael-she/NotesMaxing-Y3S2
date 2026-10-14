@@ -853,6 +853,117 @@
 <section id="tut9">
 <h2><span class="n">09</span>Tutorial 9 map</h2>
 <p>Tutorial 9 (30 September) mixes this week's BJT circuits with MOSFET questions on equations that Week 10 teaches. This table shows where to find the method for each question. The answers are the memo's, for checking your own working.</p><div class="tbl"><table><thead><tr><th>Question</th><th>Tests</th><th>Method is in</th><th>Memo answers</th></tr></thead><tbody><tr><td>1 (P5.79)</td><td>npn-npn direct-coupled pair, analysis</td><td>Section 7, subsection on other pairs, and example 7.4</td><td>\(I_{CQ1} = 1.737\ \text{mA}\), \(I_{CQ2} = 2.784\ \text{mA}\), \(V_{CEQ1} = 2.993\ \text{V}\), \(V_{CEQ2} = 5.96\ \text{V}\)</td></tr><tr><td>2 (P5.83)</td><td>pnp-npn pair, design from currents</td><td>Section 7, design steps and the pnp-npn pattern</td><td>\(R_{E1} = 2.93\ \text{k}\Omega\), \(R_{C1} = 5.22\ \text{k}\Omega\), \(R_{E2} = 4.25\ \text{k}\Omega\), \(R_{C2} = 3.21\ \text{k}\Omega\)</td></tr><tr><td>3 (P3.10)</td><td>NMOS: width from \(I_D\), triode current, \(V_{DS(sat)}\)</td><td>Week 10, section 4</td><td>\(W = 22.2\ \mu\text{m}\), \(I_D = 0.533\ \text{mA}\), \(V_{DS(sat)} = 0.5\ \text{V}\)</td></tr><tr><td>4 (P3.28)</td><td>NMOS divider bias design with a given \(R_{in}\)</td><td>Week 10, sections 9 and 10</td><td>\(R_1 = 445.4\ \text{k}\Omega\), \(R_2 = 363\ \text{k}\Omega\)</td></tr><tr><td>5 (P3.30)</td><td>PMOS bias circuit with \(R_S\) and \(R_D\)</td><td>Week 10, sections 9 and 10</td><td>\(I_D = 231.2\ \mu\text{A}\), \(V_{SG} = 1.48\ \text{V}\), \(V_{SD} = 4.73\ \text{V}\)</td></tr></tbody></table></div>
+<figure>
+<svg viewBox="0 0 460 372" class="fig small" role="img" aria-label="Two direct-coupled npn transistors with a divider on the first base and a supply of plus and minus 10 volts">
+<circle class="ln c4" cx="260" cy="26" r="3.5"/>
+<polyline class="ln c4" points="260,29.5 260,48"/>
+<text class="lab" x="271" y="30" text-anchor="start">+10 V</text>
+<polyline class="ln c4" points="130,48 350,48"/>
+<circle class="c4f" cx="260" cy="48" r="2.6"/>
+<polyline class="ln c4" points="130,48 130,85 137,91.9 123,98.7 137,105.6 123,112.4 137,119.3 123,126.1 130,133 130,170"/>
+<circle class="c4f" cx="130" cy="170" r="2.6"/>
+<polyline class="ln c4" points="130,170 130,216 137,222.9 123,229.7 137,236.6 123,243.4 137,250.3 123,257.1 130,264 130,310"/>
+<polyline class="ln c4" points="50,310 260,310"/>
+<circle class="c4f" cx="130" cy="310" r="2.6"/>
+<polyline class="ln c4" points="130,310 130,316"/>
+<polyline class="ln c4" points="121,316 139,316"/>
+<polyline class="ln c4" points="125,320 135,320"/>
+<polyline class="ln c4" points="128,324 132,324"/>
+<text class="lab" x="119" y="100" text-anchor="end">R<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="119" y="116" text-anchor="end">100 kΩ</text>
+<text class="lab" x="119" y="238" text-anchor="end">R<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="119" y="254" text-anchor="end">40 kΩ</text>
+<circle class="ln c4" cx="50" cy="240" r="16"/>
+<text class="lab" x="50" y="237" text-anchor="middle">+</text>
+<text class="lab" x="50" y="255" text-anchor="middle">−</text>
+<polyline class="ln c4" points="50,224 50,170 86,170"/>
+<polyline class="ln c4" points="86,158 86,182"/>
+<polyline class="ln c4" points="94,158 94,182"/>
+<polyline class="ln c4" points="94,170 130,170"/>
+<polyline class="ln c4" points="50,256 50,310"/>
+<text class="lab" x="26" y="244" text-anchor="end">v<tspan dy="3" font-size="75%">s</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="90" y="204" text-anchor="middle">C<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="130,170 240,170"/>
+<polyline class="ln c4" points="240,156 240,184"/>
+<polyline class="ln c4" points="240,164 260,152 260,144"/>
+<polyline class="ln c4" points="240,176 260,188 260,196"/>
+<polygon class="c4f" points="257,186.2 248.3,185.1 251.9,179.1"/>
+<polyline class="ln c4" points="260,48 260,63.8 267,69.2 253,74.8 267,80.2 253,85.8 267,91.2 253,96.8 260,102.2 260,118"/>
+<circle class="c4f" cx="260" cy="118" r="2.6"/>
+<polyline class="ln c4" points="260,118 260,144"/>
+<polyline class="ln c4" points="260,196 260,229 267,235.9 253,242.7 267,249.6 253,256.4 267,263.3 253,270.1 260,277 260,310"/>
+<text class="lab" x="249" y="80" text-anchor="end">R<tspan dy="3" font-size="75%">C1</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="249" y="96" text-anchor="end">3 kΩ</text>
+<text class="lab" x="249" y="245" text-anchor="end">R<tspan dy="3" font-size="75%">E1</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="249" y="261" text-anchor="end">1 kΩ</text>
+<text class="lab" x="272" y="174" text-anchor="start">Q<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="260,118 330,118"/>
+<polyline class="ln c4" points="330,104 330,132"/>
+<polyline class="ln c4" points="330,112 350,100 350,92"/>
+<polyline class="ln c4" points="330,124 350,136 350,144"/>
+<polygon class="c4f" points="347,134.2 338.3,133.1 341.9,127.1"/>
+<polyline class="ln c4" points="350,48 350,92"/>
+<polyline class="ln c4" points="350,144 350,230"/>
+<circle class="c4f" cx="350" cy="230" r="2.6"/>
+<polyline class="ln c4" points="350,230 406,230"/>
+<circle class="ln c4" cx="410" cy="230" r="3.5"/>
+<text class="lab" x="422" y="234" text-anchor="start">v<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="350,230 350,251 357,257.9 343,264.7 357,271.6 343,278.4 357,285.3 343,292.1 350,299 350,320"/>
+<polyline class="ln c4" points="350,320 350,346.5"/>
+<circle class="ln c4" cx="350" cy="350" r="3.5"/>
+<text class="lab" x="361" y="354" text-anchor="start">−10 V</text>
+<text class="lab" x="361" y="268" text-anchor="start">R<tspan dy="3" font-size="75%">E2</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="361" y="284" text-anchor="start">5 kΩ</text>
+<text class="lab" x="362" y="122" text-anchor="start">Q<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"></tspan></text>
+</svg>
+<figcaption><b>Figure 9.1</b> Circuit for Tutorial 9 Q1 (P5.79): two direct-coupled npn transistors.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 9.1:</b> \(Q_1\) is a common-emitter stage with a divider on its base and \(R_{E1}\) in the emitter. Its collector joins the base of \(Q_2\) directly, and \(Q_2\) is an emitter follower with \(R_{E2}\) to \(-10\ \text{V}\). Both transistors have \(\beta = 120\) and \(V_{BE(on)} = 0.7\ \text{V}\).</p>
+<figure>
+<svg viewBox="0 0 460 400" class="fig small" role="img" aria-label="A pnp transistor driving an npn transistor directly, between plus and minus 5 volts">
+<circle class="ln c4" cx="200" cy="26" r="3.5"/>
+<polyline class="ln c4" points="200,29.5 200,48"/>
+<text class="lab" x="211" y="30" text-anchor="start">+5 V</text>
+<polyline class="ln c4" points="60,48 360,48"/>
+<circle class="c4f" cx="200" cy="48" r="2.6"/>
+<polyline class="ln c4" points="60,48 60,85 67,91.9 53,98.7 67,105.6 53,112.4 67,119.3 53,126.1 60,133 60,170"/>
+<circle class="c4f" cx="60" cy="170" r="2.6"/>
+<polyline class="ln c4" points="60,170 60,236 67,242.9 53,249.7 67,256.6 53,263.4 67,270.3 53,277.1 60,284 60,350"/>
+<polyline class="ln c4" points="60,350 360,350"/>
+<circle class="c4f" cx="200" cy="350" r="2.6"/>
+<polyline class="ln c4" points="200,350 200,368.5"/>
+<circle class="ln c4" cx="200" cy="372" r="3.5"/>
+<text class="lab" x="211" y="376" text-anchor="start">−5 V</text>
+<text class="lab" x="71" y="105" text-anchor="start">R<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="71" y="121" text-anchor="start">50 kΩ</text>
+<text class="lab" x="71" y="262" text-anchor="start">R<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="71" y="278" text-anchor="start">100 kΩ</text>
+<polyline class="ln c4" points="60,170 180,170"/>
+<polyline class="ln c4" points="180,156 180,184"/>
+<polyline class="ln c4" points="180,164 200,152 200,144"/>
+<polyline class="ln c4" points="180,176 200,188 200,196"/>
+<polygon class="c4f" points="184,161.6 189.1,154.5 192.7,160.5"/>
+<polyline class="ln c4" points="200,48 200,72 207,78.9 193,85.7 207,92.6 193,99.4 207,106.3 193,113.1 200,120 200,144"/>
+<polyline class="ln c4" points="200,196 200,215"/>
+<circle class="c4f" cx="200" cy="215" r="2.6"/>
+<polyline class="ln c4" points="200,215 200,258.5 207,265.4 193,272.2 207,279.1 193,285.9 207,292.8 193,299.6 200,306.5 200,350"/>
+<text class="lab" x="211" y="100" text-anchor="start">R<tspan dy="3" font-size="75%">E1</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="211" y="290" text-anchor="start">R<tspan dy="3" font-size="75%">C1</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="212" y="176" text-anchor="start">Q<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="200,215 340,215"/>
+<polyline class="ln c4" points="340,201 340,229"/>
+<polyline class="ln c4" points="340,209 360,197 360,189"/>
+<polyline class="ln c4" points="340,221 360,233 360,241"/>
+<polygon class="c4f" points="357,231.2 348.3,230.1 351.9,224.1"/>
+<polyline class="ln c4" points="360,48 360,94.5 367,101.4 353,108.2 367,115.1 353,121.9 367,128.8 353,135.6 360,142.5 360,189"/>
+<polyline class="ln c4" points="360,241 360,271.5 367,278.4 353,285.2 367,292.1 353,298.9 367,305.8 353,312.6 360,319.5 360,350"/>
+<text class="lab" x="371" y="120" text-anchor="start">R<tspan dy="3" font-size="75%">C2</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="371" y="300" text-anchor="start">R<tspan dy="3" font-size="75%">E2</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="372" y="221" text-anchor="start">Q<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"></tspan></text>
+</svg>
+<figcaption><b>Figure 9.2</b> Circuit for Tutorial 9 Q2 (P5.83): a pnp transistor driving an npn transistor.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 9.2:</b> \(Q_1\) is pnp, with \(R_{E1}\) to \(+5\ \text{V}\) and its base set by \(R_1 = 50\ \text{k}\Omega\) and \(R_2 = 100\ \text{k}\Omega\). Its collector node feeds the base of the npn \(Q_2\). Both transistors have \(\beta = 100\). The four resistors \(R_{C1}\), \(R_{E1}\), \(R_{C2}\) and \(R_{E2}\) are the unknowns.</p>
 <p>Tutorial 9 question 3 has one slip in the printed problem: it gives the channel length as "\(L = 0.8\ \mu\text{A}\)". The unit has to be micrometres, and the answer \(W = 22.2\ \mu\text{m}\) in the memo only works for \(L = 0.8\ \mu\text{m}\).</p></section>
 <section id="practice">
 <h2><span class="n">10</span>Practice problems</h2>
