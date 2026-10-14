@@ -38,6 +38,7 @@ CS245-Computer-Systems/
     programming/week1.html ... week5.html
     papers/
 Electronics/
+    Week9_...html, Week10_...html
     papers/
 ```
 

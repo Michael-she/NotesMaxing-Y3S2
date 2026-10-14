@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 10: MOSFETs and Common-Source DC Analysis · EL245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=electronics">&larr; Electronics</a>
+  <div class="k">EL245 · Week 10</div>
+  <ol>
+    <li><a href="#mos-cap">1. The MOS capacitor</a></li>
+    <li><a href="#nmos">2. The n-channel enhancement MOSFET</a></li>
+    <li><a href="#nmos-iv">3. NMOS current-voltage characteristics</a></li>
+    <li><a href="#kn">4. Kn, W/L and the region of operation</a></li>
+    <li><a href="#pmos">5. The p-channel enhancement MOSFET</a></li>
+    <li><a href="#symbols">6. Symbols, conventions and regions</a></li>
+    <li><a href="#depletion">7. Depletion-mode MOSFETs</a></li>
+    <li><a href="#summary">8. Summary of transistor operation</a></li>
+    <li><a href="#cs-analysis">9. Common-source DC analysis</a></li>
+    <li class="sub"><a href="#s9-fail">When saturation fails</a></li>
+    <li><a href="#cs-design">10. Designing common-source circuits</a></li>
+    <li class="sub"><a href="#s10-rin">Input resistance specified</a></li>
+    <li class="sub"><a href="#s10-frac">Bias current limited</a></li>
+    <li class="sub"><a href="#s10-stack">Diode-connected stack</a></li>
+    <li class="sub"><a href="#s10-switch">PMOS LED switch</a></li>
+    <li><a href="#tut10">11. Tutorial 10 map</a></li>
+    <li><a href="#practice">12. Practice problems</a></li>
+    <li><a href="#sheet">13. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">ELECTRONICS 245 · CHAPTER 3 · 3.1 AND 3.2</div>
+  <h1>MOSFETs and Common-Source DC Analysis</h1>
+  <p>The MOS field-effect transistor from first principles: the MOS capacitor, NMOS and PMOS enhancement devices, depletion mode, the current equations, and DC analysis and design of common-source circuits. Built from Lectures 21 to 25 and Tutorial 10.</p>
+</header>
+
+<section id="mos-cap">
+<h2><span class="n">01</span>The MOS capacitor</h2>
+<p>A BJT is controlled by a base current. A <b>field-effect transistor</b> (FET) is controlled by a voltage: the voltage on an insulated gate sets how much current can flow between two other terminals, and the gate itself draws no DC current. This chapter covers the metal-oxide-semiconductor FET, or MOSFET, and its DC behaviour.</p><div class="tbl"><table><thead><tr><th>Family</th><th>Variants</th></tr></thead><tbody><tr><td>BJT</td><td>npn, pnp</td></tr><tr><td>Junction FET</td><td>n-channel and p-channel, both depletion mode</td></tr><tr><td>MOSFET, depletion mode</td><td>n-channel, p-channel</td></tr><tr><td>MOSFET, enhancement mode</td><td>n-channel, p-channel</td></tr></tbody></table></div>
+<p>Everything about a MOSFET starts from the <b>MOS capacitor</b>: a metal gate, a thin insulating oxide and a semiconductor body stacked like a parallel-plate capacitor.</p><div class="box def"><span class="label">Definition</span><b>MOS capacitor</b>: a gate terminal (metal, for example aluminium), an oxide of thickness \(t_{ox}\) and permittivity \(\varepsilon_{ox}\), and a semiconductor substrate. Applying a voltage between gate and substrate puts equal and opposite charge on the two plates, and an electric field appears across the oxide.</div>
+<p>What the bottom plate is made of depends on the sign of the gate voltage. Take a p-type substrate, where holes are the majority carriers.</p>
+<ul>
+<li><b>Negative gate.</b> The field pulls holes towards the oxide. They pile up at the interface and form the positive charge of the bottom plate. This is <b>accumulation</b>.</li>
+<li><b>Small positive gate.</b> The field pushes holes away from the interface. The fixed acceptor ions they leave behind form a negative space-charge region, and that region is the bottom plate. This is <b>depletion</b>.</li>
+<li><b>Larger positive gate.</b> The field grows until minority-carrier electrons are attracted to the interface. They form an <b>electron inversion layer</b>, and the amount of charge in it depends on the gate voltage.</li>
+</ul><figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="MOS capacitor on p-type silicon with negative, small positive and large positive gate voltage">
+<text class="lab b" x="110.0" y="18.0" text-anchor="middle">Negative gate: accumulation</text>
+<rect class="ln c4" x="40" y="44" width="140" height="18"/>
+<text class="tk" x="186.0" y="56.0" text-anchor="start">gate</text>
+<rect class="ln c3" x="40" y="62" width="140" height="10"/>
+<text class="tk" x="186.0" y="71.0" text-anchor="start">oxide</text>
+<rect class="ln c4" x="40" y="72" width="140" height="120"/>
+<text class="tk" x="110.0" y="212.0" text-anchor="middle">p-type substrate</text>
+<text class="lab" x="56.0" y="56.0" text-anchor="middle">−</text>
+<text class="lab" x="82.0" y="56.0" text-anchor="middle">−</text>
+<text class="lab" x="108.0" y="56.0" text-anchor="middle">−</text>
+<text class="lab" x="134.0" y="56.0" text-anchor="middle">−</text>
+<text class="lab" x="160.0" y="56.0" text-anchor="middle">−</text>
+<text class="lab" x="56.0" y="90.0" text-anchor="middle">+</text>
+<text class="lab" x="82.0" y="90.0" text-anchor="middle">+</text>
+<text class="lab" x="108.0" y="90.0" text-anchor="middle">+</text>
+<text class="lab" x="134.0" y="90.0" text-anchor="middle">+</text>
+<text class="lab" x="160.0" y="90.0" text-anchor="middle">+</text>
+<text class="tk" x="110.0" y="130.0" text-anchor="middle">holes pile up</text>
+<text class="tk" x="110.0" y="144.0" text-anchor="middle">at the interface</text>
+<text class="lab b" x="320.0" y="18.0" text-anchor="middle">Small positive gate: depletion</text>
+<rect class="ln c4" x="250" y="44" width="140" height="18"/>
+<text class="tk" x="396.0" y="56.0" text-anchor="start">gate</text>
+<rect class="ln c3" x="250" y="62" width="140" height="10"/>
+<text class="tk" x="396.0" y="71.0" text-anchor="start">oxide</text>
+<rect class="ln c4" x="250" y="72" width="140" height="120"/>
+<text class="tk" x="320.0" y="212.0" text-anchor="middle">p-type substrate</text>
+<text class="lab" x="266.0" y="56.0" text-anchor="middle">+</text>
+<text class="lab" x="292.0" y="56.0" text-anchor="middle">+</text>
+<text class="lab" x="318.0" y="56.0" text-anchor="middle">+</text>
+<text class="lab" x="344.0" y="56.0" text-anchor="middle">+</text>
+<text class="lab" x="370.0" y="56.0" text-anchor="middle">+</text>
+<rect class="ln c2 dash" x="250" y="72" width="140" height="44"/>
+<text class="lab" x="266.0" y="98.0" text-anchor="middle">−</text>
+<text class="lab" x="292.0" y="98.0" text-anchor="middle">−</text>
+<text class="lab" x="318.0" y="98.0" text-anchor="middle">−</text>
+<text class="lab" x="344.0" y="98.0" text-anchor="middle">−</text>
+<text class="lab" x="370.0" y="98.0" text-anchor="middle">−</text>
+<text class="tk" x="320.0" y="136.0" text-anchor="middle">depletion region:</text>
+<text class="tk" x="320.0" y="150.0" text-anchor="middle">fixed acceptor ions</text>
+<text class="lab b" x="530.0" y="18.0" text-anchor="middle">Large positive gate: inversion</text>
+<rect class="ln c4" x="460" y="44" width="140" height="18"/>
+<text class="tk" x="606.0" y="56.0" text-anchor="start">gate</text>
+<rect class="ln c3" x="460" y="62" width="140" height="10"/>
+<text class="tk" x="606.0" y="71.0" text-anchor="start">oxide</text>
+<rect class="ln c4" x="460" y="72" width="140" height="120"/>
+<text class="tk" x="530.0" y="212.0" text-anchor="middle">p-type substrate</text>
+<text class="lab" x="476.0" y="56.0" text-anchor="middle">+</text>
+<text class="lab" x="502.0" y="56.0" text-anchor="middle">+</text>
+<text class="lab" x="528.0" y="56.0" text-anchor="middle">+</text>
+<text class="lab" x="554.0" y="56.0" text-anchor="middle">+</text>
+<text class="lab" x="580.0" y="56.0" text-anchor="middle">+</text>
+<line class="ln c1" x1="460" y1="76" x2="600" y2="76"/>
+<text class="tk" x="530.0" y="94.0" text-anchor="middle">electron inversion layer</text>
+<rect class="ln c2 dash" x="460" y="72" width="140" height="60"/>
+<text class="tk" x="530.0" y="150.0" text-anchor="middle">depletion region below</text>
+</svg>
+<figcaption><b>Figure 1.1</b> A MOS capacitor on p-type silicon as the gate voltage goes from negative to large and positive.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> Left to right: holes accumulate, a depletion region forms, and an electron layer appears under the oxide. The dashed outline marks the depletion region, which stays under the inversion layer.</p>
+<p>An n-type substrate behaves the same way with the signs swapped. A positive gate accumulates electrons. A sufficiently negative gate repels electrons, leaves a positive space-charge region, and then attracts minority-carrier holes into a <b>hole inversion layer</b>.</p><div class="box def"><span class="label">Definition</span><b>Enhancement mode</b>: a voltage has to be applied to the gate before an inversion layer exists. On a p-type substrate the voltage is positive and the layer is electrons. On an n-type substrate the voltage is negative and the layer is holes.</div>
+<div class="box intuition"><span class="label">Intuition</span>The gate and the body are the two plates of a capacitor. Whatever charge the gate carries, the body has to show the opposite charge, and the sign of the gate voltage decides what the body uses to supply it: majority carriers, bare ions, or minority carriers dragged to the surface.</div>
+<div class="box watch"><span class="label">Watch out</span>The inversion layer is made of <i>minority</i> carriers. An enhancement NMOS conducts through electrons even though its substrate is p-type, and the layer only exists while the gate voltage is above the threshold.</div>
+<p class="reading"><b>Reading</b> Lecture 21, slides 3 to 8 (transistor family and the two-terminal MOS structure).</p>
+</section>
+<section id="nmos">
+<h2><span class="n">02</span>The n-channel enhancement MOSFET</h2>
+<p>The n-channel enhancement MOSFET adds two heavily doped n-type regions, the <b>source</b> and the <b>drain</b>, to either side of the MOS capacitor. The gate, oxide and p-type substrate (the body) are the same as before.</p><figure>
+<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="n-channel enhancement MOSFET with zero gate voltage and with a channel formed">
+<text class="lab b" x="160.0" y="18.0" text-anchor="middle">vGS = 0: no channel</text>
+<rect class="ln c4" x="20" y="110" width="280" height="120"/>
+<text class="tk" x="160.0" y="252.0" text-anchor="middle">p-type substrate (body)</text>
+<rect class="ln c1" x="40" y="110" width="60" height="30"/>
+<rect class="ln c1" x="220" y="110" width="60" height="30"/>
+<text class="lab" x="70.0" y="130.0" text-anchor="middle">n+</text>
+<text class="lab" x="250.0" y="130.0" text-anchor="middle">n+</text>
+<rect class="ln c3" x="100" y="92" width="120" height="18"/>
+<rect class="ln c4" x="100" y="68" width="120" height="24"/>
+<text class="lab" x="160.0" y="84.0" text-anchor="middle">gate</text>
+<line class="ln c4" x1="70" y1="110" x2="70" y2="64"/>
+<line class="ln c4" x1="250" y1="110" x2="250" y2="64"/>
+<line class="ln c4" x1="160" y1="68" x2="160" y2="44"/>
+<text class="tk" x="70.0" y="58.0" text-anchor="middle">source</text>
+<text class="tk" x="250.0" y="58.0" text-anchor="middle">drain</text>
+<text class="tk" x="160.0" y="40.0" text-anchor="middle">gate</text>
+<line class="ln c4 thin" x1="100" y1="152" x2="220" y2="152"/>
+<text class="tk" x="160.0" y="166.0" text-anchor="middle">L</text>
+<text class="tk" x="160.0" y="196.0" text-anchor="middle">two back-to-back p-n junctions: iD is about zero</text>
+<text class="lab b" x="480.0" y="18.0" text-anchor="middle">vGS above VTN: channel formed</text>
+<rect class="ln c4" x="340" y="110" width="280" height="120"/>
+<text class="tk" x="480.0" y="252.0" text-anchor="middle">p-type substrate (body)</text>
+<rect class="ln c1" x="360" y="110" width="60" height="30"/>
+<rect class="ln c1" x="540" y="110" width="60" height="30"/>
+<text class="lab" x="390.0" y="130.0" text-anchor="middle">n+</text>
+<text class="lab" x="570.0" y="130.0" text-anchor="middle">n+</text>
+<rect class="ln c3" x="420" y="92" width="120" height="18"/>
+<rect class="ln c4" x="420" y="68" width="120" height="24"/>
+<text class="lab" x="480.0" y="84.0" text-anchor="middle">gate</text>
+<line class="ln c4" x1="390" y1="110" x2="390" y2="64"/>
+<line class="ln c4" x1="570" y1="110" x2="570" y2="64"/>
+<line class="ln c4" x1="480" y1="68" x2="480" y2="44"/>
+<text class="tk" x="390.0" y="58.0" text-anchor="middle">source</text>
+<text class="tk" x="570.0" y="58.0" text-anchor="middle">drain</text>
+<text class="tk" x="480.0" y="40.0" text-anchor="middle">gate</text>
+<line class="ln c4 thin" x1="420" y1="152" x2="540" y2="152"/>
+<text class="tk" x="480.0" y="166.0" text-anchor="middle">L</text>
+<rect class="c1f" x="420" y="111" width="120" height="4"/>
+<text class="tk" x="480.0" y="196.0" text-anchor="middle">electron inversion layer joins source and drain</text>
+</svg>
+<figcaption><b>Figure 2.1</b> An n-channel enhancement MOSFET with no gate voltage (left) and with a channel formed (right).</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> The channel length \(L\) is the gap between source and drain under the gate, typically below \(1\ \mu\text{m}\), and the oxide is typically thinner than \(400\ \text{Å}\).</p>
+<p>With \(v_{GS} = 0\) the source and drain are separated by p-type material, which is equivalent to two back-to-back diodes. Whatever the drain voltage, the current is essentially zero. When a positive gate voltage above the threshold is applied, an electron inversion layer forms at the oxide-semiconductor interface and joins the two n regions. Current can now flow between them.</p><div class="box def"><span class="label">Definition</span><b>Threshold voltage \(V_{TN}\)</b>: the gate-to-source voltage at which the inversion layer forms, which is the voltage needed to turn the MOSFET on. For an enhancement NMOS, \(V_{TN} \gt 0\).</div>
+<p>The roles of the two n regions follow from what they do. The source supplies the carriers and the drain collects them. The amount of current depends on the charge in the inversion layer, which depends on \(v_{GS}\). No current flows through the gate (it is an insulator) or through the substrate.</p><div class="key"><span class="tag">Key idea</span>Gate current is zero in DC, so \(i_D\) is also the source current and the only thing the gate does is set the channel charge. In every DC circuit later this week, the gate sits at whatever voltage its resistor divider gives it, with no loading from the transistor.</div>
+<div class="note"><span class="tag">Units</span>Lengths in this chapter appear in micrometres and angstroms, but the permittivity is given per centimetre, so convert to centimetres before using it: \(1\ \mu\text{m} = 10^{-4}\ \text{cm}\) and \(1\ \text{Å} = 10^{-8}\ \text{cm}\).</div>
+<p class="reading"><b>Reading</b> Lecture 21, slides 9 and 10 (transistor structure and basic operation).</p>
+</section>
+<section id="nmos-iv">
+<h2><span class="n">03</span>NMOS current-voltage characteristics</h2>
+<p>The current in an NMOS depends on two voltages: \(v_{GS}\), which sets the channel charge, and \(v_{DS}\), which pushes the charge from source to drain. Three regions cover every case.</p>
+<ul>
+<li><b>Cutoff</b>, \(v_{GS} \lt V_{TN}\): no inversion layer, so \(i_D = 0\).</li>
+<li><b>Non-saturation</b> (also called triode), \(v_{GS} \gt V_{TN}\) and \(v_{DS} \lt v_{DS}(sat)\): the channel runs the full length and the current rises with \(v_{DS}\).</li>
+<li><b>Saturation</b>, \(v_{GS} \gt V_{TN}\) and \(v_{DS} \gt v_{DS}(sat)\): the channel narrows to a point at the drain end and the current stops depending on \(v_{DS}\).</li>
+</ul><div class="eq"><span class="tag">Edge of saturation</span>\[ v_{DS}(\text{sat}) = v_{GS} - V_{TN} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(v_{DS}(\text{sat})\)</dt><dd>The drain-source voltage at which the channel pinches off at the drain, in V.</dd><dt>\(v_{GS}\)</dt><dd>Gate-to-source voltage, in V.</dd><dt>\(V_{TN}\)</dt><dd>Threshold voltage, in V.</dd></dl>
+</div>
+<p>Notice that \(v_{DS}(sat)\) depends on \(v_{GS}\). At the pinch-off point the oxide at the drain end only sees \(v_{GS} - v_{DS} = V_{TN}\), which is just enough to hold a layer of zero thickness. A bigger gate voltage therefore moves the edge of saturation to a larger \(v_{DS}\).</p><div class="eq"><span class="tag">Non-saturation (triode) current</span>\[ i_D = K_n\left[\,2\,(v_{GS} - V_{TN})\,v_{DS} - v_{DS}^{\,2}\,\right] \qquad v_{DS} \lt v_{DS}(\text{sat}) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(i_D\)</dt><dd>Drain current, in A.</dd><dt>\(K_n\)</dt><dd>Conduction parameter, in A/V\(^2\). It is set by the transistor geometry and the process.</dd><dt>\(v_{GS}\)</dt><dd>Gate-to-source voltage, in V.</dd><dt>\(V_{TN}\)</dt><dd>Threshold voltage, in V.</dd><dt>\(v_{DS}\)</dt><dd>Drain-to-source voltage, in V.</dd></dl>
+</div>
+<div class="eq"><span class="tag">Saturation current</span>\[ i_D = K_n\,(v_{GS} - V_{TN})^2 \qquad v_{DS} \ge v_{DS}(\text{sat}) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(i_D\)</dt><dd>Drain current, in A. It does not depend on \(v_{DS}\) in the ideal device, so the output resistance \(r_o\) is infinite.</dd><dt>\(K_n\)</dt><dd>Conduction parameter, in A/V\(^2\).</dd><dt>\(v_{GS} - V_{TN}\)</dt><dd>The overdrive voltage, in V.</dd></dl>
+</div>
+<div class="note"><span class="tag">Check</span>At the edge, \(v_{DS} = v_{GS} - V_{TN}\), the triode equation gives \(K_n[2(v_{GS}-V_{TN})^2 - (v_{GS}-V_{TN})^2] = K_n(v_{GS}-V_{TN})^2\), which is the saturation equation. The current is continuous across the edge, so the two formulas can never disagree there.</div>
+<figure>
+<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="NMOS output characteristics for four gate voltages with the saturation boundary">
+<rect class="frame" x="60" y="16" width="560" height="240"/>
+<line class="grid" x1="60.0" y1="16" x2="60.0" y2="256"/>
+<text class="tk" x="60.0" y="272.0" text-anchor="middle">0</text>
+<line class="grid" x1="153.3" y1="16" x2="153.3" y2="256"/>
+<text class="tk" x="153.3" y="272.0" text-anchor="middle">1</text>
+<line class="grid" x1="246.7" y1="16" x2="246.7" y2="256"/>
+<text class="tk" x="246.7" y="272.0" text-anchor="middle">2</text>
+<line class="grid" x1="340.0" y1="16" x2="340.0" y2="256"/>
+<text class="tk" x="340.0" y="272.0" text-anchor="middle">3</text>
+<line class="grid" x1="433.3" y1="16" x2="433.3" y2="256"/>
+<text class="tk" x="433.3" y="272.0" text-anchor="middle">4</text>
+<line class="grid" x1="526.7" y1="16" x2="526.7" y2="256"/>
+<text class="tk" x="526.7" y="272.0" text-anchor="middle">5</text>
+<line class="grid" x1="620.0" y1="16" x2="620.0" y2="256"/>
+<text class="tk" x="620.0" y="272.0" text-anchor="middle">6</text>
+<line class="grid" x1="60" y1="256.0" x2="620" y2="256.0"/>
+<text class="tk" x="53.0" y="260.0" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="221.7" x2="620" y2="221.7"/>
+<text class="tk" x="53.0" y="225.7" text-anchor="end">0.5</text>
+<line class="grid" x1="60" y1="187.4" x2="620" y2="187.4"/>
+<text class="tk" x="53.0" y="191.4" text-anchor="end">1</text>
+<line class="grid" x1="60" y1="153.1" x2="620" y2="153.1"/>
+<text class="tk" x="53.0" y="157.1" text-anchor="end">1.5</text>
+<line class="grid" x1="60" y1="118.9" x2="620" y2="118.9"/>
+<text class="tk" x="53.0" y="122.9" text-anchor="end">2</text>
+<line class="grid" x1="60" y1="84.6" x2="620" y2="84.6"/>
+<text class="tk" x="53.0" y="88.6" text-anchor="end">2.5</text>
+<line class="grid" x1="60" y1="50.3" x2="620" y2="50.3"/>
+<text class="tk" x="53.0" y="54.3" text-anchor="end">3</text>
+<line class="grid" x1="60" y1="16.0" x2="620" y2="16.0"/>
+<text class="tk" x="53.0" y="20.0" text-anchor="end">3.5</text>
+<line class="axis" x1="60" y1="256" x2="620" y2="256"/>
+<line class="axis" x1="60" y1="16" x2="60" y2="256"/>
+<polyline class="ln c2" points="60.0,256.0 62.3,255.3 64.7,254.7 67.0,254.0 69.3,253.4 71.7,252.8 74.0,252.2 76.3,251.6 78.7,251.1 81.0,250.5 83.3,250.0 85.7,249.5 88.0,249.0 90.3,248.5 92.7,248.1 95.0,247.6 97.3,247.2 99.7,246.8 102.0,246.4 104.3,246.1 106.7,245.7 109.0,245.4 111.3,245.1 113.7,244.8 116.0,244.5 118.3,244.2 120.7,244.0 123.0,243.7 125.3,243.5 127.7,243.3 130.0,243.1 132.3,243.0 134.7,242.8 137.0,242.7 139.3,242.6 141.7,242.5 144.0,242.4 146.3,242.4 148.7,242.3 151.0,242.3 153.3,242.3 155.7,242.3 158.0,242.3 160.3,242.3 162.7,242.3 165.0,242.3 167.3,242.3 169.7,242.3 172.0,242.3 174.3,242.3 176.7,242.3 179.0,242.3 181.3,242.3 183.7,242.3 186.0,242.3 188.3,242.3 190.7,242.3 193.0,242.3 195.3,242.3 197.7,242.3 200.0,242.3 202.3,242.3 204.7,242.3 207.0,242.3 209.3,242.3 211.7,242.3 214.0,242.3 216.3,242.3 218.7,242.3 221.0,242.3 223.3,242.3 225.7,242.3 228.0,242.3 230.3,242.3 232.7,242.3 235.0,242.3 237.3,242.3 239.7,242.3 242.0,242.3 244.3,242.3 246.7,242.3 249.0,242.3 251.3,242.3 253.7,242.3 256.0,242.3 258.3,242.3 260.7,242.3 263.0,242.3 265.3,242.3 267.7,242.3 270.0,242.3 272.3,242.3 274.7,242.3 277.0,242.3 279.3,242.3 281.7,242.3 284.0,242.3 286.3,242.3 288.7,242.3 291.0,242.3 293.3,242.3 295.7,242.3 298.0,242.3 300.3,242.3 302.7,242.3 305.0,242.3 307.3,242.3 309.7,242.3 312.0,242.3 314.3,242.3 316.7,242.3 319.0,242.3 321.3,242.3 323.7,242.3 326.0,242.3 328.3,242.3 330.7,242.3 333.0,242.3 335.3,242.3 337.7,242.3 340.0,242.3 342.3,242.3 344.7,242.3 347.0,242.3 349.3,242.3 351.7,242.3 354.0,242.3 356.3,242.3 358.7,242.3 361.0,242.3 363.3,242.3 365.7,242.3 368.0,242.3 370.3,242.3 372.7,242.3 375.0,242.3 377.3,242.3 379.7,242.3 382.0,242.3 384.3,242.3 386.7,242.3 389.0,242.3 391.3,242.3 393.7,242.3 396.0,242.3 398.3,242.3 400.7,242.3 403.0,242.3 405.3,242.3 407.7,242.3 410.0,242.3 412.3,242.3 414.7,242.3 417.0,242.3 419.3,242.3 421.7,242.3 424.0,242.3 426.3,242.3 428.7,242.3 431.0,242.3 433.3,242.3 435.7,242.3 438.0,242.3 440.3,242.3 442.7,242.3 445.0,242.3 447.3,242.3 449.7,242.3 452.0,242.3 454.3,242.3 456.7,242.3 459.0,242.3 461.3,242.3 463.7,242.3 466.0,242.3 468.3,242.3 470.7,242.3 473.0,242.3 475.3,242.3 477.7,242.3 480.0,242.3 482.3,242.3 484.7,242.3 487.0,242.3 489.3,242.3 491.7,242.3 494.0,242.3 496.3,242.3 498.7,242.3 501.0,242.3 503.3,242.3 505.7,242.3 508.0,242.3 510.3,242.3 512.7,242.3 515.0,242.3 517.3,242.3 519.7,242.3 522.0,242.3 524.3,242.3 526.7,242.3 529.0,242.3 531.3,242.3 533.7,242.3 536.0,242.3 538.3,242.3 540.7,242.3 543.0,242.3 545.3,242.3 547.7,242.3 550.0,242.3 552.3,242.3 554.7,242.3 557.0,242.3 559.3,242.3 561.7,242.3 564.0,242.3 566.3,242.3 568.7,242.3 571.0,242.3 573.3,242.3 575.7,242.3 578.0,242.3 580.3,242.3 582.7,242.3 585.0,242.3 587.3,242.3 589.7,242.3 592.0,242.3 594.3,242.3 596.7,242.3 599.0,242.3 601.3,242.3 603.7,242.3 606.0,242.3 608.3,242.3 610.7,242.3 613.0,242.3 615.3,242.3 617.7,242.3 620.0,242.3"/>
+<text class="lab" x="616.0" y="236.3" text-anchor="end">v<tspan dy="3" font-size="75%">GS</tspan><tspan dy="-3"> </tspan> = 2 V</text>
+<polyline class="ln c1" points="60.0,256.0 62.3,254.6 64.7,253.3 67.0,252.0 69.3,250.7 71.7,249.4 74.0,248.1 76.3,246.8 78.7,245.6 81.0,244.4 83.3,243.1 85.7,242.0 88.0,240.8 90.3,239.6 92.7,238.5 95.0,237.4 97.3,236.3 99.7,235.2 102.0,234.1 104.3,233.0 106.7,232.0 109.0,231.0 111.3,230.0 113.7,229.0 116.0,228.0 118.3,227.1 120.7,226.1 123.0,225.2 125.3,224.3 127.7,223.4 130.0,222.6 132.3,221.7 134.7,220.9 137.0,220.1 139.3,219.3 141.7,218.5 144.0,217.7 146.3,217.0 148.7,216.3 151.0,215.6 153.3,214.9 155.7,214.2 158.0,213.5 160.3,212.9 162.7,212.3 165.0,211.6 167.3,211.1 169.7,210.5 172.0,209.9 174.3,209.4 176.7,208.9 179.0,208.4 181.3,207.9 183.7,207.4 186.0,206.9 188.3,206.5 190.7,206.1 193.0,205.7 195.3,205.3 197.7,204.9 200.0,204.6 202.3,204.2 204.7,203.9 207.0,203.6 209.3,203.3 211.7,203.1 214.0,202.8 216.3,202.6 218.7,202.4 221.0,202.2 223.3,202.0 225.7,201.8 228.0,201.7 230.3,201.6 232.7,201.5 235.0,201.4 237.3,201.3 239.7,201.2 242.0,201.2 244.3,201.2 246.7,201.1 249.0,201.1 251.3,201.1 253.7,201.1 256.0,201.1 258.3,201.1 260.7,201.1 263.0,201.1 265.3,201.1 267.7,201.1 270.0,201.1 272.3,201.1 274.7,201.1 277.0,201.1 279.3,201.1 281.7,201.1 284.0,201.1 286.3,201.1 288.7,201.1 291.0,201.1 293.3,201.1 295.7,201.1 298.0,201.1 300.3,201.1 302.7,201.1 305.0,201.1 307.3,201.1 309.7,201.1 312.0,201.1 314.3,201.1 316.7,201.1 319.0,201.1 321.3,201.1 323.7,201.1 326.0,201.1 328.3,201.1 330.7,201.1 333.0,201.1 335.3,201.1 337.7,201.1 340.0,201.1 342.3,201.1 344.7,201.1 347.0,201.1 349.3,201.1 351.7,201.1 354.0,201.1 356.3,201.1 358.7,201.1 361.0,201.1 363.3,201.1 365.7,201.1 368.0,201.1 370.3,201.1 372.7,201.1 375.0,201.1 377.3,201.1 379.7,201.1 382.0,201.1 384.3,201.1 386.7,201.1 389.0,201.1 391.3,201.1 393.7,201.1 396.0,201.1 398.3,201.1 400.7,201.1 403.0,201.1 405.3,201.1 407.7,201.1 410.0,201.1 412.3,201.1 414.7,201.1 417.0,201.1 419.3,201.1 421.7,201.1 424.0,201.1 426.3,201.1 428.7,201.1 431.0,201.1 433.3,201.1 435.7,201.1 438.0,201.1 440.3,201.1 442.7,201.1 445.0,201.1 447.3,201.1 449.7,201.1 452.0,201.1 454.3,201.1 456.7,201.1 459.0,201.1 461.3,201.1 463.7,201.1 466.0,201.1 468.3,201.1 470.7,201.1 473.0,201.1 475.3,201.1 477.7,201.1 480.0,201.1 482.3,201.1 484.7,201.1 487.0,201.1 489.3,201.1 491.7,201.1 494.0,201.1 496.3,201.1 498.7,201.1 501.0,201.1 503.3,201.1 505.7,201.1 508.0,201.1 510.3,201.1 512.7,201.1 515.0,201.1 517.3,201.1 519.7,201.1 522.0,201.1 524.3,201.1 526.7,201.1 529.0,201.1 531.3,201.1 533.7,201.1 536.0,201.1 538.3,201.1 540.7,201.1 543.0,201.1 545.3,201.1 547.7,201.1 550.0,201.1 552.3,201.1 554.7,201.1 557.0,201.1 559.3,201.1 561.7,201.1 564.0,201.1 566.3,201.1 568.7,201.1 571.0,201.1 573.3,201.1 575.7,201.1 578.0,201.1 580.3,201.1 582.7,201.1 585.0,201.1 587.3,201.1 589.7,201.1 592.0,201.1 594.3,201.1 596.7,201.1 599.0,201.1 601.3,201.1 603.7,201.1 606.0,201.1 608.3,201.1 610.7,201.1 613.0,201.1 615.3,201.1 617.7,201.1 620.0,201.1"/>
+<text class="lab" x="616.0" y="195.1" text-anchor="end">v<tspan dy="3" font-size="75%">GS</tspan><tspan dy="-3"> </tspan> = 3 V</text>
+<polyline class="ln c3" points="60.0,256.0 62.3,254.0 64.7,251.9 67.0,249.9 69.3,247.9 71.7,245.9 74.0,244.0 76.3,242.0 78.7,240.1 81.0,238.2 83.3,236.3 85.7,234.4 88.0,232.5 90.3,230.7 92.7,228.9 95.0,227.1 97.3,225.3 99.7,223.5 102.0,221.7 104.3,220.0 106.7,218.3 109.0,216.6 111.3,214.9 113.7,213.2 116.0,211.6 118.3,209.9 120.7,208.3 123.0,206.7 125.3,205.1 127.7,203.6 130.0,202.0 132.3,200.5 134.7,198.9 137.0,197.4 139.3,196.0 141.7,194.5 144.0,193.1 146.3,191.6 148.7,190.2 151.0,188.8 153.3,187.4 155.7,186.1 158.0,184.7 160.3,183.4 162.7,182.1 165.0,180.8 167.3,179.5 169.7,178.2 172.0,177.0 174.3,175.8 176.7,174.6 179.0,173.4 181.3,172.2 183.7,171.0 186.0,169.9 188.3,168.8 190.7,167.7 193.0,166.6 195.3,165.5 197.7,164.5 200.0,163.4 202.3,162.4 204.7,161.4 207.0,160.4 209.3,159.5 211.7,158.5 214.0,157.6 216.3,156.6 218.7,155.7 221.0,154.9 223.3,154.0 225.7,153.2 228.0,152.3 230.3,151.5 232.7,150.7 235.0,149.9 237.3,149.2 239.7,148.4 242.0,147.7 244.3,147.0 246.7,146.3 249.0,145.6 251.3,144.9 253.7,144.3 256.0,143.7 258.3,143.1 260.7,142.5 263.0,141.9 265.3,141.3 267.7,140.8 270.0,140.3 272.3,139.8 274.7,139.3 277.0,138.8 279.3,138.4 281.7,137.9 284.0,137.5 286.3,137.1 288.7,136.7 291.0,136.4 293.3,136.0 295.7,135.7 298.0,135.3 300.3,135.0 302.7,134.8 305.0,134.5 307.3,134.3 309.7,134.0 312.0,133.8 314.3,133.6 316.7,133.4 319.0,133.3 321.3,133.1 323.7,133.0 326.0,132.9 328.3,132.8 330.7,132.7 333.0,132.6 335.3,132.6 337.7,132.6 340.0,132.6 342.3,132.6 344.7,132.6 347.0,132.6 349.3,132.6 351.7,132.6 354.0,132.6 356.3,132.6 358.7,132.6 361.0,132.6 363.3,132.6 365.7,132.6 368.0,132.6 370.3,132.6 372.7,132.6 375.0,132.6 377.3,132.6 379.7,132.6 382.0,132.6 384.3,132.6 386.7,132.6 389.0,132.6 391.3,132.6 393.7,132.6 396.0,132.6 398.3,132.6 400.7,132.6 403.0,132.6 405.3,132.6 407.7,132.6 410.0,132.6 412.3,132.6 414.7,132.6 417.0,132.6 419.3,132.6 421.7,132.6 424.0,132.6 426.3,132.6 428.7,132.6 431.0,132.6 433.3,132.6 435.7,132.6 438.0,132.6 440.3,132.6 442.7,132.6 445.0,132.6 447.3,132.6 449.7,132.6 452.0,132.6 454.3,132.6 456.7,132.6 459.0,132.6 461.3,132.6 463.7,132.6 466.0,132.6 468.3,132.6 470.7,132.6 473.0,132.6 475.3,132.6 477.7,132.6 480.0,132.6 482.3,132.6 484.7,132.6 487.0,132.6 489.3,132.6 491.7,132.6 494.0,132.6 496.3,132.6 498.7,132.6 501.0,132.6 503.3,132.6 505.7,132.6 508.0,132.6 510.3,132.6 512.7,132.6 515.0,132.6 517.3,132.6 519.7,132.6 522.0,132.6 524.3,132.6 526.7,132.6 529.0,132.6 531.3,132.6 533.7,132.6 536.0,132.6 538.3,132.6 540.7,132.6 543.0,132.6 545.3,132.6 547.7,132.6 550.0,132.6 552.3,132.6 554.7,132.6 557.0,132.6 559.3,132.6 561.7,132.6 564.0,132.6 566.3,132.6 568.7,132.6 571.0,132.6 573.3,132.6 575.7,132.6 578.0,132.6 580.3,132.6 582.7,132.6 585.0,132.6 587.3,132.6 589.7,132.6 592.0,132.6 594.3,132.6 596.7,132.6 599.0,132.6 601.3,132.6 603.7,132.6 606.0,132.6 608.3,132.6 610.7,132.6 613.0,132.6 615.3,132.6 617.7,132.6 620.0,132.6"/>
+<text class="lab" x="616.0" y="126.6" text-anchor="end">v<tspan dy="3" font-size="75%">GS</tspan><tspan dy="-3"> </tspan> = 4 V</text>
+<polyline class="ln c4" points="60.0,256.0 62.3,253.3 64.7,250.5 67.0,247.8 69.3,245.2 71.7,242.5 74.0,239.9 76.3,237.2 78.7,234.6 81.0,232.0 83.3,229.4 85.7,226.9 88.0,224.3 90.3,221.8 92.7,219.3 95.0,216.8 97.3,214.3 99.7,211.8 102.0,209.4 104.3,207.0 106.7,204.6 109.0,202.2 111.3,199.8 113.7,197.4 116.0,195.1 118.3,192.8 120.7,190.5 123.0,188.2 125.3,185.9 127.7,183.7 130.0,181.4 132.3,179.2 134.7,177.0 137.0,174.8 139.3,172.7 141.7,170.5 144.0,168.4 146.3,166.2 148.7,164.1 151.0,162.1 153.3,160.0 155.7,158.0 158.0,155.9 160.3,153.9 162.7,151.9 165.0,149.9 167.3,148.0 169.7,146.0 172.0,144.1 174.3,142.2 176.7,140.3 179.0,138.4 181.3,136.5 183.7,134.7 186.0,132.9 188.3,131.1 190.7,129.3 193.0,127.5 195.3,125.7 197.7,124.0 200.0,122.3 202.3,120.6 204.7,118.9 207.0,117.2 209.3,115.6 211.7,113.9 214.0,112.3 216.3,110.7 218.7,109.1 221.0,107.6 223.3,106.0 225.7,104.5 228.0,102.9 230.3,101.4 232.7,100.0 235.0,98.5 237.3,97.1 239.7,95.6 242.0,94.2 244.3,92.8 246.7,91.4 249.0,90.1 251.3,88.7 253.7,87.4 256.0,86.1 258.3,84.8 260.7,83.5 263.0,82.2 265.3,81.0 267.7,79.8 270.0,78.6 272.3,77.4 274.7,76.2 277.0,75.0 279.3,73.9 281.7,72.8 284.0,71.7 286.3,70.6 288.7,69.5 291.0,68.5 293.3,67.4 295.7,66.4 298.0,65.4 300.3,64.4 302.7,63.5 305.0,62.5 307.3,61.6 309.7,60.6 312.0,59.7 314.3,58.9 316.7,58.0 319.0,57.2 321.3,56.3 323.7,55.5 326.0,54.7 328.3,53.9 330.7,53.2 333.0,52.4 335.3,51.7 337.7,51.0 340.0,50.3 342.3,49.6 344.7,48.9 347.0,48.3 349.3,47.7 351.7,47.1 354.0,46.5 356.3,45.9 358.7,45.3 361.0,44.8 363.3,44.3 365.7,43.8 368.0,43.3 370.3,42.8 372.7,42.4 375.0,41.9 377.3,41.5 379.7,41.1 382.0,40.7 384.3,40.4 386.7,40.0 389.0,39.7 391.3,39.3 393.7,39.0 396.0,38.8 398.3,38.5 400.7,38.3 403.0,38.0 405.3,37.8 407.7,37.6 410.0,37.4 412.3,37.3 414.7,37.1 417.0,37.0 419.3,36.9 421.7,36.8 424.0,36.7 426.3,36.6 428.7,36.6 431.0,36.6 433.3,36.6 435.7,36.6 438.0,36.6 440.3,36.6 442.7,36.6 445.0,36.6 447.3,36.6 449.7,36.6 452.0,36.6 454.3,36.6 456.7,36.6 459.0,36.6 461.3,36.6 463.7,36.6 466.0,36.6 468.3,36.6 470.7,36.6 473.0,36.6 475.3,36.6 477.7,36.6 480.0,36.6 482.3,36.6 484.7,36.6 487.0,36.6 489.3,36.6 491.7,36.6 494.0,36.6 496.3,36.6 498.7,36.6 501.0,36.6 503.3,36.6 505.7,36.6 508.0,36.6 510.3,36.6 512.7,36.6 515.0,36.6 517.3,36.6 519.7,36.6 522.0,36.6 524.3,36.6 526.7,36.6 529.0,36.6 531.3,36.6 533.7,36.6 536.0,36.6 538.3,36.6 540.7,36.6 543.0,36.6 545.3,36.6 547.7,36.6 550.0,36.6 552.3,36.6 554.7,36.6 557.0,36.6 559.3,36.6 561.7,36.6 564.0,36.6 566.3,36.6 568.7,36.6 571.0,36.6 573.3,36.6 575.7,36.6 578.0,36.6 580.3,36.6 582.7,36.6 585.0,36.6 587.3,36.6 589.7,36.6 592.0,36.6 594.3,36.6 596.7,36.6 599.0,36.6 601.3,36.6 603.7,36.6 606.0,36.6 608.3,36.6 610.7,36.6 613.0,36.6 615.3,36.6 617.7,36.6 620.0,36.6"/>
+<text class="lab" x="616.0" y="30.6" text-anchor="end">v<tspan dy="3" font-size="75%">GS</tspan><tspan dy="-3"> </tspan> = 5 V</text>
+<polyline class="ln c4 thin dash" points="60.0,256.0 64.7,256.0 69.3,255.9 74.0,255.7 78.7,255.5 83.3,255.1 88.0,254.8 92.7,254.3 97.3,253.8 102.0,253.2 106.7,252.6 111.3,251.9 116.0,251.1 120.7,250.2 125.3,249.3 130.0,248.3 134.7,247.2 139.3,246.1 144.0,244.9 148.7,243.6 153.3,242.3 158.0,240.9 162.7,239.4 167.3,237.9 172.0,236.3 176.7,234.6 181.3,232.8 186.0,231.0 190.7,229.1 195.3,227.2 200.0,225.1 204.7,223.1 209.3,220.9 214.0,218.7 218.7,216.4 223.3,214.0 228.0,211.6 232.7,209.1 237.3,206.5 242.0,203.9 246.7,201.1 251.3,198.4 256.0,195.5 260.7,192.6 265.3,189.6 270.0,186.6 274.7,183.5 279.3,180.3 284.0,177.0 288.7,173.7 293.3,170.3 298.0,166.8 302.7,163.3 307.3,159.7 312.0,156.0 316.7,152.3 321.3,148.5 326.0,144.6 330.7,140.7 335.3,136.7 340.0,132.6 344.7,128.4 349.3,124.2 354.0,119.9 358.7,115.6 363.3,111.1 368.0,106.7 372.7,102.1 377.3,97.5 382.0,92.8 386.7,88.0 391.3,83.2 396.0,78.3 400.7,73.3 405.3,68.3 410.0,63.1 414.7,58.0 419.3,52.7 424.0,47.4 428.7,42.0 433.3,36.6"/>
+<text class="lab" x="422.7" y="60.0" text-anchor="end">v<tspan dy="3" font-size="75%">DS(sat)</tspan><tspan dy="-3"> </tspan> boundary</text>
+<text class="lab" x="74.0" y="36.6" text-anchor="start">non-saturation</text>
+<text class="lab" x="517.3" y="232.0" text-anchor="middle">saturation</text>
+<text class="lab" x="340.0" y="292.0" text-anchor="middle">v<tspan dy="3" font-size="75%">DS</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="14" y="136.0" text-anchor="middle" transform="rotate(-90 14 136.0)">i<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> (mA)</text>
+</svg>
+<figcaption><b>Figure 3.1</b> Output characteristics of an NMOS device for four gate voltages.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> The device has \(V_{TN} = 1\ \text{V}\) and \(K_n = 0.2\ \text{mA/V}^2\). These are the numbers of exercise problem 3.1, computed from the two equations above. The dashed parabola is \(i_D = K_n v_{DS}^2\), which marks \(v_{DS}(sat)\) for every curve: left of it each curve is a triode parabola, right of it each is flat.</p>
+<p>The conduction parameter packs the geometry and the process into one number. The oxide capacitance per unit area comes from the parallel-plate formula, and the mobility \(\mu_n\) is the electron mobility in the inversion layer.</p><div class="eq"><span class="tag">Conduction parameter</span>\[ K_n = \frac{W\,\mu_n C_{ox}}{2L} = \frac{k_n'}{2}\,\frac{W}{L} \qquad C_{ox} = \frac{\varepsilon_{ox}}{t_{ox}} \qquad k_n' = \mu_n C_{ox} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(K_n\)</dt><dd>Conduction parameter, in A/V\(^2\).</dd><dt>\(W\)</dt><dd>Channel width, in cm in the formula (convert from \(\mu\)m).</dd><dt>\(L\)</dt><dd>Channel length, in the same unit as \(W\).</dd><dt>\(\mu_n\)</dt><dd>Electron mobility, in cm\(^2\)/(V s).</dd><dt>\(C_{ox}\)</dt><dd>Oxide capacitance per unit area, in F/cm\(^2\).</dd><dt>\(\varepsilon_{ox}\)</dt><dd>Oxide permittivity. For silicon dioxide, \(3.9 \times 8.85 \times 10^{-14}\ \text{F/cm}\).</dd><dt>\(t_{ox}\)</dt><dd>Oxide thickness, in cm.</dd><dt>\(k_n'\)</dt><dd>Process conduction parameter, in A/V\(^2\). Data sheets and problems often give it directly.</dd></dl>
+</div>
+<div class="box intuition"><span class="label">Intuition</span>A wider channel carries more current (\(W\) up), a longer one resists it (\(L\) up), a thinner oxide gives a stronger grip of the gate on the channel (\(t_{ox}\) down) and a more mobile carrier moves faster. Only \(W/L\) is under the designer's control, so \(K_n\) is the knob you turn by drawing a wider or narrower transistor.</div>
+<p>The lecture's example 3.1 uses \(V_{TN} = 0.4\ \text{V}\), \(W = 20\ \mu\text{m}\), \(L = 0.8\ \mu\text{m}\), \(\mu_n = 650\ \text{cm}^2/\text{V s}\) and \(t_{ox} = 200\ \text{Å}\). That gives \(K_n = 1.40\ \text{mA/V}^2\), then \(i_D = 0.224\ \text{mA}\) at \(v_{GS} = 0.8\ \text{V}\) and \(2.02\ \text{mA}\) at \(v_{GS} = 1.6\ \text{V}\) (saturation in both cases). Section 4 applies the same steps to new numbers.</p><div class="box watch"><span class="label">Watch out</span>A saturated MOSFET is the opposite of a saturated BJT. In a BJT, saturation means the collector junction is forward biased and the current gain is lost. In a MOSFET, saturation is the flat part of the output curve, the region you normally want when the device is used as an amplifier.</div>
+<p class="reading"><b>Reading</b> Lecture 22, slides 2 to 5 (ideal I-V characteristics and example 3.1).</p>
+</section>
+<section id="kn">
+<h2><span class="n">04</span>Kn, W/L and the region of operation</h2>
+<p>Almost every NMOS question reduces to the same four steps, and the only thing that changes is which quantity is unknown.</p>
+<ol>
+<li>Find \(K_n\). Either build it from \(W\), \(L\), \(\mu_n\), \(t_{ox}\), or recover it from one measurement.</li>
+<li>Compute \(v_{DS}(sat) = v_{GS} - V_{TN}\) and compare it with \(v_{DS}\).</li>
+<li>Use the equation for the region you found.</li>
+<li>If you assumed a region and the answer contradicts it, go back and use the other equation.</li>
+</ol><div class="eq"><span class="tag">Kn from one measurement in saturation</span>\[ K_n = \frac{I_{D0}}{(V_{GS0} - V_{TN})^2} \qquad \frac{W}{L} = \frac{2K_n}{k_n'} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(K_n\)</dt><dd>Conduction parameter, in A/V\(^2\).</dd><dt>\(I_{D0}\)</dt><dd>Measured drain current, taken with the transistor in saturation, in A.</dd><dt>\(V_{GS0}\)</dt><dd>Gate-source voltage at which it was measured, in V.</dd><dt>\(V_{TN}\)</dt><dd>Threshold voltage, in V.</dd><dt>\(W/L\)</dt><dd>Width-to-length ratio, a pure number.</dd><dt>\(k_n'\)</dt><dd>Process conduction parameter, in A/V\(^2\).</dd></dl>
+</div>
+<div class="ex"><div class="hd">Worked example 4.1 <span>From process data to drain current</span></div><div class="bd">
+<p>An enhancement NMOS has \(V_{TN} = 0.5\ \text{V}\), \(W = 10\ \mu\text{m}\), \(L = 0.5\ \mu\text{m}\), \(\mu_n = 500\ \text{cm}^2/\text{V s}\) and \(t_{ox} = 150\ \text{Å}\). Find the drain current in saturation at \(v_{GS} = 1.0\ \text{V}\) and \(v_{GS} = 1.5\ \text{V}\).</p>
+<div class="step"><i>1</i><div>Oxide capacitance: \(C_{ox} = (3.9)(8.85 \times 10^{-14})/(150 \times 10^{-8}) = 2.301 \times 10^{-7}\ \text{F/cm}^2\).</div></div>
+<div class="step"><i>2</i><div>Process parameter: \(k_n' = \mu_n C_{ox} = (500)(2.301 \times 10^{-7}) = 115.1\ \mu\text{A/V}^2\).</div></div>
+<div class="step"><i>3</i><div>Conduction parameter: \(K_n = (k_n'/2)(W/L) = (57.53\ \mu\text{A/V}^2)(20) = 1.151\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>4</i><div>\(v_{GS} = 1.0\ \text{V}\): \(i_D = K_n(1.0 - 0.5)^2 = 0.288\ \text{mA}\).</div></div>
+<div class="step"><i>5</i><div>\(v_{GS} = 1.5\ \text{V}\): \(i_D = K_n(1.5 - 0.5)^2 = 1.151\ \text{mA}\).</div></div>
+<div class="ans">\(K_n = 1.151\ \text{mA/V}^2\), and \(i_D = 0.29\ \text{mA}\) and \(1.15\ \text{mA}\). Raising \(v_{GS}\) by 0.5 V quadruples the current, because the overdrive voltage doubled from 0.5 V to 1.0 V.</div>
+</div></div>
+<div class="ex"><div class="hd">Worked example 4.2 <span>Recover Kn from a measurement and test the region</span></div><div class="bd">
+<p>An NMOS with \(V_{TN} = 0.8\ \text{V}\) carries \(0.5\ \text{mA}\) at \(v_{GS} = 2.8\ \text{V}\) and \(v_{DS} = 4.0\ \text{V}\). Find the drain current when (a) \(v_{GS} = 1.8\ \text{V}\), \(v_{DS} = 3.0\ \text{V}\) and (b) \(v_{GS} = 2.8\ \text{V}\), \(v_{DS} = 1.2\ \text{V}\).</p>
+<div class="step"><i>1</i><div>The measurement point has \(v_{DS}(sat) = 2.0\ \text{V}\), below \(v_{DS} = 4.0\ \text{V}\), so it is in saturation and \(K_n = 0.5\ \text{mA}/(2.0\ \text{V})^2 = 0.125\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>2</i><div>(a) \(v_{DS}(sat) = 1.8 - 0.8 = 1.0\ \text{V}\) and \(v_{DS} = 3.0\ \text{V}\) is larger, so the device is saturated. \(i_D = (0.125)(1.0)^2 = 0.125\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>(b) \(v_{DS}(sat) = 2.0\ \text{V}\), but \(v_{DS} = 1.2\ \text{V}\) is smaller, so the device is in non-saturation.</div></div>
+<div class="step"><i>4</i><div>\(i_D = (0.125)[2(2.0)(1.2) - (1.2)^2] = 0.420\ \text{mA}\).</div></div>
+<div class="ans">(a) \(0.125\ \text{mA}\) in saturation; (b) \(0.42\ \text{mA}\) in non-saturation. Using the saturation formula in (b) would give \(0.50\ \text{mA}\), which is wrong because the device never reaches the flat part of its curve.</div>
+</div></div>
+<div class="ex"><div class="hd">Worked example 4.3 <span>Finding the width of a transistor</span></div><div class="bd">
+<p>An NMOS has \(V_{TN} = 0.7\ \text{V}\), \(L = 1.2\ \mu\text{m}\) and \(k_n' = 100\ \mu\text{A/V}^2\). It carries \(0.5\ \text{mA}\) in saturation at \(v_{GS} = 1.7\ \text{V}\). Find \(W\), then the current at the same \(v_{GS}\) when \(v_{DS} = 0.3\ \text{V}\), and \(v_{DS}(sat)\).</p>
+<div class="step"><i>1</i><div>\(K_n = 0.5\ \text{mA}/(1.7 - 0.7)^2 = 0.50\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>2</i><div>\(W/L = 2K_n/k_n' = 2(0.50\ \text{mA/V}^2)/(100\ \mu\text{A/V}^2) = 10.0\).</div></div>
+<div class="step"><i>3</i><div>\(W = (10.0)(1.2\ \mu\text{m}) = 12.0\ \mu\text{m}\).</div></div>
+<div class="step"><i>4</i><div>\(v_{DS}(sat) = 1.7 - 0.7 = 1.0\ \text{V}\). At \(v_{DS} = 0.3\ \text{V}\) the device is in non-saturation, so \(i_D = (0.50)[2(1.0)(0.3) - 0.3^2] = 0.255\ \text{mA}\).</div></div>
+<div class="ans">\(W = 12.0\ \mu\text{m}\) (\(W/L = 10\)), \(v_{DS}(sat) = 1.0\ \text{V}\) and \(i_D = 0.255\ \text{mA}\) at \(v_{DS} = 0.3\ \text{V}\).</div>
+</div></div>
+<div class="box watch"><span class="label">Watch out</span>Convert \(W\) and \(L\) to one unit before forming \(W/L\). A slip of one power of ten in either length changes \(W\) by the same factor, so check that the ratio you get is plausible (a few to a few hundred for the transistors in this module).</div>
+<p>Two further checks against the lecture. Exercise problem 3.1 (\(V_{TN} = 1\ \text{V}\), \(0.8\ \text{mA}\) at \(v_{GS} = 3\ \text{V}\) and \(v_{DS} = 4.5\ \text{V}\)) gives \(K_n = 0.2\ \text{mA/V}^2\), then \(0.2\ \text{mA}\) for \(v_{GS} = 2\ \text{V}\) (saturation) and \(0.6\ \text{mA}\) for \(v_{GS} = 3\ \text{V}\), \(v_{DS} = 1\ \text{V}\) (non-saturation).</p><p class="reading"><b>Reading</b> Lecture 22, slides 5 and 6 (example 3.1 and exercise problem 3.1).</p>
+</section>
+<section id="pmos">
+<h2><span class="n">05</span>The p-channel enhancement MOSFET</h2>
+<p>A p-channel enhancement MOSFET works like the NMOS with the roles of holes and electrons exchanged. A <i>negative</i> gate voltage, measured against the source, induces a hole inversion layer. The p-type source supplies the holes, they flow to the drain, and conventional current leaves the transistor at the drain terminal.</p><div class="box def"><span class="label">Definition</span><b>Threshold voltage \(V_{TP}\)</b>: for an enhancement PMOS, \(V_{TP} \lt 0\). The device conducts when \(v_{SG} \gt |V_{TP}|\), that is when \(v_{SG} + V_{TP} \gt 0\).</div>
+<p>The subscripts are written source first (\(v_{SG}\), \(v_{SD}\)) so that both voltages are positive in normal operation. The PMOS equations are the NMOS equations with \(v_{GS} \to v_{SG}\), \(v_{DS} \to v_{SD}\) and \(V_{TN} \to -V_{TP}\).</p><div class="eq"><span class="tag">PMOS edge of saturation</span>\[ v_{SD}(\text{sat}) = v_{SG} + V_{TP} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(v_{SD}(\text{sat})\)</dt><dd>Source-to-drain voltage at which the channel pinches off, in V.</dd><dt>\(v_{SG}\)</dt><dd>Source-to-gate voltage, in V.</dd><dt>\(V_{TP}\)</dt><dd>PMOS threshold voltage. It is negative for an enhancement device, so \(v_{SG} + V_{TP}\) is \(v_{SG}\) minus \(|V_{TP}|\).</dd></dl>
+</div>
+<div class="eq"><span class="tag">PMOS currents</span>\[ i_D = K_p\left[\,2\,(v_{SG} + V_{TP})\,v_{SD} - v_{SD}^{\,2}\,\right] \;\; (v_{SD} \lt v_{SD}(\text{sat})) \qquad i_D = K_p\,(v_{SG} + V_{TP})^2 \;\; (v_{SD} \ge v_{SD}(\text{sat})) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(i_D\)</dt><dd>Drain current, flowing out of the drain, in A.</dd><dt>\(K_p\)</dt><dd>PMOS conduction parameter, in A/V\(^2\).</dd><dt>\(v_{SG}\)</dt><dd>Source-to-gate voltage, in V.</dd><dt>\(V_{TP}\)</dt><dd>PMOS threshold voltage, in V.</dd><dt>\(v_{SD}\)</dt><dd>Source-to-drain voltage, in V.</dd></dl>
+</div>
+<div class="eq"><span class="tag">PMOS conduction parameter</span>\[ K_p = \frac{W\,\mu_p C_{ox}}{2L} = \frac{k_p'}{2}\,\frac{W}{L} \qquad k_p' = \mu_p C_{ox} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(K_p\)</dt><dd>Conduction parameter, in A/V\(^2\).</dd><dt>\(\mu_p\)</dt><dd>Hole mobility in the inversion layer, in cm\(^2\)/(V s). It is smaller than the electron mobility, so a PMOS needs a larger \(W/L\) than an NMOS for the same current.</dd><dt>\(C_{ox}\)</dt><dd>Oxide capacitance per unit area, \(\varepsilon_{ox}/t_{ox}\).</dd><dt>\(k_p'\)</dt><dd>Process conduction parameter, in A/V\(^2\).</dd></dl>
+</div>
+<div class="tbl"><table><thead><tr><th>Quantity</th><th>NMOS</th><th>PMOS</th></tr></thead><tbody><tr><td>Control voltage</td><td>\(v_{GS}\)</td><td>\(v_{SG}\)</td></tr><tr><td>Output voltage</td><td>\(v_{DS}\)</td><td>\(v_{SD}\)</td></tr><tr><td>Enhancement threshold</td><td>\(V_{TN} \gt 0\)</td><td>\(V_{TP} \lt 0\)</td></tr><tr><td>Overdrive</td><td>\(v_{GS} - V_{TN}\)</td><td>\(v_{SG} + V_{TP}\)</td></tr><tr><td>Edge of saturation</td><td>\(v_{GS} - V_{TN}\)</td><td>\(v_{SG} + V_{TP}\)</td></tr><tr><td>Current direction</td><td>into the drain</td><td>out of the drain</td></tr></tbody></table></div>
+<figure>
+<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="PMOS output characteristics for four source-gate voltages">
+<rect class="frame" x="60" y="16" width="560" height="240"/>
+<line class="grid" x1="60.0" y1="16" x2="60.0" y2="256"/>
+<text class="tk" x="60.0" y="272.0" text-anchor="middle">0</text>
+<line class="grid" x1="200.0" y1="16" x2="200.0" y2="256"/>
+<text class="tk" x="200.0" y="272.0" text-anchor="middle">1</text>
+<line class="grid" x1="340.0" y1="16" x2="340.0" y2="256"/>
+<text class="tk" x="340.0" y="272.0" text-anchor="middle">2</text>
+<line class="grid" x1="480.0" y1="16" x2="480.0" y2="256"/>
+<text class="tk" x="480.0" y="272.0" text-anchor="middle">3</text>
+<line class="grid" x1="620.0" y1="16" x2="620.0" y2="256"/>
+<text class="tk" x="620.0" y="272.0" text-anchor="middle">4</text>
+<line class="grid" x1="60" y1="256.0" x2="620" y2="256.0"/>
+<text class="tk" x="53.0" y="260.0" text-anchor="end">0.0</text>
+<line class="grid" x1="60" y1="208.0" x2="620" y2="208.0"/>
+<text class="tk" x="53.0" y="212.0" text-anchor="end">0.2</text>
+<line class="grid" x1="60" y1="160.0" x2="620" y2="160.0"/>
+<text class="tk" x="53.0" y="164.0" text-anchor="end">0.4</text>
+<line class="grid" x1="60" y1="112.0" x2="620" y2="112.0"/>
+<text class="tk" x="53.0" y="116.0" text-anchor="end">0.6</text>
+<line class="grid" x1="60" y1="64.0" x2="620" y2="64.0"/>
+<text class="tk" x="53.0" y="68.0" text-anchor="end">0.8</text>
+<line class="grid" x1="60" y1="16.0" x2="620" y2="16.0"/>
+<text class="tk" x="53.0" y="20.0" text-anchor="end">1.0</text>
+<line class="axis" x1="60" y1="256" x2="620" y2="256"/>
+<line class="axis" x1="60" y1="16" x2="60" y2="256"/>
+<polyline class="ln c2" points="60.0,256.0 62.3,255.2 64.7,254.5 67.0,253.7 69.3,253.0 71.7,252.3 74.0,251.7 76.3,251.1 78.7,250.5 81.0,249.9 83.3,249.3 85.7,248.8 88.0,248.3 90.3,247.9 92.7,247.4 95.0,247.0 97.3,246.6 99.7,246.3 102.0,245.9 104.3,245.6 106.7,245.3 109.0,245.1 111.3,244.9 113.7,244.7 116.0,244.5 118.3,244.3 120.7,244.2 123.0,244.1 125.3,244.1 127.7,244.0 130.0,244.0 132.3,244.0 134.7,244.0 137.0,244.0 139.3,244.0 141.7,244.0 144.0,244.0 146.3,244.0 148.7,244.0 151.0,244.0 153.3,244.0 155.7,244.0 158.0,244.0 160.3,244.0 162.7,244.0 165.0,244.0 167.3,244.0 169.7,244.0 172.0,244.0 174.3,244.0 176.7,244.0 179.0,244.0 181.3,244.0 183.7,244.0 186.0,244.0 188.3,244.0 190.7,244.0 193.0,244.0 195.3,244.0 197.7,244.0 200.0,244.0 202.3,244.0 204.7,244.0 207.0,244.0 209.3,244.0 211.7,244.0 214.0,244.0 216.3,244.0 218.7,244.0 221.0,244.0 223.3,244.0 225.7,244.0 228.0,244.0 230.3,244.0 232.7,244.0 235.0,244.0 237.3,244.0 239.7,244.0 242.0,244.0 244.3,244.0 246.7,244.0 249.0,244.0 251.3,244.0 253.7,244.0 256.0,244.0 258.3,244.0 260.7,244.0 263.0,244.0 265.3,244.0 267.7,244.0 270.0,244.0 272.3,244.0 274.7,244.0 277.0,244.0 279.3,244.0 281.7,244.0 284.0,244.0 286.3,244.0 288.7,244.0 291.0,244.0 293.3,244.0 295.7,244.0 298.0,244.0 300.3,244.0 302.7,244.0 305.0,244.0 307.3,244.0 309.7,244.0 312.0,244.0 314.3,244.0 316.7,244.0 319.0,244.0 321.3,244.0 323.7,244.0 326.0,244.0 328.3,244.0 330.7,244.0 333.0,244.0 335.3,244.0 337.7,244.0 340.0,244.0 342.3,244.0 344.7,244.0 347.0,244.0 349.3,244.0 351.7,244.0 354.0,244.0 356.3,244.0 358.7,244.0 361.0,244.0 363.3,244.0 365.7,244.0 368.0,244.0 370.3,244.0 372.7,244.0 375.0,244.0 377.3,244.0 379.7,244.0 382.0,244.0 384.3,244.0 386.7,244.0 389.0,244.0 391.3,244.0 393.7,244.0 396.0,244.0 398.3,244.0 400.7,244.0 403.0,244.0 405.3,244.0 407.7,244.0 410.0,244.0 412.3,244.0 414.7,244.0 417.0,244.0 419.3,244.0 421.7,244.0 424.0,244.0 426.3,244.0 428.7,244.0 431.0,244.0 433.3,244.0 435.7,244.0 438.0,244.0 440.3,244.0 442.7,244.0 445.0,244.0 447.3,244.0 449.7,244.0 452.0,244.0 454.3,244.0 456.7,244.0 459.0,244.0 461.3,244.0 463.7,244.0 466.0,244.0 468.3,244.0 470.7,244.0 473.0,244.0 475.3,244.0 477.7,244.0 480.0,244.0 482.3,244.0 484.7,244.0 487.0,244.0 489.3,244.0 491.7,244.0 494.0,244.0 496.3,244.0 498.7,244.0 501.0,244.0 503.3,244.0 505.7,244.0 508.0,244.0 510.3,244.0 512.7,244.0 515.0,244.0 517.3,244.0 519.7,244.0 522.0,244.0 524.3,244.0 526.7,244.0 529.0,244.0 531.3,244.0 533.7,244.0 536.0,244.0 538.3,244.0 540.7,244.0 543.0,244.0 545.3,244.0 547.7,244.0 550.0,244.0 552.3,244.0 554.7,244.0 557.0,244.0 559.3,244.0 561.7,244.0 564.0,244.0 566.3,244.0 568.7,244.0 571.0,244.0 573.3,244.0 575.7,244.0 578.0,244.0 580.3,244.0 582.7,244.0 585.0,244.0 587.3,244.0 589.7,244.0 592.0,244.0 594.3,244.0 596.7,244.0 599.0,244.0 601.3,244.0 603.7,244.0 606.0,244.0 608.3,244.0 610.7,244.0 613.0,244.0 615.3,244.0 617.7,244.0 620.0,244.0"/>
+<text class="lab" x="616.0" y="238.0" text-anchor="end">v<tspan dy="3" font-size="75%">SG</tspan><tspan dy="-3"> </tspan> = 1 V</text>
+<polyline class="ln c1" points="60.0,256.0 62.3,254.4 64.7,252.9 67.0,251.3 69.3,249.8 71.7,248.3 74.0,246.9 76.3,245.5 78.7,244.1 81.0,242.7 83.3,241.3 85.7,240.0 88.0,238.7 90.3,237.5 92.7,236.2 95.0,235.0 97.3,233.8 99.7,232.7 102.0,231.5 104.3,230.4 106.7,229.3 109.0,228.3 111.3,227.3 113.7,226.3 116.0,225.3 118.3,224.3 120.7,223.4 123.0,222.5 125.3,221.7 127.7,220.8 130.0,220.0 132.3,219.2 134.7,218.5 137.0,217.7 139.3,217.0 141.7,216.3 144.0,215.7 146.3,215.1 148.7,214.5 151.0,213.9 153.3,213.3 155.7,212.8 158.0,212.3 160.3,211.9 162.7,211.4 165.0,211.0 167.3,210.6 169.7,210.3 172.0,209.9 174.3,209.6 176.7,209.3 179.0,209.1 181.3,208.9 183.7,208.7 186.0,208.5 188.3,208.3 190.7,208.2 193.0,208.1 195.3,208.1 197.7,208.0 200.0,208.0 202.3,208.0 204.7,208.0 207.0,208.0 209.3,208.0 211.7,208.0 214.0,208.0 216.3,208.0 218.7,208.0 221.0,208.0 223.3,208.0 225.7,208.0 228.0,208.0 230.3,208.0 232.7,208.0 235.0,208.0 237.3,208.0 239.7,208.0 242.0,208.0 244.3,208.0 246.7,208.0 249.0,208.0 251.3,208.0 253.7,208.0 256.0,208.0 258.3,208.0 260.7,208.0 263.0,208.0 265.3,208.0 267.7,208.0 270.0,208.0 272.3,208.0 274.7,208.0 277.0,208.0 279.3,208.0 281.7,208.0 284.0,208.0 286.3,208.0 288.7,208.0 291.0,208.0 293.3,208.0 295.7,208.0 298.0,208.0 300.3,208.0 302.7,208.0 305.0,208.0 307.3,208.0 309.7,208.0 312.0,208.0 314.3,208.0 316.7,208.0 319.0,208.0 321.3,208.0 323.7,208.0 326.0,208.0 328.3,208.0 330.7,208.0 333.0,208.0 335.3,208.0 337.7,208.0 340.0,208.0 342.3,208.0 344.7,208.0 347.0,208.0 349.3,208.0 351.7,208.0 354.0,208.0 356.3,208.0 358.7,208.0 361.0,208.0 363.3,208.0 365.7,208.0 368.0,208.0 370.3,208.0 372.7,208.0 375.0,208.0 377.3,208.0 379.7,208.0 382.0,208.0 384.3,208.0 386.7,208.0 389.0,208.0 391.3,208.0 393.7,208.0 396.0,208.0 398.3,208.0 400.7,208.0 403.0,208.0 405.3,208.0 407.7,208.0 410.0,208.0 412.3,208.0 414.7,208.0 417.0,208.0 419.3,208.0 421.7,208.0 424.0,208.0 426.3,208.0 428.7,208.0 431.0,208.0 433.3,208.0 435.7,208.0 438.0,208.0 440.3,208.0 442.7,208.0 445.0,208.0 447.3,208.0 449.7,208.0 452.0,208.0 454.3,208.0 456.7,208.0 459.0,208.0 461.3,208.0 463.7,208.0 466.0,208.0 468.3,208.0 470.7,208.0 473.0,208.0 475.3,208.0 477.7,208.0 480.0,208.0 482.3,208.0 484.7,208.0 487.0,208.0 489.3,208.0 491.7,208.0 494.0,208.0 496.3,208.0 498.7,208.0 501.0,208.0 503.3,208.0 505.7,208.0 508.0,208.0 510.3,208.0 512.7,208.0 515.0,208.0 517.3,208.0 519.7,208.0 522.0,208.0 524.3,208.0 526.7,208.0 529.0,208.0 531.3,208.0 533.7,208.0 536.0,208.0 538.3,208.0 540.7,208.0 543.0,208.0 545.3,208.0 547.7,208.0 550.0,208.0 552.3,208.0 554.7,208.0 557.0,208.0 559.3,208.0 561.7,208.0 564.0,208.0 566.3,208.0 568.7,208.0 571.0,208.0 573.3,208.0 575.7,208.0 578.0,208.0 580.3,208.0 582.7,208.0 585.0,208.0 587.3,208.0 589.7,208.0 592.0,208.0 594.3,208.0 596.7,208.0 599.0,208.0 601.3,208.0 603.7,208.0 606.0,208.0 608.3,208.0 610.7,208.0 613.0,208.0 615.3,208.0 617.7,208.0 620.0,208.0"/>
+<text class="lab" x="616.0" y="202.0" text-anchor="end">v<tspan dy="3" font-size="75%">SG</tspan><tspan dy="-3"> </tspan> = 1.5 V</text>
+<polyline class="ln c3" points="60.0,256.0 62.3,253.6 64.7,251.3 67.0,248.9 69.3,246.6 71.7,244.3 74.0,242.1 76.3,239.9 78.7,237.7 81.0,235.5 83.3,233.3 85.7,231.2 88.0,229.1 90.3,227.1 92.7,225.0 95.0,223.0 97.3,221.0 99.7,219.1 102.0,217.1 104.3,215.2 106.7,213.3 109.0,211.5 111.3,209.7 113.7,207.9 116.0,206.1 118.3,204.3 120.7,202.6 123.0,200.9 125.3,199.3 127.7,197.6 130.0,196.0 132.3,194.4 134.7,192.9 137.0,191.3 139.3,189.8 141.7,188.3 144.0,186.9 146.3,185.5 148.7,184.1 151.0,182.7 153.3,181.3 155.7,180.0 158.0,178.7 160.3,177.5 162.7,176.2 165.0,175.0 167.3,173.8 169.7,172.7 172.0,171.5 174.3,170.4 176.7,169.3 179.0,168.3 181.3,167.3 183.7,166.3 186.0,165.3 188.3,164.3 190.7,163.4 193.0,162.5 195.3,161.7 197.7,160.8 200.0,160.0 202.3,159.2 204.7,158.5 207.0,157.7 209.3,157.0 211.7,156.3 214.0,155.7 216.3,155.1 218.7,154.5 221.0,153.9 223.3,153.3 225.7,152.8 228.0,152.3 230.3,151.9 232.7,151.4 235.0,151.0 237.3,150.6 239.7,150.3 242.0,149.9 244.3,149.6 246.7,149.3 249.0,149.1 251.3,148.9 253.7,148.7 256.0,148.5 258.3,148.3 260.7,148.2 263.0,148.1 265.3,148.1 267.7,148.0 270.0,148.0 272.3,148.0 274.7,148.0 277.0,148.0 279.3,148.0 281.7,148.0 284.0,148.0 286.3,148.0 288.7,148.0 291.0,148.0 293.3,148.0 295.7,148.0 298.0,148.0 300.3,148.0 302.7,148.0 305.0,148.0 307.3,148.0 309.7,148.0 312.0,148.0 314.3,148.0 316.7,148.0 319.0,148.0 321.3,148.0 323.7,148.0 326.0,148.0 328.3,148.0 330.7,148.0 333.0,148.0 335.3,148.0 337.7,148.0 340.0,148.0 342.3,148.0 344.7,148.0 347.0,148.0 349.3,148.0 351.7,148.0 354.0,148.0 356.3,148.0 358.7,148.0 361.0,148.0 363.3,148.0 365.7,148.0 368.0,148.0 370.3,148.0 372.7,148.0 375.0,148.0 377.3,148.0 379.7,148.0 382.0,148.0 384.3,148.0 386.7,148.0 389.0,148.0 391.3,148.0 393.7,148.0 396.0,148.0 398.3,148.0 400.7,148.0 403.0,148.0 405.3,148.0 407.7,148.0 410.0,148.0 412.3,148.0 414.7,148.0 417.0,148.0 419.3,148.0 421.7,148.0 424.0,148.0 426.3,148.0 428.7,148.0 431.0,148.0 433.3,148.0 435.7,148.0 438.0,148.0 440.3,148.0 442.7,148.0 445.0,148.0 447.3,148.0 449.7,148.0 452.0,148.0 454.3,148.0 456.7,148.0 459.0,148.0 461.3,148.0 463.7,148.0 466.0,148.0 468.3,148.0 470.7,148.0 473.0,148.0 475.3,148.0 477.7,148.0 480.0,148.0 482.3,148.0 484.7,148.0 487.0,148.0 489.3,148.0 491.7,148.0 494.0,148.0 496.3,148.0 498.7,148.0 501.0,148.0 503.3,148.0 505.7,148.0 508.0,148.0 510.3,148.0 512.7,148.0 515.0,148.0 517.3,148.0 519.7,148.0 522.0,148.0 524.3,148.0 526.7,148.0 529.0,148.0 531.3,148.0 533.7,148.0 536.0,148.0 538.3,148.0 540.7,148.0 543.0,148.0 545.3,148.0 547.7,148.0 550.0,148.0 552.3,148.0 554.7,148.0 557.0,148.0 559.3,148.0 561.7,148.0 564.0,148.0 566.3,148.0 568.7,148.0 571.0,148.0 573.3,148.0 575.7,148.0 578.0,148.0 580.3,148.0 582.7,148.0 585.0,148.0 587.3,148.0 589.7,148.0 592.0,148.0 594.3,148.0 596.7,148.0 599.0,148.0 601.3,148.0 603.7,148.0 606.0,148.0 608.3,148.0 610.7,148.0 613.0,148.0 615.3,148.0 617.7,148.0 620.0,148.0"/>
+<text class="lab" x="616.0" y="142.0" text-anchor="end">v<tspan dy="3" font-size="75%">SG</tspan><tspan dy="-3"> </tspan> = 2 V</text>
+<polyline class="ln c4" points="60.0,256.0 62.3,252.8 64.7,249.7 67.0,246.5 69.3,243.4 71.7,240.3 74.0,237.3 76.3,234.3 78.7,231.3 81.0,228.3 83.3,225.3 85.7,222.4 88.0,219.5 90.3,216.7 92.7,213.8 95.0,211.0 97.3,208.2 99.7,205.5 102.0,202.7 104.3,200.0 106.7,197.3 109.0,194.7 111.3,192.1 113.7,189.5 116.0,186.9 118.3,184.3 120.7,181.8 123.0,179.3 125.3,176.9 127.7,174.4 130.0,172.0 132.3,169.6 134.7,167.3 137.0,164.9 139.3,162.6 141.7,160.3 144.0,158.1 146.3,155.9 148.7,153.7 151.0,151.5 153.3,149.3 155.7,147.2 158.0,145.1 160.3,143.1 162.7,141.0 165.0,139.0 167.3,137.0 169.7,135.1 172.0,133.1 174.3,131.2 176.7,129.3 179.0,127.5 181.3,125.7 183.7,123.9 186.0,122.1 188.3,120.3 190.7,118.6 193.0,116.9 195.3,115.3 197.7,113.6 200.0,112.0 202.3,110.4 204.7,108.9 207.0,107.3 209.3,105.8 211.7,104.3 214.0,102.9 216.3,101.5 218.7,100.1 221.0,98.7 223.3,97.3 225.7,96.0 228.0,94.7 230.3,93.5 232.7,92.2 235.0,91.0 237.3,89.8 239.7,88.7 242.0,87.5 244.3,86.4 246.7,85.3 249.0,84.3 251.3,83.3 253.7,82.3 256.0,81.3 258.3,80.3 260.7,79.4 263.0,78.5 265.3,77.7 267.7,76.8 270.0,76.0 272.3,75.2 274.7,74.5 277.0,73.7 279.3,73.0 281.7,72.3 284.0,71.7 286.3,71.1 288.7,70.5 291.0,69.9 293.3,69.3 295.7,68.8 298.0,68.3 300.3,67.9 302.7,67.4 305.0,67.0 307.3,66.6 309.7,66.3 312.0,65.9 314.3,65.6 316.7,65.3 319.0,65.1 321.3,64.9 323.7,64.7 326.0,64.5 328.3,64.3 330.7,64.2 333.0,64.1 335.3,64.1 337.7,64.0 340.0,64.0 342.3,64.0 344.7,64.0 347.0,64.0 349.3,64.0 351.7,64.0 354.0,64.0 356.3,64.0 358.7,64.0 361.0,64.0 363.3,64.0 365.7,64.0 368.0,64.0 370.3,64.0 372.7,64.0 375.0,64.0 377.3,64.0 379.7,64.0 382.0,64.0 384.3,64.0 386.7,64.0 389.0,64.0 391.3,64.0 393.7,64.0 396.0,64.0 398.3,64.0 400.7,64.0 403.0,64.0 405.3,64.0 407.7,64.0 410.0,64.0 412.3,64.0 414.7,64.0 417.0,64.0 419.3,64.0 421.7,64.0 424.0,64.0 426.3,64.0 428.7,64.0 431.0,64.0 433.3,64.0 435.7,64.0 438.0,64.0 440.3,64.0 442.7,64.0 445.0,64.0 447.3,64.0 449.7,64.0 452.0,64.0 454.3,64.0 456.7,64.0 459.0,64.0 461.3,64.0 463.7,64.0 466.0,64.0 468.3,64.0 470.7,64.0 473.0,64.0 475.3,64.0 477.7,64.0 480.0,64.0 482.3,64.0 484.7,64.0 487.0,64.0 489.3,64.0 491.7,64.0 494.0,64.0 496.3,64.0 498.7,64.0 501.0,64.0 503.3,64.0 505.7,64.0 508.0,64.0 510.3,64.0 512.7,64.0 515.0,64.0 517.3,64.0 519.7,64.0 522.0,64.0 524.3,64.0 526.7,64.0 529.0,64.0 531.3,64.0 533.7,64.0 536.0,64.0 538.3,64.0 540.7,64.0 543.0,64.0 545.3,64.0 547.7,64.0 550.0,64.0 552.3,64.0 554.7,64.0 557.0,64.0 559.3,64.0 561.7,64.0 564.0,64.0 566.3,64.0 568.7,64.0 571.0,64.0 573.3,64.0 575.7,64.0 578.0,64.0 580.3,64.0 582.7,64.0 585.0,64.0 587.3,64.0 589.7,64.0 592.0,64.0 594.3,64.0 596.7,64.0 599.0,64.0 601.3,64.0 603.7,64.0 606.0,64.0 608.3,64.0 610.7,64.0 613.0,64.0 615.3,64.0 617.7,64.0 620.0,64.0"/>
+<text class="lab" x="616.0" y="58.0" text-anchor="end">v<tspan dy="3" font-size="75%">SG</tspan><tspan dy="-3"> </tspan> = 2.5 V</text>
+<polyline class="ln c4 thin dash" points="60.0,256.0 63.5,256.0 67.0,255.9 70.5,255.7 74.0,255.5 77.5,255.2 81.0,254.9 84.5,254.5 88.0,254.1 91.5,253.6 95.0,253.0 98.5,252.4 102.0,251.7 105.5,250.9 109.0,250.1 112.5,249.2 116.0,248.3 119.5,247.3 123.0,246.3 126.5,245.2 130.0,244.0 133.5,242.8 137.0,241.5 140.5,240.1 144.0,238.7 147.5,237.2 151.0,235.7 154.5,234.1 158.0,232.5 161.5,230.8 165.0,229.0 168.5,227.2 172.0,225.3 175.5,223.3 179.0,221.3 182.5,219.2 186.0,217.1 189.5,214.9 193.0,212.7 196.5,210.4 200.0,208.0 203.5,205.6 207.0,203.1 210.5,200.5 214.0,197.9 217.5,195.2 221.0,192.5 224.5,189.7 228.0,186.9 231.5,184.0 235.0,181.0 238.5,178.0 242.0,174.9 245.5,171.7 249.0,168.5 252.5,165.2 256.0,161.9 259.5,158.5 263.0,155.1 266.5,151.6 270.0,148.0 273.5,144.4 277.0,140.7 280.5,136.9 284.0,133.1 287.5,129.2 291.0,125.3 294.5,121.3 298.0,117.3 301.5,113.2 305.0,109.0 308.5,104.8 312.0,100.5 315.5,96.1 319.0,91.7 322.5,87.2 326.0,82.7 329.5,78.1 333.0,73.5 336.5,68.8 340.0,64.0"/>
+<text class="lab" x="354.0" y="116.8" text-anchor="start">v<tspan dy="3" font-size="75%">SD(sat)</tspan><tspan dy="-3"> </tspan> boundary</text>
+<text class="lab" x="340.0" y="292.0" text-anchor="middle">v<tspan dy="3" font-size="75%">SD</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="14" y="136.0" text-anchor="middle" transform="rotate(-90 14 136.0)">i<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> (mA)</text>
+</svg>
+<figcaption><b>Figure 5.1</b> Output characteristics of a PMOS device for four source-gate voltages.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.1:</b> The device has \(V_{TP} = -0.5\ \text{V}\) and \(K_p = 0.2\ \text{mA/V}^2\). The shapes match the NMOS curves, with \(v_{SD}\) on the horizontal axis. The dashed curve is \(i_D = K_p v_{SD}^2\), the edge of saturation for every curve.</p>
+<div class="box watch"><span class="label">Watch out</span>The threshold \(V_{TP}\) is negative, and the overdrive is \(v_{SG} + V_{TP}\), a <i>sum</i>. Writing \(v_{SG} - V_{TP}\) by habit from the NMOS formula adds the threshold instead of subtracting its size, and is the commonest slip in PMOS questions.</div>
+<div class="ex"><div class="hd">Worked example 5.1 <span>PMOS from one measurement</span></div><div class="bd">
+<p>A PMOS with \(V_{TP} = −0.8\ \text{V}\) carries \(0.4\ \text{mA}\) at \(v_{SG} = 2.5\ \text{V}\) and \(v_{SD} = 3.0\ \text{V}\). Find the drain current for (a) \(v_{SG} = 1.8\ \text{V}\), \(v_{SD} = 2.5\ \text{V}\), (b) \(v_{SG} = 3.3\ \text{V}\), \(v_{SD} = 1.0\ \text{V}\), and the \(v_{SG}\) needed for \(0.9\ \text{mA}\) in saturation.</p>
+<div class="step"><i>1</i><div>At the measurement point \(v_{SD}(sat) = 2.5 - 0.8 = 1.7\ \text{V}\), below \(v_{SD} = 3.0\ \text{V}\), so it is saturated and \(K_p = 0.4\ \text{mA}/(1.7\ \text{V})^2 = 0.1384\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>2</i><div>(a) \(v_{SD}(sat) = 1.8 - 0.8 = 1.0\ \text{V}\) and \(v_{SD} = 2.5\ \text{V}\) is larger, so saturation: \(i_D = (0.1384)(1.0)^2 = 0.138\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>(b) \(v_{SD}(sat) = 3.3 - 0.8 = 2.5\ \text{V}\) and \(v_{SD} = 1.0\ \text{V}\) is smaller, so non-saturation: \(i_D = (0.1384)[2(2.5)(1.0) - (1.0)^2] = 0.554\ \text{mA}\).</div></div>
+<div class="step"><i>4</i><div>For \(0.9\ \text{mA}\): \(v_{SG} + V_{TP} = \sqrt{0.9/0.1384} = 2.550\ \text{V}\), so \(v_{SG} = 1.750\ \text{V}\). The drain voltage must then be at least \(2.550\ \text{V}\) below the source for the saturation formula to hold.</div></div>
+<div class="ans">(a) \(0.138\ \text{mA}\), (b) \(0.554\ \text{mA}\), and \(v_{SG} = 1.75\ \text{V}\) for \(0.9\ \text{mA}\).</div>
+</div></div>
+<p>Checks against the lecture. Example 3.2 (\(K_p = 0.2\ \text{mA/V}^2\), \(V_{TP} = -0.5\ \text{V}\), \(i_D = 0.5\ \text{mA}\)) gives \(v_{SG} = 2.08\ \text{V}\) and \(v_{SD}(sat) = 1.58\ \text{V}\), so the device is in saturation for any \(v_{SD}\) above that. Exercise problem 3.2 gives \(K_p = 0.154\ \text{mA/V}^2\), then \(0.0988\ \text{mA}\) for \(v_{SG} = 2\ \text{V}\), \(v_{SD} = 3\ \text{V}\) and \(1.73\ \text{mA}\) for \(v_{SG} = 5\ \text{V}\), \(v_{SD} = 2\ \text{V}\). The slides show \(0.0986\ \text{mA}\) and \(1.72\ \text{mA}\) because they round \(K_p\) to \(0.154\ \text{mA/V}^2\) first.</p><p class="reading"><b>Reading</b> Lecture 23, slides 3 to 6 (PMOS operation, example 3.2 and exercise problem 3.2).</p>
+</section>
+<section id="symbols">
+<h2><span class="n">06</span>Symbols, conventions and regions</h2>
+<p>The symbol tells you the type of transistor at a glance, and the voltage subscripts tell you which formula applies. The conventions below hold throughout the course, with the source and the body wired together.</p><figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="Circuit symbols for enhancement and depletion NMOS and PMOS transistors">
+<polyline class="ln c4" points="80.0,96.0 80.0,124.0"/>
+<polyline class="ln c4" points="86.0,94.0 86.0,101.0"/>
+<polyline class="ln c4" points="86.0,105.0 86.0,115.0"/>
+<polyline class="ln c4" points="86.0,119.0 86.0,126.0"/>
+<polyline class="ln c4" points="86.0,97.0 104.0,97.0 104.0,82.0"/>
+<polyline class="ln c4" points="86.0,123.0 104.0,123.0 104.0,138.0"/>
+<polygon class="c4f" points="100.0,123.0 93.0,126.5 93.0,119.5"/>
+<text class="lab" x="58.0" y="114.0" text-anchor="end">G</text>
+<text class="lab" x="104.0" y="62.0" text-anchor="middle">D</text>
+<text class="lab" x="104.0" y="174.0" text-anchor="middle">S</text>
+<text class="lab" x="104.0" y="214.0" text-anchor="middle">NMOS enhancement</text>
+<text class="lab" x="104.0" y="234.0" text-anchor="middle">V<tspan dy="3" font-size="75%">TN</tspan><tspan dy="-3"> </tspan> > 0</text>
+<polyline class="ln c4" points="240.0,96.0 240.0,124.0"/>
+<polyline class="ln c4" points="246.0,94.0 246.0,101.0"/>
+<polyline class="ln c4" points="246.0,105.0 246.0,115.0"/>
+<polyline class="ln c4" points="246.0,119.0 246.0,126.0"/>
+<polyline class="ln c4" points="246.0,97.0 264.0,97.0 264.0,82.0"/>
+<polyline class="ln c4" points="246.0,123.0 264.0,123.0 264.0,138.0"/>
+<polygon class="c4f" points="250.0,97.0 257.0,93.5 257.0,100.5"/>
+<text class="lab" x="218.0" y="114.0" text-anchor="end">G</text>
+<text class="lab" x="264.0" y="62.0" text-anchor="middle">S</text>
+<text class="lab" x="264.0" y="174.0" text-anchor="middle">D</text>
+<text class="lab" x="264.0" y="214.0" text-anchor="middle">PMOS enhancement</text>
+<text class="lab" x="264.0" y="234.0" text-anchor="middle">V<tspan dy="3" font-size="75%">TP</tspan><tspan dy="-3"> </tspan> < 0</text>
+<polyline class="ln c4" points="400.0,96.0 400.0,124.0"/>
+<polyline class="ln c4" points="406.0,94.0 406.0,126.0"/>
+<polyline class="ln c4" points="406.0,97.0 424.0,97.0 424.0,82.0"/>
+<polyline class="ln c4" points="406.0,123.0 424.0,123.0 424.0,138.0"/>
+<polygon class="c4f" points="420.0,123.0 413.0,126.5 413.0,119.5"/>
+<text class="lab" x="378.0" y="114.0" text-anchor="end">G</text>
+<text class="lab" x="424.0" y="62.0" text-anchor="middle">D</text>
+<text class="lab" x="424.0" y="174.0" text-anchor="middle">S</text>
+<text class="lab" x="424.0" y="214.0" text-anchor="middle">NMOS depletion</text>
+<text class="lab" x="424.0" y="234.0" text-anchor="middle">V<tspan dy="3" font-size="75%">TN</tspan><tspan dy="-3"> </tspan> < 0</text>
+<polyline class="ln c4" points="560.0,96.0 560.0,124.0"/>
+<polyline class="ln c4" points="566.0,94.0 566.0,126.0"/>
+<polyline class="ln c4" points="566.0,97.0 584.0,97.0 584.0,82.0"/>
+<polyline class="ln c4" points="566.0,123.0 584.0,123.0 584.0,138.0"/>
+<polygon class="c4f" points="570.0,97.0 577.0,93.5 577.0,100.5"/>
+<text class="lab" x="538.0" y="114.0" text-anchor="end">G</text>
+<text class="lab" x="584.0" y="62.0" text-anchor="middle">S</text>
+<text class="lab" x="584.0" y="174.0" text-anchor="middle">D</text>
+<text class="lab" x="584.0" y="214.0" text-anchor="middle">PMOS depletion</text>
+<text class="lab" x="584.0" y="234.0" text-anchor="middle">V<tspan dy="3" font-size="75%">TP</tspan><tspan dy="-3"> </tspan> > 0</text>
+</svg>
+<figcaption><b>Figure 6.1</b> Circuit symbols for the four MOSFET types, with the sign of the threshold voltage for each.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 6.1:</b> The arrow is on the source and shows the direction of conventional current. An unbroken line between source and drain marks a channel that exists with no gate voltage, which is how depletion devices are drawn.</p>
+<ul>
+<li>The arrow sits on the source terminal and points along the direction of conventional current.</li>
+<li>NMOS: carriers flow from source to drain and current enters at the drain. PMOS: current leaves at the drain.</li>
+<li>A vertical solid line is the gate electrode, and the gap between it and the channel line stands for the oxide.</li>
+<li>A broken channel line (no shaded conductive path) means enhancement mode. A continuous channel line means depletion mode.</li>
+<li>NMOS voltages are \(v_{GS}\) and \(v_{DS}\). PMOS voltages are \(v_{SG}\) and \(v_{SD}\).</li>
+</ul><p>Problems often give the node voltages of a transistor and ask which region it is in. The test is the same for every case: work out the control voltage first, then compare the output voltage with the edge of saturation.</p><div class="tbl"><table><thead><tr><th>Region</th><th>NMOS</th><th>PMOS (enhancement or depletion, written with the overdrive)</th></tr></thead><tbody><tr><td>Cutoff</td><td>\(v_{GS} \le V_{TN}\)</td><td>\(v_{SG} + V_{TP} \le 0\)</td></tr><tr><td>Non-saturation</td><td>\(v_{DS} \lt v_{GS} - V_{TN}\)</td><td>\(v_{SD} \lt v_{SG} + V_{TP}\)</td></tr><tr><td>Saturation</td><td>\(v_{DS} \ge v_{GS} - V_{TN}\)</td><td>\(v_{SD} \ge v_{SG} + V_{TP}\)</td></tr></tbody></table></div>
+<div class="ex"><div class="hd">Worked example 6.1 <span>Region of operation from node voltages</span></div><div class="bd">
+<p>A PMOS has \(V_{TP} = −0.5\ \text{V}\). The source, gate and drain voltages, measured to ground, are (a) \(3\ \text{V}\), \(3\ \text{V}\), \(1\ \text{V}\); (b) \(3\ \text{V}\), \(1\ \text{V}\), \(0\ \text{V}\); (c) \(2\ \text{V}\), \(0\ \text{V}\), \(1.5\ \text{V}\). Find the region in each case.</p>
+<div class="step"><i>1</i><div>Form \(v_{SG} = V_S - V_G\) and \(v_{SD} = V_S - V_D\) for each case, then the overdrive \(v_{SG} + V_{TP}\). Case (a) has \(v_{SG} = 0\), so the overdrive is \(−0.5\ \text{V}\), which is not positive and the device is in cutoff whatever the drain voltage.</div></div>
+<div class="step"><i>2</i><div>Case (b): \(v_{SG} = 2\ \text{V}\), overdrive \(= 1.5\ \text{V}\), \(v_{SD} = 3\ \text{V}\). Since \(3 \gt 1.5\), the device is in saturation.</div></div>
+<div class="step"><i>3</i><div>Case (c): \(v_{SG} = 2\ \text{V}\), overdrive \(= 1.5\ \text{V}\), \(v_{SD} = 0.5\ \text{V}\). Since \(0.5 \lt 1.5\), the device is in non-saturation.</div></div>
+<div class="ans">(a) cutoff, (b) saturation, (c) non-saturation. The table collects the intermediate values.<div class="tbl"><table><thead><tr><th>\(V_S\)</th><th>\(V_G\)</th><th>\(V_D\)</th><th>\(v_{SG}\)</th><th>\(v_{SD}\)</th><th>\(v_{SG}+V_{TP}\)</th><th>Region</th></tr></thead><tbody><tr><td>3.0 V</td><td>3.0 V</td><td>1.0 V</td><td>0.0 V</td><td>2.0 V</td><td>−0.5 V</td><td>cutoff</td></tr><tr><td>3.0 V</td><td>1.0 V</td><td>0.0 V</td><td>2.0 V</td><td>3.0 V</td><td>1.5 V</td><td>saturation</td></tr><tr><td>2.0 V</td><td>0.0 V</td><td>1.5 V</td><td>2.0 V</td><td>0.5 V</td><td>1.5 V</td><td>non-saturation</td></tr></tbody></table></div>
+</div>
+</div></div>
+<p>Lecture 23's problem 3.6 is the same exercise with \(V_{TP} = -0.4\ \text{V}\): the first circuit has \(v_{SG} = 0\) (cutoff), the second has \(v_{SG} = 2\ \text{V}\), \(v_{SD} = 3\ \text{V}\) against an edge of \(1.6\ \text{V}\) (saturation), and the third has \(v_{SD} = 1\ \text{V}\) against the same edge (non-saturation).</p><p class="reading"><b>Reading</b> Lecture 23, slides 7 to 10 (circuit symbols, conventions and problem 3.6).</p>
+</section>
+<section id="depletion">
+<h2><span class="n">07</span>Depletion-mode MOSFETs</h2>
+<p>A depletion-mode MOSFET is built with a channel already in place. It conducts with zero gate voltage, and the gate is used to shrink the channel or, in the other direction, to enrich it.</p><p><b>n-channel depletion.</b> With \(v_{GS} = 0\) an n-type channel exists and a drain-to-source current can flow. A negative gate voltage (\(V_{TN} \lt v_{GS} \lt 0\)) induces a space-charge region under the oxide, which thins the channel, lowers its conductance and reduces the current. At \(v_{GS} = V_{TN}\) the space-charge region reaches through the whole channel and the current drops to zero, so \(V_{TN}\) is negative for this device. A positive \(v_{GS}\) creates an electron accumulation layer and increases the current.</p>
+<p><b>p-channel depletion.</b> A p-type channel exists with \(v_{SG} = 0\). A positive gate voltage (against the source) is what turns it off, so \(V_{TP}\) is positive for this device.</p><div class="key"><span class="tag">Key idea</span>The equations do not change. Only the sign convention on the threshold does: \(V_{TN} \lt 0\) for a depletion NMOS and \(V_{TP} \gt 0\) for a depletion PMOS, against \(V_{TN} \gt 0\) and \(V_{TP} \lt 0\) for the enhancement versions.</div>
+<p>Because the threshold is on the other side of zero, setting the gate to zero volts already gives a positive overdrive, and the current at \(v_{GS} = 0\) follows directly.</p><div class="eq"><span class="tag">Current at zero gate voltage (saturation)</span>\[ i_D\big|_{v_{GS}=0} = K_n\,V_{TN}^{\,2} \quad \text{with} \quad v_{DS}(\text{sat}) = -V_{TN} = |V_{TN}| \qquad\qquad i_D\big|_{v_{SG}=0} = K_p\,V_{TP}^{\,2} \quad \text{with} \quad v_{SD}(\text{sat}) = V_{TP} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(i_D\)</dt><dd>Drain current, in A.</dd><dt>\(K_n, K_p\)</dt><dd>Conduction parameters, in A/V\(^2\).</dd><dt>\(V_{TN}\)</dt><dd>Depletion NMOS threshold, which is negative, in V.</dd><dt>\(V_{TP}\)</dt><dd>Depletion PMOS threshold, which is positive, in V.</dd><dt>\(v_{DS}(\text{sat}),\ v_{SD}(\text{sat})\)</dt><dd>The output voltage above which the device is saturated at zero gate voltage, in V.</dd></dl>
+</div>
+<figure>
+<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="Saturation drain current against gate voltage for an enhancement and a depletion NMOS device">
+<rect class="frame" x="60" y="16" width="560" height="240"/>
+<line class="grid" x1="60.0" y1="16" x2="60.0" y2="256"/>
+<text class="tk" x="60.0" y="272.0" text-anchor="middle">-3</text>
+<line class="grid" x1="140.0" y1="16" x2="140.0" y2="256"/>
+<text class="tk" x="140.0" y="272.0" text-anchor="middle">-2</text>
+<line class="grid" x1="220.0" y1="16" x2="220.0" y2="256"/>
+<text class="tk" x="220.0" y="272.0" text-anchor="middle">-1</text>
+<line class="grid" x1="300.0" y1="16" x2="300.0" y2="256"/>
+<text class="tk" x="300.0" y="272.0" text-anchor="middle">0</text>
+<line class="grid" x1="380.0" y1="16" x2="380.0" y2="256"/>
+<text class="tk" x="380.0" y="272.0" text-anchor="middle">1</text>
+<line class="grid" x1="460.0" y1="16" x2="460.0" y2="256"/>
+<text class="tk" x="460.0" y="272.0" text-anchor="middle">2</text>
+<line class="grid" x1="540.0" y1="16" x2="540.0" y2="256"/>
+<text class="tk" x="540.0" y="272.0" text-anchor="middle">3</text>
+<line class="grid" x1="620.0" y1="16" x2="620.0" y2="256"/>
+<text class="tk" x="620.0" y="272.0" text-anchor="middle">4</text>
+<line class="grid" x1="60" y1="256.0" x2="620" y2="256.0"/>
+<text class="tk" x="53.0" y="260.0" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="208.0" x2="620" y2="208.0"/>
+<text class="tk" x="53.0" y="212.0" text-anchor="end">1</text>
+<line class="grid" x1="60" y1="160.0" x2="620" y2="160.0"/>
+<text class="tk" x="53.0" y="164.0" text-anchor="end">2</text>
+<line class="grid" x1="60" y1="112.0" x2="620" y2="112.0"/>
+<text class="tk" x="53.0" y="116.0" text-anchor="end">3</text>
+<line class="grid" x1="60" y1="64.0" x2="620" y2="64.0"/>
+<text class="tk" x="53.0" y="68.0" text-anchor="end">4</text>
+<line class="grid" x1="60" y1="16.0" x2="620" y2="16.0"/>
+<text class="tk" x="53.0" y="20.0" text-anchor="end">5</text>
+<line class="axis" x1="60" y1="256" x2="620" y2="256"/>
+<line class="axis" x1="60" y1="16" x2="60" y2="256"/>
+<polyline class="ln c1" points="60.0,256.0 64.0,256.0 68.0,256.0 72.0,256.0 76.0,256.0 80.0,256.0 84.0,256.0 88.0,256.0 92.0,256.0 96.0,256.0 100.0,256.0 104.0,256.0 108.0,256.0 112.0,256.0 116.0,256.0 120.0,256.0 124.0,256.0 128.0,256.0 132.0,256.0 136.0,256.0 140.0,256.0 144.0,256.0 148.0,256.0 152.0,256.0 156.0,256.0 160.0,256.0 164.0,256.0 168.0,256.0 172.0,256.0 176.0,256.0 180.0,256.0 184.0,256.0 188.0,256.0 192.0,256.0 196.0,256.0 200.0,256.0 204.0,256.0 208.0,256.0 212.0,256.0 216.0,256.0 220.0,256.0 224.0,256.0 228.0,256.0 232.0,256.0 236.0,256.0 240.0,256.0 244.0,256.0 248.0,256.0 252.0,256.0 256.0,256.0 260.0,256.0 264.0,256.0 268.0,256.0 272.0,256.0 276.0,256.0 280.0,256.0 284.0,256.0 288.0,256.0 292.0,256.0 296.0,256.0 300.0,256.0 304.0,256.0 308.0,256.0 312.0,256.0 316.0,256.0 320.0,256.0 324.0,256.0 328.0,256.0 332.0,256.0 336.0,256.0 340.0,256.0 344.0,256.0 348.0,256.0 352.0,256.0 356.0,256.0 360.0,256.0 364.0,256.0 368.0,256.0 372.0,256.0 376.0,256.0 380.0,256.0 384.0,255.9 388.0,255.8 392.0,255.5 396.0,255.0 400.0,254.5 404.0,253.8 408.0,253.1 412.0,252.2 416.0,251.1 420.0,250.0 424.0,248.7 428.0,247.4 432.0,245.9 436.0,244.2 440.0,242.5 444.0,240.6 448.0,238.7 452.0,236.6 456.0,234.3 460.0,232.0 464.0,229.5 468.0,227.0 472.0,224.3 476.0,221.4 480.0,218.5 484.0,215.4 488.0,212.3 492.0,209.0 496.0,205.5 500.0,202.0 504.0,198.3 508.0,194.6 512.0,190.7 516.0,186.6 520.0,182.5 524.0,178.2 528.0,173.9 532.0,169.4 536.0,164.7 540.0,160.0 544.0,155.1 548.0,150.2 552.0,145.1 556.0,139.8 560.0,134.5 564.0,129.0 568.0,123.5 572.0,117.8 576.0,111.9 580.0,106.0 584.0,99.9 588.0,93.8 592.0,87.5 596.0,81.0 600.0,74.5 604.0,67.8 608.0,61.1 612.0,54.2 616.0,47.1 620.0,40.0"/>
+<polyline class="ln c3" points="60.0,256.0 64.0,256.0 68.0,256.0 72.0,256.0 76.0,256.0 80.0,256.0 84.0,256.0 88.0,256.0 92.0,256.0 96.0,256.0 100.0,256.0 104.0,256.0 108.0,256.0 112.0,256.0 116.0,256.0 120.0,256.0 124.0,256.0 128.0,256.0 132.0,256.0 136.0,256.0 140.0,256.0 144.0,255.9 148.0,255.8 152.0,255.5 156.0,255.0 160.0,254.5 164.0,253.8 168.0,253.1 172.0,252.2 176.0,251.1 180.0,250.0 184.0,248.7 188.0,247.4 192.0,245.9 196.0,244.2 200.0,242.5 204.0,240.6 208.0,238.7 212.0,236.6 216.0,234.3 220.0,232.0 224.0,229.5 228.0,227.0 232.0,224.3 236.0,221.4 240.0,218.5 244.0,215.4 248.0,212.3 252.0,209.0 256.0,205.5 260.0,202.0 264.0,198.3 268.0,194.6 272.0,190.7 276.0,186.6 280.0,182.5 284.0,178.2 288.0,173.9 292.0,169.4 296.0,164.7 300.0,160.0 304.0,155.1 308.0,150.2 312.0,145.1 316.0,139.8 320.0,134.5 324.0,129.0 328.0,123.5 332.0,117.8 336.0,111.9 340.0,106.0 344.0,99.9 348.0,93.8 352.0,87.5 356.0,81.0 360.0,74.5 364.0,67.8 368.0,61.1 372.0,54.2 376.0,47.1 380.0,40.0 384.0,32.7 388.0,25.4 392.0,17.9 396.0,10.2 400.0,2.5 404.0,-5.4 408.0,-13.3 412.0,-21.4 416.0,-29.7 420.0,-38.0 424.0,-46.5 428.0,-55.0 432.0,-63.7 436.0,-72.6 440.0,-81.5 444.0,-90.6 448.0,-99.7 452.0,-109.0 456.0,-118.5 460.0,-128.0 464.0,-137.7 468.0,-147.4 472.0,-157.3 476.0,-167.4 480.0,-177.5 484.0,-187.8 488.0,-198.1 492.0,-208.6 496.0,-219.3 500.0,-230.0 504.0,-240.9 508.0,-251.8 512.0,-262.9 516.0,-274.2 520.0,-285.5 524.0,-297.0 528.0,-308.5 532.0,-320.2 536.0,-332.1 540.0,-344.0 544.0,-356.1 548.0,-368.2 552.0,-380.5 556.0,-393.0 560.0,-405.5 564.0,-418.2 568.0,-430.9 572.0,-443.8 576.0,-456.9 580.0,-470.0 584.0,-483.3 588.0,-496.6 592.0,-510.1 596.0,-523.8 600.0,-537.5 604.0,-551.4 608.0,-565.3 612.0,-579.4 616.0,-593.7 620.0,-608.0"/>
+<line class="ln c4 thin dash" x1="300.0" y1="256.0" x2="300.0" y2="16.0"/>
+<circle class="c3f" cx="300.0" cy="160.0" r="5"/>
+<text class="lab" x="314.0" y="164.0" text-anchor="start">depletion device conducts at vGS = 0</text>
+<text class="lab" x="606.0" y="54.4" text-anchor="end">VTN = +1 V</text>
+<text class="lab" x="478.0" y="25.6" text-anchor="end">VTN = −2 V</text>
+<text class="lab" x="340.0" y="292.0" text-anchor="middle">v<tspan dy="3" font-size="75%">GS</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="14" y="136.0" text-anchor="middle" transform="rotate(-90 14 136.0)">i<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> in saturation (mA)</text>
+</svg>
+<figcaption><b>Figure 7.1</b> Saturation current against \(v_{GS}\) for an enhancement and a depletion NMOS.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 7.1:</b> The enhancement device has \(V_{TN} = +1\ \text{V}\), the depletion device \(V_{TN} = -2\ \text{V}\), and both have \(K_n = 0.5\ \text{mA/V}^2\). Both curves are \(i_D = K_n(v_{GS} - V_{TN})^2\) once \(v_{GS}\) passes the threshold, so the depletion curve is the enhancement curve shifted left by 3 V. At \(v_{GS} = 0\) the depletion device already carries \(K_nV_{TN}^2 = 2\ \text{mA}\).</p>
+<div class="ex"><div class="hd">Worked example 7.1 <span>Depletion NMOS at zero gate voltage</span></div><div class="bd">
+<p>A depletion NMOS has \(V_{TN} = −1.5\ \text{V}\) and \(K_n = 0.8\ \text{mA/V}^2\). With \(v_{GS} = 0\), find \(v_{DS}(sat)\) and the drain current for \(v_{DS} = 0.4\ \text{V}\), \(1.5\ \text{V}\) and \(4\ \text{V}\).</p>
+<div class="step"><i>1</i><div>\(v_{DS}(sat) = v_{GS} - V_{TN} = 0 - (−1.5) = 1.5\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>\(v_{DS} = 0.4\ \text{V}\) is below the edge, so non-saturation: \(i_D = 0.8[2(1.5)(0.4) - 0.4^2] = 0.832\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>\(v_{DS} = 1.5\ \text{V}\) is exactly at the edge, so either formula gives \(0.8(1.5)^2 = 1.80\ \text{mA}\).</div></div>
+<div class="step"><i>4</i><div>\(v_{DS} = 4\ \text{V}\) is above the edge, so saturation, with the same current \(1.80\ \text{mA}\).</div></div>
+<div class="ans">\(0.832\ \text{mA}\), \(1.80\ \text{mA}\) and \(1.80\ \text{mA}\). Past \(v_{DS} = 1.5\ \text{V}\) the current stays at \(K_nV_{TN}^2\) in the ideal device.</div>
+</div></div>
+<div class="ex"><div class="hd">Worked example 7.2 <span>Width of a depletion NMOS from its zero-bias current</span></div><div class="bd">
+<p>A depletion NMOS has \(V_{TN} = −1.0\ \text{V}\) and \(k_n' = 100\ \mu\text{A/V}^2\). At \(v_{GS} = 0\) and a large \(v_{DS}\) it carries \(0.4\ \text{mA}\). Find \(W/L\).</p>
+<div class="step"><i>1</i><div>Check the region first. \(v_{DS}(sat) = 0 - (−1.0) = 1\ \text{V}\), and the drain voltage is larger, so the device is saturated.</div></div>
+<div class="step"><i>2</i><div>\(K_n = i_D/(v_{GS} - V_{TN})^2 = 0.4\ \text{mA}/(1\ \text{V})^2 = 0.4\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>3</i><div>\(W/L = 2K_n/k_n' = 2(0.4\ \text{mA/V}^2)/(100\ \mu\text{A/V}^2) = 8\).</div></div>
+<div class="ans">\(W/L = 8\).</div>
+</div></div>
+<div class="ex"><div class="hd">Worked example 7.3 <span>Depletion PMOS</span></div><div class="bd">
+<p>A depletion PMOS has \(V_{TP} = 1.5\ \text{V}\), \(k_p' = 30\ \mu\text{A/V}^2\) and \(W/L = 10\). Find \(v_{SD}(sat)\) and the saturation current for \(v_{SG} = -0.5\ \text{V}\), \(0\) and \(+1\ \text{V}\).</p>
+<div class="step"><i>1</i><div>\(K_p = (k_p'/2)(W/L) = (15\ \mu\text{A/V}^2)(10) = 0.15\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>2</i><div>The edge of saturation is \(v_{SD}(sat) = v_{SG} + V_{TP}\), which gives \(1.0\ \text{V}\), \(1.5\ \text{V}\) and \(2.5\ \text{V}\) for the three gate voltages. Assume the drain is far enough below the source for saturation, so \(i_D = K_p(v_{SG} + V_{TP})^2\).</div></div>
+<div class="step"><i>3</i><div>\(v_{SG} = -0.5\ \text{V}\): \(i_D = 0.15(1.0)^2 = 0.150\ \text{mA}\). \(v_{SG} = 0\): \(0.15(1.5)^2 = 0.3375\ \text{mA}\). \(v_{SG} = +1\ \text{V}\): \(0.15(2.5)^2 = 0.9375\ \text{mA}\).</div></div>
+<div class="ans">The saturation currents are \(0.15\ \text{mA}\), \(0.338\ \text{mA}\) and \(0.938\ \text{mA}\). A negative \(v_{SG}\) means the gate is <i>above</i> the source, which narrows this device's channel but does not switch it off until \(v_{SG} = -V_{TP} = -1.5\ \text{V}\).<div class="tbl"><table><thead><tr><th>\(v_{SG}\)</th><th>\(v_{SD}(sat)\)</th><th>\(i_D\) (saturation)</th></tr></thead><tbody><tr><td>−0.5 V</td><td>1.0 V</td><td>0.1500 mA</td></tr><tr><td>0.0 V</td><td>1.5 V</td><td>0.3375 mA</td></tr><tr><td>1.0 V</td><td>2.5 V</td><td>0.9375 mA</td></tr></tbody></table></div>
+</div>
+</div></div>
+<p>Checks against the lecture. Problem 3.4 (\(V_{TN} = -2.5\ \text{V}\), \(K_n = 1.1\ \text{mA/V}^2\), \(v_{GS} = 0\)) gives \(2.48\ \text{mA}\) at \(v_{DS} = 0.5\ \text{V}\) and \(6.88\ \text{mA}\) at both \(2.5\ \text{V}\) and \(5\ \text{V}\). Problem 3.7 (\(V_{TN} = -1.2\ \text{V}\), \(k_n' = 120\ \mu\text{A/V}^2\), \(0.5\ \text{mA}\) at \(v_{GS} = 0\)) gives \(W/L = 5.79\). Problem 3.16 (\(V_{TP} = +2\ \text{V}\), \(k_p' = 40\ \mu\text{A/V}^2\), \(W/L = 6\)) gives \(0.12\ \text{mA}\), \(0.48\ \text{mA}\) and \(1.08\ \text{mA}\) for \(v_{SG} = -1\ \text{V}\), \(0\) and \(1\ \text{V}\).</p><p class="reading"><b>Reading</b> Lecture 24, slides 3 to 5, 9 to 11 (depletion-mode devices, problems 3.4, 3.7 and 3.16).</p>
+</section>
+<section id="summary">
+<h2><span class="n">08</span>Summary of transistor operation</h2>
+<p>The lecture ends the chapter's device theory with one summary slide. It is worth learning as a single table.</p><div class="tbl"><table><thead><tr><th></th><th>NMOS</th><th>PMOS</th></tr></thead><tbody><tr><td>Non-saturation</td><td>\(i_D = K_n[2(v_{GS} - V_{TN})v_{DS} - v_{DS}^2]\)</td><td>\(i_D = K_p[2(v_{SG} + V_{TP})v_{SD} - v_{SD}^2]\)</td></tr><tr><td>Saturation</td><td>\(i_D = K_n(v_{GS} - V_{TN})^2\)</td><td>\(i_D = K_p(v_{SG} + V_{TP})^2\)</td></tr><tr><td>Transition</td><td>\(v_{DS}(sat) = v_{GS} - V_{TN}\)</td><td>\(v_{SD}(sat) = v_{SG} + V_{TP}\)</td></tr><tr><td>Enhancement mode</td><td>\(V_{TN} \gt 0\)</td><td>\(V_{TP} \lt 0\)</td></tr><tr><td>Depletion mode</td><td>\(V_{TN} \lt 0\)</td><td>\(V_{TP} \gt 0\)</td></tr><tr><td>Conduction parameter</td><td>\(K_n = \dfrac{k_n'}{2}\dfrac{W}{L}\), \(k_n' = \mu_n C_{ox}\)</td><td>\(K_p = \dfrac{k_p'}{2}\dfrac{W}{L}\), \(k_p' = \mu_p C_{ox}\)</td></tr></tbody></table></div>
+<p><b>Complementary MOS (CMOS)</b> circuits use n-channel and p-channel devices together, and both types are fabricated on the same chip. The lecture introduces the idea only. The device equations above are all that is needed to analyse either half.</p><p>The summary slide also gives the saturation current with a factor \((1+\lambda v_{DS})\) for an NMOS and \((1+\lambda v_{SD})\) for a PMOS. The factor models the small rise in current with output voltage that a real device shows. Every calculation this week takes \(\lambda = 0\), which is the ideal device and is stated outright in tutorial question 4.</p><div class="eq"><span class="tag">Saturation current with channel-length modulation</span>\[ i_D = K_n\,(v_{GS} - V_{TN})^2\,(1 + \lambda\, v_{DS}) \qquad i_D = K_p\,(v_{SG} + V_{TP})^2\,(1 + \lambda\, v_{SD}) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(i_D\)</dt><dd>Drain current in saturation, in A.</dd><dt>\(K_n, K_p\)</dt><dd>Conduction parameters, in A/V\(^2\).</dd><dt>\(\lambda\)</dt><dd>Channel-length modulation parameter, in V\(^{-1}\). The ideal device has \(\lambda = 0\), so the factor is 1.</dd><dt>\(v_{DS},\ v_{SD}\)</dt><dd>Output voltage, in V.</dd></dl>
+</div>
+<div class="key"><span class="tag">Key idea</span>With \(\lambda = 0\), \(i_D\) in saturation depends on the gate voltage alone, and the transistor acts as a current source controlled by \(v_{GS}\). That one fact is why the DC circuits in sections 9 and 10 can be solved with a single gate-to-source loop.</div>
+<p class="reading"><b>Reading</b> Lecture 24, slides 6 to 8 (CMOS and summary of transistor operation).</p>
+</section>
+<section id="cs-analysis">
+<h2><span class="n">09</span>Common-source DC analysis</h2>
+<p>The <b>common-source</b> circuit is the MOSFET's basic amplifier stage: the source terminal is common to the input (gate) and the output (drain). Here only the DC solution matters. The gate takes no current, so the divider \(R_1, R_2\) sets the gate voltage with no loading from the transistor, and the drain current flows through \(R_D\) alone.</p><figure>
+<svg viewBox="0 0 640 290" class="fig" role="img" aria-label="Common-source circuits with an n-channel and a p-channel MOSFET and a resistor divider at the gate">
+<polyline class="ln c4" points="40.0,24.0 230.0,24.0"/>
+<text class="lab" x="36.0" y="28.0" text-anchor="end">V<tspan dy="3" font-size="75%">DD</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="70.0,24.0 70.0,45.1 77.0,49.6 63.0,58.6 77.0,67.5 63.0,76.5 77.0,85.4 63.0,94.4 70.0,98.9 70.0,120.0"/>
+<text class="lab" x="59.0" y="76.0" text-anchor="end">R<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> </tspan></text>
+<circle class="c4f" cx="70.0" cy="120.0" r="2.6"/>
+<polyline class="ln c4" points="70.0,120.0 70.0,142.0 77.0,146.7 63.0,156.0 77.0,165.3 63.0,174.7 77.0,184.0 63.0,193.3 70.0,198.0 70.0,220.0"/>
+<text class="lab" x="59.0" y="174.0" text-anchor="end">R<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="70.0,220.0 70.0,226.0"/>
+<polyline class="ln c4" points="61.0,226.0 79.0,226.0"/>
+<polyline class="ln c4" points="65.0,230.0 75.0,230.0"/>
+<polyline class="ln c4" points="68.0,234.0 72.0,234.0"/>
+<polyline class="ln c4" points="70.0,120.0 126.0,120.0"/>
+<polyline class="ln c4" points="126.0,106.0 126.0,134.0"/>
+<polyline class="ln c4" points="132.0,104.0 132.0,111.0"/>
+<polyline class="ln c4" points="132.0,115.0 132.0,125.0"/>
+<polyline class="ln c4" points="132.0,129.0 132.0,136.0"/>
+<polyline class="ln c4" points="132.0,107.0 150.0,107.0 150.0,92.0"/>
+<polyline class="ln c4" points="132.0,133.0 150.0,133.0 150.0,148.0"/>
+<polygon class="c4f" points="146.0,133.0 139.0,136.5 139.0,129.5"/>
+<polyline class="ln c4" points="150.0,24.0 150.0,39.0 157.0,42.1 143.0,48.5 157.0,54.8 143.0,61.2 157.0,67.5 143.0,73.9 150.0,77.0 150.0,92.0"/>
+<text class="lab" x="161.0" y="62.0" text-anchor="start">R<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="150.0,148.0 150.0,220.0"/>
+<polyline class="ln c4" points="150.0,220.0 150.0,226.0"/>
+<polyline class="ln c4" points="141.0,226.0 159.0,226.0"/>
+<polyline class="ln c4" points="145.0,230.0 155.0,230.0"/>
+<polyline class="ln c4" points="148.0,234.0 152.0,234.0"/>
+<text class="lab" x="110.0" y="252.0" text-anchor="middle">n-channel</text>
+<line class="ln c3 thin" x1="192" y1="52" x2="192" y2="82"/>
+<polygon class="c3f" points="192.0,82.0 189.0,76.0 195.0,76.0"/>
+<text class="lab" x="198.0" y="71.0" text-anchor="start">i<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="360.0,24.0 590.0,24.0"/>
+<text class="lab" x="356.0" y="28.0" text-anchor="end">V<tspan dy="3" font-size="75%">DD</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="390.0,24.0 390.0,45.1 397.0,49.6 383.0,58.6 397.0,67.5 383.0,76.5 397.0,85.4 383.0,94.4 390.0,98.9 390.0,120.0"/>
+<text class="lab" x="379.0" y="76.0" text-anchor="end">R<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> </tspan></text>
+<circle class="c4f" cx="390.0" cy="120.0" r="2.6"/>
+<polyline class="ln c4" points="390.0,120.0 390.0,142.0 397.0,146.7 383.0,156.0 397.0,165.3 383.0,174.7 397.0,184.0 383.0,193.3 390.0,198.0 390.0,220.0"/>
+<text class="lab" x="379.0" y="174.0" text-anchor="end">R<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="390.0,220.0 390.0,226.0"/>
+<polyline class="ln c4" points="381.0,226.0 399.0,226.0"/>
+<polyline class="ln c4" points="385.0,230.0 395.0,230.0"/>
+<polyline class="ln c4" points="388.0,234.0 392.0,234.0"/>
+<polyline class="ln c4" points="390.0,120.0 446.0,120.0"/>
+<polyline class="ln c4" points="446.0,106.0 446.0,134.0"/>
+<polyline class="ln c4" points="452.0,104.0 452.0,111.0"/>
+<polyline class="ln c4" points="452.0,115.0 452.0,125.0"/>
+<polyline class="ln c4" points="452.0,129.0 452.0,136.0"/>
+<polyline class="ln c4" points="452.0,107.0 470.0,107.0 470.0,92.0"/>
+<polyline class="ln c4" points="452.0,133.0 470.0,133.0 470.0,148.0"/>
+<polygon class="c4f" points="456.0,107.0 463.0,103.5 463.0,110.5"/>
+<polyline class="ln c4" points="470.0,92.0 470.0,24.0"/>
+<circle class="c4f" cx="470.0" cy="24.0" r="2.6"/>
+<polyline class="ln c4" points="470.0,148.0 470.0,163.8 477.0,167.2 463.0,173.9 477.0,180.6 463.0,187.4 477.0,194.1 463.0,200.8 470.0,204.2 470.0,220.0"/>
+<text class="lab" x="481.0" y="188.0" text-anchor="start">R<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="470.0,220.0 470.0,226.0"/>
+<polyline class="ln c4" points="461.0,226.0 479.0,226.0"/>
+<polyline class="ln c4" points="465.0,230.0 475.0,230.0"/>
+<polyline class="ln c4" points="468.0,234.0 472.0,234.0"/>
+<text class="lab" x="430.0" y="252.0" text-anchor="middle">p-channel</text>
+<line class="ln c3 thin" x1="514" y1="160" x2="514" y2="190"/>
+<polygon class="c3f" points="514.0,190.0 511.0,184.0 517.0,184.0"/>
+<text class="lab" x="520.0" y="179.0" text-anchor="start">i<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan></text>
+</svg>
+<figcaption><b>Figure 9.1</b> Common-source bias circuits: n-channel (left) and p-channel (right).</figcaption>
+</figure>
+<p class="fignote"><b>Figure 9.1:</b> Both use a resistor divider on the gate. In the n-channel circuit the source is at ground and \(R_D\) is on the supply side. In the p-channel circuit the source is at \(V_{DD}\) and \(R_D\) is on the ground side, so the two circuits are mirror images.</p>
+<div class="eq"><span class="tag">Gate voltage and n-channel analysis</span>\[ V_G = V_{GS} = \frac{R_2}{R_1 + R_2}\,V_{DD} \qquad I_D = K_n(V_{GS} - V_{TN})^2 \qquad V_{DS} = V_{DD} - I_D R_D \qquad P_T = I_D V_{DS} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(V_G\)</dt><dd>Gate voltage, in V. It equals \(V_{GS}\) because the source is grounded.</dd><dt>\(R_1, R_2\)</dt><dd>Divider resistors, upper and lower, in \(\Omega\).</dd><dt>\(V_{DD}\)</dt><dd>Supply voltage, in V.</dd><dt>\(I_D\)</dt><dd>Drain current, in A. The saturation formula applies only if the check below passes.</dd><dt>\(K_n, V_{TN}\)</dt><dd>Conduction parameter and threshold of the NMOS.</dd><dt>\(V_{DS}\)</dt><dd>Drain-to-source voltage, from the drain loop, in V.</dd><dt>\(R_D\)</dt><dd>Drain resistor, in \(\Omega\).</dd><dt>\(P_T\)</dt><dd>Power dissipated in the transistor, in W. The gate draws no current, so this product is the whole of it.</dd></dl>
+</div>
+<div class="eq"><span class="tag">Gate voltage and p-channel analysis</span>\[ V_G = \frac{R_2}{R_1 + R_2}\,V_{DD} \qquad V_{SG} = V_{DD} - V_G \qquad I_D = K_p(V_{SG} + V_{TP})^2 \qquad V_{SD} = V_{DD} - I_D R_D \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(V_G\)</dt><dd>Gate voltage to ground, in V.</dd><dt>\(V_{SG}\)</dt><dd>Source-to-gate voltage. The source is at \(V_{DD}\), so this is the part of the supply not across \(R_2\).</dd><dt>\(I_D\)</dt><dd>Drain current, in A.</dd><dt>\(K_p, V_{TP}\)</dt><dd>Conduction parameter and threshold of the PMOS.</dd><dt>\(V_{SD}\)</dt><dd>Source-to-drain voltage, from the drain loop, in V.</dd><dt>\(R_D\)</dt><dd>Drain resistor, in \(\Omega\).</dd></dl>
+</div>
+<p>The saturation formula is an <i>assumption</i> until it is checked. The routine for either type is:</p>
+<ol>
+<li>Find \(V_G\) from the divider, then \(V_{GS}\) (or \(V_{SG}\)). If the device is not above threshold, \(I_D = 0\) and you are done.</li>
+<li>Assume saturation and compute \(I_D\) from the saturation formula.</li>
+<li>Find \(V_{DS}\) (or \(V_{SD}\)) from the drain loop.</li>
+<li>Compare it with the edge of saturation, \(V_{GS} - V_{TN}\) (or \(V_{SG} + V_{TP}\)). If the output voltage is larger, the assumption holds and you are finished.</li>
+<li>If it is smaller, the device is in non-saturation. Discard the saturation current and solve again with the non-saturation equation, as set out below.</li>
+</ol><div class="ex"><div class="hd">Worked example 9.1 <span>NMOS common-source stage</span></div><div class="bd">
+<p>An NMOS stage has \(V_{DD} = 5\ \text{V}\), \(R_1 = 200\ \text{k}\Omega\), \(R_2 = 100\ \text{k}\Omega\), \(R_D = 10\ \text{k}\Omega\), \(V_{TN} = 0.6\ \text{V}\) and \(K_n = 0.2\ \text{mA/V}^2\). Find \(I_D\), \(V_{DS}\) and the power dissipated in the transistor.</p>
+<div class="step"><i>1</i><div>\(V_G = V_{GS} = 100/(200 + 100) \times 5 = 1.667\ \text{V}\), which is above \(V_{TN}\), so the device is on.</div></div>
+<div class="step"><i>2</i><div>Assume saturation: \(I_D = 0.2\ \text{mA/V}^2 \times (1.667 - 0.6)^2 = 0.2276\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>Drain loop: \(V_{DS} = 5 - (0.2276\ \text{mA})(10\ \text{k}\Omega) = 2.72\ \text{V}\).</div></div>
+<div class="step"><i>4</i><div>Check: \(V_{DS}(sat) = 1.667 - 0.6 = 1.067\ \text{V}\), and \(2.72 \gt 1.067\), so the assumption was correct.</div></div>
+<div class="step"><i>5</i><div>Power: \(P_T = I_D V_{DS} = (0.2276\ \text{mA})(2.72\ \text{V}) = 0.62\ \text{mW}\).</div></div>
+<div class="ans">\(I_D = 0.228\ \text{mA}\), \(V_{DS} = 2.72\ \text{V}\), \(P_T = 0.62\ \text{mW}\). The drain sits well above the saturation edge, which leaves room for the output voltage to swing.</div>
+</div></div>
+<h3 id="s9-fail">When the saturation assumption fails</h3>
+<p>If the drain loop gives an output voltage below the edge of saturation, the transistor is in non-saturation and the current is smaller than the saturation formula claimed. Substitute the drain-loop equation into the non-saturation current formula and you get a quadratic. Working in terms of the output voltage keeps the algebra short. For the p-channel circuit, with \(I_D = (V_{DD} - v_{SD})/R_D\):</p><div class="eq"><span class="tag">Non-saturation quadratic (PMOS; the NMOS form swaps the subscripts)</span>\[ K_p R_D\,v_{SD}^{\,2} - \Big[1 + 2K_pR_D\,(V_{SG} + V_{TP})\Big]\,v_{SD} + V_{DD} = 0 \qquad I_D = \frac{V_{DD} - v_{SD}}{R_D} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(K_p\)</dt><dd>Conduction parameter, in A/V\(^2\).</dd><dt>\(R_D\)</dt><dd>Drain resistor, in \(\Omega\).</dd><dt>\(v_{SD}\)</dt><dd>The unknown source-to-drain voltage, in V.</dd><dt>\(V_{SG} + V_{TP}\)</dt><dd>The overdrive, fixed by the divider and so known.</dd><dt>\(V_{DD}\)</dt><dd>Supply voltage, in V.</dd><dt>\(I_D\)</dt><dd>Drain current from the drain loop, in A.</dd></dl>
+</div>
+<p>The quadratic has two roots, and only one is physical. Test both against the non-saturation condition \(v_{SD} \lt V_{SG} + V_{TP}\). The root that fails the test belongs to the extension of the triode parabola beyond its peak, where the formula no longer describes the device, and you reject it. The lecture does exactly this for its example 3.4, where the valid root is \(0.515\ \text{mA}\) with \(V_{SD} = 1.14\ \text{V}\) and the rejected one is \(0.276\ \text{mA}\) with \(V_{SD} = 2.93\ \text{V}\), above the \(1.7\ \text{V}\) edge. In that example the saturation guess gave \(I_D = 0.578\ \text{mA}\) and \(V_{SD} = 0.665\ \text{V}\), below the edge, so the guess failed.</p><div class="ex"><div class="hd">Worked example 9.2 <span>PMOS stage where saturation fails</span></div><div class="bd">
+<p>A PMOS stage has \(V_{DD} = 5\ \text{V}\), \(R_1 = 40\ \text{k}\Omega\) (supply to gate), \(R_2 = 60\ \text{k}\Omega\) (gate to ground), \(R_D = 10\ \text{k}\Omega\), \(V_{TP} = −0.7\ \text{V}\) and \(K_p = 0.25\ \text{mA/V}^2\). Find \(I_D\) and \(V_{SD}\).</p>
+<div class="step"><i>1</i><div>\(V_G = 60/(40 + 60) \times 5 = 3.00\ \text{V}\), so \(V_{SG} = 5 - 3.00 = 2.00\ \text{V}\) and the overdrive is \(2.00 - 0.7 = 1.30\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>Assume saturation: \(I_D = 0.25(1.30)^2 = 0.4225\ \text{mA}\), which gives \(V_{SD} = 5 - (0.4225\ \text{mA})(10\ \text{k}\Omega) = 0.775\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>Check: \(V_{SD}(sat) = 1.30\ \text{V}\) and \(0.775 \lt 1.30\). The assumption fails, so the device is in non-saturation.</div></div>
+<div class="step"><i>4</i><div>The quadratic is \(K_pR_D\,v_{SD}^2 - [1 + 2K_pR_D(1.30)]\,v_{SD} + 5 = 0\) with \(K_pR_D = 2.50\ \text{V}^{-1}\), which is \(2.5\,v_{SD}^2 - 7.5\,v_{SD} + 5 = 0\). Its roots are \(v_{SD} = 1.0\ \text{V}\) and \(2.0\ \text{V}\).</div></div>
+<div class="step"><i>5</i><div>Test the roots against \(v_{SD} \lt 1.30\ \text{V}\). The root \(2.0\ \text{V}\) fails, so reject it. The root \(1.0\ \text{V}\) passes.</div></div>
+<div class="step"><i>6</i><div>\(I_D = (5 - 1.0)/10\ \text{k}\Omega = 0.40\ \text{mA}\). Confirm with the device equation: \(0.25[2(1.30)(1.0) - (1.0)^2] = 0.40\ \text{mA}\).</div></div>
+<div class="ans">\(I_D = 0.40\ \text{mA}\) and \(V_{SD} = 1.0\ \text{V}\), in non-saturation. The saturation formula had over-estimated the current by 6 %.</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="Graphical solution for a PMOS common-source circuit where the saturation assumption fails">
+<rect class="frame" x="60" y="16" width="560" height="240"/>
+<line class="grid" x1="60.0" y1="16" x2="60.0" y2="256"/>
+<text class="tk" x="60.0" y="272.0" text-anchor="middle">0</text>
+<line class="grid" x1="172.0" y1="16" x2="172.0" y2="256"/>
+<text class="tk" x="172.0" y="272.0" text-anchor="middle">1</text>
+<line class="grid" x1="284.0" y1="16" x2="284.0" y2="256"/>
+<text class="tk" x="284.0" y="272.0" text-anchor="middle">2</text>
+<line class="grid" x1="396.0" y1="16" x2="396.0" y2="256"/>
+<text class="tk" x="396.0" y="272.0" text-anchor="middle">3</text>
+<line class="grid" x1="508.0" y1="16" x2="508.0" y2="256"/>
+<text class="tk" x="508.0" y="272.0" text-anchor="middle">4</text>
+<line class="grid" x1="620.0" y1="16" x2="620.0" y2="256"/>
+<text class="tk" x="620.0" y="272.0" text-anchor="middle">5</text>
+<line class="grid" x1="60" y1="256.0" x2="620" y2="256.0"/>
+<text class="tk" x="53.0" y="260.0" text-anchor="end">0.0</text>
+<line class="grid" x1="60" y1="216.0" x2="620" y2="216.0"/>
+<text class="tk" x="53.0" y="220.0" text-anchor="end">0.1</text>
+<line class="grid" x1="60" y1="176.0" x2="620" y2="176.0"/>
+<text class="tk" x="53.0" y="180.0" text-anchor="end">0.2</text>
+<line class="grid" x1="60" y1="136.0" x2="620" y2="136.0"/>
+<text class="tk" x="53.0" y="140.0" text-anchor="end">0.3</text>
+<line class="grid" x1="60" y1="96.0" x2="620" y2="96.0"/>
+<text class="tk" x="53.0" y="100.0" text-anchor="end">0.4</text>
+<line class="grid" x1="60" y1="56.0" x2="620" y2="56.0"/>
+<text class="tk" x="53.0" y="60.0" text-anchor="end">0.5</text>
+<line class="grid" x1="60" y1="16.0" x2="620" y2="16.0"/>
+<text class="tk" x="53.0" y="20.0" text-anchor="end">0.6</text>
+<line class="axis" x1="60" y1="256" x2="620" y2="256"/>
+<line class="axis" x1="60" y1="16" x2="60" y2="256"/>
+<polyline class="ln c1" points="60.0,256.0 61.8,251.7 63.7,247.6 65.5,243.4 67.4,239.3 69.2,235.3 71.1,231.3 72.9,227.4 74.7,223.5 76.6,219.7 78.4,215.9 80.3,212.2 82.1,208.6 84.0,205.0 85.8,201.4 87.6,197.9 89.5,194.5 91.3,191.1 93.2,187.8 95.0,184.5 96.9,181.3 98.7,178.1 100.5,175.0 102.4,171.9 104.2,168.9 106.1,166.0 107.9,163.1 109.8,160.2 111.6,157.4 113.4,154.7 115.3,152.0 117.1,149.4 119.0,146.8 120.8,144.3 122.7,141.8 124.5,139.4 126.3,137.1 128.2,134.8 130.0,132.5 131.9,130.3 133.7,128.2 135.6,126.1 137.4,124.1 139.3,122.1 141.1,120.2 142.9,118.3 144.8,116.5 146.6,114.7 148.5,113.0 150.3,111.4 152.2,109.8 154.0,108.2 155.8,106.7 157.7,105.3 159.5,103.9 161.4,102.6 163.2,101.3 165.1,100.1 166.9,98.9 168.7,97.8 170.6,96.8 172.4,95.8 174.3,94.8 176.1,93.9 178.0,93.1 179.8,92.3 181.6,91.6 183.5,90.9 185.3,90.3 187.2,89.7 189.0,89.2 190.9,88.7 192.7,88.3 194.5,88.0 196.4,87.7 198.2,87.4 200.1,87.2 201.9,87.1 203.8,87.0 205.6,87.0"/>
+<line class="ln c1" x1="205.6" y1="87.0" x2="620.0" y2="87.0"/>
+<polyline class="ln c1 thin dash" points="205.6,87.0 208.1,87.0 210.5,87.2 213.0,87.4 215.5,87.8 217.9,88.2 220.4,88.7 222.9,89.4 225.3,90.1 227.8,90.9 230.3,91.9 232.7,92.9 235.2,94.0 237.7,95.2 240.1,96.5 242.6,97.9 245.1,99.4 247.6,101.0 250.0,102.7 252.5,104.5 255.0,106.4 257.4,108.4 259.9,110.5 262.4,112.7 264.8,115.0 267.3,117.3 269.8,119.8 272.2,122.4 274.7,125.1 277.2,127.8 279.6,130.7 282.1,133.7 284.6,136.7 287.0,139.9 289.5,143.1 292.0,146.5 294.4,149.9 296.9,153.5 299.4,157.1 301.8,160.8 304.3,164.7 306.8,168.6 309.2,172.6 311.7,176.8 314.2,181.0 316.7,185.3 319.1,189.7 321.6,194.2 324.1,198.9 326.5,203.6 329.0,208.4 331.5,213.3 333.9,218.3 336.4,223.4 338.9,228.6 341.3,233.9 343.8,239.3 346.3,244.7 348.7,250.3 351.2,256.0"/>
+<line class="ln c1 thin dash" x1="60.0" y1="87.0" x2="205.6" y2="87.0"/>
+<line class="ln c3" x1="60.0" y1="56.0" x2="620.0" y2="256.0"/>
+<circle class="c4f" cx="172.0" cy="96.0" r="5"/>
+<circle class="c1f" cx="146.8" cy="87.0" r="4"/>
+<circle class="c3f" cx="284.0" cy="136.0" r="4"/>
+<text class="lab" x="200.0" y="56.0" text-anchor="start">answer: 1.0 V, 0.40 mA</text>
+<text class="lab" x="608.8" y="190.0" text-anchor="end">load line</text>
+<text class="lab" x="71.2" y="26.0" text-anchor="start">transistor curve at the given vSG</text>
+<text class="lab" x="340.0" y="292.0" text-anchor="middle">v<tspan dy="3" font-size="75%">SD</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="14" y="136.0" text-anchor="middle" transform="rotate(-90 14 136.0)">i<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> (mA)</text>
+</svg>
+<figcaption><b>Figure 9.2</b> The load line of example 9.2 against the transistor curve.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 9.2:</b> The load line meets the transistor curve at the valid operating point and at a root outside the triode region. The black dot is the answer, \(1.0\ \text{V}\) and \(0.40\ \text{mA}\). The orange dot lies on the dashed continuation of the triode parabola, which is past the \(1.3\ \text{V}\) edge, so it is rejected. The teal dot is the failed saturation guess. It sits on the horizontal saturation line left of the edge, where the real curve lies lower.</p>
+<div class="box watch"><span class="label">Watch out</span>Do not stop after the saturation calculation. The comparison of the output voltage with the edge of saturation decides whether the answer is real. An output voltage that is negative, or lower than the edge, always means the saturation current was too big.</div>
+<p>Two lecture cases to check against. Example 3.3 (\(V_{DD} = 5\ \text{V}\), \(R_1 = 30\ \text{k}\Omega\), \(R_2 = 20\ \text{k}\Omega\), \(R_D = 20\ \text{k}\Omega\), \(V_{TN} = 1\ \text{V}\), \(K_n = 0.1\ \text{mA/V}^2\)) gives \(V_G = 2\ \text{V}\), \(I_D = 0.1\ \text{mA}\), \(V_{DS} = 3\ \text{V}\) and \(P_T = 0.3\ \text{mW}\). Exercise problem 3.3 gives \(V_{GS} = 0.8983\ \text{V}\), \(I_D = 7.52\ \mu\text{A}\) and \(V_{DS} = 1.45\ \text{V}\), still saturated because the edge is \(0.5483\ \text{V}\).</p><p class="reading"><b>Reading</b> Lecture 25, slides 3 to 12 (common-source circuits, examples 3.3 and 3.4, exercise problem 3.3).</p>
+</section>
+<section id="cs-design">
+<h2><span class="n">10</span>Designing common-source circuits</h2>
+<p>A design question runs the analysis backwards. You are given the operating point (\(I_D\) and an output voltage) and you must find the resistors. The saturation equation is solved for the overdrive instead of the current.</p>
+<ol>
+<li>Find \(R_D\) (or \(R_S\)) from the voltage that has to appear across it and the drain current.</li>
+<li>Assume saturation and solve for the overdrive. Take the <i>positive</i> square root: \(v_{GS} - V_{TN} = \sqrt{I_D/K_n}\), or \(v_{SG} + V_{TP} = \sqrt{I_D/K_p}\). The negative root would put the device below threshold.</li>
+<li>Check the assumption: the output voltage must be at least as large as the overdrive. If the question wants the device in non-saturation (a switch), use the non-saturation equation instead.</li>
+<li>Get the gate voltage from the node voltages: \(V_G = V_{GS}\) for a grounded source, \(V_G = V_{DD} - V_{SG}\) for a PMOS with its source at the supply, or \(V_G = V_S \pm\) the control voltage in general.</li>
+<li>Choose \(R_1\) and \(R_2\) to put \(V_G\) on the gate and meet the extra specification on the divider.</li>
+</ol><h3 id="s10-rin">Divider with a specified input resistance</h3>
+<p>The input resistance seen at the gate is the divider's \(R_1 \parallel R_2\), because the gate itself draws nothing. For a divider between supplies \(V^+\) and \(V^-\), the fraction \(R_2/(R_1+R_2)\) sets \(V_G\), and the specified \(R_{in}\) fixes the size of the resistors. For a single supply, put \(V^- = 0\) and \(V^+ = V_{DD}\).</p><div class="eq"><span class="tag">Divider from a target gate voltage and input resistance</span>\[ R_1 = \frac{R_{in}\,(V^+ - V^-)}{V_G - V^-} \qquad R_2 = \frac{R_1 R_{in}}{R_1 - R_{in}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(R_1\)</dt><dd>Upper divider resistor, from \(V^+\) to the gate, in \(\Omega\).</dd><dt>\(R_{in}\)</dt><dd>Wanted input resistance, \(R_1 \parallel R_2\), in \(\Omega\).</dd><dt>\(V^+, V^-\)</dt><dd>The supplies the divider runs between, in V.</dd><dt>\(V_G\)</dt><dd>Wanted gate voltage, in V.</dd><dt>\(R_2\)</dt><dd>Lower divider resistor, from the gate to \(V^-\), in \(\Omega\).</dd></dl>
+</div>
+<p>The first line follows because \(R_{in} = R_1R_2/(R_1+R_2)\) and \(V_G - V^- = (V^+ - V^-)\,R_2/(R_1+R_2)\), so \(R_{in}/R_1 = R_2/(R_1+R_2) = (V_G - V^-)/(V^+ - V^-)\).</p><div class="ex"><div class="hd">Worked example 10.1 <span>PMOS design with a given input resistance</span></div><div class="bd">
+<p>Design a PMOS common-source stage with \(V_{DD} = 5\ \text{V}\), \(V_{TP} = −0.7\ \text{V}\) and \(K_p = 0.25\ \text{mA/V}^2\) so that \(I_D = 0.4\ \text{mA}\), \(V_{SD} = 2.2\ \text{V}\) and \(R_{in} = R_1 \parallel R_2 = 250\ \text{k}\Omega\). The source is at \(V_{DD}\).</p>
+<div class="step"><i>1</i><div>Drain resistor: \(R_D = (V_{DD} - V_{SD})/I_D = (5 - 2.2)/0.4\ \text{mA} = 7.0\ \text{k}\Omega\).</div></div>
+<div class="step"><i>2</i><div>Overdrive: \(v_{SG} + V_{TP} = \sqrt{0.4/0.25} = 1.2649\ \text{V}\), so \(V_{SG} = 1.2649 + 0.7 = 1.9649\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>Check saturation: \(V_{SD} = 2.2\ \text{V}\) is above \(1.265\ \text{V}\), so the assumption holds.</div></div>
+<div class="step"><i>4</i><div>Gate voltage: \(V_G = V_{DD} - V_{SG} = 5 - 1.9649 = 3.035\ \text{V}\).</div></div>
+<div class="step"><i>5</i><div>Divider (\(V^- = 0\)): \(R_1 = R_{in}V_{DD}/V_G = (250\ \text{k}\Omega)(5)/3.035 = 411.8\ \text{k}\Omega\); \(R_2 = R_1R_{in}/(R_1 - R_{in}) = 636.2\ \text{k}\Omega\).</div></div>
+<div class="step"><i>6</i><div>Check the divider: \(R_2/(R_1+R_2) \times 5 = 3.035\ \text{V}\), which matches \(V_G\), and \(R_1 \parallel R_2 = 250.0\ \text{k}\Omega\).</div></div>
+<div class="ans">\(R_D = 7.0\ \text{k}\Omega\), \(R_1 = 412\ \text{k}\Omega\), \(R_2 = 636\ \text{k}\Omega\).</div>
+</div></div>
+<p>Lecture exercise 3.4 is the same recipe with \(V_{DD} = 3.3\ \text{V}\), \(R_1 \parallel R_2 = 300\ \text{k}\Omega\), \(V_{TP} = -0.6\ \text{V}\), \(K_p = 0.2\ \text{mA/V}^2\), \(I_{DQ} = 0.5\ \text{mA}\) and \(V_{SDQ} = 2\ \text{V}\). It gives \(R_D = 2.6\ \text{k}\Omega\), \(V_{SG} = 2.18\ \text{V}\), \(V_G = 1.12\ \text{V}\), \(R_1 = 884.8\ \text{k}\Omega\) and \(R_2 = 453.9\ \text{k}\Omega\). The slide shows \(884\ \text{k}\Omega\) and \(454\ \text{k}\Omega\); the difference is rounding.</p><h3 id="s10-frac">Bias current limited to a fraction of \(I_D\)</h3>
+<p>Some designs fix the size of the divider instead: the current in the bias resistors must be no more than a fraction \(f\) of the drain current (10 % in tutorial question 1). Since the same current flows in \(R_1\) and \(R_2\), the total resistance follows from Ohm's law across the divider, and the gate voltage then splits it.</p><div class="eq"><span class="tag">Divider sized by a bias-current limit</span>\[ R_1 + R_2 = \frac{V^+ - V^-}{f\,I_D} \qquad \frac{R_2}{R_1 + R_2} = \frac{V_G - V^-}{V^+ - V^-} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(R_1 + R_2\)</dt><dd>Total divider resistance, in \(\Omega\).</dd><dt>\(V^+, V^-\)</dt><dd>Supplies across the divider, in V.</dd><dt>\(f\)</dt><dd>Allowed fraction of the drain current, for example 0.1.</dd><dt>\(I_D\)</dt><dd>Drain current, in A.</dd><dt>\(V_G\)</dt><dd>Wanted gate voltage, in V.</dd><dt>\(R_2\)</dt><dd>Lower resistor, in \(\Omega\). Then \(R_1\) is the total minus \(R_2\).</dd></dl>
+</div>
+<div class="ex"><div class="hd">Worked example 10.2 <span>Depletion PMOS with a source resistor and \(\pm 5\ \text{V}\) supplies</span></div><div class="bd">
+<p>A depletion PMOS has \(V_{TP} = +1.2\ \text{V}\) and \(K_p = 0.4\ \text{mA/V}^2\). Its source connects to \(+5\ \text{V}\) through \(R_S = 2.5\ \text{k}\Omega\), its drain connects to ground, and the divider \(R_1, R_2\) runs from \(+5\ \text{V}\) to \(-5\ \text{V}\). Design the circuit so that \(V_{SD} = 3\ \text{V}\) with a divider current of no more than 10 % of \(I_D\).</p>
+<div class="step"><i>1</i><div>The drain is at ground, so the source is at \(V_{SD} = 3\ \text{V}\), and \(R_S\) carries \(I_D = (5 - 3)/2.5\ \text{k}\Omega = 0.8\ \text{mA}\).</div></div>
+<div class="step"><i>2</i><div>Assume saturation: \(v_{SG} + V_{TP} = \sqrt{I_D/K_p} = \sqrt{0.8/0.4} = 1.414\ \text{V}\), so \(V_{SG} = 1.414 - 1.2 = 0.214\ \text{V}\). This is positive and above \(-V_{TP}\), so it is allowed.</div></div>
+<div class="step"><i>3</i><div>Check: \(V_{SD}(sat) = 1.414\ \text{V}\), and \(V_{SD} = 3\ \text{V}\) is larger, so the assumption holds.</div></div>
+<div class="step"><i>4</i><div>Gate voltage: \(V_G = V_S - V_{SG} = 3 - 0.214 = 2.786\ \text{V}\).</div></div>
+<div class="step"><i>5</i><div>Divider current: \(I_R = 0.1 \times 0.8\ \text{mA} = 80\ \mu\text{A}\), so \(R_1 + R_2 = 10\ \text{V}/80\ \mu\text{A} = 125\ \text{k}\Omega\).</div></div>
+<div class="step"><i>6</i><div>Split: \(R_2/(R_1+R_2) = (V_G + 5)/10 = 0.7786\), so \(R_2 = 97.3\ \text{k}\Omega\) and \(R_1 = 27.7\ \text{k}\Omega\).</div></div>
+<div class="ans">\(R_1 = 27.7\ \text{k}\Omega\) and \(R_2 = 97.3\ \text{k}\Omega\), with \(V_{SG} = 0.214\ \text{V}\) and the transistor saturated.</div>
+</div></div>
+<h3 id="s10-stack">Diode-connected stack</h3>
+<p>When a gate is tied to its own drain, \(v_{DS} = v_{GS}\). The saturation test \(v_{DS} \ge v_{GS} - V_{TN}\) then reads \(V_{TN} \ge 0\), so an enhancement device connected this way is <i>always</i> saturated and can never leave that region. A stack of two such transistors shares one current and splits the supply between their gate-source voltages.</p><div class="eq"><span class="tag">Stack of two diode-connected NMOS devices</span>\[ V_{DD} = V_{GS1} + V_{GS2} \qquad K_1(V_{GS1} - V_{TN})^2 = K_2(V_{GS2} - V_{TN})^2 \;\;\Rightarrow\;\; V_{GS1} - V_{TN} = \frac{V_{DD} - 2V_{TN}}{1 + \sqrt{K_1/K_2}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(V_{DD}\)</dt><dd>Supply voltage, in V.</dd><dt>\(V_{GS1}, V_{GS2}\)</dt><dd>Gate-source voltages of the upper and lower transistor, in V. The output is \(V_o = V_{GS2}\).</dd><dt>\(K_1, K_2\)</dt><dd>Conduction parameters of the two transistors, in A/V\(^2\).</dd><dt>\(V_{TN}\)</dt><dd>Common threshold voltage, in V.</dd><dt>\(V_{DD} - 2V_{TN}\)</dt><dd>The total overdrive to be shared, in V.</dd></dl>
+</div>
+<p>The shared current is the same through both, so taking square roots gives \(\sqrt{K_1}\,(V_{GS1}-V_{TN}) = \sqrt{K_2}\,(V_{GS2}-V_{TN})\) with both overdrives positive. Together with \(V_{GS1} + V_{GS2} = V_{DD}\), that is two linear equations. The memo reaches the same answer by squaring and solving a quadratic in \(V_{GS1}\), which has one root between \(V_{TN}\) and \(V_{DD}\) (kept) and one above \(V_{DD}\) (rejected).</p><div class="ex"><div class="hd">Worked example 10.3 <span>Two diode-connected transistors in series</span></div><div class="bd">
+<p>Two NMOS transistors are connected in series between \(V_{DD} = 4\ \text{V}\) and ground. The upper one (\(M_1\)) has its gate and drain at \(V_{DD}\). The lower one (\(M_2\)) has its gate and drain joined to the output \(V_o\), which is the source of \(M_1\). Both have \(V_{TN} = 0.5\ \text{V}\) and \(k_n' = 100\ \mu\text{A/V}^2\), with \((W/L)_1 = 20\) and \((W/L)_2 = 10\). Find \(V_{GS1}\), \(V_{GS2}\), \(V_o\) and \(I_D\), and show that both are always saturated.</p>
+<div class="step"><i>1</i><div>\(K_1 = (50\ \mu\text{A/V}^2)(20) = 1.00\ \text{mA/V}^2\) and \(K_2 = (50\ \mu\text{A/V}^2)(10) = 0.50\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>2</i><div>Total overdrive: \(V_{DD} - 2V_{TN} = 4 - 1.0 = 3.0\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>\(V_{GS1} - V_{TN} = 3.0/(1 + \sqrt{1.00/0.50}) = 1.243\ \text{V}\), so \(V_{GS1} = 1.743\ \text{V}\).</div></div>
+<div class="step"><i>4</i><div>\(V_{GS2} = V_{DD} - V_{GS1} = 2.257\ \text{V}\), and \(V_o = V_{GS2} = 2.257\ \text{V}\).</div></div>
+<div class="step"><i>5</i><div>Current: \(I_D = K_1(V_{GS1} - V_{TN})^2 = 1.00(1.243)^2 = 1.544\ \text{mA}\). Check with the other transistor: \(K_2(V_{GS2} - V_{TN})^2 = 0.50(1.757)^2 = 1.544\ \text{mA}\).</div></div>
+<div class="step"><i>6</i><div>Region: for each transistor \(V_{DS} = V_{GS}\), so \(V_{DS} - V_{DS}(sat) = V_{GS} - (V_{GS} - V_{TN}) = V_{TN} = 0.5\ \text{V} \gt 0\). The inequality does not depend on the supply or on \(W/L\), so both transistors are saturated for any bias.</div></div>
+<div class="ans">\(V_{GS1} = 1.74\ \text{V}\), \(V_{GS2} = V_o = 2.26\ \text{V}\) and \(I_D = 1.54\ \text{mA}\). The device with the larger \(W/L\) takes the smaller gate-source voltage.</div>
+</div></div>
+<h3 id="s10-switch">The PMOS as an LED switch</h3>
+<p>A switch is deliberately <i>not</i> in saturation. With the gate pulled all the way to ground, a PMOS whose source is at the supply has \(v_{SG} = V_{DD}\), so its edge of saturation is large and the transistor operates in non-saturation with a small \(v_{SD}\). The remaining supply voltage falls across the load. The design uses the non-saturation equation and solves for \(K_p\).</p><div class="eq"><span class="tag">Non-saturation design for a switch</span>\[ R_D = \frac{V_{DD} - V_{SD} - V_\gamma}{I_D} \qquad K_p = \frac{I_D}{2\,(V_{SG} + V_{TP})\,V_{SD} - V_{SD}^{\,2}} \qquad \frac{W}{L} = \frac{2K_p}{k_p'} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(R_D\)</dt><dd>Series resistor that sets the LED current, in \(\Omega\).</dd><dt>\(V_{DD}\)</dt><dd>Supply voltage, in V.</dd><dt>\(V_{SD}\)</dt><dd>Chosen voltage across the switch when on, in V. It should be small.</dd><dt>\(V_\gamma\)</dt><dd>Cut-in voltage of the LED, in V.</dd><dt>\(I_D\)</dt><dd>LED current, in A.</dd><dt>\(K_p\)</dt><dd>Required conduction parameter, in A/V\(^2\).</dd><dt>\(V_{SG}\)</dt><dd>Source-to-gate voltage with the gate low, equal to \(V_{DD}\) for \(V_I = 0\).</dd><dt>\(k_p'\)</dt><dd>Process conduction parameter, in A/V\(^2\).</dd></dl>
+</div>
+<div class="ex"><div class="hd">Worked example 10.4 <span>Designing the switch</span></div><div class="bd">
+<p>A PMOS switches an LED with cut-in voltage \(V_\gamma = 1.8\ \text{V}\) from a \(5\ \text{V}\) supply. The source is at \(V_{DD}\), the gate is driven by \(V_I\), and the drain feeds \(R_D\) in series with the LED to ground. The transistor has \(V_{TP} = −0.5\ \text{V}\), \(k_p' = 40\ \mu\text{A/V}^2\) and \(\lambda = 0\). Design \(R_D\) and \(W/L\) so that \(I_D = 10\ \text{mA}\) for \(V_I = 0\) and \(V_{SD} = 0.15\ \text{V}\), and verify the region.</p>
+<div class="step"><i>1</i><div>Output loop: \(V_{DD} = V_{SD} + I_DR_D + V_\gamma\), so \(R_D = (5 - 0.15 - 1.8)/10\ \text{mA} = 305\ \Omega\).</div></div>
+<div class="step"><i>2</i><div>With \(V_I = 0\), \(V_{SG} = 5\ \text{V}\) and \(V_{SD}(sat) = V_{SG} + V_{TP} = 4.5\ \text{V}\). The wanted \(V_{SD} = 0.15\ \text{V}\) is far below that, so the transistor is in non-saturation.</div></div>
+<div class="step"><i>3</i><div>\(K_p = 10\ \text{mA}/[2(4.5)(0.15) - 0.15^2] = 7.533\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>4</i><div>\(W/L = 2K_p/k_p' = 2(7.533\ \text{mA/V}^2)/(40\ \mu\text{A/V}^2) = 377\).</div></div>
+<div class="step"><i>5</i><div>Verify: with \(W/L = 377\), the device equation gives \(i_D = 7.533[2(4.5)(0.15) - 0.15^2] = 10.0\ \text{mA}\), and \(0.15 \lt 4.5\) confirms the region.</div></div>
+<div class="ans">\(R_D = 305\ \Omega\) and \(W/L \approx 377\). A wide transistor is the price of a small \(V_{SD}\): the switch behaves like a resistor of \(V_{SD}/I_D = 15\ \Omega\) when on.</div>
+</div></div>
+<p class="reading"><b>Reading</b> Lecture 25, slides 13 and 14 (exercise problem 3.4, a design) and Tutorial 10.</p>
+</section>
+<section id="tut10">
+<h2><span class="n">11</span>Tutorial 10 map</h2>
+<p>Tutorial 10 (7 October) has four design and analysis questions. The memo's answers are in the table, and the methods in this page reproduce all of them. The circuits are drawn on the question sheet, and the table says which part of this page covers each one.</p><div class="tbl"><table><thead><tr><th>Question</th><th>Tests</th><th>Method is in</th><th>Memo answers</th></tr></thead><tbody><tr><td>1 (P3.41)</td><td>Depletion PMOS with \(R_S\), \(\pm 5\ \text{V}\) divider, \(V_{SD} = 2.5\ \text{V}\), divider current at most 10 % of \(I_D\)</td><td>Section 10, subsection on a current limit, and example 10.2</td><td>\(R_1 = 20.64\ \text{k}\Omega\), \(R_2 = 59.36\ \text{k}\Omega\)</td></tr><tr><td>2 (P3.43)</td><td>Enhancement PMOS design with \(R_{in} = 80\ \text{k}\Omega\), \(I_D = 5\ \text{mA}\), \(V_{SD} = 6\ \text{V}\), \(\pm 5\ \text{V}\) divider and a \(-10\ \text{V}\) drain supply</td><td>Section 10, subsection on input resistance, and example 10.1</td><td>\(R_D = 800\ \Omega\), \(R_1 = 408.4\ \text{k}\Omega\), \(R_2 = 99.5\ \text{k}\Omega\)</td></tr><tr><td>3 (P3.46c)</td><td>Two diode-connected NMOS in series, \(V_{GS1}\), \(V_{GS2}\), \(V_o\), \(I_D\), and proof of saturation</td><td>Section 10, diode-connected stack, and example 10.3</td><td>\(V_{GS1} = 2.86\ \text{V}\), \(V_{GS2} = V_o = 2.14\ \text{V}\), \(I_D = 5.45\ \text{mA}\)</td></tr><tr><td>4 (P3.52)</td><td>PMOS LED switch, \(R_D\) and \(W/L\) for \(I_D = 15\ \text{mA}\), \(V_{SD} = 0.2\ \text{V}\)</td><td>Section 10, PMOS as an LED switch, and example 10.4</td><td>\(R_D = 213.3\ \Omega\), \(W/L = 436\)</td></tr></tbody></table></div>
+<p>Unrounded values from the same method are \(R_1 = 20.65\ \text{k}\Omega\) and \(R_2 = 59.35\ \text{k}\Omega\) for question 1 (the memo rounds \(R_2/(R_1+R_2)\) to 0.742 first), \(R_1 = 408.4\ \text{k}\Omega\) and \(R_2 = 99.5\ \text{k}\Omega\) for question 2, and \(W/L = 436.0\) for question 4.</p><p>Question 2 reaches the divider through \(V_G = -V_{SG} = −3.041\ \text{V}\) with the source at ground, so with \(V^+ = 5\ \text{V}\) and \(V^- = -5\ \text{V}\) the formula in section 10 gives \(R_1 = (80\ \text{k}\Omega)(10)/(1.959) = 408.4\ \text{k}\Omega\). Question 3's memo squares the loop equation and solves a quadratic with roots \(2.86\ \text{V}\) and \(14.74\ \text{V}\), keeping the one between the threshold and the supply. In every question the memo takes the positive root of the overdrive, which matches step 2 of the design recipe.</p></section>
+<section id="practice">
+<h2><span class="n">12</span>Practice problems</h2>
+<p>All six problems use new numbers. Cover the steps and try each one first, then test the region of operation at the end of every problem.</p><div class="ex"><div class="hd">Practice problem 1 <span>Process data to drain current</span></div><div class="bd">
+<p>An enhancement NMOS has \(V_{TN} = 0.6\ \text{V}\), \(W = 25\ \mu\text{m}\), \(L = 1.0\ \mu\text{m}\), \(\mu_n = 450\ \text{cm}^2/\text{V s}\) and \(t_{ox} = 120\ \text{Å}\). Find \(K_n\), and the drain current in saturation at \(v_{GS} = 1.4\ \text{V}\).</p>
+<div class="step"><i>1</i><div>\(C_{ox} = (3.9)(8.85 \times 10^{-14})/(120 \times 10^{-8}) = 2.876 \times 10^{-7}\ \text{F/cm}^2\).</div></div>
+<div class="step"><i>2</i><div>\(k_n' = \mu_nC_{ox} = 129.4\ \mu\text{A/V}^2\), and \(W/L = 25\).</div></div>
+<div class="step"><i>3</i><div>\(K_n = (k_n'/2)(W/L) = 1.618\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>4</i><div>\(i_D = K_n(1.4 - 0.6)^2 = 1.035\ \text{mA}\).</div></div>
+<div class="ans">\(K_n = 1.618\ \text{mA/V}^2\) and \(i_D = 1.04\ \text{mA}\).</div>
+</div></div>
+<div class="ex"><div class="hd">Practice problem 2 <span>PMOS from a measurement</span></div><div class="bd">
+<p>A PMOS with \(V_{TP} = −1.0\ \text{V}\) carries \(0.3\ \text{mA}\) at \(v_{SG} = 3\ \text{V}\) and \(v_{SD} = 4\ \text{V}\). Find the current for (a) \(v_{SG} = 2\ \text{V}\), \(v_{SD} = 3\ \text{V}\) and (b) \(v_{SG} = 4\ \text{V}\), \(v_{SD} = 1.5\ \text{V}\).</p>
+<div class="step"><i>1</i><div>The measurement point has an edge of \(3 - 1 = 2\ \text{V}\) and \(v_{SD} = 4\ \text{V}\), so it is saturated: \(K_p = 0.3/2^2 = 0.075\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>2</i><div>(a) Edge \(= 2 - 1 = 1\ \text{V}\) and \(v_{SD} = 3\ \text{V}\) is larger, so saturation: \(i_D = 0.075(1)^2 = 0.075\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>(b) Edge \(= 4 - 1 = 3\ \text{V}\) and \(v_{SD} = 1.5\ \text{V}\) is smaller, so non-saturation: \(i_D = 0.075[2(3)(1.5) - 1.5^2] = 0.506\ \text{mA}\).</div></div>
+<div class="ans">(a) \(0.075\ \text{mA}\) in saturation; (b) \(0.506\ \text{mA}\) in non-saturation.</div>
+</div></div>
+<div class="ex"><div class="hd">Practice problem 3 <span>Depletion NMOS</span></div><div class="bd">
+<p>A depletion NMOS has \(V_{TN} = −2.0\ \text{V}\) and \(K_n = 0.6\ \text{mA/V}^2\). Find (a) \(v_{DS}(sat)\) and the current at \(v_{GS} = 0\) for \(v_{DS} = 1\ \text{V}\), \(2\ \text{V}\) and \(5\ \text{V}\); (b) the current at \(v_{GS} = -1\ \text{V}\) and \(v_{DS} = 4\ \text{V}\); (c) the \(v_{GS}\) that gives \(0.3\ \text{mA}\) in saturation.</p>
+<div class="step"><i>1</i><div>(a) \(v_{DS}(sat) = 0 - (−2.0) = 2\ \text{V}\). At \(1\ \text{V}\) (non-saturation): \(0.6[2(2)(1) - 1] = 1.80\ \text{mA}\). At \(2\ \text{V}\) and \(5\ \text{V}\) (saturation): \(0.6(2)^2 = 2.40\ \text{mA}\).</div></div>
+<div class="step"><i>2</i><div>(b) Overdrive \(= -1 - (−2.0) = 1\ \text{V}\) and \(v_{DS} = 4\ \text{V}\) is larger, so saturation: \(i_D = 0.6(1)^2 = 0.60\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>(c) \(v_{GS} - V_{TN} = \sqrt{0.3/0.6} = 0.707\ \text{V}\), so \(v_{GS} = −1.293\ \text{V}\). It is negative, as a depletion device allows.</div></div>
+<div class="ans">(a) \(1.8\ \text{mA}\), \(2.4\ \text{mA}\), \(2.4\ \text{mA}\); (b) \(0.6\ \text{mA}\); (c) \(−1.29\ \text{V}\).</div>
+</div></div>
+<div class="ex"><div class="hd">Practice problem 4 <span>NMOS stage where saturation fails</span></div><div class="bd">
+<p>An NMOS common-source stage has \(V_{DD} = 3.3\ \text{V}\), \(R_1 = 400\ \text{k}\Omega\), \(R_2 = 300\ \text{k}\Omega\), \(R_D = 8\ \text{k}\Omega\), \(V_{TN} = 0.5\ \text{V}\) and \(K_n = 0.5\ \text{mA/V}^2\). Find \(I_D\), \(V_{DS}\) and the power in the transistor.</p>
+<div class="step"><i>1</i><div>\(V_G = V_{GS} = 300/700 \times 3.3 = 1.414\ \text{V}\), and the overdrive is \(0.914\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>Saturation guess: \(I_D = 0.5(0.914)^2 = 0.418\ \text{mA}\), so \(V_{DS} = 3.3 - (0.418)(8) = −0.044\ \text{V}\). This is negative, below the edge \(0.914\ \text{V}\), so the guess fails.</div></div>
+<div class="step"><i>3</i><div>Non-saturation quadratic: \(K_nR_D\,v_{DS}^2 - [1 + 2K_nR_D(0.914)]\,v_{DS} + V_{DD} = 0\), with \(K_nR_D = 4.0\ \text{V}^{-1}\): \(4.0\,v_{DS}^2 - 8.314\,v_{DS} + 3.3 = 0\).</div></div>
+<div class="step"><i>4</i><div>Roots: \(v_{DS} = 0.534\ \text{V}\) and \(1.544\ \text{V}\). Only the first is below \(0.914\ \text{V}\), so it is the valid one.</div></div>
+<div class="step"><i>5</i><div>\(I_D = (3.3 - 0.534)/8\ \text{k}\Omega = 0.346\ \text{mA}\), and \(P_T = I_DV_{DS} = 0.185\ \text{mW}\).</div></div>
+<div class="ans">\(I_D = 0.346\ \text{mA}\), \(V_{DS} = 0.534\ \text{V}\), \(P_T = 0.18\ \text{mW}\), in non-saturation.</div>
+</div></div>
+<div class="ex"><div class="hd">Practice problem 5 <span>NMOS design with a given input resistance</span></div><div class="bd">
+<p>Design an NMOS common-source stage with \(V_{DD} = 2.5\ \text{V}\), \(V_{TN} = 0.5\ \text{V}\), \(k_n' = 100\ \mu\text{A/V}^2\) and \(W/L = 60\), so that \(I_D = 0.5\ \text{mA}\) with \(R_D = 1.5\ \text{k}\Omega\) and \(R_{in} = R_1 \parallel R_2 = 150\ \text{k}\Omega\). Verify the region.</p>
+<div class="step"><i>1</i><div>\(K_n = (50\ \mu\text{A/V}^2)(60) = 3.0\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>2</i><div>\(V_{GS} - V_{TN} = \sqrt{0.5/3.0} = 0.408\ \text{V}\), so \(V_{GS} = V_G = 0.908\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>Check: \(V_{DS} = V_{DD} - I_DR_D = 2.5 - 0.75 = 1.75\ \text{V}\), which is above \(0.408\ \text{V}\), so the device is saturated.</div></div>
+<div class="step"><i>4</i><div>\(R_1 = R_{in}V_{DD}/V_G = (150\ \text{k}\Omega)(2.5)/0.908 = 412.9\ \text{k}\Omega\).</div></div>
+<div class="step"><i>5</i><div>\(R_2 = R_1R_{in}/(R_1 - R_{in}) = 235.6\ \text{k}\Omega\).</div></div>
+<div class="ans">\(V_{GS} = 0.91\ \text{V}\), \(R_1 = 413\ \text{k}\Omega\), \(R_2 = 236\ \text{k}\Omega\), \(V_{DS} = 1.75\ \text{V}\) (saturated).</div>
+</div></div>
+<div class="ex"><div class="hd">Practice problem 6 <span>Stacked diode-connected pair</span></div><div class="bd">
+<p>Two NMOS transistors are stacked as in example 10.3 (gate and drain of \(M_1\) at \(V_{DD}\); gate and drain of \(M_2\) at \(V_o\)) with \(V_{DD} = 3.3\ \text{V}\), \(V_{TN} = 0.6\ \text{V}\), \(k_n' = 80\ \mu\text{A/V}^2\), \((W/L)_1 = 25\) and \((W/L)_2 = 50\). Find \(V_{GS1}\), \(V_{GS2}\), \(V_o\) and \(I_D\).</p>
+<div class="step"><i>1</i><div>\(K_1 = (40\ \mu\text{A/V}^2)(25) = 1.0\ \text{mA/V}^2\) and \(K_2 = 2.0\ \text{mA/V}^2\).</div></div>
+<div class="step"><i>2</i><div>Total overdrive \(= 3.3 - 2(0.6) = 2.1\ \text{V}\). \(V_{GS1} - V_{TN} = 2.1/(1 + \sqrt{1.0/2.0}) = 1.230\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>\(V_{GS1} = 1.830\ \text{V}\) and \(V_{GS2} = V_o = 1.470\ \text{V}\).</div></div>
+<div class="step"><i>4</i><div>\(I_D = K_1(1.230)^2 = 1.513\ \text{mA}\). Both transistors are saturated, because \(v_{DS} = v_{GS}\) makes \(v_{DS} - v_{DS}(sat) = V_{TN} \gt 0\).</div></div>
+<div class="ans">\(V_{GS1} = 1.83\ \text{V}\), \(V_{GS2} = V_o = 1.47\ \text{V}\), \(I_D = 1.51\ \text{mA}\).</div>
+</div></div>
+</section>
+<section id="sheet">
+<h2><span class="n">13</span>Formula sheet</h2>
+<div class="sheet"><div><h4>Regions</h4><p>\[ \text{NMOS: } v_{DS}(\text{sat}) = v_{GS} - V_{TN} \]</p><p>\[ \text{PMOS: } v_{SD}(\text{sat}) = v_{SG} + V_{TP} \]</p><p>Cutoff below threshold. Non-saturation when the output voltage is below the edge, saturation when it is above.</p></div><div><h4>NMOS currents</h4><p>\[ i_D = K_n\left[2(v_{GS} - V_{TN})v_{DS} - v_{DS}^2\right] \]</p><p>\[ i_D = K_n(v_{GS} - V_{TN})^2 \]</p></div><div><h4>PMOS currents</h4><p>\[ i_D = K_p\left[2(v_{SG} + V_{TP})v_{SD} - v_{SD}^2\right] \]</p><p>\[ i_D = K_p(v_{SG} + V_{TP})^2 \]</p></div><div><h4>Conduction parameter</h4><p>\[ K_n = \frac{k_n'}{2}\frac{W}{L} \quad k_n' = \mu_n C_{ox} \quad C_{ox} = \frac{\varepsilon_{ox}}{t_{ox}} \]</p><p>\[ \varepsilon_{ox} = 3.9 \times 8.85 \times 10^{-14}\ \text{F/cm} \]</p><p>\[ K_n = \frac{I_{D0}}{(V_{GS0} - V_{TN})^2} \quad \frac{W}{L} = \frac{2K_n}{k_n'} \]</p></div><div><h4>Threshold signs</h4><p>\[ \text{enhancement: } V_{TN} \gt 0,\ V_{TP} \lt 0 \]</p><p>\[ \text{depletion: } V_{TN} \lt 0,\ V_{TP} \gt 0 \]</p><p>\[ i_D\big|_{v_{GS}=0} = K_nV_{TN}^2 \quad i_D\big|_{v_{SG}=0} = K_pV_{TP}^2 \]</p></div><div><h4>Channel-length modulation</h4><p>\[ i_D = K_n(v_{GS} - V_{TN})^2(1 + \lambda v_{DS}) \]</p><p>\(\lambda = 0\) unless a problem says otherwise.</p></div><div><h4>Common-source analysis</h4><p>\[ V_G = \frac{R_2}{R_1 + R_2}V_{DD} \]</p><p>\[ \text{NMOS: } V_{GS} = V_G,\ V_{DS} = V_{DD} - I_DR_D \]</p><p>\[ \text{PMOS: } V_{SG} = V_{DD} - V_G,\ V_{SD} = V_{DD} - I_DR_D \]</p><p>\[ P_T = I_D V_{DS} \]</p></div><div><h4>Saturation assumption fails</h4><p>\[ K_pR_D v_{SD}^2 - [1 + 2K_pR_D(V_{SG} + V_{TP})]v_{SD} + V_{DD} = 0 \]</p><p>Keep the root below the edge of saturation. Then \(I_D = (V_{DD} - v_{SD})/R_D\).</p></div><div><h4>Design</h4><p>\[ \text{overdrive} = \sqrt{I_D/K} \text{ (positive root)} \]</p><p>\[ R_1 = \frac{R_{in}(V^+ - V^-)}{V_G - V^-} \quad R_2 = \frac{R_1R_{in}}{R_1 - R_{in}} \]</p><p>\[ R_1 + R_2 = \frac{V^+ - V^-}{f I_D} \quad \frac{R_2}{R_1 + R_2} = \frac{V_G - V^-}{V^+ - V^-} \]</p></div><div><h4>Diode-connected stack</h4><p>\[ V_{GS1} - V_{TN} = \frac{V_{DD} - 2V_{TN}}{1 + \sqrt{K_1/K_2}} \]</p><p>\[ V_{GS2} = V_{DD} - V_{GS1} = V_o \]</p></div><div><h4>PMOS LED switch</h4><p>\[ R_D = \frac{V_{DD} - V_{SD} - V_\gamma}{I_D} \quad K_p = \frac{I_D}{2(V_{SG} + V_{TP})V_{SD} - V_{SD}^2} \]</p></div></div>
+</section>
+
+<footer>Sources: Lecture21_slides.pdf, Lecture_22.pdf, Lecture_23.pdf, Lecture_24.pdf, Lecture_25.pdf, tut10_eng.pdf and tut10_memo.pdf. tut10_afr.pdf is the Afrikaans copy of the English tutorial and was not used separately. The lecture notation (V<sub>TN</sub>, K<sub>n</sub>, v<sub>DS</sub>(sat)) is followed. Worked examples and practice problems use new numbers; the slide examples appear only as results, and where a slide rounds an intermediate value the page says so. The channel-length modulation factor appears on the Lecture 24 summary slide only, and no lecture example uses it.</footer>
+</main>
+</div>
+
+<script src="../assets/ask-gemini.js" data-store="electronics-w10" data-course="EL245 Electronics 245"
+        data-topic="Week 10: MOSFET structure and I-V equations (NMOS, PMOS, depletion mode), common-source DC analysis and design"></script>
+</body>
+</html>

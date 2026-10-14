@@ -15,7 +15,9 @@
         <dl class="terms"><dt>term</dt><dd>meaning</dd>...</dl>
 
       shows the list only while its checkbox is ticked. Always starts unticked.
-   5. Figure line toggles: checkboxes that show or hide families of lines on a figure. */
+   5. Figure line toggles: checkboxes that show or hide families of lines on a figure.
+   6. Wide inline maths: an equation inside a sentence that is wider than its column becomes its
+      own scrollable line, so a narrow screen never scrolls sideways. */
 (function(){
   const store = {
     get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
@@ -119,7 +121,32 @@
     });
   }
 
-  function init(){ buildThemeButton(); buildMenuToggle(); wireAnnotations(); wireFigureToggles(); }
+  // ---------- 6. wide inline maths ----------
+  // MathJax cannot break an inline equation across lines. When one is wider than the space it has, it
+  // gets the class wide-math (site.css makes it a block that scrolls). Re-measured when the window is resized.
+  function fitMath(){
+    const all = document.querySelectorAll('main mjx-container:not([display="true"])');
+    all.forEach(m => m.classList.remove('wide-math'));
+    all.forEach(m => {
+      const box = m.closest('p,li,dd,dt,td,th,div,figcaption,h3,h4');
+      if (!box) return;
+      const cs = getComputedStyle(box);
+      const room = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      if (room > 0 && m.getBoundingClientRect().width > room + 1) m.classList.add('wide-math');
+    });
+  }
+  function wireMathFit(){
+    let timer = null;
+    const later = () => { clearTimeout(timer); timer = setTimeout(fitMath, 80); };
+    addEventListener('resize', later);
+    function start(){
+      const mj = window.MathJax;
+      if (mj && mj.startup && mj.startup.promise) mj.startup.promise.then(later);
+    }
+    if (document.readyState === 'complete') start(); else addEventListener('load', start);
+  }
+
+  function init(){ buildThemeButton(); buildMenuToggle(); wireAnnotations(); wireFigureToggles(); wireMathFit(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();

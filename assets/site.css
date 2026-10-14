@@ -212,6 +212,8 @@ mjx-container{color:var(--ink)}
 mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 0;margin:.5em 0!important}
 /* a displayed equation wider than its box shrinks to fit instead of scrolling */
 mjx-container[display="true"]>svg{max-width:100%;height:auto}
+/* site.js marks an inline equation that is wider than its column: it scrolls on its own line */
+mjx-container.wide-math{display:block!important;max-width:100%;overflow-x:auto;overflow-y:hidden;margin:.3em 0!important}
 
 /* callouts */
 .note{background:var(--warnwash);border-left:3px solid var(--amber);padding:12px 16px;margin:1.4em 0;border-radius:0 var(--r) var(--r) 0;overflow-x:auto}
