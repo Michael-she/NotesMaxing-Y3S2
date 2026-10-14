@@ -24,6 +24,7 @@ assets/
     ask-gemini.js     the Ask Gemini panel, one script tag per page
 
 CS354-Control-Systems/
+    Week1-Feedback-Fundamentals/ ... Week7-State-Space/   one notes page per folder
     Week12-Digital-Control/Week12_Digital_Control_Notes.html
     papers/
 Vibration-and-Noise/

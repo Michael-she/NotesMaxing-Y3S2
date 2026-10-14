@@ -8,6 +8,48 @@ window.NOTES_MANIFEST = {
    "name": "Control Systems",
    "notes": [
     {
+     "title": "Feedback fundamentals and dynamic response",
+     "week": 1,
+     "track": "",
+     "href": "CS354-Control-Systems/Week1-Feedback-Fundamentals/Week1_Feedback_Fundamentals_Notes.html"
+    },
+    {
+     "title": "A first analysis of feedback and PID control",
+     "week": 2,
+     "track": "",
+     "href": "CS354-Control-Systems/Week2-PID-Control/Week2_PID_Control_Notes.html"
+    },
+    {
+     "title": "Putting PID control on the lab rig",
+     "week": 3,
+     "track": "",
+     "href": "CS354-Control-Systems/Week3-PID-in-Practice/Week3_PID_in_Practice_Notes.html"
+    },
+    {
+     "title": "Frequency response and lead compensation",
+     "week": 4,
+     "track": "",
+     "href": "CS354-Control-Systems/Week4-Lead-Compensation/Week4_Lead_Compensation_Notes.html"
+    },
+    {
+     "title": "Lag compensation",
+     "week": 5,
+     "track": "",
+     "href": "CS354-Control-Systems/Week5-Lag-Compensation/Week5_Lag_Compensation_Notes.html"
+    },
+    {
+     "title": "The root-locus design method",
+     "week": 6,
+     "track": "",
+     "href": "CS354-Control-Systems/Week6-Root-Locus/Week6_Root_Locus_Notes.html"
+    },
+    {
+     "title": "State-space models, canonical forms and transformations",
+     "week": 7,
+     "track": "",
+     "href": "CS354-Control-Systems/Week7-State-Space/Week7_State_Space_Notes.html"
+    },
+    {
      "title": "Digital Control: from D(s) to a difference equation",
      "week": 12,
      "track": "",
