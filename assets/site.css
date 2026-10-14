@@ -455,6 +455,8 @@ dl.terms dd{margin:0;color:var(--text)}
 .prob .meta{font-size:13px;color:var(--ink-2);margin:0 0 16px;max-width:none}
 .prob .acts{margin-top:20px}
 .prob .sol{margin-top:18px;padding:6px 20px;background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);overflow-x:auto}
+.filter{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:14px;color:var(--ink-2)}
+.filter select{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:6px 10px;max-width:100%}
 #savedSec .acts{margin-top:12px}
 
 /* ---------- 11. Print ---------- */

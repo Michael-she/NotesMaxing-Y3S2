@@ -74,6 +74,10 @@
 
 <section class="mod" id="savedSec" hidden>
   <h2>Saved problems</h2>
+  <div class="filter" id="filterBox" hidden>
+    <label for="weekFilter">Show</label>
+    <select id="weekFilter"></select>
+  </div>
   <ul class="rows" id="saved"></ul>
   <p class="none" id="noSaved">Nothing saved yet. Every problem you generate is kept here.</p>
   <div class="acts">
@@ -177,11 +181,12 @@
   }
   const isText = f => /^text\//.test(f.type) || /\.(txt|md|tex|csv)$/i.test(f.name);
   async function buildParts(request){
-    const parts = [], sources = [];
+    const parts = [], sources = [], weeks = [];
     for (const cb of document.querySelectorAll('#notes input:checked')){
       const n = mod.notes[+cb.value];
       parts.push({text: 'NOTES — ' + noteLabel(n) + '\n\n' + await noteText(n)});
       sources.push(n.week != null ? 'Week ' + n.week + ' notes' : n.title);
+      if (n.week != null && !weeks.includes(+n.week)) weeks.push(+n.week);
     }
     for (const cb of document.querySelectorAll('#papers input:checked')){
       const p = mod.papers[+cb.value];
@@ -198,8 +203,17 @@
       sources.push(f.name);
     }
     parts.push({text: 'REQUEST\n\n' + request});
-    return {parts, sources};
+    return {parts, sources, weeks: weeks.sort((a, b) => a - b)};
   }
+
+  // The weeks a problem draws on: recorded when it is made, or read from the sources of older ones.
+  function weeksOf(p){
+    if (Array.isArray(p.weeks)) return p.weeks;
+    const w = new Set();
+    (p.sources || []).forEach(s => { const m = /^Week (\d+) notes$/.exec(s); if (m) w.add(+m[1]); });
+    return [...w].sort((a, b) => a - b);
+  }
+  const weekTag = p => { const w = weeksOf(p); return w.length ? (w.length > 1 ? 'Weeks ' : 'Week ') + w.join(', ') : ''; };
 
   const SEP = '===SOLUTION===';
   function systemPrompt(){
@@ -257,7 +271,7 @@
     $('#pTitle').textContent = p.title || 'Writing the problem…';
     const when = p.created ? new Date(p.created).toLocaleDateString(undefined, {day: 'numeric', month: 'short', year: 'numeric'}) : '';
     $('#pMeta').textContent = [when, p.sources && p.sources.length ? 'From ' + p.sources.join(', ') : '', p.request ? 'Asked for: ' + p.request : '',
-      p.tokens ? p.tokens.in.toLocaleString() + ' tokens in, ' + p.tokens.out.toLocaleString() + ' out' : ''].filter(Boolean).join(' · ');
+      weekTag(p), p.tokens ? p.tokens.in.toLocaleString() + ' tokens in, ' + p.tokens.out.toLocaleString() + ' out' : ''].filter(Boolean).join(' · ');
     $('#pBody').innerHTML = render(p.problem) + (live && !p.solution ? '<span class="typing"></span>' : '');
     solEl.innerHTML = render(p.solution || '');
     showSol.disabled = !p.solution; $('#again').disabled = !!live; $('#del').disabled = !!live;
@@ -275,18 +289,32 @@
   function saveAll(list){
     try{ localStorage.setItem(KEY, JSON.stringify(list)); return true; }catch(e){ return false; }
   }
+  const filterEl = $('#weekFilter');
   function renderSaved(){
-    const mine = loadAll().filter(p => p.module === mod.id);
+    const all = loadAll().filter(p => p.module === mod.id);
+    // the filter lists the weeks that actually occur, so it never offers an empty choice
+    const weeks = [...new Set(all.flatMap(weeksOf))].sort((a, b) => a - b);
+    const want = filterEl.value || 'all';
+    filterEl.innerHTML = '';
+    const opt = (v, t) => { const o = el('option', '', t); o.value = v; filterEl.append(o); };
+    opt('all', 'All problems (' + all.length + ')');
+    weeks.forEach(w => opt('w' + w, 'Week ' + w + ' (' + all.filter(p => weeksOf(p).includes(w)).length + ')'));
+    if (all.some(p => !weeksOf(p).length)) opt('none', 'No week (' + all.filter(p => !weeksOf(p).length).length + ')');
+    filterEl.value = [...filterEl.options].some(o => o.value === want) ? want : 'all';
+    $('#filterBox').hidden = !weeks.length;
+    const f = filterEl.value;
+    const mine = all.filter(p => f === 'all' || (f === 'none' ? !weeksOf(p).length : weeksOf(p).includes(+f.slice(1))));
     const list = $('#saved'); list.innerHTML = '';
-    list.hidden = !mine.length; $('#noSaved').hidden = mine.length > 0;
+    list.hidden = !mine.length; $('#noSaved').hidden = all.length > 0;
     mine.forEach(p => {
       const b = el('button', 'row'); b.type = 'button';
       b.append(el('span', 'w', new Date(p.created).toLocaleDateString(undefined, {day: 'numeric', month: 'short'})),
-        el('span', 't', p.title), el('span', 'm', ''));
+        el('span', 't', p.title), el('span', 'm', weekTag(p)));
       b.onclick = () => show(p);
       const li = el('li'); li.append(b); list.append(li);
     });
   }
+  filterEl.addEventListener('change', renderSaved);
   $('#del').onclick = () => {
     if (!current || !confirm('Delete "' + current.title + '"?')) return;
     saveAll(loadAll().filter(p => p.id !== current.id));
@@ -352,8 +380,8 @@
     out.hidden = true; progEl.classList.remove('err'); stage('read', 3);
     const live = {id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), module: mod.id, request, title: '', problem: '', solution: '', sources: [], created: Date.now()};
     try{
-      const {parts, sources} = await buildParts(request);
-      live.sources = sources;
+      const {parts, sources, weeks} = await buildParts(request);
+      live.sources = sources; live.weeks = weeks;
       const body = JSON.stringify({system: systemPrompt(), temperature: 1, contents: [{role: 'user', parts}]});
       if (body.length > MAX_BODY) throw new Error('The attachments come to ' + (body.length * 0.75 / 1048576).toFixed(1) + ' MB. The limit is about 3 MB per problem, so untick a paper or attach a smaller file.');
       stage('send', 10);
