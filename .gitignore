@@ -23,3 +23,6 @@ slprj/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Files waiting for ingest.py
+inbox/

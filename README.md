@@ -12,6 +12,7 @@ module.html           one module's notes and past papers (module.html?m=<id>)
 manifest.js           generated list of notes and papers
 modules.json          the modules: id, folder, code, display name
 build_manifest.py     scans the module folders and writes manifest.js
+ingest.py             files correctly named notes and papers from inbox/ into place
 serve_notes.py        local server: pages, papers and the Ask Gemini API
 run_notes.bat         double-click launcher for serve_notes.py (Windows)
 .env.example          template for the Gemini key (local server)
@@ -44,7 +45,11 @@ Electronics/
 
 ## Adding notes or papers
 
-Writing a new notes page, by hand or with an AI: follow [NOTES_GUIDE.md](NOTES_GUIDE.md).
+Writing a new notes page, by hand or with an AI: follow [NOTES_GUIDE.md](NOTES_GUIDE.md). It is self-contained, so it can be handed to a model with the week's slides and nothing else, and it fixes the file name (`CS354_Week07_Notes_State-Space.html`, `CS354_2026_A1_Memo.pdf`).
+
+**Quickest way in:** drop the files into `inbox/` and run `python ingest.py`. It files each one by its name, tidies the page's links and rebuilds the manifest (`--dry-run` to preview).
+
+By hand:
 
 - **Notes:** put the `.html` file anywhere inside the module's folder, either directly or in a week folder such as `Week12-Digital-Control/`. The week number comes from the path (`Week12`, `week3.html`), the title from the page's `<h1>`. A first-level subfolder that is not a week folder (`theory/`, `programming/`) is shown as a track.
 - **Past papers:** put the PDF in the module's `papers/` folder. A four-digit year in the file name is used for sorting, and `memo`, `solution` or `answer` in the name marks it as a memo. Suggested naming: `DA344_2021_A1.pdf`, `DA344_2021_A1_Memo.pdf`.

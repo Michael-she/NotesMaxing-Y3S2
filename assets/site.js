@@ -112,6 +112,8 @@
       if (!fig) return;
       document.querySelectorAll('figure[data-group="' + fig.dataset.group + '"]').forEach(f => {
         f.classList.toggle('hide-' + cb.dataset.toggle, !cb.checked);
+        // works for any family name, so a new page needs no stylesheet rule of its own
+        f.querySelectorAll('.req-' + cb.dataset.toggle).forEach(x => { x.style.display = cb.checked ? '' : 'none'; });
         f.querySelectorAll('input[data-toggle="' + cb.dataset.toggle + '"]').forEach(other => { other.checked = cb.checked; });
       });
     }
