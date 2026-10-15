@@ -25,15 +25,22 @@
   <a class="home" id="back" href="index.html">&larr; Modules</a>
   <div class="kicker" id="code"></div>
   <h1>Problem generator</h1>
-  <p id="intro">Describe a problem. The Lovely Lady writes a new one with a worked solution, using the notes and files you attach.</p>
+  <p id="intro">The Lovely Lady writes a new problem with a worked solution, using the notes and files you attach. Say what it should be about, or leave that to her.</p>
 </header>
 
 <ul class="rows" id="modules" hidden></ul>
 
 <form class="gen" id="gen" hidden>
   <div>
-    <label class="lab" for="topic">What should the problem be about?</label>
-    <textarea id="topic" placeholder="e.g. Design a lead compensator by emulation and find its difference equation, exam difficulty. Ctrl+Enter to generate."></textarea>
+    <label class="lab" for="topic">What should the problem be about? <span class="opt">(optional)</span></label>
+    <textarea id="topic" placeholder="e.g. Design a lead compensator by emulation and find its difference equation. Leave empty to let The Lovely Lady choose from what you attach. Ctrl+Enter to generate."></textarea>
+  </div>
+  <div class="diff">
+    <label class="lab" for="level">Difficulty: <span id="levelName"></span></label>
+    <input id="level" type="range" min="0" max="3" step="1" value="2" list="levelTicks" aria-describedby="levelHint">
+    <datalist id="levelTicks"><option value="0"></option><option value="1"></option><option value="2"></option><option value="3"></option></datalist>
+    <div class="ticks" aria-hidden="true"><span>Fundamental</span><span>Basic</span><span>Exam</span><span>Final boss</span></div>
+    <p class="hint" id="levelHint"></p>
   </div>
   <fieldset>
     <legend>Notes</legend>
@@ -180,6 +187,29 @@
     return main.textContent.replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n').trim();
   }
   const isText = f => /^text\//.test(f.type) || /\.(txt|md|tex|csv)$/i.test(f.name);
+  // Difficulty levels. Exam is the default: the standard of the attached past papers.
+  const LEVELS = [
+    {name: 'Fundamental', hint: 'One idea, one or two steps. Checks you know the definition or formula.',
+     brief: 'a short single-concept question that tests one definition, formula or basic method directly, in one or two steps, with simple numbers. No design, no multi-part chains.'},
+    {name: 'Basic', hint: 'A standard textbook exercise: one method applied from start to finish.',
+     brief: 'a standard textbook exercise that applies one method from start to finish, in two or three parts, easier than an exam question. Nothing hidden or tricky.'},
+    {name: 'Exam', hint: 'The standard of the past papers: several linked parts, as in a real exam.',
+     brief: 'a typical exam question at exactly the standard and length of the attached past papers (or of a usual final exam for the course): several linked parts, marks shown, solvable in the time an exam allows.'},
+    {name: 'Final boss', hint: 'Harder than the hardest exam question: several topics combined, with a twist.',
+     brief: 'harder than the hardest exam question: combine several topics, require a design or a decision as well as calculation, include a step that needs real insight (a non-obvious approach, a trap, or a check that changes the answer), and use less tidy numbers. It must still be solvable with the course methods and have a definite answer.'},
+  ];
+  const levelEl = $('#level');
+  let level = 2;
+  function setLevel(v){
+    level = Math.max(0, Math.min(3, +v)); levelEl.value = level;
+    $('#levelName').textContent = LEVELS[level].name;
+    $('#levelHint').textContent = LEVELS[level].hint;
+    levelEl.setAttribute('aria-valuetext', LEVELS[level].name);
+  }
+  levelEl.addEventListener('input', () => setLevel(levelEl.value));
+  setLevel(2);
+  const levelOf = p => p.level != null && LEVELS[p.level] ? LEVELS[p.level].name : '';
+
   async function buildParts(request){
     const parts = [], sources = [], weeks = [];
     for (const cb of document.querySelectorAll('#notes input:checked')){
@@ -202,7 +232,8 @@
       } else throw new Error(f.name + ' is not a PDF, image or text file.');
       sources.push(f.name);
     }
-    parts.push({text: 'REQUEST\n\n' + request});
+    parts.push({text: 'REQUEST\n\n' + (request || 'No topic given. Choose one yourself from the attached material (or, with nothing attached, from the core of the course), preferring something not already covered by the problems listed in the instructions.')});
+    parts.push({text: 'DIFFICULTY\n\n' + LEVELS[level].name + ': ' + LEVELS[level].brief});
     return {parts, sources, weeks: weeks.sort((a, b) => a - b)};
   }
 
@@ -220,8 +251,8 @@
     const done = loadAll().filter(p => p.module === mod.id).slice(0, 40).map(p => '- ' + p.title);
     return [
       `You write practice problems for a university engineering student taking ${course}.`,
-      'Write ONE new problem of the kind described under REQUEST, then a fully worked solution.',
-      'The attached notes, tutorials and past papers show the syllabus, the notation and the level expected. Match their style, notation and difficulty, and use only methods they cover (or, with nothing attached, methods standard for the course).',
+      'Write ONE new problem of the kind described under REQUEST, at the level described under DIFFICULTY, then a fully worked solution.',
+      'The attached notes, tutorials and past papers show the syllabus, the notation and the exam standard. Match their style and notation, and use only methods they cover (or, with nothing attached, methods standard for the course). Set the difficulty by DIFFICULTY, using the past papers as the measure of exam level.',
       'The problem must be new: never copy an attached question. Change the scenario, the system and the numbers. Choose numbers that work out cleanly where the method allows.',
       'The problem must be self-contained: state every value, table and assumption needed. There are no images, so describe any diagram in words or give its data in a table. Split it into parts (a), (b), ... with marks if the attached papers do.',
       'The solution shows every step in order, says which result or formula each step uses, and ends each part with the final answer and its units. Check the arithmetic before you finish; the answers must follow from the numbers given.',
@@ -271,7 +302,7 @@
     $('#pTitle').textContent = p.title || 'Writing the problem…';
     const when = p.created ? new Date(p.created).toLocaleDateString(undefined, {day: 'numeric', month: 'short', year: 'numeric'}) : '';
     $('#pMeta').textContent = [when, p.sources && p.sources.length ? 'From ' + p.sources.join(', ') : '', p.request ? 'Asked for: ' + p.request : '',
-      weekTag(p), p.tokens ? p.tokens.in.toLocaleString() + ' tokens in, ' + p.tokens.out.toLocaleString() + ' out' : ''].filter(Boolean).join(' · ');
+      weekTag(p), levelOf(p), p.tokens ? p.tokens.in.toLocaleString() + ' tokens in, ' + p.tokens.out.toLocaleString() + ' out' : ''].filter(Boolean).join(' · ');
     $('#pBody').innerHTML = render(p.problem) + (live && !p.solution ? '<span class="typing"></span>' : '');
     solEl.innerHTML = render(p.solution || '');
     showSol.disabled = !p.solution; $('#again').disabled = !!live; $('#del').disabled = !!live;
@@ -309,7 +340,7 @@
     mine.forEach(p => {
       const b = el('button', 'row'); b.type = 'button';
       b.append(el('span', 'w', new Date(p.created).toLocaleDateString(undefined, {day: 'numeric', month: 'short'})),
-        el('span', 't', p.title), el('span', 'm', weekTag(p)));
+        el('span', 't', p.title), el('span', 'm', [weekTag(p), levelOf(p)].filter(Boolean).join(' · ')));
       b.onclick = () => show(p);
       const li = el('li'); li.append(b); list.append(li);
     });
@@ -375,10 +406,9 @@
   async function generate(){
     if (busy) return;
     const request = topicEl.value.trim();
-    if (!request){ status('Say what the problem should be about first.', true); topicEl.focus(); return; }
     busy = true; goBtn.disabled = true; status('');
     out.hidden = true; progEl.classList.remove('err'); stage('read', 3);
-    const live = {id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), module: mod.id, request, title: '', problem: '', solution: '', sources: [], created: Date.now()};
+    const live = {id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), module: mod.id, request, level, title: '', problem: '', solution: '', sources: [], created: Date.now()};
     try{
       const {parts, sources, weeks} = await buildParts(request);
       live.sources = sources; live.weeks = weeks;
@@ -425,7 +455,7 @@
       if (streamErr) throw new Error(streamErr);
       if (blocked) throw new Error('The Lovely Lady blocked the request: ' + blocked + '.');
       if (!live.problem) throw new Error('No problem came back. Try again.');
-      if (!live.title) live.title = request.length > 70 ? request.slice(0, 67) + '…' : request;
+      if (!live.title) live.title = !request ? 'Practice problem' : request.length > 70 ? request.slice(0, 67) + '…' : request;
       stage('check', 86);
       if (!live.solution){ throw new Error('The answer stopped before the worked solution, so it was not saved. Try again.'); }
       stage('save', 91);
@@ -453,7 +483,7 @@
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); generate(); }
   });
   $('#again').onclick = () => {
-    if (current && current.request) topicEl.value = current.request;
+    if (current){ topicEl.value = current.request || ''; if (current.level != null) setLevel(current.level); }
     $('#gen').scrollIntoView({block: 'start'}); generate();
   };
 

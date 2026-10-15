@@ -421,6 +421,16 @@ dl.terms dd{margin:0;color:var(--text)}
 .gen textarea:focus{outline:2px solid var(--genoa);outline-offset:0;border-color:transparent}
 .gen input[type=file]{font-family:var(--f-body);font-size:14px;color:var(--text);max-width:100%}
 .gen p.none{max-width:none}
+.gen .lab .opt{font-weight:400;color:var(--ink-2)}
+.gen .lab #levelName{color:var(--genoa)}
+.diff input[type=range]{display:block;width:100%;max-width:440px;margin:4px 0 0;accent-color:var(--genoa)}
+.diff .ticks{position:relative;height:1.4em;max-width:440px;font-size:12.5px;color:var(--ink-2);margin-top:2px}
+/* each label sits under its stop: 0, 1/3, 2/3 and the end of the track */
+.diff .ticks span{position:absolute;top:0;white-space:nowrap;transform:translateX(-50%)}
+.diff .ticks span:nth-child(1){left:0;transform:none}
+.diff .ticks span:nth-child(2){left:calc(33.33% + 2px)}
+.diff .ticks span:nth-child(3){left:calc(66.67% - 2px)}
+.diff .ticks span:nth-child(4){right:0;transform:none}
 .pick{border:1px solid var(--rule);border-radius:var(--r);background:var(--surface);max-height:236px;overflow:auto}
 .pick label,.pick .file{display:flex;gap:10px;align-items:baseline;padding:8px 14px;font-size:14.5px;max-width:none}
 .pick label{cursor:pointer}
