@@ -50,6 +50,24 @@ window.NOTES_MANIFEST = {
      "href": "CS354-Control-Systems/Week7-State-Space/Week7_State_Space_Notes.html"
     },
     {
+     "title": "Dynamic response and control law design",
+     "week": 8,
+     "track": "",
+     "href": "CS354-Control-Systems/Week8-Control-Law/Week8_Control_Law_Notes.html"
+    },
+    {
+     "title": "Reference tracking and estimator design",
+     "week": 9,
+     "track": "",
+     "href": "CS354-Control-Systems/Week9-Estimator/Week9_Estimator_Notes.html"
+    },
+    {
+     "title": "Compensator design and integral control",
+     "week": 10,
+     "track": "",
+     "href": "CS354-Control-Systems/Week10-Compensator/Week10_Compensator_Notes.html"
+    },
+    {
      "title": "Digital Control: from D(s) to a difference equation",
      "week": 11,
      "track": "",
