@@ -25,8 +25,7 @@ assets/
     ask-gemini.js     the Ask Gemini panel, one script tag per page
 
 CS354-Control-Systems/
-    Week1-Feedback-Fundamentals/ ... Week7-State-Space/   one notes page per folder
-    Week11-Digital-Control/Week11_Digital_Control_Notes.html
+    Week1-Feedback-Fundamentals/ ... Week11-Digital-Control/   one notes page per week folder
     papers/
 Vibration-and-Noise/
     papers/
@@ -42,6 +41,8 @@ Electronics/
     Week9_...html, Week10_...html
     papers/
 ```
+
+AI assistants contributing to the repo: start with [AGENTS.md](AGENTS.md).
 
 ## Adding notes or papers
 
