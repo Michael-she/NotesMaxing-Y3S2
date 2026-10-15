@@ -26,7 +26,7 @@ assets/
 
 CS354-Control-Systems/
     Week1-Feedback-Fundamentals/ ... Week7-State-Space/   one notes page per folder
-    Week12-Digital-Control/Week12_Digital_Control_Notes.html
+    Week11-Digital-Control/Week11_Digital_Control_Notes.html
     papers/
 Vibration-and-Noise/
     papers/
@@ -51,7 +51,7 @@ Writing a new notes page, by hand or with an AI: follow [NOTES_GUIDE.md](NOTES_G
 
 By hand:
 
-- **Notes:** put the `.html` file anywhere inside the module's folder, either directly or in a week folder such as `Week12-Digital-Control/`. The week number comes from the path (`Week12`, `week3.html`), the title from the page's `<h1>`. A first-level subfolder that is not a week folder (`theory/`, `programming/`) is shown as a track.
+- **Notes:** put the `.html` file anywhere inside the module's folder, either directly or in a week folder such as `Week11-Digital-Control/`. The week number comes from the path (`Week11`, `week3.html`), the title from the page's `<h1>`. A first-level subfolder that is not a week folder (`theory/`, `programming/`) is shown as a track.
 - **Past papers:** put the PDF in the module's `papers/` folder. A four-digit year in the file name is used for sorting, and `memo`, `solution` or `answer` in the name marks it as a memo. Suggested naming: `DA344_2021_A1.pdf`, `DA344_2021_A1_Memo.pdf`.
 - **New module:** add a line to `modules.json` and create the folder.
 

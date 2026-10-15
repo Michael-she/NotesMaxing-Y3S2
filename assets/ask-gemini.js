@@ -1,4 +1,4 @@
-/* The chat panel for notes pages ("The Lovely Lady"; the model behind it is Google Gemini). Same panel as the CS354 Week 12 page, packaged so a page
+/* The chat panel for notes pages ("The Lovely Lady"; the model behind it is Google Gemini). Same panel as the CS354 Week 11 page, packaged so a page
    only needs one tag at the end of <body>:
 
      <script src="../assets/ask-gemini.js" data-store="da344-w2"

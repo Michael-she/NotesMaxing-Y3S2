@@ -51,9 +51,9 @@ window.NOTES_MANIFEST = {
     },
     {
      "title": "Digital Control: from D(s) to a difference equation",
-     "week": 12,
+     "week": 11,
      "track": "",
-     "href": "CS354-Control-Systems/Week12-Digital-Control/Week12_Digital_Control_Notes.html"
+     "href": "CS354-Control-Systems/Week11-Digital-Control/Week11_Digital_Control_Notes.html"
     }
    ],
    "papers": [
