@@ -336,6 +336,29 @@ screen, stops for readers who ask for reduced motion, and has a Play/Pause butto
 
 The script goes before the `<figcaption>`, and the `id` is unique on the page.
 
+### Interactive figures
+
+A figure the reader can change (sliders for parameters, a pole to drag) is drawn entirely by a script
+from the closed-form result, so every position it shows is computed rather than drawn by hand. Leave the
+`<svg>` empty and put sliders and a live readout after it:
+
+```html
+<figure id="fig31">
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="What the figure shows; what can be changed"></svg>
+<div class="fig-ctl">
+  <label><span>{symbol}</span><input type="range" data-k="{key}" min="…" max="…" step="…" value="{worked example value}" aria-label="{name of the quantity}"><output></output></label>
+</div>
+<div class="fig-read" aria-live="polite"></div>
+<figcaption><b>Figure 3.1</b> One short sentence.</figcaption>
+</figure>
+```
+
+The script redraws the SVG with the classes in the table above on every `input` event, writes each
+value into its `<output>`, and states the numbers that matter in `.fig-read` (a `.tbl` table is allowed
+there). A draggable point gets an invisible `<circle class="hit" r="16">` on top of it. Start every
+control at the values of the page's worked example, and say in the note under the figure what to drag
+or slide. `class="fig narrow"` suits a tall plot drawn to the same scale on both axes.
+
 ## A10. Checklist before you output
 
 1. The file name follows A2, and `{ID}`, `{CODE}`, `{N}` and `{STORE}` match it.
