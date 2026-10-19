@@ -72,6 +72,12 @@ window.NOTES_MANIFEST = {
      "week": 11,
      "track": "",
      "href": "CS354-Control-Systems/Week11-Digital-Control/Week11_Digital_Control_Notes.html"
+    },
+    {
+     "title": "Hardware, sample-rate selection and discrete design",
+     "week": 12,
+     "track": "",
+     "href": "CS354-Control-Systems/Week12-Hardware-Sample-Rate/Week12_Hardware_Sample_Rate_Notes.html"
     }
    ],
    "papers": [
