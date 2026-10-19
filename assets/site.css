@@ -505,3 +505,22 @@ details.memo>summary{color:var(--genoa)}
 details.memo h4{margin:1.1em 0 .3em;font-size:15px;color:var(--ink)}
 details.memo h4 .mk{font-family:var(--f-mono);font-size:12.5px;font-weight:500;color:var(--ink-2);margin-left:6px}
 .derive{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--amber);border:1px solid currentColor;border-radius:4px;padding:0 5px;margin-left:4px;white-space:nowrap}
+
+/* question bank: topic chips to filter by, and each question's topic tags */
+.bank-filter{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:12px 16px;margin:1.2em 0 1.6em}
+.bank-filter .lab{display:block;font-size:13px;font-weight:600;color:var(--ink);margin:0 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.tchip{position:relative;cursor:pointer;max-width:none}
+.tchip input{position:absolute;opacity:0;width:1px;height:1px}
+.tchip span{display:inline-block;border:1px solid var(--rule);border-radius:999px;padding:3px 11px;font-size:13px;color:var(--text);background:var(--bg)}
+.tchip input:checked+span{background:var(--genoa);border-color:var(--genoa);color:var(--on-teal)}
+.tchip input:focus-visible+span{outline:2px solid var(--genoa);outline-offset:2px}
+.bank-opts{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:13.5px;color:var(--ink-2)}
+.bank-opts label{display:inline-flex;align-items:center;gap:8px;max-width:none}
+.bank-opts select{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:4px 8px}
+.bank-opts .btn{padding:4px 12px}
+.bank-count{font-family:var(--f-mono);font-size:12.5px;color:var(--ink-2);margin:0 0 .4em}
+.qtags{display:flex;flex-wrap:wrap;gap:6px;margin:-.2em 0 .8em}
+.qtags span{font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--genoa);border:1px solid var(--rule);border-radius:6px;padding:1px 7px}
+.qtags span.scope{color:var(--ink-2)}
+section.bq[hidden]{display:none}

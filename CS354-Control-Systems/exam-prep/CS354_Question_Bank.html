@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="exam-scope" content="Bank">
+<meta name="exam-questions" content="23">
+<title>Question bank · CS354 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../module.html?m=cs354">&larr; Control Systems</a>
+  <div class="k">CS354 · Question bank</div>
+  <ol id="toc"></ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">CONTROL SYSTEMS 354 · EXAM PRACTICE</div>
+  <h1>Mock questions by topic</h1>
+  <p>Exam-style questions with memos, each tagged with the weeks it draws on. Some test one topic; the combined ones chain several, as exam questions do. Pick topics to filter. A question counts as A1 when every topic it uses is from term 3. Every number in the memos was checked by simulation.</p>
+</header>
+
+<div class="bank-filter" id="filter">
+  <span class="lab">Topics</span>
+  <div class="chips" id="chips"></div>
+  <div class="bank-opts">
+    <label>Show questions that
+      <select id="mode">
+        <option value="any">use any picked topic</option>
+        <option value="all">use every picked topic</option>
+        <option value="only">use only picked topics</option>
+      </select></label>
+    <label>Type
+      <select id="kind">
+        <option value="all">single and combined</option>
+        <option value="single">single topic</option>
+        <option value="combined">combined topics</option>
+      </select></label>
+    <label>Scope
+      <select id="scope">
+        <option value="all">A1 and A2</option>
+        <option value="A1">A1 (term 3 only)</option>
+        <option value="A2">A2 (uses term 4)</option>
+      </select></label>
+    <button class="btn" type="button" id="clear">Clear</button>
+  </div>
+</div>
+<p class="bank-count" id="count" aria-live="polite"></p>
+<p class="none" id="empty" hidden>No question matches. Pick fewer topics or change "Show questions that".</p>
+
+<p>The CS354 formula sheet is assumed. Formulas that are not on it are marked <span class="derive">derive</span> in the memos: in the exam they must be derived or quoted from the paper.</p>
+
+<!-- ===================== single topic ===================== -->
+
+<section class="bq" id="s1" data-topics="specs">
+<h2><span class="n">S1</span>Second-order response and a zero<span class="mk">[12]</span></h2>
+<p>A closed loop has \(T(s) = \dfrac{16}{s^2 + 4s + 16}\).</p>
+<div class="qp"><b>(a)</b><div><p>Find \(\omega_n\), \(\zeta\) and the poles.</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(b)</b><div><p>Estimate \(t_r\), \(t_p\), \(M_p\) and the 2 % \(t_s\).</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(c)</b><div><p>A zero is added, keeping the DC gain: \(T_z(s) = \dfrac{8(s+2)}{s^2 + 4s + 16}\). Predict how the step response changes and explain why. A simulation gives \(M_p = 70\) %; is that plausible?</p></div><span class="mk">[4]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[3]</span></h4>
+<p>\(\omega_n^2 = 16\): \(\omega_n = 4\) rad/s. \(2\zeta\omega_n = 4\): \(\zeta = 0.5\). \(\sigma = 2\), \(\omega_d = 4\sqrt{0.75} = 3.46\) rad/s: poles \(-2 \pm 3.46j\).</p>
+<h4>(b)<span class="mk">[5]</span></h4>
+<p>\(t_r \approx 1.8/4 = 0.45\) s; \(t_p = \pi/3.46 = 0.907\) s; \(M_p = e^{-\pi(0.5)/0.866} = 16.3\) %; \(t_s = 4/2 = 2.0\) s. (Simulation: 0.41 s, 0.907 s, 16.3 %, 2.02 s.)</p>
+<h4>(c)<span class="mk">[4]</span></h4>
+<p>\(T_z = \tfrac12(s+2)T\), so \(y_z = y + \tfrac12\dot y\): the zero adds a multiple of the derivative of the original response. The zero sits at \(-2 = -\sigma\), right beside the poles (α = 1 in the FPE plot), so the derivative term is large: much more overshoot and a much faster rise. 70 % is plausible (simulation: 69.9 %, \(t_r = 0.12\) s). The settling time hardly changes, because the poles have not moved.</p>
+</div></details>
+</section>
+
+<section class="bq" id="s2" data-topics="pid">
+<h2><span class="n">S2</span>Steady-state error and PI control<span class="mk">[14]</span></h2>
+<p>\(G(s) = \dfrac{10}{(s+2)(s+5)}\) is in a unity feedback loop.</p>
+<div class="qp"><b>(a)</b><div><p>With \(D = k_P\), find \(k_P\) for a 5 % steady-state error to a unit step.</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find \(\zeta\) and \(M_p\) with that gain. Is the design acceptable?</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(c)</b><div><p>Use \(D(s) = k_P\dfrac{s+2}{s}\) instead. Explain why the step error is now zero, choose \(k_P\) for \(\zeta = 0.707\), and give \(k_I\), \(M_p\) and \(t_s\).</p></div><span class="mk">[7]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[3]</span></h4>
+<p>Type 0: \(K_p = k_PG(0) = k_P\) and \(e_{ss} = 1/(1 + K_p)\) <span class="derive">derive</span>. \(1/(1+k_P) = 0.05\): \(k_P = 19\).</p>
+<h4>(b)<span class="mk">[4]</span></h4>
+<p>\(s^2 + 7s + 10 + 190 = s^2 + 7s + 200\): \(\omega_n = 14.1\) rad/s, \(\zeta = 7/(2 \times 14.1) = 0.247\), \(M_p = 44.8\) %. Too oscillatory: high proportional gain buys accuracy with damping.</p>
+<h4>(c)<span class="mk">[7]</span></h4>
+<p>The integrator makes the loop Type 1, so \(K_p = \infty\) and \(e_{ss} = 0\) for a step. The zero cancels the pole at −2: \(DG = \dfrac{10k_P}{s(s+5)}\), \(T = \dfrac{10k_P}{s^2 + 5s + 10k_P}\). \(2\zeta\omega_n = 5\) with \(\zeta = 0.707\): \(\omega_n = 3.54\), so \(10k_P = 12.5\).</p>
+<div class="ans">\(k_P = 1.25\), \(k_I = 2k_P = 2.5\) s⁻¹. \(M_p = 4.3\) %, \(t_s = 4/2.5 = 1.6\) s (simulation 1.69 s).</div>
+</div></details>
+</section>
+
+<section class="bq" id="s3" data-topics="pid">
+<h2><span class="n">S3</span>Ziegler-Nichols tuning<span class="mk">[10]</span></h2>
+<p>\(G(s) = \dfrac{1}{(s+1)^3}\) is in a unity feedback loop with \(D = K\).</p>
+<div class="qp"><b>(a)</b><div><p>Find the ultimate gain \(K_u\) and period \(P_u\) by substituting \(s = j\omega\).</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(b)</b><div><p>Give the Ziegler-Nichols PI settings as \(k_P\), \(T_I\) and \(k_I\).</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(c)</b><div><p>The tuned loop has a phase margin of 15° and 56 % overshoot. Explain why, and what you would do next.</p></div><span class="mk">[3]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[4]</span></h4>
+<p>\(s^3 + 3s^2 + 3s + 1 + K = 0\) at \(s = j\omega\). Imaginary: \(-\omega^3 + 3\omega = 0\), \(\omega = \sqrt3 = 1.73\) rad/s. Real: \(-3\omega^2 + 1 + K = 0\), \(K_u = 8\). \(P_u = 2\pi/\sqrt3 = 3.63\) s.</p>
+<h4>(b)<span class="mk">[3]</span></h4>
+<p>Table 4.3 (not on the formula sheet): \(k_P = 0.45K_u = 3.6\), \(T_I = P_u/1.2 = 3.02\) s, \(k_I = k_P/T_I = 1.19\) s⁻¹.</p>
+<h4>(c)<span class="mk">[3]</span></h4>
+<p>Ziegler-Nichols aims for a quarter decay ratio, roughly \(\zeta \approx 0.2\): fast but poorly damped by design. Treat the settings as a starting point and reduce \(k_P\) (or lengthen \(T_I\)) until the margin and overshoot meet the specification.</p>
+</div></details>
+</section>
+
+<section class="bq" id="s4" data-topics="freq">
+<h2><span class="n">S4</span>Margins and bandwidth<span class="mk">[14]</span></h2>
+<p>A unity feedback loop has \(KG(s) = \dfrac{40}{s(s+2)(s+10)}\).</p>
+<div class="qp"><b>(a)</b><div><p>Find the phase crossover frequency and the gain margin. By how much could the gain rise before instability?</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find the gain crossover frequency and the phase margin.</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(c)</b><div><p>Estimate \(\zeta\), \(M_p\) and the closed-loop bandwidth. A simulation gives \(M_p = 25\) % and \(\omega_{BW} = 2.66\) rad/s; comment.</p></div><span class="mk">[4]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[5]</span></h4>
+<p>\(\angle KG = -90^\circ - \tan^{-1}(\omega/2) - \tan^{-1}(\omega/10) = -180^\circ\) when \((\omega/2)(\omega/10) = 1\): \(\omega = \sqrt{20} = 4.47\) rad/s. \(|KG| = \dfrac{40}{\sqrt{20}\sqrt{24}\sqrt{120}} = \dfrac{40}{240} = \dfrac16\), so GM \(= 6\) (15.6 dB): the gain could rise to 240.</p>
+<h4>(b)<span class="mk">[5]</span></h4>
+<p>Solve \(\omega\sqrt{\omega^2+4}\sqrt{\omega^2+100} = 40\) (by trial, or from the asymptotes and a correction): \(\omega_c = 1.56\) rad/s. \(\angle KG = -90^\circ - 37.9^\circ - 8.9^\circ = -136.8^\circ\): PM \(= 43.2^\circ\).</p>
+<h4>(c)<span class="mk">[4]</span></h4>
+<p>\(\zeta \approx \mathrm{PM}/100 = 0.43\) <span class="derive">derive</span> gives \(M_p \approx 22\) %. Bandwidth between \(\omega_c\) and \(2\omega_c\): 1.6 to 3.1 rad/s. The simulation agrees: the third pole is far enough away for the dominant-pair estimates to hold.</p>
+</div></details>
+</section>
+
+<section class="bq" id="s5" data-topics="lead">
+<h2><span class="n">S5</span>Lead design for a Type 1 plant<span class="mk">[16]</span></h2>
+<p>\(G(s) = \dfrac{1}{s(s+1)}\) is in unity feedback with \(D(s) = K\dfrac{Ts+1}{\alpha Ts+1}\), \(\alpha \lt 1\). Requirements: \(K_v \ge 10\) and PM \(\ge 50^\circ\).</p>
+<div class="qp"><b>(a)</b><div><p>Find \(K\).</p></div><span class="mk">[2]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find the crossover frequency and phase margin of \(KG\).</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(c)</b><div><p>Design the lead with a 10° allowance: give \(\alpha\), the new crossover, \(T\) and \(D(s)\).</p></div><span class="mk">[8]</span></div>
+<div class="qp"><b>(d)</b><div><p>Check the achieved phase margin.</p></div><span class="mk">[2]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[2]</span></h4>
+<p>\(K_v = \lim_{s\to0} sKG = K\) <span class="derive">derive</span>: \(K = 10\).</p>
+<h4>(b)<span class="mk">[4]</span></h4>
+<p>\(\omega\sqrt{\omega^2 + 1} = 10\): \(\omega^4 + \omega^2 - 100 = 0\), \(\omega^2 = 9.51\), \(\omega_c = 3.08\) rad/s. PM \(= 90^\circ - \tan^{-1}3.08 = 18.0^\circ\).</p>
+<h4>(c)<span class="mk">[8]</span></h4>
+<p>\(\phi_{max} = 50 - 18 + 10 = 42^\circ\); \(\alpha = \dfrac{1-\sin42^\circ}{1+\sin42^\circ} = 0.198\) <span class="derive">derive</span> (\(1/\alpha = 5.05\)). New crossover where \(|KG| = \sqrt\alpha = 0.445\): \(\omega\sqrt{\omega^2+1} = 22.5\), \(\omega_c = 4.69\) rad/s. \(T = 1/(\omega_c\sqrt\alpha) = 0.479\) s, \(\alpha T = 0.0949\) s.</p>
+<div class="ans">\(D(s) = 10\,\dfrac{0.479s + 1}{0.0949s + 1}\)</div>
+<h4>(d)<span class="mk">[2]</span></h4>
+<p>At 4.69 rad/s: \(\angle KG = -90^\circ - 78.0^\circ = -168.0^\circ\), plus \(42.0^\circ\) of lead: PM \(= 54.1^\circ\). Met. (Simulated overshoot 18 %.)</p>
+</div></details>
+</section>
+
+<section class="bq" id="s6" data-topics="lag">
+<h2><span class="n">S6</span>Lag design for steady-state accuracy<span class="mk">[16]</span></h2>
+<p>\(G(s) = \dfrac{1}{(s+1)(0.1s+1)}\) is in unity feedback with the unity DC gain lag \(D(s) = K\dfrac{Ts+1}{\alpha Ts+1}\), \(\alpha \gt 1\). Requirements: at most 2 % step error and PM \(\ge 50^\circ\).</p>
+<div class="qp"><b>(a)</b><div><p>Find \(K\).</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find the phase margin of \(KG\).</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(c)</b><div><p>Design the lag with a 5° allowance and the zero a decade below crossover.</p></div><span class="mk">[7]</span></div>
+<div class="qp"><b>(d)</b><div><p>State the achieved margin and the cost of the lag.</p></div><span class="mk">[2]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[3]</span></h4>
+<p>Type 0, \(K_p = K\): \(1/(1+K) \le 0.02\) <span class="derive">derive</span> gives \(K = 49\).</p>
+<h4>(b)<span class="mk">[4]</span></h4>
+<p>\((1+\omega^2)(1+0.01\omega^2) = 49^2\): \(\omega_c = 21.0\) rad/s. \(\angle KG = -\tan^{-1}21.0 - \tan^{-1}2.10 = -151.8^\circ\): PM \(= 28.2^\circ\).</p>
+<h4>(c)<span class="mk">[7]</span></h4>
+<p>New crossover where \(\angle G = -180 + 50 + 5 = -125^\circ\): \(\tan^{-1}\omega + \tan^{-1}0.1\omega = 125^\circ\) gives \(\omega_c = 8.83\) rad/s. \(\alpha = |KG(j8.83)| = 4.13\). \(1/T = \omega_c/10\): \(T = 1.13\) s, \(\alpha T = 4.68\) s.</p>
+<div class="ans">\(D(s) = 49\,\dfrac{1.13s + 1}{4.68s + 1}\)</div>
+<h4>(d)<span class="mk">[2]</span></h4>
+<p>PM \(= 50.6^\circ\), step error 2 %. The crossover falls from 21 to 8.8 rad/s, so the loop is slower than the uncompensated one.</p>
+</div></details>
+</section>
+
+<section class="bq" id="s7" data-topics="rl">
+<h2><span class="n">S7</span>Root locus with complex poles<span class="mk">[14]</span></h2>
+<p>Sketch the root locus of \(1 + KL(s) = 0\), \(L(s) = \dfrac{1}{s(s^2 + 4s + 8)}\), for \(K \gt 0\).</p>
+<div class="qp"><b>(a)</b><div><p>Give the real-axis segment and the asymptotes.</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find the departure angle from the pole at \(-2 + 2j\).</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(c)</b><div><p>Is there a break-away point?</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(d)</b><div><p>Find the gain and frequency at the imaginary-axis crossing.</p></div><span class="mk">[4]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[3]</span></h4>
+<p>Poles 0 and \(-2 \pm 2j\), no zeros. Real axis: \((-\infty, 0]\). Centroid \((0 - 2 - 2)/3 = -1.33\); angles 60°, 180°, 300°.</p>
+<h4>(b)<span class="mk">[4]</span></h4>
+<p>At \(-2 + 2j\): angle from the pole at 0 is 135°, from \(-2 - 2j\) is 90°. \(-\phi_{dep} - 135^\circ - 90^\circ = 180^\circ\) gives \(\phi_{dep} = -405^\circ \equiv -45^\circ\): the branch leaves heading down and to the right.</p>
+<h4>(c)<span class="mk">[3]</span></h4>
+<p>\(\dfrac{d}{ds}(s^3 + 4s^2 + 8s) = 3s^2 + 8s + 8 = 0\) has complex roots \(-1.33 \pm 0.94j\), so there is no break-away: the branch from 0 runs straight left along the real axis.</p>
+<h4>(d)<span class="mk">[4]</span></h4>
+<p>\(s^3 + 4s^2 + 8s + K = 0\) at \(s = j\omega\): \(\omega^2 = 8\) (imaginary part), \(K = 4\omega^2 = 32\) (real part). Crossing at \(\pm 2.83j\), \(K = 32\).</p>
+</div></details>
+</section>
+
+<section class="bq" id="s8" data-topics="ss">
+<h2><span class="n">S8</span>Canonical forms and a hidden mode<span class="mk">[14]</span></h2>
+<p>\(G(s) = \dfrac{2s + 6}{s^3 + 6s^2 + 11s + 6}\).</p>
+<div class="qp"><b>(a)</b><div><p>Write the control canonical form.</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(b)</b><div><p>Test controllability and observability of that realisation.</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(c)</b><div><p>Explain the result by factorising \(G\).</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(d)</b><div><p>Give a second-order realisation that is both controllable and observable.</p></div><span class="mk">[2]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[4]</span></h4>
+<p>\(\mathbf{A}_c = \begin{bmatrix} -6 & -11 & -6 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \end{bmatrix}\), \(\mathbf{B}_c = \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}\), \(\mathbf{C}_c = [0 \;\; 2 \;\; 6]\), \(D = 0\).</p>
+<h4>(b)<span class="mk">[5]</span></h4>
+<p>Control form is always controllable (\(\det\mathcal{C} = 1\)). \(\mathcal{O} = \begin{bmatrix} \mathbf{C} \\ \mathbf{C}\mathbf{A} \\ \mathbf{C}\mathbf{A}^2 \end{bmatrix} = \begin{bmatrix} 0 & 2 & 6 \\ 2 & 6 & 0 \\ -6 & -22 & -12 \end{bmatrix}\), \(\det\mathcal{O} = 0\): not observable.</p>
+<h4>(c)<span class="mk">[3]</span></h4>
+<p>\(G = \dfrac{2(s+3)}{(s+1)(s+2)(s+3)}\): the zero cancels the pole at −3, so that mode never reaches the output.</p>
+<h4>(d)<span class="mk">[2]</span></h4>
+<p>\(G = \dfrac{2}{s^2 + 3s + 2}\): \(\mathbf{A} = \begin{bmatrix} -3 & -2 \\ 1 & 0 \end{bmatrix}\), \(\mathbf{B} = [1 \;\; 0]^T\), \(\mathbf{C} = [0 \;\; 2]\).</p>
+</div></details>
+</section>
+
+<section class="bq" id="s9" data-topics="control">
+<h2><span class="n">S9</span>Pole placement with Ackermann's formula<span class="mk">[12]</span></h2>
+<p>\(\mathbf{A} = \begin{bmatrix} -1 & 1 \\ 0 & -2 \end{bmatrix}\), \(\mathbf{B} = \begin{bmatrix} 0 \\ 1 \end{bmatrix}\), \(\mathbf{C} = [1 \;\; 0]\).</p>
+<div class="qp"><b>(a)</b><div><p>Show the system is controllable.</p></div><span class="mk">[2]</span></div>
+<div class="qp"><b>(b)</b><div><p>Use Ackermann's formula to place the poles at \(-3 \pm 3j\).</p></div><span class="mk">[7]</span></div>
+<div class="qp"><b>(c)</b><div><p>Find \(\bar N\) for zero step error.</p></div><span class="mk">[3]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[2]</span></h4>
+<p>\(\mathcal{C} = [\mathbf{B} \;\; \mathbf{A}\mathbf{B}] = \begin{bmatrix} 0 & 1 \\ 1 & -2 \end{bmatrix}\), \(\det = -1\): controllable.</p>
+<h4>(b)<span class="mk">[7]</span></h4>
+<p>\(\alpha_c(s) = s^2 + 6s + 18\). \(\alpha_c(\mathbf{A}) = \mathbf{A}^2 + 6\mathbf{A} + 18\mathbf{I} = \begin{bmatrix} 1 & -3 \\ 0 & 4 \end{bmatrix} + \begin{bmatrix} -6 & 6 \\ 0 & -12 \end{bmatrix} + \begin{bmatrix} 18 & 0 \\ 0 & 18 \end{bmatrix} = \begin{bmatrix} 13 & 3 \\ 0 & 10 \end{bmatrix}\).</p>
+<p>\(\mathbf{K} = [0 \;\; 1]\,\mathcal{C}^{-1}\alpha_c(\mathbf{A})\) <span class="derive">derive</span>. \(\mathcal{C}^{-1} = \begin{bmatrix} 2 & 1 \\ 1 & 0 \end{bmatrix}\), so \([0 \;\; 1]\mathcal{C}^{-1} = [1 \;\; 0]\).</p>
+<div class="ans">\(\mathbf{K} = [13 \;\; 3]\). Check: \(\mathrm{tr}(\mathbf{A} - \mathbf{B}\mathbf{K}) = -1 - 5 = -6\) ✓, \(\det = 5 + 13 = 18\) ✓.</div>
+<h4>(c)<span class="mk">[3]</span></h4>
+<p>\(G = \dfrac{1}{(s+1)(s+2)}\), \(b(0) = 1\): \(\bar N = \alpha_c(0)/b(0) = 18\) <span class="derive">derive</span>.</p>
+</div></details>
+</section>
+
+<section class="bq" id="s10" data-topics="est">
+<h2><span class="n">S10</span>Full-order estimator<span class="mk">[10]</span></h2>
+<p>\(\mathbf{A} = \begin{bmatrix} 0 & 1 \\ -2 & -3 \end{bmatrix}\), \(\mathbf{C} = [1 \;\; 0]\).</p>
+<div class="qp"><b>(a)</b><div><p>Show the system is observable.</p></div><span class="mk">[2]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find \(\mathbf{L}\) for both estimator poles at −10.</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(c)</b><div><p>Why are estimator poles usually 2 to 6 times faster than the controller's, and what stops you making them much faster?</p></div><span class="mk">[3]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[2]</span></h4>
+<p>\(\mathcal{O} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}\), \(\det = 1\): observable.</p>
+<h4>(b)<span class="mk">[5]</span></h4>
+<p>\(\mathbf{A} - \mathbf{L}\mathbf{C} = \begin{bmatrix} -L_1 & 1 \\ -2 - L_2 & -3 \end{bmatrix}\): \(\det[s\mathbf{I} - \mathbf{A} + \mathbf{L}\mathbf{C}] = s^2 + (3 + L_1)s + 2 + 3L_1 + L_2 = s^2 + 20s + 100\).</p>
+<div class="ans">\(L_1 = 17\), \(L_2 = 47\): \(\mathbf{L} = [17 \;\; 47]^T\).</div>
+<h4>(c)<span class="mk">[3]</span></h4>
+<p>The estimate must converge before it is needed, so the estimator error dies out well inside the controller's response and the controller's poles dominate. Very fast poles need large \(\mathbf{L}\), which amplifies sensor noise into the estimate (and so into \(u\)).</p>
+</div></details>
+</section>
+
+<section class="bq" id="s11" data-topics="comp">
+<h2><span class="n">S11</span>Compensator for a double integrator<span class="mk">[16]</span></h2>
+<p>A satellite attitude model is \(\ddot y = u\): \(\mathbf{A} = \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix}\), \(\mathbf{B} = \begin{bmatrix} 0 \\ 1 \end{bmatrix}\), \(\mathbf{C} = [1 \;\; 0]\).</p>
+<div class="qp"><b>(a)</b><div><p>Find \(\mathbf{K}\) for poles at \(-1 \pm j\).</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find \(\mathbf{L}\) for estimator poles at −4 (twice).</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(c)</b><div><p>Find \(D_c(s) = \mathbf{K}(s\mathbf{I} - \mathbf{A} + \mathbf{B}\mathbf{K} + \mathbf{L}\mathbf{C})^{-1}\mathbf{L}\) (with \(U = -D_cY\)).</p></div><span class="mk">[6]</span></div>
+<div class="qp"><b>(d)</b><div><p>Is it a lead or a lag, and why must it be for this plant?</p></div><span class="mk">[2]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[4]</span></h4>
+<p>\(\det[s\mathbf{I} - \mathbf{A} + \mathbf{B}\mathbf{K}] = s^2 + K_2s + K_1 = s^2 + 2s + 2\): \(\mathbf{K} = [2 \;\; 2]\).</p>
+<h4>(b)<span class="mk">[4]</span></h4>
+<p>\(\det[s\mathbf{I} - \mathbf{A} + \mathbf{L}\mathbf{C}] = s^2 + L_1s + L_2 = s^2 + 8s + 16\): \(\mathbf{L} = [8 \;\; 16]^T\).</p>
+<h4>(c)<span class="mk">[6]</span></h4>
+<p>\(s\mathbf{I} - \mathbf{A} + \mathbf{B}\mathbf{K} + \mathbf{L}\mathbf{C} = \begin{bmatrix} s+8 & -1 \\ 18 & s+2 \end{bmatrix}\), determinant \(s^2 + 10s + 34\), adjugate \(\begin{bmatrix} s+2 & 1 \\ -18 & s+8 \end{bmatrix}\). \(\mathbf{K}\,\mathrm{adj}\,\mathbf{L} = [2s - 32 \;\;\; 2s + 18]\begin{bmatrix} 8 \\ 16 \end{bmatrix} = 48s + 32\).</p>
+<div class="ans">\(D_c(s) = \dfrac{48s + 32}{s^2 + 10s + 34} = 48\,\dfrac{s + 0.667}{s^2 + 10s + 34}\)</div>
+<h4>(d)<span class="mk">[2]</span></h4>
+<p>Zero at −0.67, poles \(-5 \pm 3j\): lead. A double integrator has −180° of phase at every frequency, so without phase lead there is no phase margin at all. Here the loop has PM = 40.8° at 1.50 rad/s.</p>
+</div></details>
+</section>
+
+<section class="bq" id="s12" data-topics="digital">
+<h2><span class="n">S12</span>ZOH equivalent and the gain limit<span class="mk">[14]</span></h2>
+<p>The plant \(G(s) = \dfrac{1}{s+2}\) is driven through a zero-order hold, sampled at \(T = 0.1\) s, and controlled by \(u(k) = K e(k)\) in unity feedback.</p>
+<div class="qp"><b>(a)</b><div><p>Find the ZOH equivalent \(G(z)\).</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find the closed-loop pole as a function of \(K\) and the range of \(K\) for stability.</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(c)</b><div><p>With \(K = 5\), find the pole and the steady-state output for a unit step. Compare with the continuous loop.</p></div><span class="mk">[4]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[5]</span></h4>
+<p>\(G(z) = (1 - z^{-1})\mathcal{Z}\{G(s)/s\}\) <span class="derive">derive</span>. \(\dfrac{1}{s(s+2)} = \dfrac12\left(\dfrac1s - \dfrac{1}{s+2}\right)\), and the formula-sheet pairs give \(\dfrac12\left(\dfrac{z}{z-1} - \dfrac{z}{z - e^{-0.2}}\right)\). Multiplying by \((z-1)/z\):</p>
+<div class="ans">\(G(z) = \dfrac{\tfrac12(1 - e^{-0.2})}{z - e^{-0.2}} = \dfrac{0.0906}{z - 0.8187}\)</div>
+<h4>(b)<span class="mk">[5]</span></h4>
+<p>\(1 + KG(z) = 0\): \(z = 0.8187 - 0.0906K\). Stable when \(|z| \lt 1\): \(-1 \lt 0.8187 - 0.0906K\), so \(K \lt 20.1\) (and \(K \gt -2\)). The continuous loop is stable for every \(K \gt 0\); sampling sets a limit.</p>
+<h4>(c)<span class="mk">[4]</span></h4>
+<p>\(z = 0.8187 - 0.453 = 0.366\). Discrete FVT: \(y_{ss} = \lim_{z\to1}(1 - z^{-1})\dfrac{KG}{1+KG}\dfrac{z}{z-1} = \dfrac{0.453}{1 - 0.366} = 0.714\), the same as the continuous \(K/(2+K) = 5/7\): the ZOH equivalent keeps the DC gain.</p>
+</div></details>
+</section>
+
+<section class="bq" id="s13" data-topics="hw">
+<h2><span class="n">S13</span>Sample period and aliasing<span class="mk">[12]</span></h2>
+<p>A continuous design has crossover 5 rad/s, PM 50° and closed-loop bandwidth 8 rad/s. It is to be implemented digitally with a ZOH.</p>
+<div class="qp"><b>(a)</b><div><p>Find the longest \(T\) for which the hold costs no more than 10° of phase margin.</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(b)</b><div><p>Is that sample period a good choice? Recommend a range of \(T\) from the sample-rate guidelines.</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(c)</b><div><p>The sensor carries 60 Hz mains pickup. Where does it appear if the loop samples at 25 Hz?</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(d)</b><div><p>What hardware prevents this, and where must it go?</p></div><span class="mk">[2]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[3]</span></h4>
+<p>The hold acts as a delay of \(T/2\) <span class="derive">derive</span>: lag \(\omega_cT/2 \le 10^\circ = 0.175\) rad gives \(T \le 2(0.175)/5 = 0.070\) s.</p>
+<h4>(b)<span class="mk">[4]</span></h4>
+<p>\(\omega_s = 2\pi/0.070 = 90\) rad/s, only 11 times the bandwidth: inside the "poor damping" range (below about 20 times). For 20 to 40 times the bandwidth, \(\omega_s = 160\) to 320 rad/s, so \(T \approx 0.02\) to 0.04 s.</p>
+<h4>(c)<span class="mk">[3]</span></h4>
+<p>Nyquist is 12.5 Hz. The nearest multiple of 25 Hz to 60 Hz is 50 Hz: \(f_a = |60 - 50| = 10\) Hz.</p>
+<h4>(d)<span class="mk">[2]</span></h4>
+<p>An analogue anti-alias prefilter, before the ADC. After sampling the alias is indistinguishable from a genuine 10 Hz signal.</p>
+</div></details>
+</section>
+
+<!-- ===================== combined ===================== -->
+
+<section class="bq" id="c1" data-topics="specs rl lead">
+<h2><span class="n">C1</span>From specifications to a root-locus lead<span class="mk">[22]</span></h2>
+<p>\(G(s) = \dfrac{1}{s(s+4)}\) in unity feedback must have \(M_p \le 16.3\) % and a 2 % settling time of at most 1 s.</p>
+<div class="qp"><b>(a)</b><div><p>Translate the requirements into a design point \(s_0\).</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(b)</b><div><p>Show that proportional control cannot meet the settling time.</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(c)</b><div><p>Design \(D(s) = K\dfrac{s+5}{s+p}\) to place the dominant poles at \(s_0\).</p></div><span class="mk">[10]</span></div>
+<div class="qp"><b>(d)</b><div><p>Find \(K_v\) and the third closed-loop pole. The simulated overshoot is 19 %; explain.</p></div><span class="mk">[4]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[4]</span></h4>
+<p>16.3 % needs \(\zeta \ge 0.5\); \(t_s = 4/\sigma \le 1\) needs \(\sigma \ge 4\). With \(\zeta = 0.5\) and \(\sigma = 4\): \(\omega_n = 8\), \(\omega_d = 6.93\). \(s_0 = -4 \pm 6.93j\).</p>
+<h4>(b)<span class="mk">[4]</span></h4>
+<p>\(s^2 + 4s + K = 0\): for \(K \gt 4\) the poles are \(-2 \pm j\sqrt{K-4}\). The real part is stuck at −2, so \(t_s = 2\) s whatever \(K\).</p>
+<h4>(c)<span class="mk">[10]</span></h4>
+<p>Angles at \(s_0\): from 0, 120°; from −4, 90°; from the zero at −5, \(\tan^{-1}(6.93/1) = 81.8^\circ\). Angle condition: \(81.8^\circ - 120^\circ - 90^\circ - \phi_p = -180^\circ\), so \(\phi_p = 51.8^\circ\) and \(p = 4 + 6.93/\tan51.8^\circ = 9.45\).</p>
+<p>Magnitude: \(K = \dfrac{|s_0||s_0+4||s_0+9.45|}{|s_0+5|} = \dfrac{8 \times 6.93 \times 8.82}{7.00} = 69.8\).</p>
+<div class="ans">\(D(s) = 69.8\,\dfrac{s+5}{s+9.45}\)</div>
+<h4>(d)<span class="mk">[4]</span></h4>
+<p>\(K_v = \dfrac{69.8 \times 5}{4 \times 9.45} = 9.23\) <span class="derive">derive</span>. The pole sum is \(-13.45\), so the third pole is \(-13.45 + 8 = -5.45\), close to the zero at −5: they nearly cancel. The closed-loop zero at −5 still adds a little overshoot above the 16.3 % of a pure second-order pair.</p>
+</div></details>
+</section>
+
+<section class="bq" id="c2" data-topics="pid digital">
+<h2><span class="n">C2</span>PI design and its difference equation<span class="mk">[16]</span></h2>
+<p>A motor speed loop has \(G(s) = \dfrac{4}{s+2}\).</p>
+<div class="qp"><b>(a)</b><div><p>With \(D(s) = k_P\dfrac{s+2}{s}\), find the closed-loop transfer function and choose \(k_P\) for a closed-loop time constant of 0.1 s. Give \(k_I\).</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find the steady-state error to a unit ramp.</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(c)</b><div><p>Discretise the PI controller with Tustin's method at \(T = 0.01\) s and give the difference equation.</p></div><span class="mk">[6]</span></div>
+<div class="qp"><b>(d)</b><div><p>Is \(T = 0.01\) s fast enough?</p></div><span class="mk">[2]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[5]</span></h4>
+<p>\(DG = \dfrac{4k_P}{s}\), so \(Y/R = \dfrac{4k_P}{s + 4k_P}\): a first-order loop with time constant \(1/(4k_P) = 0.1\). \(k_P = 2.5\), \(k_I = 2k_P = 5\) s⁻¹. No overshoot; \(t_s = 4 \times 0.1 = 0.4\) s.</p>
+<h4>(b)<span class="mk">[3]</span></h4>
+<p>Type 1: \(K_v = \lim_{s\to0} sDG = 4k_P = 10\), \(e_{ss} = 1/K_v = 0.1\) <span class="derive">derive</span>.</p>
+<h4>(c)<span class="mk">[6]</span></h4>
+<p>\(D = k_P + k_I/s\) with \(\dfrac1s \to \dfrac T2\dfrac{z+1}{z-1}\) (from the Tustin rule): \(D(z) = \dfrac{(k_P + k_IT/2)z - (k_P - k_IT/2)}{z - 1}\).</p>
+<div class="ans">\(u(k) = u(k-1) + 2.525\,e(k) - 2.475\,e(k-1)\)</div>
+<h4>(d)<span class="mk">[2]</span></h4>
+<p>Bandwidth 10 rad/s; \(\omega_s = 2\pi/0.01 = 628\) rad/s, 63 times the bandwidth: comfortably fast.</p>
+</div></details>
+</section>
+
+<section class="bq" id="c3" data-topics="lead digital hw">
+<h2><span class="n">C3</span>Implementing a lead compensator<span class="mk">[16]</span></h2>
+<p>The lead \(D(s) = 10\,\dfrac{0.479s + 1}{0.0949s + 1}\) gives \(G(s) = \dfrac{1}{s(s+1)}\) a phase margin of 54.1° at 4.69 rad/s (question S5). The digital version must still have PM \(\ge 50^\circ\).</p>
+<div class="qp"><b>(a)</b><div><p>Find the longest sample period the ZOH allows, and choose \(T\).</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(b)</b><div><p>With \(T = 0.03\) s, find the Tustin equivalent and the difference equation. Check the DC gain.</p></div><span class="mk">[7]</span></div>
+<div class="qp"><b>(c)</b><div><p>Check the sample rate against the bandwidth.</p></div><span class="mk">[2]</span></div>
+<div class="qp"><b>(d)</b><div><p>The lead's high-frequency gain is \(1/\alpha \approx 5\) times its DC gain. Why does that matter in hardware?</p></div><span class="mk">[2]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[5]</span></h4>
+<p>Spare margin: 4.1° = 0.0716 rad. Hold lag \(\omega_cT/2\) <span class="derive">derive</span> \(\le 0.0716\): \(T \le 0.0305\) s. With \(T = 0.03\) s the hold costs 4.0°, leaving PM ≈ 50.1°.</p>
+<h4>(b)<span class="mk">[7]</span></h4>
+<p>\(2/T = 66.7\). Numerator \(10(0.479 \times 66.7(z-1) + (z+1)) = 329.6z - 309.6\); denominator \(0.0949 \times 66.7(z-1) + (z+1) = 7.32z - 5.32\).</p>
+<div class="ans">\(D(z) = 45.0\,\dfrac{z - 0.9393}{z - 0.7269}\); \(u(k) = 0.7269\,u(k-1) + 45.0\,e(k) - 42.3\,e(k-1)\). DC: \(45.0 \times 0.0607/0.2731 = 10.0\) ✓</div>
+<h4>(c)<span class="mk">[2]</span></h4>
+<p>Bandwidth between \(\omega_c\) and \(2\omega_c\): 4.7 to 9.4 rad/s. \(\omega_s = 209\) rad/s is 22 to 45 times that: acceptable, though at the low end for emulation.</p>
+<h4>(d)<span class="mk">[2]</span></h4>
+<p>Sensor noise and ADC quantisation at high frequency are amplified five times more than the signal at DC, which can saturate the DAC or excite the actuator. It is another reason to keep \(\alpha\) above about 0.1.</p>
+</div></details>
+</section>
+
+<section class="bq" id="c4" data-topics="ss control est">
+<h2><span class="n">C4</span>From transfer function to an estimator-based design<span class="mk">[20]</span></h2>
+<p>\(G(s) = \dfrac{10}{s(s+2)}\).</p>
+<div class="qp"><b>(a)</b><div><p>Write the control canonical form.</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find \(\mathbf{K}\) for poles at \(-5 \pm 5j\).</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(c)</b><div><p>Find \(\bar N\) for zero step error.</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(d)</b><div><p>Show the realisation is observable and find \(\mathbf{L}\) for estimator poles at −20 (twice).</p></div><span class="mk">[7]</span></div>
+<div class="qp"><b>(e)</b><div><p>What are the closed-loop poles once \(u = -\mathbf{K}\hat{\mathbf{x}} + \bar Nr\) is used?</p></div><span class="mk">[3]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[3]</span></h4>
+<p>\(a(s) = s^2 + 2s\), \(b(s) = 10\): \(\mathbf{A}_c = \begin{bmatrix} -2 & 0 \\ 1 & 0 \end{bmatrix}\), \(\mathbf{B}_c = \begin{bmatrix} 1 \\ 0 \end{bmatrix}\), \(\mathbf{C}_c = [0 \;\; 10]\).</p>
+<h4>(b)<span class="mk">[4]</span></h4>
+<p>In control form \(K_{c,i} = \alpha_i - a_i\) <span class="derive">derive</span>: \(\alpha_c = s^2 + 10s + 50\), so \(\mathbf{K} = [10 - 2 \;\; 50 - 0] = [8 \;\; 50]\).</p>
+<h4>(c)<span class="mk">[3]</span></h4>
+<p>\(Y/R = \dfrac{10\bar N}{s^2 + 10s + 50}\): \(\bar N = 50/10 = 5\).</p>
+<h4>(d)<span class="mk">[7]</span></h4>
+<p>\(\mathcal{O} = \begin{bmatrix} 0 & 10 \\ 10 & 0 \end{bmatrix}\), \(\det = -100\): observable. \(\mathbf{A} - \mathbf{L}\mathbf{C} = \begin{bmatrix} -2 & -10L_1 \\ 1 & -10L_2 \end{bmatrix}\), so \(\det[s\mathbf{I} - \mathbf{A} + \mathbf{L}\mathbf{C}] = s^2 + (2 + 10L_2)s + 20L_2 + 10L_1 = s^2 + 40s + 400\).</p>
+<div class="ans">\(L_2 = 3.8\), \(L_1 = 32.4\): \(\mathbf{L} = [32.4 \;\; 3.8]^T\).</div>
+<h4>(e)<span class="mk">[3]</span></h4>
+<p>Separation principle: \(-5 \pm 5j\) and −20, −20.</p>
+</div></details>
+</section>
+
+<section class="bq" id="c5" data-topics="control est comp freq">
+<h2><span class="n">C5</span>Estimator-based compensator and its margins<span class="mk">[20]</span></h2>
+<p>\(G(s) = \dfrac{1}{s(s+1)}\) with \(\mathbf{x} = [y \;\; \dot y]^T\): \(\mathbf{A} = \begin{bmatrix} 0 & 1 \\ 0 & -1 \end{bmatrix}\), \(\mathbf{B} = \begin{bmatrix} 0 \\ 1 \end{bmatrix}\), \(\mathbf{C} = [1 \;\; 0]\).</p>
+<div class="qp"><b>(a)</b><div><p>Find \(\mathbf{K}\) for poles at \(-2 \pm 2j\).</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find \(\mathbf{L}\) for estimator poles at −10 (twice).</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(c)</b><div><p>Find the compensator \(D_c(s)\) (with \(U = -D_cY\)).</p></div><span class="mk">[8]</span></div>
+<div class="qp"><b>(d)</b><div><p>The loop \(D_cG\) has PM 51.8° at 2.72 rad/s and GM 8.2. What do these say that the pole locations alone do not?</p></div><span class="mk">[4]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[4]</span></h4>
+<p>\(s^2 + (1 + K_2)s + K_1 = s^2 + 4s + 8\): \(\mathbf{K} = [8 \;\; 3]\).</p>
+<h4>(b)<span class="mk">[4]</span></h4>
+<p>\(s^2 + (1 + L_1)s + L_1 + L_2 = s^2 + 20s + 100\): \(\mathbf{L} = [19 \;\; 81]^T\).</p>
+<h4>(c)<span class="mk">[8]</span></h4>
+<p>\(s\mathbf{I} - \mathbf{A} + \mathbf{B}\mathbf{K} + \mathbf{L}\mathbf{C} = \begin{bmatrix} s+19 & -1 \\ 89 & s+4 \end{bmatrix}\): determinant \(s^2 + 23s + 165\), adjugate \(\begin{bmatrix} s+4 & 1 \\ -89 & s+19 \end{bmatrix}\). \(\mathbf{K}\,\mathrm{adj} = [8s - 235 \;\;\; 3s + 65]\), times \(\mathbf{L}\): \(19(8s - 235) + 81(3s + 65) = 395s + 800\).</p>
+<div class="ans">\(D_c(s) = \dfrac{395s + 800}{s^2 + 23s + 165}\): zero at −2.03, poles \(-11.5 \pm 5.72j\). A lead.</div>
+<h4>(d)<span class="mk">[4]</span></h4>
+<p>Pole placement guarantees the nominal poles, not robustness. The margins say how much gain (×8.2) or phase (52°) the loop can lose before instability: what happens if the model is wrong. Fast estimator poles push the compensator poles out and raise its high-frequency gain, which these margins and the noise sensitivity reveal.</p>
+</div></details>
+</section>
+
+<section class="bq" id="c6" data-topics="comp specs pid">
+<h2><span class="n">C6</span>Integral control is PI control<span class="mk">[14]</span></h2>
+<p>A first-order plant with an input disturbance: \(\dot y = -2y + 3(u + w)\).</p>
+<div class="qp"><b>(a)</b><div><p>With \(u = -K_0y + \bar Nr\), find \(y_{ss}\) for constant \(r\) and \(w\). Can \(\bar N\) remove the error?</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(b)</b><div><p>Add \(\dot x_I = y - r\) and \(u = -K_Ix_I - K_0y\). Find \(K_I\) and \(K_0\) for \(\zeta = 0.707\) and a 1 s settling time.</p></div><span class="mk">[6]</span></div>
+<div class="qp"><b>(c)</b><div><p>Show that this controller is a PI controller, and give \(Y/R\).</p></div><span class="mk">[4]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[4]</span></h4>
+<p>\(0 = -2y + 3(-K_0y + \bar Nr + w)\): \(y_{ss} = \dfrac{3\bar Nr + 3w}{2 + 3K_0}\). \(\bar N = (2 + 3K_0)/3\) fixes \(w = 0\) only; any load leaves an error \(3w/(2 + 3K_0)\).</p>
+<h4>(b)<span class="mk">[6]</span></h4>
+<p>\(t_s = 4/\sigma = 1\): \(\sigma = 4\); with \(\zeta = 0.707\), poles \(-4 \pm 4j\), \(\alpha_c = s^2 + 8s + 32\). \(\mathbf{A}_a = \begin{bmatrix} 0 & 1 \\ 0 & -2 \end{bmatrix}\), \(\mathbf{B}_a = \begin{bmatrix} 0 \\ 3 \end{bmatrix}\): \(\det[s\mathbf{I} - \mathbf{A}_a + \mathbf{B}_a\mathbf{K}_a] = s^2 + (2 + 3K_0)s + 3K_I\).</p>
+<div class="ans">\(K_0 = 2\), \(K_I = 32/3 = 10.7\).</div>
+<h4>(c)<span class="mk">[4]</span></h4>
+<p>\(U = -\dfrac{K_I}{s}(Y - R) - K_0Y = \dfrac{K_I}{s}E - K_0Y\): integral action on the error and proportional action on the output, a PI controller whose proportional part acts on \(y\) only. So there is no closed-loop zero: \(Y/R = \dfrac{3K_I}{s^2 + 8s + 32} = \dfrac{32}{s^2 + 8s + 32}\), \(M_p = 4.3\) %, zero error even with \(w\).</p>
+</div></details>
+</section>
+
+<section class="bq" id="c7" data-topics="rl lag specs">
+<h2><span class="n">C7</span>Root-locus lag for steady-state error<span class="mk">[18]</span></h2>
+<p>\(G(s) = \dfrac{1}{(s+1)(s+3)}\) in unity feedback must have dominant poles with \(\zeta = 0.5\) and at most 2 % step error.</p>
+<div class="qp"><b>(a)</b><div><p>Find the proportional gain for \(\zeta = 0.5\) and the closed-loop poles.</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find the step error with that gain.</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(c)</b><div><p>Add \(D(s) = 13\dfrac{s + 0.2}{s + p}\). Find \(p\) for the 2 % error.</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(d)</b><div><p>Find the lag's angle at the design point and its effect on the poles and the step response.</p></div><span class="mk">[6]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[4]</span></h4>
+<p>\(s^2 + 4s + 3 + K = 0\): \(2\zeta\omega_n = 4\) with \(\zeta = 0.5\) gives \(\omega_n = 4\), so \(3 + K = 16\), \(K = 13\). Poles \(-2 \pm 3.46j\).</p>
+<h4>(b)<span class="mk">[3]</span></h4>
+<p>\(K_p = 13/3 = 4.33\); \(e_{ss} = 1/(1 + 4.33) = 0.188\) <span class="derive">derive</span>.</p>
+<h4>(c)<span class="mk">[5]</span></h4>
+<p>2 % needs \(K_p = 49\). The lag multiplies \(K_p\) by \(\alpha = z/p\): \(\alpha = 49/4.33 = 11.3\), \(p = 0.2/11.3 = 0.0177\).</p>
+<h4>(d)<span class="mk">[6]</span></h4>
+<p>At \(s_0 = -2 + 3.46j\): \(\angle(s_0 + 0.2) - \angle(s_0 + 0.0177) = -2.3^\circ\): small, so the dominant poles barely move (to \(-1.92 \pm 3.42j\)). A third closed-loop pole appears at −0.172, close to the zero at −0.2: a slow, small creep to the final value, so the 2 % settling time stretches to 11.5 s even though the overshoot stays small.</p>
+<div class="ans">\(D(s) = 13\,\dfrac{s + 0.2}{s + 0.0177}\); step error 2.0 % ✓.</div>
+</div></details>
+</section>
+
+<section class="bq" id="c8" data-topics="freq specs">
+<h2><span class="n">C8</span>Phase margin against damping<span class="mk">[12]</span></h2>
+<p>A unity loop has \(KG(s) = \dfrac{50}{s(s+5)}\).</p>
+<div class="qp"><b>(a)</b><div><p>Find the crossover and the phase margin.</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(b)</b><div><p>Estimate \(\zeta\) and \(M_p\) from the margin.</p></div><span class="mk">[3]</span></div>
+<div class="qp"><b>(c)</b><div><p>Find the exact closed-loop \(\zeta\), \(M_p\) and bandwidth, and comment.</p></div><span class="mk">[4]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[5]</span></h4>
+<p>\(\omega\sqrt{\omega^2 + 25} = 50\): \(\omega^4 + 25\omega^2 - 2500 = 0\), \(\omega^2 = 39.0\), \(\omega_c = 6.25\) rad/s. PM \(= 90^\circ - \tan^{-1}(6.25/5) = 38.7^\circ\).</p>
+<h4>(b)<span class="mk">[3]</span></h4>
+<p>\(\zeta \approx 0.39\) <span class="derive">derive</span>, \(M_p \approx 27\) %.</p>
+<h4>(c)<span class="mk">[4]</span></h4>
+<p>\(T = \dfrac{50}{s^2 + 5s + 50}\): \(\omega_n = 7.07\), \(\zeta = 0.354\), \(M_p = 30.5\) %. \(|T(j\omega)| = 0.707\) at \(\omega_{BW} = 10.0\) rad/s, between \(\omega_c\) and \(2\omega_c\). The PM/100 rule is approximate: it slightly overestimates \(\zeta\) here.</p>
+</div></details>
+</section>
+
+<section class="bq" id="c9" data-topics="digital hw">
+<h2><span class="n">C9</span>Discrete design: the gain limit in the z-plane<span class="mk">[14]</span></h2>
+<p>\(G(s) = \dfrac{1}{s(s+1)}\) is driven through a ZOH at \(T = 1\) s, with \(u(k) = Ke(k)\) in unity feedback.</p>
+<div class="qp"><b>(a)</b><div><p>Find the ZOH equivalent \(G(z)\).</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(b)</b><div><p>Find the characteristic equation and the largest stable \(K\).</p></div><span class="mk">[5]</span></div>
+<div class="qp"><b>(c)</b><div><p>With \(K = 1\), find the closed-loop poles and the equivalent \(\zeta\).</p></div><span class="mk">[4]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[5]</span></h4>
+<p>\(\dfrac{1}{s^2(s+1)} = \dfrac1{s^2} - \dfrac1s + \dfrac1{s+1}\). Formula-sheet pairs: \(\dfrac{Tz}{(z-1)^2} - \dfrac{z}{z-1} + \dfrac{z}{z - e^{-1}}\). Multiply by \((z-1)/z\) and combine:</p>
+<div class="ans">\(G(z) = \dfrac{0.3679z + 0.2642}{(z-1)(z - 0.3679)}\)</div>
+<h4>(b)<span class="mk">[5]</span></h4>
+<p>\((z-1)(z - 0.3679) + K(0.3679z + 0.2642) = 0\): \(z^2 + (0.3679K - 1.3679)z + 0.3679 + 0.2642K = 0\). For complex roots \(|z|^2\) equals the constant term, so \(|z| \lt 1\) needs \(0.3679 + 0.2642K \lt 1\): \(K \lt 2.39\). (The real-root limit, a root at \(z = -1\), would be \(K = 26.4\), so it does not apply first.)</p>
+<h4>(c)<span class="mk">[4]</span></h4>
+<p>\(z^2 - z + 0.632 = 0\): \(z = 0.5 \pm 0.618j\), \(|z| = 0.795\), \(\angle z = 0.891\) rad. \(z = e^{sT}\): \(s = \ln z = -0.229 \pm 0.891j\), so \(\zeta = 0.229/0.920 = 0.25\). The continuous loop with \(K = 1\) has \(\zeta = 0.5\): a slow sample rate costs damping.</p>
+</div></details>
+</section>
+
+<section class="bq" id="c10" data-topics="hw freq rl">
+<h2><span class="n">C10</span>Delays in a digital loop<span class="mk">[12]</span></h2>
+<p>A continuous design has crossover 2 rad/s and PM 50°. Its digital version adds the hold's \(T/2\) and a one-sample computation delay \(T\).</p>
+<div class="qp"><b>(a)</b><div><p>Find the longest \(T\) for PM \(\ge 35^\circ\).</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(b)</b><div><p>With \(T = 0.08\) s, write the first-order Padé approximation of the total delay and compare its phase at 2 rad/s with the exact delay.</p></div><span class="mk">[4]</span></div>
+<div class="qp"><b>(c)</b><div><p>How does that approximation change a root locus of the loop?</p></div><span class="mk">[4]</span></div>
+<details class="memo"><summary>Memo</summary><div class="sol">
+<h4>(a)<span class="mk">[4]</span></h4>
+<p>Total delay \(1.5T\), phase lag \(1.5T\omega_c\). Allowed loss 15° = 0.262 rad: \(T \le 0.262/(1.5 \times 2) = 0.087\) s.</p>
+<h4>(b)<span class="mk">[4]</span></h4>
+<p>\(\tau = 1.5 \times 0.08 = 0.12\) s. \(e^{-s\tau} \approx \dfrac{1 - s\tau/2}{1 + s\tau/2} = \dfrac{1 - 0.06s}{1 + 0.06s}\) <span class="derive">derive</span> (FPE 5.6.3). At 2 rad/s: \(-2\tan^{-1}0.12 = -13.7^\circ\); exact \(-\omega\tau = -0.24\) rad \(= -13.75^\circ\). Close at low frequency.</p>
+<h4>(c)<span class="mk">[4]</span></h4>
+<p>It adds a pole at −16.7 and a right-half-plane zero at +16.7. Branches bend towards the RHP zero, so the locus crosses the imaginary axis at a lower gain: the delay reduces the gain margin, just as it reduces the phase margin.</p>
+</div></details>
+</section>
+
+</main>
+</div>
+
+<script>
+/* Filtering: each question lists its topics in data-topics. Topic chips, a match mode, single or combined,
+   and A1 or A2 scope (A1 when every topic is from term 3). The choice is remembered on this device. */
+(function(){
+  const TOPICS = [
+    ['specs', 'W1 Specifications', 3], ['pid', 'W2-3 PID and error', 3], ['freq', 'W4 Frequency response', 3],
+    ['lead', 'W4 Lead', 3], ['lag', 'W5 Lag', 3], ['rl', 'W6 Root locus', 3],
+    ['ss', 'W7 State-space models', 4], ['control', 'W8 Control law', 4], ['est', 'W9 Estimator', 4],
+    ['comp', 'W10 Compensator and integral', 4], ['digital', 'W11 Discrete equivalents', 4], ['hw', 'W12 Hardware and discrete design', 4],
+  ];
+  const label = Object.fromEntries(TOPICS.map(t => [t[0], t[1]]));
+  const term = Object.fromEntries(TOPICS.map(t => [t[0], t[2]]));
+  const qs = [...document.querySelectorAll('section.bq')];
+  const chips = document.getElementById('chips'), toc = document.getElementById('toc');
+  const modeEl = document.getElementById('mode'), kindEl = document.getElementById('kind'), scopeEl = document.getElementById('scope');
+  const KEY = 'notes-bank-cs354';
+
+  qs.forEach(q => {
+    const t = q.dataset.topics.split(' ');
+    q.dataset.scope = t.every(x => term[x] === 3) ? 'A1' : 'A2';
+    q.dataset.kind = t.length > 1 ? 'combined' : 'single';
+    const tags = document.createElement('div'); tags.className = 'qtags';
+    t.forEach(x => { const s = document.createElement('span'); s.textContent = label[x]; tags.append(s); });
+    const sc = document.createElement('span'); sc.className = 'scope'; sc.textContent = q.dataset.scope; tags.append(sc);
+    q.querySelector('h2').after(tags);
+    const li = document.createElement('li'), a = document.createElement('a');
+    a.href = '#' + q.id; a.textContent = q.querySelector('h2 .n').textContent + '. ' + q.querySelector('h2').childNodes[1].textContent.trim();
+    li.append(a); toc.append(li);
+  });
+  TOPICS.forEach(([k, name]) => {
+    const l = document.createElement('label'); l.className = 'tchip';
+    const i = document.createElement('input'); i.type = 'checkbox'; i.value = k;
+    const s = document.createElement('span'); s.textContent = name;
+    l.append(i, s); chips.append(l);
+  });
+
+  function apply(){
+    const picked = [...chips.querySelectorAll('input:checked')].map(i => i.value);
+    const mode = modeEl.value, kind = kindEl.value, scope = scopeEl.value;
+    let shown = 0;
+    qs.forEach(q => {
+      const t = q.dataset.topics.split(' ');
+      let ok = !picked.length
+        || (mode === 'any' && t.some(x => picked.includes(x)))
+        || (mode === 'all' && picked.every(x => t.includes(x)))
+        || (mode === 'only' && t.every(x => picked.includes(x)));
+      if (kind !== 'all' && q.dataset.kind !== kind) ok = false;
+      if (scope !== 'all' && q.dataset.scope !== scope) ok = false;
+      q.hidden = !ok;
+      toc.querySelector('a[href="#' + q.id + '"]').parentNode.hidden = !ok;
+      if (ok) shown++;
+    });
+    document.getElementById('count').textContent = shown + ' of ' + qs.length + ' questions';
+    document.getElementById('empty').hidden = shown > 0;
+    try{ localStorage.setItem(KEY, JSON.stringify({picked, mode, kind, scope})); }catch(e){}
+  }
+  try{
+    const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (s){
+      chips.querySelectorAll('input').forEach(i => { i.checked = (s.picked || []).includes(i.value); });
+      if (s.mode) modeEl.value = s.mode; if (s.kind) kindEl.value = s.kind; if (s.scope) scopeEl.value = s.scope;
+    }
+  }catch(e){}
+  document.getElementById('filter').addEventListener('change', apply);
+  document.getElementById('clear').onclick = () => {
+    chips.querySelectorAll('input').forEach(i => { i.checked = false; });
+    modeEl.value = 'any'; kindEl.value = 'all'; scopeEl.value = 'all'; apply();
+  };
+  apply();
+})();
+</script>
+<script src="../../assets/ask-gemini.js" data-store="cs354-bank" data-course="CS354 Control Systems"
+        data-topic="Exam question bank across the whole module: specifications, PID, frequency response, lead and lag, root locus, state-space models, control law, estimators, compensators and integral control, discrete equivalents, hardware and discrete design"></script>
+</body>
+</html>

@@ -85,13 +85,22 @@ window.NOTES_MANIFEST = {
      "title": "Mock A1: Term 3 (weeks 1 to 6)",
      "scope": "A1",
      "marks": 80,
+     "questions": null,
      "href": "CS354-Control-Systems/exam-prep/CS354_Mock_A1_Term3.html"
     },
     {
      "title": "Mock A2: the whole module",
      "scope": "A2",
      "marks": 100,
+     "questions": null,
      "href": "CS354-Control-Systems/exam-prep/CS354_Mock_A2_Final.html"
+    },
+    {
+     "title": "Mock questions by topic",
+     "scope": "Bank",
+     "marks": null,
+     "questions": 23,
+     "href": "CS354-Control-Systems/exam-prep/CS354_Question_Bank.html"
     }
    ],
    "papers": [

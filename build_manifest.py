@@ -139,6 +139,7 @@ def _exams(folder):
             "title": _page_title(full),
             "scope": _meta(full, "exam-scope"),
             "marks": int(marks) if marks.isdigit() else None,
+            "questions": int(_meta(full, "exam-questions") or 0) or None,
             "href": _url(folder, EXAM_DIR, name),
         })
     return out

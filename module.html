@@ -111,7 +111,7 @@
   if ((mod.exams || []).length){
     group('Exam questions', 'exams', list(mod.exams.map(x => {
       const a = el('a', 'row'); a.href = url(x.href);
-      a.append(el('span', 'w', x.scope || ''), el('span', 't', x.title), el('span', 'm', x.marks ? x.marks + ' marks' : ''));
+      a.append(el('span', 'w', x.scope || ''), el('span', 't', x.title), el('span', 'm', x.marks ? x.marks + ' marks' : x.questions ? x.questions + ' questions' : ''));
       a.dataset.find = (x.title + ' ' + (x.scope || '') + ' exam questions mock memo').toLowerCase();
       return a;
     })));
