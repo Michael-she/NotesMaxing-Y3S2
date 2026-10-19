@@ -356,7 +356,7 @@
 <p>Turned around, each specification marks out a region of the s-plane where the closed-loop poles must lie (FPE Figure 3.25):</p>
 <ul>
 <li><strong>Rise time</strong> sets a minimum \(\omega_n \ge 1.8/t_r\): poles outside a circle. In design, change rise time through the natural frequency.</li>
-<li><strong>Overshoot</strong> sets a minimum \(\zeta\): poles inside a wedge of half-angle \(\theta = \sin^{-1}\zeta\) about the negative real axis. Change overshoot through the damping.</li>
+<li><strong>Overshoot</strong> sets a minimum \(\zeta\): poles inside a wedge of half-angle \(\cos^{-1}\zeta\) about the negative real axis, that is at least \(\theta = \sin^{-1}\zeta\) away from the imaginary axis. Change overshoot through the damping.</li>
 <li><strong>Settling time</strong> sets a minimum \(\sigma \ge 4/t_s\): poles to the left of a vertical line. Change the transient decay through the real part of the poles.</li>
 </ul>
 <div class="ex"><div class="hd">Worked example 6.2 <span>Requirements as an s-plane region</span></div><div class="bd">
@@ -364,7 +364,7 @@
 <div class="step"><i>1</i><div>Rise time: \(\omega_n \ge 1.8/0.6 = 3\) rad/s.</div></div>
 <div class="step"><i>2</i><div>Overshoot: solve \(\ln 0.1 = -\pi\zeta/\sqrt{1-\zeta^2}\) for \(\zeta\): \(\zeta = \dfrac{-\ln M_p}{\sqrt{\pi^2 + (\ln M_p)^2}} = 0.591\), so \(\theta = \sin^{-1}\zeta = 36.2^\circ\).</div></div>
 <div class="step"><i>3</i><div>Settling time: \(\sigma \ge 4/3 = 1.33\) s⁻¹.</div></div>
-<div class="ans">Poles must lie outside the circle \(|s| = 3\), inside the ±36.2° wedge and left of \(\mathrm{Re}(s) = -1.33\) (Figure 6.2).</div>
+<div class="ans">Poles must lie outside the circle \(|s| = 3\), inside the wedge within ±53.8° of the negative real axis (at least 36.2° from the imaginary axis) and left of \(\mathrm{Re}(s) = -1.33\) (Figure 6.2).</div>
 </div></div>
 <figure id="fig62">
 <svg viewBox="0 0 400 410" class="fig small" role="img" aria-label="Allowed s-plane region for given requirements, with a test pole pair to drag"></svg>
