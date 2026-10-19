@@ -32,7 +32,8 @@ assets/site.css       the ONLY stylesheet; every page's look comes from it
 assets/site.js        theme, side menu, formula annotations, figure toggles, MathJax settings
 assets/ask-gemini.js  the chat panel
 NOTES_GUIDE.md        the full spec for writing a notes page (hand it to a model with the slides)
-<Module folder>/      notes pages, either directly or in week folders; papers/ holds past papers
+<Module folder>/      notes pages, either directly or in week folders; papers/ holds past papers;
+                      exam-prep/ holds practice exam papers with memos (listed as "Exam questions")
 ```
 
 Modules (from `modules.json`):
@@ -98,6 +99,16 @@ Use `../../` paths at that depth, then run `python build_manifest.py`.
   Interactive figures use `.fig-ctl` sliders, a `.fig-read` readout and `<circle class="hit">` drag
   handles. NOTES_GUIDE.md section A9 has templates for all three. CS354 Week 1, Figures 5.1 to 6.2, is
   a worked example of interactive figures.
+
+### Add an exam paper
+
+Practice exam papers live in `<Module folder>/exam-prep/`, one HTML page per paper, laid out like a notes
+page. Give the page `<meta name="exam-scope" content="A1">` (or A2) and
+`<meta name="exam-marks" content="80">`; the module page lists it under "Exam questions". Each
+question is a `<section>` with its marks in `<span class="mk">[26]</span>` inside the `<h2>`, each part
+a `<div class="qp"><b>(a)</b><div>…</div><span class="mk">[6]</span></div>`, and the worked answer
+in `<details class="memo">` after the question. Mark formulas that are not on the module's formula
+sheet with `<span class="derive">derive</span>`. Verify every number by calculation before adding it.
 
 ### Add a module
 

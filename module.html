@@ -108,6 +108,14 @@
   }
   group('Notes', 'notes', mod.notes.length ? list(mod.notes.map(noteRow))
     : none('No notes yet. Add an .html file to', mod.folder + '/'));
+  if ((mod.exams || []).length){
+    group('Exam questions', 'exams', list(mod.exams.map(x => {
+      const a = el('a', 'row'); a.href = url(x.href);
+      a.append(el('span', 'w', x.scope || ''), el('span', 't', x.title), el('span', 'm', x.marks ? x.marks + ' marks' : ''));
+      a.dataset.find = (x.title + ' ' + (x.scope || '') + ' exam questions mock memo').toLowerCase();
+      return a;
+    })));
+  }
   group('Past papers', 'papers', mod.papers.length ? list(mod.papers.map(paperRow))
     : none('No past papers yet. Add PDFs to', mod.folder + '/papers/'));
   {

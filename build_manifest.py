@@ -13,6 +13,8 @@ What counts as what, inside each module folder listed in modules.json:
     notes   every .html file, except index.html and anything in a folder whose
             name starts with "_" or "."
     papers  every non-empty .pdf inside the module's papers/ folder
+    exams   every .html file inside the module's exam-prep/ folder: practice exam papers with memos.
+            A page can carry <meta name="exam-scope" content="A1"> and <meta name="exam-marks" content="80">.
 The week number is read from the path ("Week12-...", "week3.html"), the title
 from the page's <h1> (falling back to <title>), and a first-level subfolder
 that is not a week folder ("theory", "programming") becomes a track.
@@ -28,6 +30,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 MODULES_PATH = os.path.join(HERE, "modules.json")
 MANIFEST_PATH = os.path.join(HERE, "manifest.js")
 PAPERS_DIR = "papers"
+EXAM_DIR = "exam-prep"
 
 WEEK_RE = re.compile(r"week[\s_-]*0*(\d+)", re.I)
 YEAR_RE = re.compile(r"(?<!\d)((?:19|20)\d{2})(?!\d)")
@@ -66,7 +69,7 @@ def _notes(folder):
     out = []
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = sorted(d for d in dirnames
-                             if not d.startswith(("_", ".")) and d.lower() != PAPERS_DIR)
+                             if not d.startswith(("_", ".")) and d.lower() not in (PAPERS_DIR, EXAM_DIR))
         for name in sorted(filenames):
             if not name.lower().endswith((".html", ".htm")) or name.lower().startswith("index."):
                 continue
@@ -112,11 +115,40 @@ def _papers(folder):
     return out
 
 
+def _meta(path, name):
+    try:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            head = fh.read(20_000)
+    except OSError:
+        return ""
+    m = re.search(r'<meta\s+name="%s"\s+content="([^"]*)"' % re.escape(name), head, re.I)
+    return _clean(m.group(1)) if m else ""
+
+
+def _exams(folder):
+    root = os.path.join(HERE, folder, EXAM_DIR)
+    out = []
+    if not os.path.isdir(root):
+        return out
+    for name in sorted(os.listdir(root)):
+        full = os.path.join(root, name)
+        if not name.lower().endswith((".html", ".htm")) or name.lower().startswith("index."):
+            continue
+        marks = _meta(full, "exam-marks")
+        out.append({
+            "title": _page_title(full),
+            "scope": _meta(full, "exam-scope"),
+            "marks": int(marks) if marks.isdigit() else None,
+            "href": _url(folder, EXAM_DIR, name),
+        })
+    return out
+
+
 def build():
     with open(MODULES_PATH, encoding="utf-8") as fh:
         modules = json.load(fh)
     return {"modules": [
-        {**mod, "notes": _notes(mod["folder"]), "papers": _papers(mod["folder"])}
+        {**mod, "notes": _notes(mod["folder"]), "exams": _exams(mod["folder"]), "papers": _papers(mod["folder"])}
         for mod in modules
     ]}
 
@@ -131,7 +163,7 @@ def main():
     with open(MANIFEST_PATH, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(render(manifest))
     for mod in manifest["modules"]:
-        print(f"  {mod['folder']}: {len(mod['notes'])} note(s), {len(mod['papers'])} paper(s)")
+        print(f"  {mod['folder']}: {len(mod['notes'])} note(s), {len(mod['papers'])} paper(s), {len(mod['exams'])} exam paper(s)")
     print(f"Wrote {os.path.relpath(MANIFEST_PATH, HERE)}")
 
 

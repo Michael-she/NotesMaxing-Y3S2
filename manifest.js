@@ -80,6 +80,20 @@ window.NOTES_MANIFEST = {
      "href": "CS354-Control-Systems/Week12-Hardware-Sample-Rate/Week12_Hardware_Sample_Rate_Notes.html"
     }
    ],
+   "exams": [
+    {
+     "title": "Mock A1: Term 3 (weeks 1 to 6)",
+     "scope": "A1",
+     "marks": 80,
+     "href": "CS354-Control-Systems/exam-prep/CS354_Mock_A1_Term3.html"
+    },
+    {
+     "title": "Mock A2: the whole module",
+     "scope": "A2",
+     "marks": 100,
+     "href": "CS354-Control-Systems/exam-prep/CS354_Mock_A2_Final.html"
+    }
+   ],
    "papers": [
     {
      "file": "CS354_2026_A1.pdf",
@@ -103,6 +117,7 @@ window.NOTES_MANIFEST = {
    "code": "",
    "name": "Vibration and Noise",
    "notes": [],
+   "exams": [],
    "papers": []
   },
   {
@@ -148,6 +163,7 @@ window.NOTES_MANIFEST = {
      "href": "DA344-Data-Analytics/Week6_Rule_Based_Knowledge_Discovery.html"
     }
    ],
+   "exams": [],
    "papers": [
     {
      "file": "DA344_2023_A1.pdf",
@@ -260,6 +276,7 @@ window.NOTES_MANIFEST = {
      "href": "CS245-Computer-Systems/theory/week5.html"
     }
    ],
+   "exams": [],
    "papers": [
     {
      "file": "CS245_A1_2025_Practice_Paper.pdf",
@@ -295,6 +312,7 @@ window.NOTES_MANIFEST = {
      "href": "Electronics/Week10_Tutorial_Solutions_Tut9_Tut10.html"
     }
    ],
+   "exams": [],
    "papers": []
   }
  ]
