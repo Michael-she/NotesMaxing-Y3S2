@@ -61,6 +61,11 @@
   }
   if (!window.marked) loadScript('https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js');
   if (!window.DOMPurify) loadScript('https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js');
+  // The token ledger (who used how many tokens, and the beers owed) lives next to this file.
+  const ledgerReady = window.notesLedger ? Promise.resolve() : new Promise(done => {
+    const s = document.createElement('script'); s.src = new URL('ledger.js', me.src).href;
+    s.onload = s.onerror = done; document.head.append(s);
+  });
 
   const $ = s => document.querySelector(s);
   const chat = $('#chat'), askBtn = $('#askBtn'), msgsEl = $('#msgs'), ctxEl = $('#ctx'),
@@ -250,15 +255,27 @@
   try{ tally = Object.assign(tally, JSON.parse(localStorage.getItem(TOKENS) || '{}')); }catch(e){}
   function showTokens(){
     const n = v => Number(v || 0).toLocaleString();
-    tokensEl.hidden = !(tally.in + tally.out);
-    tokensEl.textContent = 'Tokens · last reply ' + n(tally.lastIn) + ' in, ' + n(tally.lastOut) + ' out · this chat ' + n(tally.in + tally.out);
+    const L = window.notesLedger, mine = L && L.name() ? L.mine() : null;
+    tokensEl.hidden = !(tally.in + tally.out) && !(mine && mine.tokens);
+    tokensEl.textContent = (tally.in + tally.out)
+      ? 'Tokens · last reply ' + n(tally.lastIn) + ' in, ' + n(tally.lastOut) + ' out · this chat ' + n(tally.in + tally.out) : '';
     tokensEl.title = 'This chat: ' + n(tally.in) + ' tokens read, ' + n(tally.out) + ' written';
+    if (mine && mine.tokens){
+      // This device's running total for the current name, in tokens and beers (750 000 tokens a beer).
+      const line = document.createElement('div');
+      const who = document.createElement('button'); who.type = 'button'; who.className = 'who'; who.textContent = mine.name;
+      who.title = 'Change the name your tokens are counted under'; who.onclick = () => L.ask();
+      line.append(who, document.createTextNode(': ' + n(mine.tokens) + ' tokens on this device · ' + L.fmtBeers(mine.tokens) + ' owed'));
+      tokensEl.append(line);
+    }
   }
+  ledgerReady.then(() => { if (window.notesLedger){ notesLedger.onChange(showTokens); showTokens(); } });
   function countTokens(u){
     if (!u) return;
     tally.lastIn = u.promptTokenCount || 0;
     tally.lastOut = (u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0);
     tally.in += tally.lastIn; tally.out += tally.lastOut;
+    if (window.notesLedger) notesLedger.add(u);
     try{ localStorage.setItem(TOKENS, JSON.stringify(tally)); }catch(e){}
     showTokens();
   }
@@ -309,6 +326,11 @@
     const text = qEl.value.trim();
     if (!text && !attached.length) return;
     if (serverOK === false){ await checkServer(); if (serverOK === false) return; }
+    // Every request is counted under a name, asked once per device. No name, no request.
+    await ledgerReady;
+    const user = window.notesLedger ? await notesLedger.ensureName() : '';
+    if (window.notesLedger && !user){ qEl.focus(); return; }
+    if (busy) return;
     history.push({role:'user', text: text || 'Explain this.', quotes: attached.slice()});
     attached = []; renderChips(); qEl.value = ''; autosize();
     { const ub = bubble(history[history.length-1]); msgsEl.append(ub); typeset(ub); }
@@ -320,7 +342,7 @@
     busy = true; sendBtn.disabled = true;
     try{
       const r = await fetch('api/chat', {method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({system: buildSystem(), contents: toContents()})});
+        body: JSON.stringify({system: buildSystem(), contents: toContents(), user})});
       if (!r.ok){
         let msg = 'Request failed (' + r.status + ').';
         try{ msg = (await r.json()).error || msg; }catch(e){}

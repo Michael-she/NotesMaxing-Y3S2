@@ -139,6 +139,14 @@ Type filter then lists it under "sketching".
 - **Difficulty:** the levels are Fundamental, Basic, Exam and Final boss. Exam is the default.
 - **Topic:** optional. When none is given, the model chooses one.
 
+### Token ledger
+
+`assets/ledger.js` counts the tokens each person uses through the chat panel and the problem generator,
+at 750 000 tokens a beer. The first request from a device asks for a name (remembered in
+`localStorage` as `notes-user-name`); every request to `api/chat` then carries it as `user`. The page
+shows that device's own total; the shared totals are to be stored server-side. Keep the `user` field
+in both callers, and never forward it to Gemini.
+
 ### Chat API
 
 Don't put the API key, or any other secret, in a file that is committed. `.env` holds it locally and

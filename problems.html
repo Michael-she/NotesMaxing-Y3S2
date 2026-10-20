@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
 <link rel="stylesheet" href="assets/site.css">
 <script src="assets/site.js"></script>
+<script src="assets/ledger.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
@@ -405,6 +406,8 @@
 
   async function generate(){
     if (busy) return;
+    const user = await notesLedger.ensureName();   // tokens are counted under a name, asked once per device
+    if (!user || busy) return;
     const request = topicEl.value.trim();
     busy = true; goBtn.disabled = true; status('');
     out.hidden = true; progEl.classList.remove('err'); stage('read', 3);
@@ -412,7 +415,7 @@
     try{
       const {parts, sources, weeks} = await buildParts(request);
       live.sources = sources; live.weeks = weeks;
-      const body = JSON.stringify({system: systemPrompt(), temperature: 1, contents: [{role: 'user', parts}]});
+      const body = JSON.stringify({system: systemPrompt(), temperature: 1, contents: [{role: 'user', parts}], user});
       if (body.length > MAX_BODY) throw new Error('The attachments come to ' + (body.length * 0.75 / 1048576).toFixed(1) + ' MB. The limit is about 3 MB per problem, so untick a paper or attach a smaller file.');
       stage('send', 10);
       const r = await fetch('api/chat', {method: 'POST', headers: {'Content-Type': 'application/json'}, body});
@@ -452,6 +455,7 @@
       }
       Object.assign(live, split(text));
       if (usage) live.tokens = {in: usage.promptTokenCount || 0, out: (usage.candidatesTokenCount || 0) + (usage.thoughtsTokenCount || 0)};
+      notesLedger.add(usage);
       if (streamErr) throw new Error(streamErr);
       if (blocked) throw new Error('The Lovely Lady blocked the request: ' + blocked + '.');
       if (!live.problem) throw new Error('No problem came back. Try again.');
@@ -467,7 +471,9 @@
       await Promise.all([typeset($('#pBody')), typeset(solEl)]);
       setBar(100); progressEnd();
       out.scrollIntoView({block: 'start'});
-      const used = live.tokens ? ' Used ' + live.tokens.in.toLocaleString() + ' tokens in, ' + live.tokens.out.toLocaleString() + ' out.' : '';
+      const me = notesLedger.mine();
+      const used = (live.tokens ? ' Used ' + live.tokens.in.toLocaleString() + ' tokens in, ' + live.tokens.out.toLocaleString() + ' out.' : '')
+        + (me.tokens ? ' ' + me.name + ': ' + me.tokens.toLocaleString() + ' tokens on this device, ' + notesLedger.fmtBeers(me.tokens) + ' owed.' : '');
       status(stored ? 'Saved.' + used : 'Generated, but this browser has no room left to save it. Export and delete some old problems.', !stored);
     }catch(err){
       const msg = String(err.message || err);
