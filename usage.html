@@ -17,35 +17,21 @@
 <header class="top">
   <a class="home" href="index.html">&larr; Modules</a>
   <h1>Your usage</h1>
-  <p>What The Lovely Lady has cost you, in the chat and the problem generator: one beer per 750 000 tokens. Only your own usage is shown here.</p>
 </header>
 <p class="bank-count" id="status" aria-live="polite">Loading…</p>
 
 <section id="mine" hidden>
 <div class="tbl"><table>
-  <thead><tr><th>Beers owed (tokens)</th><th>AI requests</th><th>Page opens</th><th>Last seen</th></tr></thead>
+  <thead><tr><th>Beers</th><th>Tokens</th><th>Messages</th></tr></thead>
   <tbody id="rows"></tbody>
 </table></div>
 </section>
 
-<section id="days" hidden>
-<h2>Last 30 days</h2>
-<figure><svg viewBox="0 0 640 200" class="fig" role="img" aria-label="Your beers used per day over the last 30 days" id="chart"></svg>
-<figcaption>Your beers used per day.</figcaption></figure>
-</section>
-
-<section id="recentSec" hidden>
-<h2>Your recent requests</h2>
-<div class="tbl"><table>
-  <thead><tr><th>When</th><th>Cost</th></tr></thead>
-  <tbody id="recent"></tbody>
-</table></div>
-</section>
 <section id="allSec" hidden>
 <h2>Everyone</h2>
 <p class="bank-count" id="allStatus"></p>
 <div class="tbl"><table>
-  <thead><tr><th>Person</th><th>Beers owed (tokens)</th><th>AI requests</th><th>Page opens</th><th>Last seen</th></tr></thead>
+  <thead><tr><th>Person</th><th>Beers owed (tokens)</th><th>Messages</th><th>Page opens</th><th>Last seen</th></tr></thead>
   <tbody id="allRows"></tbody>
 </table></div>
 <h3>Recent requests, everyone</h3>
@@ -54,7 +40,6 @@
   <tbody id="allRecent"></tbody>
 </table></div>
 </section>
-<p id="me"></p>
 </main>
 </div>
 <script>
@@ -67,36 +52,16 @@
   const row = (tb, cells) => { const tr = document.createElement('tr'); cells.forEach(c => { const td = document.createElement('td'); td.textContent = c; tr.append(td); }); tb.append(tr); };
   let name = '';
   try{ name = localStorage.getItem('notes-user-name') || ''; }catch(e){}
-  if (!name){ $('status').textContent = 'This device has no name yet. Reload the page and enter your name to see your usage.'; return; }
+  if (!name){ $('status').textContent = 'Reload the page and enter your name to see your usage.'; return; }
   try{
     const r = await fetch('api/ledger?user=' + encodeURIComponent(name), {cache: 'no-store'});
     const d = await r.json();
     if (d.error) throw new Error(d.error);
     const p = d.person;
-    $('status').textContent = p.name + ' · ' + fmt(p.tokens) + ' owed';
-    row($('rows'), [fmt(p.tokens), String(p.requests), String(p.opens), when(p.last)]);
+    // Everyone sees only their own totals: beers, tokens and messages.
+    $('status').textContent = p.name;
+    row($('rows'), [beerText(p.tokens), Math.round(p.tokens).toLocaleString(), String(p.requests)]);
     $('mine').hidden = false;
-    for (const e of d.recent || []) row($('recent'), [when(e.timestamp), fmt(e.tokens)]);
-    $('recentSec').hidden = !(d.recent || []).length;
-
-    // Beers per day: one bar per day, drawn from the data.
-    const days = d.daily || [], svg = $('chart');
-    const max = Math.max(...days.map(x => x.tokens), 1) / PER;
-    const nice = [0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50].find(v => v >= max) || Math.ceil(max);
-    const L = 58, R = 12, T = 14, B = 30, W = 640 - L - R, H = 200 - T - B, bw = W / Math.max(days.length, 1);
-    let h = '';
-    for (const f of [0, 0.5, 1]){
-      const y = T + H - f * H;
-      h += `<line class="grid" x1="${L}" y1="${y}" x2="${L + W}" y2="${y}"/><text class="tk" x="${L - 6}" y="${y + 4}" text-anchor="end">${+(f * nice).toFixed(3)}</text>`;
-    }
-    days.forEach((x, i) => {
-      const bh = (x.tokens / PER) / nice * H, xx = L + i * bw + 1.5;
-      if (bh > 0) h += `<rect class="c1f" x="${xx.toFixed(1)}" y="${(T + H - bh).toFixed(1)}" width="${(bw - 3).toFixed(1)}" height="${bh.toFixed(1)}"><title>${x.day}: ${fmt(x.tokens)}</title></rect>`;
-      if (i % 5 === 0 || i === days.length - 1) h += `<text class="tk" x="${(xx + bw / 2).toFixed(1)}" y="${T + H + 16}" text-anchor="middle">${x.day.slice(5)}</text>`;
-    });
-    h += `<text class="tk" x="12" y="${T + H / 2}" text-anchor="middle" transform="rotate(-90 12 ${T + H / 2})">beers</text>`;
-    svg.innerHTML = h;
-    $('days').hidden = !p.tokens;
 
     // Only the admin's name gets everyone's usage back from the server.
     if (d.everyone){
@@ -110,7 +75,6 @@
   }catch(e){
     $('status').textContent = 'Your usage could not be loaded: ' + (e.message || e);
   }
-  $('me').textContent = 'This device is counted as ' + name + '. To change that, click your name under the chat panel.';
 })();
 </script>
 </body>

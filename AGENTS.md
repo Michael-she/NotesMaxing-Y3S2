@@ -142,8 +142,7 @@ Type filter then lists it under "sketching".
 ### Usage ledger
 
 The site records who uses it and what the AI costs them, at 750 000 tokens a beer. `usage.html`
-shows the reader their own usage only: beers owed (tokens in brackets), AI requests, page opens and
-the last 30 days. `api/ledger?user=<name>` returns one person's figures. Only for the admin name (`LEDGER_ADMIN`,
+shows the reader only their own beer, token and message totals, nothing else. `api/ledger?user=<name>` returns one person's figures. Only for the admin name (`LEDGER_ADMIN`,
 default "Michael Shepstone", compared without case or punctuation) does it also return everyone's,
 which `usage.html` shows in an "Everyone" section. The full ledger is also on amavadata.
 
