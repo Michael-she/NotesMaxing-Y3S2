@@ -79,11 +79,15 @@ def ledger_open(env, name):
     _ledger_post(env, ledger_alias(name, "opens_"), 1)
 
 
-def ledger_totals(env):
-    url = _ledger_url(env)
-    if not url:
-        raise RuntimeError("The ledger is not connected yet (AMAVA_BASE and AMAVA_GATEWAY are not set).")
-    with urllib.request.urlopen(url, timeout=10) as r:
+def ledger_is_admin(env, name):
+    """The one name allowed to see everyone's usage (LEDGER_ADMIN, default Michael Shepstone)."""
+    a, b = ledger_alias(name), ledger_alias(env.get("LEDGER_ADMIN") or "Michael Shepstone")
+    return bool(a) and a.lower() == b.lower()
+
+
+def ledger_everyone(env):
+    """Everyone's usage, for the admin only."""
+    with urllib.request.urlopen(_ledger_url(env), timeout=10) as r:
         types = json.loads(r.read() or b"[]")
     people, recent, daily = {}, [], {}
     for t in types if isinstance(types, list) else []:
@@ -112,6 +116,41 @@ def ledger_totals(env):
     today = datetime.datetime.now(datetime.timezone.utc).date()
     days = [(today - datetime.timedelta(days=i)).isoformat() for i in range(29, -1, -1)]
     return {"people": out, "recent": recent[:25], "daily": [{"day": d, "tokens": daily.get(d, 0)} for d in days]}
+
+
+def ledger_usage(env, name):
+    """One person's usage, as api/ledger returns it. Only that person's readings are included."""
+    url = _ledger_url(env)
+    if not url:
+        raise RuntimeError("The usage ledger is not connected yet (AMAVA_BASE and AMAVA_GATEWAY are not set).")
+    t_alias, o_alias = ledger_alias(name), ledger_alias(name, "opens_")
+    if not t_alias:
+        raise RuntimeError("No name given.")
+    with urllib.request.urlopen(url, timeout=10) as r:
+        types = json.loads(r.read() or b"[]")
+    me = {"name": t_alias[7:].replace("_", " "), "tokens": 0, "requests": 0, "opens": 0, "last": ""}
+    recent, daily = [], {}
+    for t in types if isinstance(types, list) else []:
+        alias = t.get("alias") or ""
+        if alias not in (t_alias, o_alias):
+            continue
+        for v in t.get("values") or []:
+            value, ts = float(v.get("value") or 0), str(v.get("timestamp") or "")
+            me["last"] = max(me["last"], ts)
+            if alias == o_alias:
+                me["opens"] += 1
+                continue
+            me["tokens"] += value
+            me["requests"] += 1
+            recent.append({"tokens": value, "timestamp": ts})
+            if ts[:10]:
+                daily[ts[:10]] = daily.get(ts[:10], 0) + value
+    me["beers"] = me["tokens"] / PER_BEER
+    recent.sort(key=lambda e: e["timestamp"], reverse=True)
+    import datetime
+    today = datetime.datetime.now(datetime.timezone.utc).date()
+    days = [(today - datetime.timedelta(days=i)).isoformat() for i in range(29, -1, -1)]
+    return {"person": me, "recent": recent[:25], "daily": [{"day": d, "tokens": daily.get(d, 0)} for d in days]}
 
 
 def usage_tokens(line, last):
@@ -203,8 +242,17 @@ class Handler(SimpleHTTPRequestHandler):
             })
             return
         if path.endswith("/api/ledger"):
+            query = urllib.parse.parse_qs(self.path.split("?", 1)[1] if "?" in self.path else "")
+            user = (query.get("user") or [""])[0][:60]
+            if not user:
+                self._json(400, {"perBeer": PER_BEER, "error": "No name given."})
+                return
             try:
-                self._json(200, {"perBeer": PER_BEER, **ledger_totals(load_env())})
+                env = load_env()
+                out = {"perBeer": PER_BEER, **ledger_usage(env, user)}
+                if ledger_is_admin(env, user):
+                    out["everyone"] = ledger_everyone(env)
+                self._json(200, out)
             except Exception as err:
                 self._json(503, {"perBeer": PER_BEER, "error": str(err)})
             return

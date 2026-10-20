@@ -263,7 +263,7 @@
     tokensEl.textContent = used ? 'This chat ' + amt(used) + ' · last reply ' + amt(tally.lastIn + tally.lastOut) : '';
     tokensEl.title = 'This chat: ' + n(tally.in) + ' tokens read, ' + n(tally.out) + ' written';
     if (!L || !mine.tokens) return;
-    // This device's running total for the current name, with a link to everyone's usage.
+    // This device's running total for the current name, with a link to the usage page.
     const line = document.createElement('div');
     const who = document.createElement('button'); who.type = 'button'; who.className = 'who'; who.textContent = mine.name;
     who.title = 'Change the name your usage is counted under'; who.onclick = () => L.ask();
