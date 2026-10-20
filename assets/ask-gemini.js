@@ -253,23 +253,13 @@
   const TOKENS = STORE + '-tokens', tokensEl = $('#tokens');
   let tally = {in: 0, out: 0, lastIn: 0, lastOut: 0};
   try{ tally = Object.assign(tally, JSON.parse(localStorage.getItem(TOKENS) || '{}')); }catch(e){}
+  // One short line: what this chat has cost so far. The details are in the tooltip.
   function showTokens(){
     const n = v => Number(v || 0).toLocaleString();
-    const L = window.notesLedger;
-    const amt = t => L ? L.fmt(t) : n(t) + ' tokens';   // beers first, tokens in brackets
-    const used = tally.in + tally.out;
-    const mine = L ? L.mine() : {};
-    tokensEl.hidden = !used && !mine.tokens;
-    tokensEl.textContent = used ? 'This chat ' + amt(used) + ' · last reply ' + amt(tally.lastIn + tally.lastOut) : '';
-    tokensEl.title = 'This chat: ' + n(tally.in) + ' tokens read, ' + n(tally.out) + ' written';
-    if (!L || !mine.tokens) return;
-    // This device's running total for the current name, with a link to the usage page.
-    const line = document.createElement('div');
-    const who = document.createElement('button'); who.type = 'button'; who.className = 'who'; who.textContent = mine.name;
-    who.title = 'Change the name your usage is counted under'; who.onclick = () => L.ask();
-    const lg = document.createElement('a'); lg.href = L.usageUrl; lg.textContent = 'usage';
-    line.append(who, document.createTextNode(' ' + L.fmt(mine.tokens) + ' on this device · '), lg);
-    tokensEl.append(line);
+    const L = window.notesLedger, used = tally.in + tally.out;
+    tokensEl.hidden = !used;
+    tokensEl.textContent = used ? 'This chat: ' + (L ? L.beerText(used) : n(used) + ' tokens') : '';
+    tokensEl.title = n(used) + ' tokens in this chat (' + n(tally.in) + ' read, ' + n(tally.out) + ' written)';
   }
   function countTokens(u){
     if (!u) return;
@@ -285,7 +275,7 @@
     try{ localStorage.removeItem(TOKENS); }catch(e){}
     showTokens();
   }
-  showTokens();
+  showTokens(); ledgerReady.then(showTokens);   // in beers once the ledger has loaded
 
   // ---------- server status ----------
   const RUN_HELP = 'The Lovely Lady cannot be reached from here. Reload the page, or if you opened this file straight from disk, use the deployed site instead.';
