@@ -111,6 +111,19 @@ a `<div class="qp"><b>(a)</b><div>…</div><span class="mk">[6]</span></div>`, a
 in `<details class="memo">` after the question. Mark formulas that are not on the module's formula
 sheet with `<span class="derive">derive</span>`. Verify every number by calculation before adding it.
 
+Memos show the full working, laid out the same way everywhere (see the CS354 pages):
+
+- `<p class="plan"><b>Approach.</b> …</p>`: one or two sentences on the method.
+- One `<div class="mp">` per part: `<h4><span class="pt">(a)</span>Title<span class="mk">[6]</span></h4>`,
+  then `<ol class="steps">` with one `<li><div>…</div><span class="mt">2</span></li>` per step. The
+  `mt` number is the marks that step earns; leave it empty for none. The step marks must add up to
+  the part's marks, and the parts to the question's.
+- `<div class="ans">` for the boxed result and `<p class="chk"><b>Check.</b> …</p>` for a check
+  against simulation. A sketch answer goes in a `<figure>` computed from the transfer function.
+
+In the question bank, add `data-sketch` to a question's `<section>` when it asks for a sketch; the
+Type filter then lists it under "sketching".
+
 ### Add a module
 
 1. Add a line to `modules.json`.

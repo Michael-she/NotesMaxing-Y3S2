@@ -99,7 +99,7 @@ window.NOTES_MANIFEST = {
      "title": "Mock questions by topic",
      "scope": "Bank",
      "marks": null,
-     "questions": 23,
+     "questions": 32,
      "href": "CS354-Control-Systems/exam-prep/CS354_Question_Bank.html"
     }
    ],
