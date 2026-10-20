@@ -55,7 +55,7 @@
     if (asking) return asking;
     asking = new Promise(resolve => {
       const d = document.createElement('dialog'); d.className = 'ledger-name';
-      d.innerHTML = '<form method="dialog"><h2>' + (change ? 'Change your name' : 'Who is studying?') + '</h2>'
+      d.innerHTML = '<form method="dialog"><h2>' + (change ? 'Change your name' : 'What is your name?') + '</h2>'
         + (change ? '' : '<p><b>Using The Lovely Lady costs beer.</b> Every answer and every generated problem is paid for in API tokens. <b>Each 750 000 tokens you use is one beer owed.</b> A chat question with the notes attached costs roughly a hundredth of a beer, more as the conversation grows; a problem generated from several weeks of notes and past papers can cost a tenth or more.</p>')
         + '<p>Your page opens and AI usage are recorded under your name on the <a href="' + usageUrl + '" target="_blank" rel="noopener">usage page</a>, which everyone can see.</p>'
         + '<label>Your name<input name="n" autocomplete="name" maxlength="40" placeholder="Your name" required></label>'
