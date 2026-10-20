@@ -314,6 +314,8 @@
     { const ub = bubble(history[history.length-1]); msgsEl.append(ub); typeset(ub); }
     const live = {role:'model', text:''};
     const liveEl = bubble(live); liveEl.querySelector('.body').innerHTML = '<span class="typing"></span>';
+    // Scroll once so the question and the start of the reply are in view. While the answer streams in,
+    // the panel stays where the reader left it: no autoscroll.
     msgsEl.append(liveEl); msgsEl.scrollTop = msgsEl.scrollHeight;
     busy = true; sendBtn.disabled = true;
     try{
@@ -345,7 +347,7 @@
         const now = performance.now();
         if (now - lastPaint > 120){
           liveEl.querySelector('.body').innerHTML = renderMarkdownWithMath(live.text) + '<span class="typing"></span>';
-          msgsEl.scrollTop = msgsEl.scrollHeight; lastPaint = now;
+          lastPaint = now;
         }
       }
       if (streamErr && !live.text) throw new Error(streamErr);
@@ -357,12 +359,12 @@
     }catch(err){
       liveEl.remove();
       const e = {role:'error', text: String(err.message || err)};
-      msgsEl.append(bubble(e));
+      msgsEl.append(bubble(e)); msgsEl.scrollTop = msgsEl.scrollHeight;
       if (/Failed to fetch|NetworkError|Load failed/i.test(e.text)) { serverOK = false; setStatus(RUN_HELP); }
       // let the user retry: put their question back
       const last = history.pop(); qEl.value = last.text; attached = last.quotes || []; renderChips();
     }finally{
-      busy = false; sendBtn.disabled = false; msgsEl.scrollTop = msgsEl.scrollHeight;
+      busy = false; sendBtn.disabled = false;
     }
   }
 

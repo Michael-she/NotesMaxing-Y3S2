@@ -183,7 +183,28 @@
 </figure>
 <p class="fignote"><b>Figure 2.1:</b> Both forms have the same shape and the same phase: a dip between the two breaks that is gone a decade above the zero. The normal form lifts the low-frequency gain by α and leaves the high-frequency gain at K. The unity DC gain form keeps the DC gain at K and cuts the high-frequency gain by α. Which one you use depends on whether the problem is the error (normal) or the phase margin at the present crossover (unity DC gain).</p>
 
-<p>The idea is the same in both: put the zero and pole <strong>well below crossover</strong> (a decade or more), so the compensator changes the gain at low frequency but adds almost no phase lag where the phase margin is measured. It improves the steady-state response without much change to the transient.</p>
+<div class="box"><span class="label">What a lag compensator is for</span>
+<p>Use a lag when the <strong>steady-state error is too large</strong> but the transient (phase margin, crossover) is acceptable, or when the phase margin is too low and a slower loop is acceptable. It works on the gain at low frequency and leaves the region around crossover almost untouched.</p>
+<ul>
+<li><strong>Normal form:</strong> raises the low-frequency gain by α while the gain and phase at crossover hardly change. \(K_p\) or \(K_v\) rises by α, so the steady-state error falls by about the same factor, with the same overshoot and speed.</li>
+<li><strong>Unity DC gain form:</strong> keeps the low-frequency gain (and so the error) and cuts the gain above the pole by α. The magnitude then crosses 0 dB at a lower frequency, where the plant's own phase is less negative, so the phase margin rises.</li>
+<li><strong>The cost:</strong> the lag adds a few degrees of phase lag at crossover, the unity DC gain form lowers the bandwidth (a slower response), and the slow pole-zero pair near the origin leaves a slow tail in the step response.</li>
+</ul>
+<p>A lag is a PI controller whose integrator has been moved off the origin to the pole \(1/(\alpha T)\): it gives high but finite gain at DC instead of infinite gain.</p></div>
+
+<div class="key"><span class="tag">Rule</span><p>Place the lag's zero <strong>one decade below the crossover frequency</strong>: \(1/T = \omega_c/10\), so \(T = 10/\omega_c\). The pole then follows from \(\alpha\): \(1/(\alpha T) = \omega_c/(10\alpha)\).</p></div>
+<p>Why one decade, and not closer or further? The lag's phase dip sits between its pole and zero and dies away above the zero, but not completely. At the crossover it still subtracts \(\tan^{-1}(\omega_cT) - \tan^{-1}(\alpha\omega_cT)\), which depends on where the zero is:</p>
+<div class="tbl"><table><thead><tr><th>Zero at</th><th>\(\omega_cT\)</th><th>Lag at crossover (α = 10)</th><th>Effect</th></tr></thead><tbody>
+<tr><td>Half a decade below \(\omega_c\)</td><td>3.16</td><td>15.7°</td><td>Too much: eats most of the margin the design was meant to give.</td></tr>
+<tr><td><strong>One decade below \(\omega_c\)</strong></td><td><strong>10</strong></td><td><strong>5.1°</strong></td><td>Small and predictable: covered by the 5° allowance in the design procedure.</td></tr>
+<tr><td>Two decades below \(\omega_c\)</td><td>100</td><td>0.5°</td><td>Hardly any lag, but the pole-zero pair is ten times slower.</td></tr>
+</tbody></table></div>
+<p>One decade is where the two costs balance:</p>
+<ul>
+<li><strong>Closer than a decade:</strong> the lag at crossover grows quickly and the phase margin falls short of the requirement.</li>
+<li><strong>Further than a decade:</strong> the phase gain is tiny (at most 5° to recover), but the pole and zero move ten times nearer the origin. The slow closed-loop pole that sits beside the zero then decays with a time constant close to \(T\), so the step response creeps to its final value about ten times more slowly. It also needs a larger \(T\) and \(\alpha T\), which means bigger components or longer time constants to implement.</li>
+</ul>
+<p>At exactly one decade, \(\omega_cT = 10\) and the lag at crossover is \(\tan^{-1}10 - \tan^{-1}(10\alpha)\): 2.8° for α = 2, 5.1° for α = 10 and never more than 5.7° however large α is. That is why the design procedure adds about 5° when it chooses the new crossover. Place the zero exactly one decade below; the 5° allowance assumes it.</p>
 <div class="tbl"><table><thead><tr><th></th><th>Lead compensator</th><th>Lag compensator</th></tr></thead><tbody>
 <tr><td>Approximates</td><td>PD compensation</td><td>PI compensation</td></tr>
 <tr><td>α</td><td>\(\alpha \lt 1\)</td><td>\(\alpha \gt 1\)</td></tr>
@@ -566,7 +587,7 @@
 <details><summary>Problem 1. Write the normal and the unity DC gain lag with zero at 0.2 rad/s, \(\alpha = 8\) and \(K = 3\). Give each one's DC and high-frequency gain.</summary><div class="sol"><p>\(T = 5\) s, \(\alpha T = 40\) s. Normal: \(24\,\dfrac{5s+1}{40s+1}\), DC 24, HF 3. Unity DC: \(3\,\dfrac{5s+1}{40s+1}\), DC 3, HF 0.375.</p></div></details>
 <details><summary>Problem 2. With \(KG\) fixed by the error constant, the required PM is reached at 2 rad/s where \(|KG| = 14\) dB. Design the unity DC gain lag.</summary><div class="sol"><p>\(\alpha = 10^{14/20} = 5.01\). Zero at 0.2 rad/s: \(T = 5\) s. Pole at \(1/(\alpha T) = 0.0399\) rad/s. \(D_c = \dfrac{5s+1}{25.1s+1}\).</p></div></details>
 <details><summary>Problem 3. Tutorial 3, lag part: for \(G = 50/(s(0.2s+1))\) the PM requirement is met at 4.2 rad/s where \(|G| = 19\) dB. Find \(K\) and \(\alpha\) for a ramp error below 0.005.</summary><div class="sol"><p>\(K = 10^{-19/20} = 0.112\). \(K_v(KG) = 50K = 5.61\). Need 200, so \(\alpha = 200/5.61 = 35.7\) (tutorial: 0.11 and 36.4). Zero a decade below 4.2 rad/s: \(T \approx 2.4\) s.</p></div></details>
-<details><summary>Problem 4. Why is the lag zero placed a decade (or more) below crossover?</summary><div class="sol"><p>The compensator's phase lag is concentrated between the pole and zero and has almost gone a decade above the zero; at \(\omega = 10/T\) it is only a few degrees. Placing the zero there keeps the PM nearly unchanged while the low-frequency gain is raised.</p></div></details>
+<details><summary>Problem 4. Why is the lag zero placed one decade below crossover, and not closer or further?</summary><div class="sol"><p>At \(\omega_cT = 10\) the lag left at crossover is \(\tan^{-1}10 - \tan^{-1}(10\alpha)\), between 2.8° and 5.7° for any α: small, and covered by the 5° allowance. Half a decade below, it is 15.7° (α = 10) and the margin falls short. Two decades below, it is only 0.5°, but the pole-zero pair is ten times slower, so the slow tail in the step response lasts about ten times longer and \(T\) is ten times larger.</p></div></details>
 
 </section>
 

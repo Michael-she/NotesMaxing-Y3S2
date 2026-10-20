@@ -662,6 +662,16 @@
 <p>The compensator lets you shape three things: the <strong>crossover frequency</strong> (bandwidth, \(t_r\), \(t_s\)), the <strong>phase margin</strong> (\(\zeta\), \(M_p\)) and, through \(K\), the <strong>low-frequency gain</strong> (\(e_{ss}\)).</p>
 <p class="reading"><b>Reading</b> FPE Ch 6.7.2, Figures 6.52 and 6.53; Lecture 10 slides 9 to 13</p>
 
+<div class="box"><span class="label">What a lead compensator is for</span>
+<p>Use a lead when the loop is <strong>too oscillatory or too slow</strong>: the phase margin at crossover is too small (too much overshoot), or the crossover is too low (too slow a response), while the steady-state error set by \(K\) is already acceptable.</p>
+<ul>
+<li><strong>More phase margin:</strong> the lead adds positive phase over a band centred on \(\omega_{max} = 1/(T_D\sqrt\alpha)\), up to about 60° per stage. Placed at the crossover, that phase goes straight into the phase margin, so the damping rises and the overshoot falls.</li>
+<li><strong>More bandwidth:</strong> its gain rises by \(1/\alpha\) across the same band, which pushes the crossover up. A higher crossover means a wider bandwidth, so a shorter rise and settling time.</li>
+<li><strong>No change at DC:</strong> the low-frequency gain stays at \(K\), so \(K_p\) or \(K_v\), and the steady-state error, are what \(K\) made them.</li>
+<li><strong>The cost:</strong> the high-frequency gain is \(1/\alpha\) times the DC gain, so sensor noise is amplified and the actuator works harder. That is why \(\alpha\) is kept above about 0.1, which caps one stage at about 55° to 60° of lead.</li>
+</ul>
+<p>A lead is a PD controller with its derivative action rolled off by the pole at \(1/(\alpha T_D)\). The lag (week 5) is the mirror image: it changes the low-frequency gain and leaves crossover alone.</p></div>
+
 </section>
 
 <section id="design">
