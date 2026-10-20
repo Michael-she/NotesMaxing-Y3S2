@@ -144,9 +144,10 @@ Type filter then lists it under "sketching".
 The site records who uses it and what the AI costs them, at 750 000 tokens a beer. `usage.html`
 shows everyone's beers owed (tokens in brackets), AI requests, page opens and the last 30 days.
 
-- **Names:** `assets/ledger.js`, loaded by `site.js` on every page, asks a new device for a name the first
-  time any page loads, and says once that using The Lovely Lady costs beer. Both are remembered in
-  `localStorage` (`notes-user-name`, `notes-beer-ok`). Every request to `api/chat` carries the name as
+- **Names:** `assets/ledger.js`, loaded by `site.js` on every page, asks a new device for its name the
+  first time any page loads. The first attempt to send something to The Lovely Lady shows, once, a notice
+  that chatting with her costs beer. Both are remembered in `localStorage` (`notes-user-name`,
+  `notes-beer-ok`). Every request to `api/chat` carries the name as
   `user`; it is never forwarded to Gemini.
 - **Storage:** the amavadata reporting platform (`https://amavadata.com`), one gateway, two aliases per
   person. After each answer, `api/chat.js` posts the tokens used to `tokens_<name>`. Each page open

@@ -1,13 +1,15 @@
 /* The token ledger: how many tokens each person has used through the site's AI (the chat panel and the
    problem generator), and how many beers that comes to, at 750 000 tokens a beer.
 
-   There are no logins. The first time any page loads on a device, a dialog asks for the reader's name
-   and says, once, that using the AI costs beer. Both are remembered on that device. The name is sent
+   There are no logins. The first time any page loads on a device, a dialog asks for the reader's name;
+   the first attempt to send something to the AI says, once, that it costs beer. Both are remembered on
+   that device. The name is sent
    with every AI request (as "user"), and every page open is counted in the background once the page
    has loaded (api/visit), so the shared ledger on amavadata shows who uses the site (api/_ledger.js).
    Amounts are shown in beers first, with the tokens in brackets.
 
-     notesLedger.ensureName()   resolves with the name, showing the notice first if this device needs it
+     notesLedger.ensureName()   before an AI request: resolves with the name (asking for it, and showing
+                                the one-time cost notice, if needed), or '' if the reader cancels
      notesLedger.add(usage)     records a request's Gemini usageMetadata here; returns the tokens it used
      notesLedger.mine()         {name, tokens, requests} for the current name on this device
      notesLedger.fmt(tokens)    "0.06 beers (42,000 tokens)"
@@ -48,17 +50,14 @@
   }
   const fmt = t => beerText(t) + ' (' + Math.round(t).toLocaleString() + ' tokens)';
 
-  // The notice and name prompt, shown once per device before the first request. Cancelling resolves
-  // with '' and nothing is sent.
+  // The name prompt: asked once per device, on the first page load. Cancelling resolves with ''.
   let asking = null;
   function ask(change){
     if (asking) return asking;
     asking = new Promise(resolve => {
       const d = document.createElement('dialog'); d.className = 'ledger-name';
       d.innerHTML = '<form method="dialog"><h2>' + (change ? 'Change your name' : 'What is your name?') + '</h2>'
-        + (change ? '' : '<p><b>Using The Lovely Lady costs beer.</b> Every answer and every generated problem is paid for in API tokens. <b>Each 750 000 tokens you use is one beer owed.</b> A chat question with the notes attached costs roughly a hundredth of a beer, more as the conversation grows; a problem generated from several weeks of notes and past papers can cost a tenth or more.</p>')
-        + '<p>Your page opens and AI usage are recorded under your name on the <a href="' + usageUrl + '" target="_blank" rel="noopener">usage page</a>, which everyone can see.</p>'
-        + '<label>Your name<input name="n" autocomplete="name" maxlength="40" placeholder="Your name" required></label>'
+        + '<input name="n" autocomplete="name" maxlength="40" placeholder="Your name" aria-label="Your name" required>'
         + '<div class="row"><button class="btn" value="cancel" type="button">Cancel</button><button class="btn primary" value="ok">' + (change ? 'Save' : 'Continue') + '</button></div></form>';
       document.body.append(d);
       const input = d.querySelector('input'), f = d.querySelector('form');
@@ -66,16 +65,38 @@
       const done = v => { d.close(); d.remove(); asking = null; resolve(v); };
       d.querySelector('button[value="cancel"]').onclick = () => done('');
       d.addEventListener('cancel', e => { e.preventDefault(); done(''); });
-      f.addEventListener('submit', e => {
-        e.preventDefault(); const v = clean(input.value); if (!v) return;
-        set(OK, '1'); done(setName(v));
-      });
+      f.addEventListener('submit', e => { e.preventDefault(); const v = clean(input.value); if (v) done(setName(v)); });
       input.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); f.requestSubmit(); } });
       d.showModal(); input.focus();
     });
     return asking;
   }
-  async function ensureName(){ return (name() && get(OK)) ? name() : ask(false); }
+
+  // The cost notice: shown once per device, on the first attempt to send something to The Lovely Lady.
+  // Resolves true if the reader goes ahead.
+  let warning = null;
+  function costNotice(){
+    if (get(OK)) return Promise.resolve(true);
+    if (warning) return warning;
+    warning = new Promise(resolve => {
+      const d = document.createElement('dialog'); d.className = 'ledger-name';
+      d.innerHTML = '<form method="dialog"><h2>Chatting with The Lovely Lady costs beer.</h2>'
+        + '<div class="row"><button class="btn" value="cancel" type="button">Cancel</button><button class="btn primary" value="ok">OK</button></div></form>';
+      document.body.append(d);
+      const done = v => { d.close(); d.remove(); warning = null; if (v) set(OK, '1'); resolve(v); };
+      d.querySelector('button[value="cancel"]').onclick = () => done(false);
+      d.addEventListener('cancel', e => { e.preventDefault(); done(false); });
+      d.querySelector('form').addEventListener('submit', e => { e.preventDefault(); done(true); });
+      d.showModal(); d.querySelector('button.primary').focus();
+    });
+    return warning;
+  }
+  // Before any AI request: a name, then (once) the cost notice. Resolves with the name, or '' to stop.
+  async function ensureName(){
+    const n = name() || await ask(false);
+    if (!n) return '';
+    return (await costNotice()) ? n : '';
+  }
 
   // Count this page open under the reader's name. A beacon after the page has loaded and gone idle:
   // it never delays the page, and a failure is ignored.
@@ -93,7 +114,7 @@
   }
   afterLoad(async () => {
     if (location.protocol === 'file:') return;
-    if (!(name() && get(OK))) await ask(false);   // a new device: ask who it is, once
+    if (!name()) await ask(false);   // a new device: ask who it is, once
     countOpen();
   });
 
