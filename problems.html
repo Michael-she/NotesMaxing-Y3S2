@@ -303,7 +303,7 @@
     $('#pTitle').textContent = p.title || 'Writing the problem…';
     const when = p.created ? new Date(p.created).toLocaleDateString(undefined, {day: 'numeric', month: 'short', year: 'numeric'}) : '';
     $('#pMeta').textContent = [when, p.sources && p.sources.length ? 'From ' + p.sources.join(', ') : '', p.request ? 'Asked for: ' + p.request : '',
-      weekTag(p), levelOf(p), p.tokens ? p.tokens.in.toLocaleString() + ' tokens in, ' + p.tokens.out.toLocaleString() + ' out' : ''].filter(Boolean).join(' · ');
+      weekTag(p), levelOf(p), p.tokens ? notesLedger.fmt(p.tokens.in + p.tokens.out) : ''].filter(Boolean).join(' · ');
     $('#pBody').innerHTML = render(p.problem) + (live && !p.solution ? '<span class="typing"></span>' : '');
     solEl.innerHTML = render(p.solution || '');
     showSol.disabled = !p.solution; $('#again').disabled = !!live; $('#del').disabled = !!live;
@@ -472,8 +472,8 @@
       setBar(100); progressEnd();
       out.scrollIntoView({block: 'start'});
       const me = notesLedger.mine();
-      const used = (live.tokens ? ' Used ' + live.tokens.in.toLocaleString() + ' tokens in, ' + live.tokens.out.toLocaleString() + ' out.' : '')
-        + (me.tokens ? ' ' + me.name + ': ' + me.tokens.toLocaleString() + ' tokens on this device, ' + notesLedger.fmtBeers(me.tokens) + ' owed.' : '');
+      const used = (live.tokens ? ' This problem: ' + notesLedger.fmt(live.tokens.in + live.tokens.out) + '.' : '')
+        + (me.tokens ? ' ' + me.name + ' on this device: ' + notesLedger.fmt(me.tokens) + '.' : '');
       status(stored ? 'Saved.' + used : 'Generated, but this browser has no room left to save it. Export and delete some old problems.', !stored);
     }catch(err){
       const msg = String(err.message || err);

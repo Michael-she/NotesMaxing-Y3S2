@@ -44,30 +44,39 @@ DEFAULT_BASE = "https://generativelanguage.googleapis.com/v1beta"
 PER_BEER = 750000   # tokens per beer in the token ledger (see api/_ledger.js, which this mirrors)
 
 
-# ---- token ledger: one amavadata report alias per person, one reading per request ----
+# ---- usage ledger: per person, tokens_<name> (one reading per AI request) and opens_<name> (one per page open) ----
 def _ledger_url(env):
     base = (env.get("AMAVA_BASE") or "").rstrip("/")
     gw = env.get("AMAVA_GATEWAY") or ""
     return f"{base}/api/report/{urllib.parse.quote(gw)}" if base and gw else ""
 
 
-def ledger_alias(name):
+def ledger_alias(name, prefix="tokens_"):
     clean = unicodedata.normalize("NFKD", str(name or ""))
     clean = re.sub(r"[^\w ]", "", clean, flags=re.ASCII).strip()
     clean = re.sub(r"\s+", "_", clean)[:40]
-    return "tokens_" + clean if clean else ""
+    return prefix + clean if clean else ""
 
 
-def ledger_report(env, name, tokens):
-    url, alias = _ledger_url(env), ledger_alias(name)
-    if not url or not alias or not tokens or tokens <= 0:
+def _ledger_post(env, alias, value):
+    url = _ledger_url(env)
+    if not url or not alias:
         return
-    body = json.dumps({"alias": alias, "value": str(round(tokens))}).encode("utf-8")
+    body = json.dumps({"alias": alias, "value": str(value)}).encode("utf-8")
     try:
         urllib.request.urlopen(urllib.request.Request(url, data=body, method="POST",
                                headers={"Content-Type": "application/json"}), timeout=5).close()
     except Exception:
-        pass   # the ledger must never break the chat
+        pass   # the ledger must never break the chat or the page
+
+
+def ledger_report(env, name, tokens):
+    if tokens and tokens > 0:
+        _ledger_post(env, ledger_alias(name), round(tokens))
+
+
+def ledger_open(env, name):
+    _ledger_post(env, ledger_alias(name, "opens_"), 1)
 
 
 def ledger_totals(env):
@@ -76,17 +85,33 @@ def ledger_totals(env):
         raise RuntimeError("The ledger is not connected yet (AMAVA_BASE and AMAVA_GATEWAY are not set).")
     with urllib.request.urlopen(url, timeout=10) as r:
         types = json.loads(r.read() or b"[]")
-    people = []
+    people, recent, daily = {}, [], {}
     for t in types if isinstance(types, list) else []:
         alias = t.get("alias") or ""
-        if not alias.startswith("tokens_"):
+        kind = "tokens" if alias.startswith("tokens_") else "opens" if alias.startswith("opens_") else ""
+        if not kind:
             continue
-        values = t.get("values") or []
-        tokens = sum(float(v.get("value") or 0) for v in values)
-        last = max((v.get("timestamp") or "" for v in values), default="")
-        people.append({"name": alias[7:].replace("_", " "), "tokens": tokens, "requests": len(values),
-                       "beers": tokens / PER_BEER, "last": last})
-    return sorted(people, key=lambda p: -p["tokens"])
+        name = alias[len(kind) + 1:].replace("_", " ")
+        p = people.setdefault(name, {"name": name, "tokens": 0, "requests": 0, "opens": 0, "last": ""})
+        for v in t.get("values") or []:
+            value, ts = float(v.get("value") or 0), str(v.get("timestamp") or "")
+            p["last"] = max(p["last"], ts)
+            if kind == "opens":
+                p["opens"] += 1
+                continue
+            p["tokens"] += value
+            p["requests"] += 1
+            recent.append({"name": name, "tokens": value, "timestamp": ts})
+            if ts[:10]:
+                daily[ts[:10]] = daily.get(ts[:10], 0) + value
+    out = sorted(people.values(), key=lambda p: (-p["tokens"], -p["opens"]))
+    for p in out:
+        p["beers"] = p["tokens"] / PER_BEER
+    recent.sort(key=lambda e: e["timestamp"], reverse=True)
+    import datetime
+    today = datetime.datetime.now(datetime.timezone.utc).date()
+    days = [(today - datetime.timedelta(days=i)).isoformat() for i in range(29, -1, -1)]
+    return {"people": out, "recent": recent[:25], "daily": [{"day": d, "tokens": daily.get(d, 0)} for d in days]}
 
 
 def usage_tokens(line, last):
@@ -179,7 +204,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path.endswith("/api/ledger"):
             try:
-                self._json(200, {"perBeer": PER_BEER, "people": ledger_totals(load_env())})
+                self._json(200, {"perBeer": PER_BEER, **ledger_totals(load_env())})
             except Exception as err:
                 self._json(503, {"perBeer": PER_BEER, "error": str(err)})
             return
@@ -196,6 +221,18 @@ class Handler(SimpleHTTPRequestHandler):
 
     # ---- POST /api/chat -----------------------------------------------
     def do_POST(self):
+        if self.path.split("?", 1)[0].endswith("/api/visit"):   # a page open, sent as a beacon
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                user = str(json.loads(self.rfile.read(length) or b"{}").get("user") or "")[:60]
+            except (ValueError, json.JSONDecodeError, AttributeError):
+                user = ""
+            self.send_response(204)
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            if user:
+                ledger_open(load_env(), user)
+            return
         if not self.path.split("?", 1)[0].endswith("/api/chat"):
             self.send_error(404)
             return

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usage · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js"></script>
+</head>
+<body>
+<div class="wrap solo">
+<main>
+<header class="top">
+  <a class="home" href="index.html">&larr; Modules</a>
+  <h1>Usage</h1>
+  <p>Who uses the site, and what The Lovely Lady has cost them. Tokens from the chat and the problem generator are counted per person: one beer per 750 000 tokens.</p>
+</header>
+<p class="bank-count" id="status" aria-live="polite">Loading…</p>
+
+<section id="people" hidden>
+<h2>Beers owed</h2>
+<div class="tbl"><table>
+  <thead><tr><th>Person</th><th>Beers owed (tokens)</th><th>AI requests</th><th>Page opens</th><th>Last seen</th></tr></thead>
+  <tbody id="rows"></tbody>
+</table></div>
+</section>
+
+<section id="days" hidden>
+<h2>Last 30 days</h2>
+<figure><svg viewBox="0 0 640 200" class="fig" role="img" aria-label="Beers used per day over the last 30 days" id="chart"></svg>
+<figcaption>Beers used per day, all people together.</figcaption></figure>
+</section>
+
+<section id="recentSec" hidden>
+<h2>Recent requests</h2>
+<div class="tbl"><table>
+  <thead><tr><th>When</th><th>Person</th><th>Cost</th></tr></thead>
+  <tbody id="recent"></tbody>
+</table></div>
+</section>
+<p id="me"></p>
+</main>
+</div>
+<script>
+(async function(){
+  const $ = id => document.getElementById(id);
+  const PER = 750000;
+  const beerText = t => { const b = t / PER; const s = b === 0 ? '0' : b < 0.1 ? b.toFixed(3) : b < 10 ? b.toFixed(2) : b.toFixed(1); return s + (s === '1.00' ? ' beer' : ' beers'); };
+  const fmt = t => beerText(t) + ' (' + Math.round(t).toLocaleString() + ' tokens)';
+  const when = ts => ts ? new Date(ts).toLocaleString([], {dateStyle: 'medium', timeStyle: 'short'}) : '';
+  const row = (tb, cells, you) => { const tr = document.createElement('tr'); cells.forEach((c, i) => { const td = document.createElement('td'); td.textContent = c; if (i === 0 && you) td.className = 'you'; tr.append(td); }); tb.append(tr); };
+  const myName = () => { try{ return localStorage.getItem('notes-user-name') || ''; }catch(e){ return ''; } };
+  const norm = n => n.normalize('NFKD').replace(/[^\w ]/g, '').trim().replace(/\s+/g, ' ');   // as the server stores names
+  try{
+    const r = await fetch('api/ledger', {cache: 'no-store'});
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    const people = d.people || [], me = myName();
+    let sum = 0, opens = 0;
+    for (const p of people){
+      sum += p.tokens; opens += p.opens;
+      row($('rows'), [p.name, fmt(p.tokens), String(p.requests), String(p.opens), when(p.last)], p.name === norm(me));
+    }
+    $('people').hidden = !people.length;
+    $('status').textContent = people.length
+      ? people.length + (people.length === 1 ? ' person' : ' people') + ' · ' + fmt(sum) + ' in all · ' + opens.toLocaleString() + ' page opens'
+      : 'Nobody has used the site yet.';
+    for (const e of d.recent || []) row($('recent'), [when(e.timestamp), e.name, fmt(e.tokens)], e.name === norm(me));
+    $('recentSec').hidden = !(d.recent || []).length;
+
+    // Beers per day: one bar per day, drawn from the data.
+    const days = d.daily || [], svg = $('chart');
+    const max = Math.max(...days.map(x => x.tokens), 1) / PER;
+    const nice = [0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50].find(v => v >= max) || Math.ceil(max);
+    const L = 58, R = 12, T = 14, B = 30, W = 640 - L - R, H = 200 - T - B, bw = W / Math.max(days.length, 1);
+    let h = '';
+    for (const f of [0, 0.5, 1]){
+      const y = T + H - f * H;
+      h += `<line class="grid" x1="${L}" y1="${y}" x2="${L + W}" y2="${y}"/><text class="tk" x="${L - 6}" y="${y + 4}" text-anchor="end">${+(f * nice).toFixed(3)}</text>`;
+    }
+    days.forEach((x, i) => {
+      const bh = (x.tokens / PER) / nice * H, xx = L + i * bw + 1.5;
+      if (bh > 0) h += `<rect class="c1f" x="${xx.toFixed(1)}" y="${(T + H - bh).toFixed(1)}" width="${(bw - 3).toFixed(1)}" height="${bh.toFixed(1)}"><title>${x.day}: ${fmt(x.tokens)}</title></rect>`;
+      if (i % 5 === 0 || i === days.length - 1) h += `<text class="tk" x="${(xx + bw / 2).toFixed(1)}" y="${T + H + 16}" text-anchor="middle">${x.day.slice(5)}</text>`;
+    });
+    h += `<text class="tk" x="12" y="${T + H / 2}" text-anchor="middle" transform="rotate(-90 12 ${T + H / 2})">beers</text>`;
+    svg.innerHTML = h;
+    $('days').hidden = !sum;
+  }catch(e){
+    $('status').textContent = 'The usage ledger could not be loaded: ' + (e.message || e);
+  }
+  const n = myName();
+  if (n) $('me').textContent = 'This device is counted as ' + n + '. To change that, click your name under the chat panel.';
+})();
+</script>
+</body>
+</html>

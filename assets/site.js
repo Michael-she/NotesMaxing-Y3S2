@@ -17,8 +17,17 @@
       shows the list only while its checkbox is ticked. Always starts unticked.
    5. Figure line toggles: checkboxes that show or hide families of lines on a figure.
    6. Wide inline maths: an equation inside a sentence that is wider than its column becomes its
-      own scrollable line, so a narrow screen never scrolls sideways. */
+      own scrollable line, so a narrow screen never scrolls sideways.
+   7. Usage ledger: loads ledger.js (next to this file), which asks a new device for a name once and
+      counts page opens in the background after the page has loaded. */
 (function(){
+  // ---------- 7. usage ledger ----------
+  // Loaded async and run after the page loads, so it never delays drawing the page.
+  if (!window.notesLedger && document.currentScript){
+    const lg = document.createElement('script'); lg.async = true;
+    lg.src = new URL('ledger.js', document.currentScript.src).href; document.head.append(lg);
+  }
+
   const store = {
     get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
     set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} },
