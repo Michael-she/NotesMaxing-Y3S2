@@ -64,7 +64,8 @@ These are the owner's decisions. Do not undo them.
    Use the existing tokens (`--genoa`, `--ink`, `--rule`, ...) and SVG classes (`c1`–`c4`, `ln`, `thin`,
    `dash`, `stable`, ...).
 2. **No branding and no top menu bar.** Pages link through their own back links. The only shared
-   control is the light/dark button that `site.js` adds.
+   control is the light/dark button that `site.js` adds. Light is the default, whatever the system
+   setting; dark only when the reader picks it.
 3. **Figure captions are one short sentence.** The longer explanation goes in a `<p class="fignote">`
    directly after the `</figure>`.
 4. **Animations play by default** while on screen. They stop for readers who ask for reduced motion.

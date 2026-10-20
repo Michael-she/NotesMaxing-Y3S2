@@ -49,10 +49,6 @@
   --prog-accent:var(--breaker); --prog-soft:var(--wash);
   --code-bg:var(--bg); --code-border:var(--rule);
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#141A1C; --surface:#1C2427; --mist:#232B2E; --ink:#EDEEEE; --text:#C6CECF; --ink-2:#93A6A9; --rule:#2C373A;
-  --genoa:#1FA3C4; --teal-light:#1595B7; --breaker:#6FB0BA; --wash:#16303A; --amber:#E0A04A; --warnwash:#33291A;
-  --on-teal:#0C1011; --shadow:0 6px 18px rgba(0,0,0,.4); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141A1C; --surface:#1C2427; --mist:#232B2E; --ink:#EDEEEE; --text:#C6CECF; --ink-2:#93A6A9; --rule:#2C373A;
   --genoa:#1FA3C4; --teal-light:#1595B7; --breaker:#6FB0BA; --wash:#16303A; --amber:#E0A04A; --warnwash:#33291A;

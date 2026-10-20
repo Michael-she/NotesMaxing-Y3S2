@@ -4,8 +4,8 @@
      <script src="../assets/site.js"></script>
 
    0. Maths: the MathJax settings every page shares.
-   1. Theme: follows the system setting until the reader picks light or dark with the header
-      button; the choice is remembered. Applied before the page paints, hence the <head> load.
+   1. Theme: light by default, whatever the system setting, until the reader picks dark with the
+      theme button; the choice is remembered. Applied before the page paints, hence the <head> load.
    2. Theme button: a light/dark switch at the top right of the page. There is no site header;
       pages link to each other through their own back links.
    3. Collapsible side menu: "Hide menu" on the page's <nav class="toc"> (or <nav class="rail">) and a floating "Menu" button to bring it back. Remembered across pages.
@@ -38,8 +38,7 @@
   const THEME = 'notes-theme';
   const saved = store.get(THEME);
   if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
-  const isDark = () => (document.documentElement.dataset.theme
-    || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark';
+  const isDark = () => document.documentElement.dataset.theme === 'dark';
 
   const ICON = {
     moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
