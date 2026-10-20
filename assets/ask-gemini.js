@@ -265,7 +265,8 @@
       const line = document.createElement('div');
       const who = document.createElement('button'); who.type = 'button'; who.className = 'who'; who.textContent = mine.name;
       who.title = 'Change the name your tokens are counted under'; who.onclick = () => L.ask();
-      line.append(who, document.createTextNode(': ' + n(mine.tokens) + ' tokens on this device · ' + L.fmtBeers(mine.tokens) + ' owed'));
+      const lg = document.createElement('a'); lg.href = new URL('../ledger.html', me.src).href; lg.textContent = 'ledger';
+      line.append(who, document.createTextNode(': ' + n(mine.tokens) + ' tokens on this device · ' + L.fmtBeers(mine.tokens) + ' owed · '), lg);
       tokensEl.append(line);
     }
   }

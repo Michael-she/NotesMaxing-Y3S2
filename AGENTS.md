@@ -141,11 +141,18 @@ Type filter then lists it under "sketching".
 
 ### Token ledger
 
-`assets/ledger.js` counts the tokens each person uses through the chat panel and the problem generator,
-at 750 000 tokens a beer. The first request from a device asks for a name (remembered in
-`localStorage` as `notes-user-name`); every request to `api/chat` then carries it as `user`. The page
-shows that device's own total; the shared totals are to be stored server-side. Keep the `user` field
-in both callers, and never forward it to Gemini.
+The site counts the tokens each person uses through the chat panel and the problem generator, at
+750 000 tokens a beer, and `ledger.html` lists everyone's totals.
+
+- **Names:** `assets/ledger.js` asks for a name on the first request from a device (stored in
+  `localStorage` as `notes-user-name`). Every request to `api/chat` carries it as `user`; it is never
+  forwarded to Gemini.
+- **Storage:** the amavadata reporting platform. After each answer, `api/chat.js` (and `serve_notes.py`
+  locally) posts the tokens used as one reading, alias `tokens_<name>`, to
+  `{AMAVA_BASE}/api/report/{AMAVA_GATEWAY}`. A person's total is the sum of their readings.
+  `api/ledger` (in `api/_ledger.js`, mirrored in `serve_notes.py`) reads them back.
+- **Setup:** set `AMAVA_BASE` and `AMAVA_GATEWAY` in the Vercel project, or in `.env` locally. Without
+  them nothing is posted and the ledger page says it is not connected. A failed post never breaks the chat.
 
 ### Chat API
 

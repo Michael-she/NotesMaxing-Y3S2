@@ -2,6 +2,7 @@
 // do_POST in serve_notes.py: add the API key (kept in the project's environment variables,
 // never sent to the browser), forward the conversation to Gemini, and stream the answer back.
 export const config = { runtime: 'edge' };
+import { report, usageWatcher } from './_ledger.js';
 
 const DEFAULT_MODEL = 'gemini-2.5-flash';
 const DEFAULT_BASE = 'https://generativelanguage.googleapis.com/v1beta';
@@ -39,6 +40,8 @@ export default async function handler(req) {
     return json(400, { error: 'Bad request body.' });
   }
 
+  // Who sent it, for the token ledger. Not forwarded to Gemini.
+  const user = typeof body.user === 'string' ? body.user.slice(0, 60) : '';
   const payload = {
     contents: Array.isArray(body.contents) ? body.contents : [],
     generationConfig: { temperature: 0.4 },
@@ -72,12 +75,15 @@ export default async function handler(req) {
           try { detail = JSON.parse(detail).error.message; } catch (e) {}
           fail(controller, `The Lovely Lady returned ${upstream.status}: ${detail}`);
         } else {
-          const reader = upstream.body.getReader();
+          const reader = upstream.body.getReader(), usage = usageWatcher();
           for (;;) {
             const { done, value } = await reader.read();
             if (done) break;
             controller.enqueue(value);
+            usage.feed(value);
           }
+          // Record the tokens before closing, so the edge runtime does not stop the function first.
+          await report(user, usage.tokens());
         }
       } catch (e) {
         fail(controller, 'Could not reach The Lovely Lady.');

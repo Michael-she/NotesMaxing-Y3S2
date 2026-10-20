@@ -340,6 +340,8 @@ body.chat-open #askBtn{display:none}
 #chat .status{margin:10px 14px 0;padding:9px 12px;border-radius:8px;font-size:13px;line-height:1.45;background:var(--warnwash);border-left:3px solid var(--amber)}
 #chat .status code{font-size:12px}
 #chat .tokens{padding:6px 14px 0;font-family:var(--f-mono);font-size:11px;color:var(--ink-2);line-height:1.4}
+#chat .tokens a{color:var(--genoa)}
+td.you{font-weight:600;color:var(--genoa)}
 #chat .tokens .who{font:inherit;color:var(--genoa);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 /* the name prompt for the token ledger (assets/ledger.js) */
 dialog.ledger-name{border:1px solid var(--rule);border-radius:var(--r);background:var(--surface);color:var(--text);padding:18px 20px;max-width:min(420px,calc(100vw - 32px));box-shadow:var(--shadow)}

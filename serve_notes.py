@@ -22,9 +22,12 @@ Only standard-library modules are used.
 """
 import json
 import os
+import re
+import unicodedata
 import sys
 import threading
 import urllib.error
+import urllib.parse
 import urllib.request
 import webbrowser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -38,6 +41,63 @@ HOST = "127.0.0.1"   # local machine only, never exposed to the network
 PORT = int(os.environ.get("NOTES_PORT", "8765"))
 DEFAULT_MODEL = "gemini-2.5-flash"
 DEFAULT_BASE = "https://generativelanguage.googleapis.com/v1beta"
+PER_BEER = 750000   # tokens per beer in the token ledger (see api/_ledger.js, which this mirrors)
+
+
+# ---- token ledger: one amavadata report alias per person, one reading per request ----
+def _ledger_url(env):
+    base = (env.get("AMAVA_BASE") or "").rstrip("/")
+    gw = env.get("AMAVA_GATEWAY") or ""
+    return f"{base}/api/report/{urllib.parse.quote(gw)}" if base and gw else ""
+
+
+def ledger_alias(name):
+    clean = unicodedata.normalize("NFKD", str(name or ""))
+    clean = re.sub(r"[^\w ]", "", clean, flags=re.ASCII).strip()
+    clean = re.sub(r"\s+", "_", clean)[:40]
+    return "tokens_" + clean if clean else ""
+
+
+def ledger_report(env, name, tokens):
+    url, alias = _ledger_url(env), ledger_alias(name)
+    if not url or not alias or not tokens or tokens <= 0:
+        return
+    body = json.dumps({"alias": alias, "value": str(round(tokens))}).encode("utf-8")
+    try:
+        urllib.request.urlopen(urllib.request.Request(url, data=body, method="POST",
+                               headers={"Content-Type": "application/json"}), timeout=5).close()
+    except Exception:
+        pass   # the ledger must never break the chat
+
+
+def ledger_totals(env):
+    url = _ledger_url(env)
+    if not url:
+        raise RuntimeError("The ledger is not connected yet (AMAVA_BASE and AMAVA_GATEWAY are not set).")
+    with urllib.request.urlopen(url, timeout=10) as r:
+        types = json.loads(r.read() or b"[]")
+    people = []
+    for t in types if isinstance(types, list) else []:
+        alias = t.get("alias") or ""
+        if not alias.startswith("tokens_"):
+            continue
+        values = t.get("values") or []
+        tokens = sum(float(v.get("value") or 0) for v in values)
+        last = max((v.get("timestamp") or "" for v in values), default="")
+        people.append({"name": alias[7:].replace("_", " "), "tokens": tokens, "requests": len(values),
+                       "beers": tokens / PER_BEER, "last": last})
+    return sorted(people, key=lambda p: -p["tokens"])
+
+
+def usage_tokens(line, last):
+    """Return the token count from an SSE line carrying usageMetadata, else last."""
+    if b"usageMetadata" not in line or not line.startswith(b"data:"):
+        return last
+    try:
+        u = json.loads(line[5:]).get("usageMetadata") or {}
+    except ValueError:
+        return last
+    return u.get("totalTokenCount") or (u.get("promptTokenCount", 0) + u.get("candidatesTokenCount", 0) + u.get("thoughtsTokenCount", 0))
 
 
 def load_env():
@@ -117,6 +177,12 @@ class Handler(SimpleHTTPRequestHandler):
                 "model": env.get("GEMINI_MODEL") or DEFAULT_MODEL,
             })
             return
+        if path.endswith("/api/ledger"):
+            try:
+                self._json(200, {"perBeer": PER_BEER, "people": ledger_totals(load_env())})
+            except Exception as err:
+                self._json(503, {"perBeer": PER_BEER, "error": str(err)})
+            return
         if self._blocked():
             self.send_error(404)
             return
@@ -177,7 +243,9 @@ class Handler(SimpleHTTPRequestHandler):
             self._json(502, {"error": f"Could not reach The Lovely Lady: {err.reason}"})
             return
 
-        # Relay the server-sent events stream to the page as it arrives.
+        # Relay the server-sent events stream to the page as it arrives, noting the final token count.
+        user = req.get("user") if isinstance(req.get("user"), str) else ""
+        tokens = 0
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream; charset=utf-8")
         self.send_header("Cache-Control", "no-store")
@@ -186,11 +254,13 @@ class Handler(SimpleHTTPRequestHandler):
             with resp:
                 for line in resp:
                     self.wfile.write(line)
+                    tokens = usage_tokens(line.strip(), tokens)
                     if line.strip() == b"":
                         self.wfile.flush()
                 self.wfile.flush()
         except (BrokenPipeError, ConnectionResetError):
             pass
+        ledger_report(env, user, tokens)
 
 
 def main():
