@@ -170,6 +170,42 @@ window.NOTES_MANIFEST = {
      "week": 6,
      "track": "",
      "href": "DA344-Data-Analytics/Week6_Rule_Based_Knowledge_Discovery.html"
+    },
+    {
+     "title": "Decision Trees and Information-Based Learning",
+     "week": 7,
+     "track": "",
+     "href": "DA344-Data-Analytics/DA344_Week07_Notes_Decision-Trees.html"
+    },
+    {
+     "title": "Similarity-Based Learning, k-NN and Linear Regression",
+     "week": 8,
+     "track": "",
+     "href": "DA344-Data-Analytics/DA344_Week08_Notes_Similarity-and-Linear-Regression.html"
+    },
+    {
+     "title": "Logistic Regression, Basis Functions and Multiclass Models",
+     "week": 9,
+     "track": "",
+     "href": "DA344-Data-Analytics/DA344_Week09_Notes_Logistic-Regression.html"
+    },
+    {
+     "title": "Neural Networks: Neurons, Feedforward and Backpropagation",
+     "week": 10,
+     "track": "",
+     "href": "DA344-Data-Analytics/DA344_Week10_Notes_Neural-Networks.html"
+    },
+    {
+     "title": "Deep Learning: Regularisation, CNNs and RNNs",
+     "week": 11,
+     "track": "",
+     "href": "DA344-Data-Analytics/DA344_Week11_Notes_Deep-Learning.html"
+    },
+    {
+     "title": "Ensemble Learning: Bagging, Boosting, Gradient Boosting and Stacking",
+     "week": 12,
+     "track": "",
+     "href": "DA344-Data-Analytics/DA344_Week12_Notes_Ensemble-Learning.html"
     }
    ],
    "exams": [],
