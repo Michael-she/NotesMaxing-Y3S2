@@ -31,6 +31,7 @@ api/                  Vercel edge functions for the chat panel and the problem g
 assets/site.css       the ONLY stylesheet; every page's look comes from it
 assets/site.js        theme, side menu, formula annotations, figure toggles, MathJax settings
 assets/ask-gemini.js  the chat panel
+assets/annotate.js    pen and text annotations, their export and import, and Save as PDF
 NOTES_GUIDE.md        the full spec for writing a notes page (hand it to a model with the slides)
 <Module folder>/      notes pages, either directly or in week folders; papers/ holds past papers;
                       exam-prep/ holds practice exam papers with memos (listed as "Exam questions")
@@ -64,7 +65,8 @@ These are the owner's decisions. Do not undo them.
    Use the existing tokens (`--genoa`, `--ink`, `--rule`, ...) and SVG classes (`c1`–`c4`, `ln`, `thin`,
    `dash`, `stable`, ...).
 2. **No branding and no top menu bar.** Pages link through their own back links. The only shared
-   control is the light/dark button that `site.js` adds. Light is the default, whatever the system
+   controls are the light/dark button that `site.js` adds and, on notes pages, the Save as PDF and
+   Annotate buttons beside it (`annotate.js`). Light is the default, whatever the system
    setting; dark only when the reader picks it.
 3. **Figure captions are one short sentence.** The longer explanation goes in a `<p class="fignote">`
    directly after the `</figure>`.
@@ -159,6 +161,26 @@ which `usage.html` shows in an "Everyone" section. The full ledger is also on am
 - **Setup:** `AMAVA_BASE` and `AMAVA_GATEWAY` are set in the Vercel project; put them in `.env` to count
   local use too. A failed post never breaks a page or the chat. Show amounts as beers first, tokens in
   brackets (`notesLedger.fmt`).
+
+### Annotations and PDF
+
+`assets/annotate.js`, loaded by `site.js` on every page with a chat panel, adds two buttons beside the
+theme button.
+
+- **Annotate:** a bar with pen, highlighter, text note, eraser, four colours, undo (Ctrl+Z) and a menu
+  to export, import or clear. Annotations stay in the browser, in `localStorage` under
+  `notes-annot-<data-store>`. Each mark is pinned to the paragraph, list item, figure or heading it
+  starts on (its child-index path from `<main>`), so it moves with that element and hides when the
+  element is hidden, for example inside a closed memo. Moving or reordering a page's blocks moves its
+  readers' marks, so keep a page's structure stable once people have annotated it. Export writes every
+  page's annotations to one `.json` file (`format: "notesmaxing-annotations"`); import merges one back
+  in by mark id.
+- **Save as PDF:** a picture of the page exactly as it looks on screen, not a print layout. `<main>`
+  is copied into an SVG `<foreignObject>` with the site's CSS (media queries evaluated against the real
+  window) and the fonts embedded. It is drawn one A4 page at a time, with breaks only between
+  paragraphs, rows, figures and marks, and the pages go into jsPDF (from cdnjs). The text in the PDF
+  cannot be selected. Pages styled only through `site.css` come out right; a style that depends on
+  `body` classes will not show in the PDF.
 
 ### Chat API
 

@@ -33,6 +33,8 @@
   --amber:#B8741A;         /* cautions only */
   --warnwash:#FBF3E6;
   --on-teal:#FAFAFB;       /* text on a teal button */
+  --pen-red:#C2413B; --pen-blue:#2F5DB8;                 /* annotation pens */
+  --hl-yellow:#FFD84D; --hl-green:#7DDB8A; --hl-pink:#FF9EC7; --hl-blue:#8CC8FF;   /* highlighters */
   --shadow:0 6px 18px rgba(9,28,33,.12);
 
   --f-display:"IBM Plex Sans", Arial, Helvetica, sans-serif;
@@ -52,7 +54,8 @@
 :root[data-theme="dark"]{
   --bg:#141A1C; --surface:#1C2427; --mist:#232B2E; --ink:#EDEEEE; --text:#C6CECF; --ink-2:#93A6A9; --rule:#2C373A;
   --genoa:#1FA3C4; --teal-light:#1595B7; --breaker:#6FB0BA; --wash:#16303A; --amber:#E0A04A; --warnwash:#33291A;
-  --on-teal:#0C1011; --shadow:0 6px 18px rgba(0,0,0,.4); color-scheme:dark}
+  --on-teal:#0C1011; --shadow:0 6px 18px rgba(0,0,0,.4); color-scheme:dark;
+  --pen-red:#EE7B72; --pen-blue:#86A8F0; --hl-yellow:#C9A400; --hl-green:#3E9E52; --hl-pink:#C2558A; --hl-blue:#3C7FC4}
 
 /* ---------- 2. Base elements ---------- */
 *{box-sizing:border-box}
@@ -81,11 +84,16 @@ hr{border:0;border-top:1px solid var(--rule);margin:2.5em 0}
 
 /* ---------- 3. Theme button ---------- */
 /* There is no site header. site.js adds this one button at the top right of the page. */
-.theme-btn{position:absolute;top:14px;right:16px;z-index:20;width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+.theme-btn{position:absolute;top:14px;right:16px;z-index:20}
+.theme-btn,.tool-btn{width:34px;height:34px;display:flex;align-items:center;justify-content:center;
   border:1px solid var(--rule);border-radius:10px;background:var(--surface);color:var(--ink-2);cursor:pointer}
-.theme-btn:hover{border-color:var(--genoa);color:var(--genoa)}
-.theme-btn:focus-visible{outline:2px solid var(--genoa);outline-offset:2px}
-.theme-btn svg{width:16px;height:16px}
+.theme-btn:hover,.tool-btn:hover{border-color:var(--genoa);color:var(--genoa)}
+.theme-btn:focus-visible,.tool-btn:focus-visible{outline:2px solid var(--genoa);outline-offset:2px}
+.theme-btn svg,.tool-btn svg{width:16px;height:16px}
+/* notes pages: Save as PDF and Annotate, left of the theme button (annotate.js) */
+.page-tools{position:absolute;top:14px;right:58px;z-index:20;display:flex;gap:8px}
+.tool-btn[aria-pressed="true"]{background:var(--genoa);border-color:var(--genoa);color:var(--on-teal)}
+.tool-btn:disabled{opacity:.5;cursor:progress}
 
 /* ---------- 4. Page layout ---------- */
 .wrap{display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;max-width:1240px;margin:0 auto;padding:32px 24px 80px}
@@ -486,9 +494,49 @@ dl.terms dd{margin:0;color:var(--text)}
 .filter select{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:6px 10px;max-width:100%}
 #savedSec .acts{margin-top:12px}
 
+/* ---------- Annotations (annotate.js) ---------- */
+main.annot-host{position:relative}
+.annot-layer{position:absolute;inset:0;z-index:5;pointer-events:none}
+.annot-layer.drawing{pointer-events:auto;touch-action:none;cursor:crosshair}
+.annot-layer[data-mode="text"]{cursor:text}
+.annot-layer[data-mode="erase"]{cursor:cell}
+.annot-ink{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.annot-ink path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.annot-ink path.hl{stroke-width:14;stroke-opacity:.38}
+.pc-1{stroke:var(--ink);background:var(--ink)} .pc-2{stroke:var(--pen-red);background:var(--pen-red)}
+.pc-3{stroke:var(--pen-blue);background:var(--pen-blue)} .pc-4{stroke:var(--genoa);background:var(--genoa)}
+.hc-1{stroke:var(--hl-yellow);background:var(--hl-yellow)} .hc-2{stroke:var(--hl-green);background:var(--hl-green)}
+.hc-3{stroke:var(--hl-pink);background:var(--hl-pink)} .hc-4{stroke:var(--hl-blue);background:var(--hl-blue)}
+.annot-note{position:absolute;width:220px;max-width:calc(100% - 8px);pointer-events:auto;background:var(--warnwash);border:1px solid var(--amber);
+  border-radius:8px;box-shadow:0 2px 8px rgba(9,28,33,.12)}
+.annot-bar{height:14px;cursor:grab;display:flex;justify-content:flex-end;touch-action:none}
+.annot-x{border:0;background:none;color:var(--ink-2);font-size:15px;line-height:1;padding:0 6px;cursor:pointer;opacity:0}
+.annot-note:hover .annot-x,.annot-note:focus-within .annot-x{opacity:1}
+.annot-note textarea{display:block;width:100%;resize:none;overflow:hidden;border:0;background:none;color:var(--text);font:14px/1.45 var(--f-body);
+  padding:0 9px 7px;outline:none}
+.annot-tools{position:fixed;left:0;right:0;margin-inline:auto;width:max-content;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:46;display:flex;flex-wrap:wrap;
+  align-items:center;justify-content:center;gap:4px;max-width:calc(100vw - 32px);padding:6px 8px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:12px;box-shadow:var(--shadow)}
+.annot-tools .ab{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:1px solid transparent;border-radius:8px;
+  background:none;color:var(--ink-2);cursor:pointer;padding:0}
+.annot-tools .ab:hover{color:var(--genoa)}
+.annot-tools .ab[aria-pressed="true"]{border-color:var(--genoa);color:var(--genoa);background:var(--wash)}
+.annot-tools .ab:focus-visible{outline:2px solid var(--genoa);outline-offset:1px}
+.annot-tools .ab svg{width:18px;height:18px}
+.annot-tools .sw i{display:block;width:16px;height:16px;border-radius:50%}
+.annot-tools .sep{width:1px;height:22px;background:var(--rule);margin:0 4px}
+.annot-tools .done{padding:6px 14px;font-size:13.5px;margin-left:4px}
+.annot-menu{position:absolute;right:8px;bottom:calc(100% + 8px);display:grid;min-width:200px;padding:6px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:10px;box-shadow:var(--shadow)}
+.annot-menu button{text-align:left;border:0;background:none;color:var(--text);font:14px var(--f-body);padding:8px 10px;border-radius:6px;cursor:pointer}
+.annot-menu button:hover,.annot-menu button:focus-visible{background:var(--wash);color:var(--genoa);outline:none}
+body.annotating #askBtn{display:none}
+.page-msg{position:fixed;left:0;right:0;margin-inline:auto;width:max-content;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:61;max-width:calc(100vw - 32px);
+  background:var(--ink);color:var(--bg);font-size:13px;padding:7px 12px;border-radius:8px;box-shadow:var(--shadow)}
+
 /* ---------- 11. Print ---------- */
 @media print{
-  .theme-btn,nav.toc,nav.rail,#askBtn,#chat,.toast,.rail-toggle,.annot{display:none!important}
+  .theme-btn,.page-tools,.annot-tools,.page-msg,nav.toc,nav.rail,#askBtn,#chat,.toast,.rail-toggle,.annot{display:none!important}
   body{padding-top:0}
   .wrap{display:block;max-width:none;padding:0}
   main{max-width:none}

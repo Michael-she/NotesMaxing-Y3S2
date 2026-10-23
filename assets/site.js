@@ -19,7 +19,9 @@
    6. Wide inline maths: an equation inside a sentence that is wider than its column becomes its
       own scrollable line, so a narrow screen never scrolls sideways.
    7. Usage ledger: loads ledger.js (next to this file), which asks a new device for a name once and
-      counts page opens in the background after the page has loaded. */
+      counts page opens in the background after the page has loaded.
+   8. Annotations and PDF: on a notes page (one with a chat panel), loads annotate.js, which adds the
+      Annotate and Save as PDF buttons beside the theme button. */
 (function(){
   // ---------- 7. usage ledger ----------
   // Loaded async and run after the page loads, so it never delays drawing the page.
@@ -27,6 +29,8 @@
     const lg = document.createElement('script'); lg.async = true;
     lg.src = new URL('ledger.js', document.currentScript.src).href; document.head.append(lg);
   }
+
+  const here = document.currentScript ? document.currentScript.src : '';
 
   const store = {
     get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
@@ -156,7 +160,13 @@
     if (document.readyState === 'complete') start(); else addEventListener('load', start);
   }
 
-  function init(){ buildThemeButton(); buildMenuToggle(); wireAnnotations(); wireFigureToggles(); wireMathFit(); }
+  // ---------- 8. annotations and PDF ----------
+  function loadAnnotate(){
+    if (!here || !document.querySelector('script[data-store]') || !document.querySelector('main')) return;
+    const s = document.createElement('script'); s.async = true; s.src = new URL('annotate.js', here).href; document.head.append(s);
+  }
+
+  function init(){ buildThemeButton(); buildMenuToggle(); wireAnnotations(); wireFigureToggles(); wireMathFit(); loadAnnotate(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
