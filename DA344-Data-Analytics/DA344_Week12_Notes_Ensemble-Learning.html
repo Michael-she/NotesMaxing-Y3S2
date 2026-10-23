@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 12: Ensemble Learning · DA344 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=da344">&larr; Data Analytics</a>
+  <div class="k">DA344 · Week 12</div>
+  <ol>
+    <li><a href="#s1">1. Ensemble learning</a></li>
+    <li><a href="#s2">2. Bagging</a></li>
+    <li class="sub"><a href="#s2-rf">Random forests</a></li>
+    <li class="sub"><a href="#s2-oob">Out-of-bag error and importance</a></li>
+    <li class="sub"><a href="#s2-vote">Scoring a voting ensemble</a></li>
+    <li><a href="#s3">3. Boosting</a></li>
+    <li class="sub"><a href="#s3-ada">AdaBoost</a></li>
+    <li class="sub"><a href="#s3-vote">Confidence-weighted voting</a></li>
+    <li><a href="#s4">4. Gradient boosting</a></li>
+    <li><a href="#s5">5. Stacking</a></li>
+    <li><a href="#s6">6. Comparing the methods</a></li>
+    <li><a href="#s7">7. Practice problems</a></li>
+    <li><a href="#s8">8. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">DATA ANALYTICS 344 · TERM 4 WEEK 6 · ENSEMBLE LEARNING · KELLEHER SECTION 4.4.5</div>
+  <h1>Ensemble Learning: Bagging, Boosting, Gradient Boosting and Stacking</h1>
+  <p class="lede">An ensemble combines many base models into one prediction, a decision by committee. This page explains why diversity is essential and how the four main methods create and combine it. It also shows how to trace their predictions and score them: majority votes with F1, AdaBoost weights and confidence factors, and gradient-boosting residual corrections.</p>
+</header>
+
+<section id="s1">
+<h2><span class="n">01</span>Ensemble learning</h2>
+<p><strong>Ensemble learning</strong> trains several models (<strong>base learners</strong>) from one dataset and aggregates their predictions. It works like a committee: if members make <em>different</em> mistakes, the majority is right more often than any one member.</p>
+<div class="key"><span class="tag">Key idea</span><p>An ensemble only helps if its models <strong>differ in their predictive behaviour</strong>. Ten identical models trained on identical data make identical mistakes, so averaging them changes nothing.</p></div>
+<p>Ways to make base learners differ:</p>
+<ol>
+<li>train the same model type on <strong>different subsets of the training instances</strong> (bagging, boosting);</li>
+<li>train on <strong>different subsets of the features</strong> (random forests);</li>
+<li>use <strong>different control-parameter</strong> (hyper-parameter) values;</li>
+<li>use <strong>different training algorithms</strong>;</li>
+<li>build a <strong>heterogeneous</strong> ensemble of different model types (stacking).</li>
+</ol>
+<p><strong>Aggregation:</strong> for a categorical target, <strong>vote</strong> (majority, or weighted). For a continuous target, take a measure of central tendency: the <strong>mean</strong> or the <strong>median</strong> of the predictions.</p>
+<p>Decision trees are the usual base learner. Tree induction is <strong>sensitive to small changes in the data</strong>: a slightly different sample can change the root split and so the whole tree. That instability, usually a weakness, is exactly the diversity an ensemble needs. Trees are also fast to train.</p>
+<p>The four methods differ in how they train and combine:</p>
+<div class="tbl"><table><thead><tr><th>Method</th><th>Training</th><th>Combination</th></tr></thead><tbody>
+<tr><td>Bagging</td><td>Independent (parallel) models on bootstrap samples</td><td>Equal-weight vote or average</td></tr>
+<tr><td>Boosting</td><td>Sequential: each model focuses on what the previous ones got wrong</td><td>Vote weighted by each model's confidence</td></tr>
+<tr><td>Gradient boosting</td><td>Sequential: each model predicts the remaining residual errors</td><td>Base prediction plus the sum of corrections</td></tr>
+<tr><td>Stacking</td><td>Different model types on the same data</td><td>A meta-model learns how to combine them</td></tr>
+</tbody></table></div>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 4.4.5; slide 1</p>
+</section>
+
+<section id="s2">
+<h2><span class="n">02</span>Bagging</h2>
+<p><strong>Bagging</strong> (bootstrap aggregating) trains each model on its own <strong>bootstrap sample</strong>: a random sample of the dataset, <strong>the same size as the dataset</strong>, drawn <strong>with replacement</strong>. Some instances appear several times and others not at all, so every sample, and every model, is different.</p>
+<p>The chance that a given instance is <em>never</em> picked in \(n\) draws is \((1 - 1/n)^n\), which tends to \(e^{-1} \approx 0.368\) for large \(n\). Each bootstrap sample therefore leaves out about 37 % of the instances and contains about 63 % of the distinct instances.</p>
+<p><strong>Sub-bagging</strong> samples <em>without</em> replacement (a smaller subset). It trains faster, but bootstrap sampling tends to give better ensembles.</p>
+<figure>
+<svg viewBox="0 0 640 220" class="fig" role="img" aria-label="Eight instances, a bootstrap sample of eight draws with repeats, and the three out-of-bag instances.">
+<text class="lab b" x="20" y="30">dataset</text>
+<rect class="cell" x="120" y="12" width="46" height="30" rx="4"/><text class="lab" x="143" y="32" text-anchor="middle">1</text>
+<rect class="cell" x="178" y="12" width="46" height="30" rx="4"/><text class="lab" x="201" y="32" text-anchor="middle">2</text>
+<rect class="cell" x="236" y="12" width="46" height="30" rx="4"/><text class="lab" x="259" y="32" text-anchor="middle">3</text>
+<rect class="cell" x="294" y="12" width="46" height="30" rx="4"/><text class="lab" x="317" y="32" text-anchor="middle">4</text>
+<rect class="cell" x="352" y="12" width="46" height="30" rx="4"/><text class="lab" x="375" y="32" text-anchor="middle">5</text>
+<rect class="cell" x="410" y="12" width="46" height="30" rx="4"/><text class="lab" x="433" y="32" text-anchor="middle">6</text>
+<rect class="cell" x="468" y="12" width="46" height="30" rx="4"/><text class="lab" x="491" y="32" text-anchor="middle">7</text>
+<rect class="cell" x="526" y="12" width="46" height="30" rx="4"/><text class="lab" x="549" y="32" text-anchor="middle">8</text>
+<text class="lab b" x="20" y="100">bootstrap D₁</text>
+<rect class="blkd" x="120" y="82" width="46" height="30" rx="4"/><text class="lab" x="143" y="102" text-anchor="middle">2</text>
+<rect class="blkd" x="178" y="82" width="46" height="30" rx="4"/><text class="lab" x="201" y="102" text-anchor="middle">2</text>
+<rect class="blkd" x="236" y="82" width="46" height="30" rx="4"/><text class="lab" x="259" y="102" text-anchor="middle">3</text>
+<rect class="blkd" x="294" y="82" width="46" height="30" rx="4"/><text class="lab" x="317" y="102" text-anchor="middle">5</text>
+<rect class="blkd" x="352" y="82" width="46" height="30" rx="4"/><text class="lab" x="375" y="102" text-anchor="middle">5</text>
+<rect class="blkd" x="410" y="82" width="46" height="30" rx="4"/><text class="lab" x="433" y="102" text-anchor="middle">5</text>
+<rect class="blkd" x="468" y="82" width="46" height="30" rx="4"/><text class="lab" x="491" y="102" text-anchor="middle">7</text>
+<rect class="blkd" x="526" y="82" width="46" height="30" rx="4"/><text class="lab" x="549" y="102" text-anchor="middle">8</text>
+<text class="tk" x="120" y="132">8 draws with replacement: 2 twice, 5 three times</text>
+<text class="lab b" x="20" y="180">out-of-bag</text>
+<rect class="blk" x="120" y="162" width="46" height="30" rx="4"/><text class="lab c3t" x="143" y="182" text-anchor="middle">1</text>
+<rect class="blk" x="178" y="162" width="46" height="30" rx="4"/><text class="lab c3t" x="201" y="182" text-anchor="middle">4</text>
+<rect class="blk" x="236" y="162" width="46" height="30" rx="4"/><text class="lab c3t" x="259" y="182" text-anchor="middle">6</text>
+<text class="tk" x="300" y="182">never drawn: used to test this tree</text>
+</svg>
+<figcaption><b>Figure 2.1</b> A bootstrap sample repeats some instances and leaves others out.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> The sample of worked example 2.1. Eight draws with replacement from instances 1 to 8: instance 2 is drawn twice and 5 three times. Instances 1, 4 and 6 are never drawn; they are this tree's out-of-bag instances.</p>
+<div class="ex"><div class="hd">Worked example 2.1 <span>Bootstrap and out-of-bag instances</span></div><div class="bd">
+<p>A dataset has instances 1 to 8. A bootstrap sample is \(D_1 = (2, 2, 3, 5, 5, 5, 7, 8)\). Identify the repeats and the out-of-bag instances, and say why this is not a sub-bagging sample.</p>
+<div class="step"><i>1</i><div>Repeats: 2 (twice) and 5 (three times).</div></div>
+<div class="step"><i>2</i><div>Never drawn: 1, 4 and 6. These are out-of-bag (OOB) for the model trained on \(D_1\).</div></div>
+<div class="step"><i>3</i><div>The sample has the full size 8 and contains repeats, which is only possible with replacement. A sub-bagging sample has no repeats.</div></div>
+<div class="ans">Repeats: 2 and 5. OOB: {1, 4, 6}, 3 of 8 instances; theory predicts \((7/8)^8 = 0.344\) of them on average.</div>
+</div></div>
+
+<h3 id="s2-rf">Random forests</h3>
+<p>A <strong>random forest</strong> is bagging with decision trees plus a second source of randomness, <strong>subspace sampling</strong>: at each split, only a random subset of the features may be considered. Induction:</p>
+<ol>
+<li>Build \(N\) bootstrap samples \(D_i\) by drawing \(n\) instances with replacement from \(D\).</li>
+<li>For each \(D_i\), grow a tree \(T_i\). At every node, choose a random subset of \(m\) features, usually \(m = \sqrt{\text{number of features}}\), and split on the best of those \(m\).</li>
+<li>Keep growing each tree until every leaf is pure (no pruning: the averaging over trees controls overfitting).</li>
+<li>Predict by majority vote (classification) or the mean (regression) over the trees.</li>
+</ol>
+<p>Why restrict the features? Without it, one strong feature would be the root split of almost every tree, and the trees would be highly correlated. Forcing different trees to use different features <strong>decorrelates</strong> them and increases diversity.</p>
+
+<h3 id="s2-oob">Out-of-bag error and feature importance</h3>
+<ul>
+<li><strong>Out-of-bag error:</strong> each tree can be tested on the instances left out of its bootstrap sample, which it never saw. Averaging these gives a validation estimate without a separate hold-out set.</li>
+<li><strong>Feature importance:</strong> keep track of the information gain each feature delivers at every split across the forest. Features with large total gain are the most important.</li>
+<li><strong>Efficiency:</strong> keep one copy of the training data and store each bootstrap sample (and its OOB set) as a list of indexes.</li>
+</ul>
+
+<h3 id="s2-vote">Scoring a voting ensemble</h3>
+<p>Classification ensembles are scored with the measures from Week 7. With Positive as the positive class:</p>
+<div class="eq"><span class="tag">Precision, recall and F1</span>\[ \text{precision} = \frac{TP}{TP+FP}, \qquad \text{recall} = \frac{TP}{TP+FN}, \qquad F_1 = \frac{2 \times \text{precision} \times \text{recall}}{\text{precision} + \text{recall}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(TP\)</dt><dd>Positives predicted Positive.</dd>
+  <dt>\(FP\)</dt><dd>Negatives predicted Positive.</dd>
+  <dt>\(FN\)</dt><dd>Positives predicted Negative.</dd>
+  <dt>\(F_1\)</dt><dd>Harmonic mean of precision and recall.</dd>
+</dl>
+</div>
+<div class="ex"><div class="hd">Worked example 2.2 <span>A bagged stump ensemble</span></div><div class="bd">
+<p>Three decision stumps: T1: \(x_1 \le 3\) → Positive, else Negative. T2: \(x_2 \le 3\) → Positive, else Negative. T3: \(x_1 \le 5\) → Positive, else Negative. Predict by majority vote for the six instances below, and find precision, recall and F1.</p>
+<div class="tbl"><table><thead><tr><th>ID</th><th>\(x_1\)</th><th>\(x_2\)</th><th>Truth</th><th>T1</th><th>T2</th><th>T3</th><th>Vote</th></tr></thead><tbody>
+<tr><td>1</td><td>2</td><td>4</td><td>Pos</td><td>Pos</td><td>Neg</td><td>Pos</td><td><b>Pos</b></td></tr>
+<tr><td>2</td><td>4</td><td>2</td><td>Pos</td><td>Neg</td><td>Pos</td><td>Pos</td><td><b>Pos</b></td></tr>
+<tr><td>3</td><td>3</td><td>5</td><td>Neg</td><td>Pos</td><td>Neg</td><td>Pos</td><td><b>Pos</b></td></tr>
+<tr><td>4</td><td>6</td><td>1</td><td>Pos</td><td>Neg</td><td>Pos</td><td>Neg</td><td><b>Neg</b></td></tr>
+<tr><td>5</td><td>5</td><td>6</td><td>Neg</td><td>Neg</td><td>Neg</td><td>Pos</td><td><b>Neg</b></td></tr>
+<tr><td>6</td><td>7</td><td>5</td><td>Neg</td><td>Neg</td><td>Neg</td><td>Neg</td><td><b>Neg</b></td></tr>
+</tbody></table></div>
+<div class="step"><i>1</i><div>Votes (two of three decide): Pos, Pos, Pos, Neg, Neg, Neg.</div></div>
+<div class="step"><i>2</i><div>TP: IDs 1 and 2, so 2. FP: ID 3, so 1. FN: ID 4, so 1.</div></div>
+<div class="step"><i>3</i><div>Precision \(= 2/3 = 0.667\); recall \(= 2/3 = 0.667\); \(F_1 = 0.667\).</div></div>
+<div class="ans">\(F_1 = 0.667\). For comparison, T1 alone scores 0.400 and T3 alone 0.571. The vote can differ from any one stump (ID 2: T1 says Neg but T2 and T3 outvote it).</div>
+</div></div>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 4.4.5; slides 2.1 to 2.3</p>
+</section>
+
+<section id="s3">
+<h2><span class="n">03</span>Boosting</h2>
+<p>In <strong>boosting</strong>, base models are trained <strong>in sequence</strong>, and each one prioritises the instances its predecessors got wrong. Bagging's models are independent and could be trained in parallel; boosting's cannot, because each depends on the previous one's errors.</p>
+<ul>
+<li>Each instance has a weight \(w_i \ge 0\). Higher-weight instances are more likely to be sampled for (or count more in) training the next model. Initially every \(w_i = 1/n\).</li>
+<li>Each round trains a model on the weighted data and computes its total error \(\epsilon\): the <strong>sum of the weights</strong> of the instances it gets wrong.</li>
+<li>Weights of misclassified instances are increased and weights of correct ones decreased, so the next model concentrates on the hard cases.</li>
+<li>Each model gets a <strong>confidence factor</strong> \(\alpha\) that grows as \(\epsilon\) shrinks, and the ensemble's vote is weighted by \(\alpha\).</li>
+</ul>
+<p>The base learners are <strong>weak learners</strong>, presumed only to do better than random guessing (\(\epsilon \lt 0.5\) for two classes). A weak learner with \(\epsilon \gt 0.5\) would get a negative \(\alpha\); one with \(\epsilon = 0.5\) carries no information (\(\alpha = 0\)).</p>
+
+<h3 id="s3-ada">AdaBoost</h3>
+<p><strong>AdaBoost</strong> (adaptive boosting) builds a sequence of weak learners, often <strong>decision stumps</strong> (one-split trees), but also linear or logistic regression models. With labels \(y_i \in \{-1, +1\}\):</p>
+<ol>
+<li>Give every training instance \(x_i\) the weight \(w_1(i) = 1/n\).</li>
+<li>Train a weak classifier \(h_t\) and compute its weighted error \(\epsilon_t\).</li>
+<li>Compute its voting weight \(\alpha_t\).</li>
+<li>Update the weights: multiply by \(e^{\alpha_t}\) if misclassified, by \(e^{-\alpha_t}\) if correct.</li>
+<li>Normalise the weights to sum to 1.</li>
+<li>Repeat steps 2 to 5 until the desired number of models, or a target performance, is reached.</li>
+</ol>
+<div class="eq"><span class="tag">AdaBoost</span>\[ \epsilon_t = \sum_{i=1}^{n} w_t(i)\, I\big(y_i \ne h_t(x_i)\big), \qquad \alpha_t = \frac12 \ln\!\left(\frac{1 - \epsilon_t}{\epsilon_t}\right) \]
+\[ w_{t+1}(i) \leftarrow \frac{w_t(i)\, e^{\pm\alpha_t}}{Z_t} \quad (+ \text{ if misclassified}, - \text{ if correct}), \qquad H(x) = \sum_{t} \alpha_t\, h_t(x) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(w_t(i)\)</dt><dd>Weight of instance \(i\) in round \(t\).</dd>
+  <dt>\(I(\cdot)\)</dt><dd>Indicator: 1 if the condition holds, else 0.</dd>
+  <dt>\(\epsilon_t\)</dt><dd>Weighted error of model \(t\), between 0 and 1.</dd>
+  <dt>\(\alpha_t\)</dt><dd>Confidence (voting weight) of model \(t\).</dd>
+  <dt>\(Z_t\)</dt><dd>Normalising constant: the sum of the updated weights.</dd>
+  <dt>\(H(x)\)</dt><dd>Ensemble score; predict \(+1\) if \(H(x) \ge 0\), else \(-1\).</dd>
+</dl>
+</div>
+<div class="ex"><div class="hd">Worked example 3.1 <span>Two rounds of AdaBoost</span></div><div class="bd">
+<p>Eight instances \(x = 1, \ldots, 8\) with labels \(y = (+,+,+,-,-,+,-,-)\). Round 1 picks the stump \(h_1\): \(+1\) if \(x \le 3.5\), else \(-1\).</p>
+<div class="step"><i>1</i><div>Initial weights \(1/8 = 0.125\). \(h_1\) misclassifies only \(x = 6\): \(\epsilon_1 = 0.125\).</div></div>
+<div class="step"><i>2</i><div>\(\alpha_1 = \tfrac12\ln(0.875/0.125) = \tfrac12\ln 7 = 0.973\).</div></div>
+<div class="step"><i>3</i><div>Update: correct instances \(0.125\,e^{-0.973} = 0.0472\); the wrong one \(0.125\,e^{0.973} = 0.3307\). Sum \(Z_1 = 7(0.0472) + 0.3307 = 0.6614\).</div></div>
+<div class="step"><i>4</i><div>Normalise: correct instances \(0.0714\) (= 1/14) each; \(x = 6\) gets \(0.5\).</div></div>
+<div class="step"><i>5</i><div>Round 2: the best stump on the new weights is \(h_2\): \(+1\) if \(x \le 6.5\). It misclassifies \(x = 4, 5\): \(\epsilon_2 = 2(0.0714) = 0.143\), so \(\alpha_2 = \tfrac12\ln 6 = 0.896\).</div></div>
+<div class="ans">After round 1 the misclassified instance holds half of the total weight (0.5). This always happens: AdaBoost reweights so the last model has exactly 50 % weighted error, forcing the next model to do something different. Round 2 fixes \(x = 6\) on its own, but the combined score at \(x = 6\) is \(-0.973 + 0.896 = -0.077\), still negative: a third round is needed.</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Instance weights before and after the first AdaBoost round">
+<line class="grid" x1="60.0" y1="216.0" x2="620.0" y2="216.0"/>
+<text class="tk" x="54.0" y="220.0" text-anchor="end">0</text>
+<line class="grid" x1="60.0" y1="180.4" x2="620.0" y2="180.4"/>
+<text class="tk" x="54.0" y="184.4" text-anchor="end">0.1</text>
+<line class="grid" x1="60.0" y1="144.7" x2="620.0" y2="144.7"/>
+<text class="tk" x="54.0" y="148.7" text-anchor="end">0.2</text>
+<line class="grid" x1="60.0" y1="109.1" x2="620.0" y2="109.1"/>
+<text class="tk" x="54.0" y="113.1" text-anchor="end">0.3</text>
+<line class="grid" x1="60.0" y1="73.5" x2="620.0" y2="73.5"/>
+<text class="tk" x="54.0" y="77.5" text-anchor="end">0.4</text>
+<line class="grid" x1="60.0" y1="37.8" x2="620.0" y2="37.8"/>
+<text class="tk" x="54.0" y="41.8" text-anchor="end">0.5</text>
+<text class="tk" x="101.0" y="232.0" text-anchor="middle">1</text>
+<text class="tk" x="169.3" y="232.0" text-anchor="middle">2</text>
+<text class="tk" x="237.6" y="232.0" text-anchor="middle">3</text>
+<text class="tk" x="305.9" y="232.0" text-anchor="middle">4</text>
+<text class="tk" x="374.1" y="232.0" text-anchor="middle">5</text>
+<text class="tk" x="442.4" y="232.0" text-anchor="middle">6</text>
+<text class="tk" x="510.7" y="232.0" text-anchor="middle">7</text>
+<text class="tk" x="579.0" y="232.0" text-anchor="middle">8</text>
+<rect class="frame" x="60.0" y="20.0" width="560.0" height="196.0"/>
+<text class="lab" x="340.0" y="254" text-anchor="middle">instance x</text>
+<text class="lab" x="14" y="118.0" text-anchor="middle" transform="rotate(-90 14 118.0)">weight</text>
+<rect class="c1f" x="90.7" y="190.5" width="20.5" height="25.5"/>
+<rect class="ln c4 thin dash" x="73.7" y="171.5" width="54.6" height="44.5"/>
+<text class="tk halo" x="101.0" y="184.5" text-anchor="middle">0.071</text>
+<rect class="c1f" x="159.0" y="190.5" width="20.5" height="25.5"/>
+<rect class="ln c4 thin dash" x="142.0" y="171.5" width="54.6" height="44.5"/>
+<text class="tk halo" x="169.3" y="184.5" text-anchor="middle">0.071</text>
+<rect class="c1f" x="227.3" y="190.5" width="20.5" height="25.5"/>
+<rect class="ln c4 thin dash" x="210.2" y="171.5" width="54.6" height="44.5"/>
+<text class="tk halo" x="237.6" y="184.5" text-anchor="middle">0.071</text>
+<rect class="c1f" x="295.6" y="190.5" width="20.5" height="25.5"/>
+<rect class="ln c4 thin dash" x="278.5" y="171.5" width="54.6" height="44.5"/>
+<text class="tk halo" x="305.9" y="184.5" text-anchor="middle">0.071</text>
+<rect class="c1f" x="363.9" y="190.5" width="20.5" height="25.5"/>
+<rect class="ln c4 thin dash" x="346.8" y="171.5" width="54.6" height="44.5"/>
+<text class="tk halo" x="374.1" y="184.5" text-anchor="middle">0.071</text>
+<rect class="c3f" x="432.2" y="37.8" width="20.5" height="178.2"/>
+<rect class="ln c4 thin dash" x="415.1" y="171.5" width="54.6" height="44.5"/>
+<text class="tk halo" x="442.4" y="31.8" text-anchor="middle">0.500</text>
+<rect class="c1f" x="500.5" y="190.5" width="20.5" height="25.5"/>
+<rect class="ln c4 thin dash" x="483.4" y="171.5" width="54.6" height="44.5"/>
+<text class="tk halo" x="510.7" y="184.5" text-anchor="middle">0.071</text>
+<rect class="c1f" x="568.8" y="190.5" width="20.5" height="25.5"/>
+<rect class="ln c4 thin dash" x="551.7" y="171.5" width="54.6" height="44.5"/>
+<text class="tk halo" x="579.0" y="184.5" text-anchor="middle">0.071</text>
+<text class="tk halo" x="73.7" y="163.9" text-anchor="start">initial 0.125</text>
+<text class="lab c3t halo" x="425.4" y="44.9" text-anchor="end">misclassified: y = +, predicted −</text>
+</svg>
+<figcaption><b>Figure 3.1</b> Instance weights before and after the first AdaBoost round.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> Bars give each instance's weight. Grey outlines are the initial weights (0.125); teal bars are the weights after round 1 of worked example 3.1. The one misclassified instance (\(x = 6\), amber) rises to 0.5 and the seven correct ones fall to 0.071.</p>
+
+<h3 id="s3-vote">Confidence-weighted voting</h3>
+<p>The final AdaBoost prediction weights each model's vote by its \(\alpha_t\). A confident model can therefore outvote two weaker ones, so an AdaBoost ensemble can disagree with a plain majority vote. For an exercise, the slides also turn the confidences into normalised weights with a <strong>softmax</strong>, \(p_t = e^{\alpha_t}/\sum_j e^{\alpha_j}\). Because \(e^{\alpha}\) compresses the differences between small \(\alpha\) values, softmax weights are more even than the raw \(\alpha\) values.</p>
+<div class="ex"><div class="hd">Worked example 3.2 <span>AdaBoost and softmax weighting with F1</span></div><div class="bd">
+<p>Use the stumps and instances of worked example 2.2, with weighted training errors \(\epsilon_1 = 0.45\), \(\epsilon_2 = 0.15\), \(\epsilon_3 = 0.30\). Code Positive as \(+1\). Compare (a) the AdaBoost score \(H(x) = \sum\alpha_t h_t(x)\) and (b) the softmax-weighted score \(S(x) = \sum p_t h_t(x)\), predicting Positive when the score is \(\ge 0\).</p>
+<div class="step"><i>1</i><div>\(\alpha_1 = \tfrac12\ln(0.55/0.45) = 0.100\); \(\alpha_2 = \tfrac12\ln(0.85/0.15) = 0.867\); \(\alpha_3 = \tfrac12\ln(0.70/0.30) = 0.424\). T2 is the most trusted because its error is lowest.</div></div>
+<div class="step"><i>2</i><div>\(H\) for IDs 1 to 6, from the votes (T1, T2, T3): ID 1 (+, −, +): \(0.100 - 0.867 + 0.424 = -0.343\). ID 2 (−, +, +): \(1.191\). ID 3 (+, −, +): \(-0.343\). ID 4 (−, +, −): \(0.343\). ID 5 (−, −, +): \(-0.544\). ID 6 (−, −, −): \(-1.391\).</div></div>
+<div class="step"><i>3</i><div>AdaBoost predicts Neg, Pos, Neg, Pos, Neg, Neg. TP = 2 (IDs 2, 4), FP = 0, FN = 1 (ID 1). Precision 1, recall 0.667, \(F_1 = 0.800\).</div></div>
+<div class="step"><i>4</i><div>Softmax: \(e^{\alpha} = 1.106, 2.380, 1.528\), sum 5.013, so \(p = (0.221, 0.475, 0.305)\), summing to 1.</div></div>
+<div class="step"><i>5</i><div>\(S\): ID 1 \(0.221 - 0.475 + 0.305 = 0.050\); ID 2 0.559; ID 3 0.050; ID 4 \(-0.050\); ID 5 \(-0.391\); ID 6 \(-1.000\). Predictions Pos, Pos, Pos, Neg, Neg, Neg: the same as the plain majority, so \(F_1 = 0.667\).</div></div>
+<div class="ans">AdaBoost weighting: \(F_1 = 0.800\). Softmax weighting: \(F_1 = 0.667\). T2 alone outweighs T1 and T3 together under \(\alpha\) (0.867 against 0.524) but not under softmax (0.475 against 0.526), so the two schemes disagree on IDs 1, 3 and 4.</div>
+</div></div>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 4.4.5; slides 3.1 to 3.8 (Engelbrecht's AdaBoost example)</p>
+</section>
+
+<section id="s4">
+<h2><span class="n">04</span>Gradient boosting</h2>
+<p>In <strong>gradient boosting</strong>, later models are trained to directly <strong>correct the errors</strong> of earlier ones:</p>
+<ol>
+<li>Start with a very simple base model \(M_0\). For a continuous target it usually predicts the overall training mean for everything.</li>
+<li>Compute the <strong>residuals</strong> \(t_i - M_{k-1}(\mathbf{d}_i)\) of the current ensemble.</li>
+<li>Train a new model (usually a small tree) to predict those residuals from the descriptive features, not the original target.</li>
+<li>Add its predictions, scaled by a learning rate \(\eta\), to the ensemble, and repeat.</li>
+</ol>
+<div class="eq"><span class="tag">Gradient boosting</span>\[ M_k(\mathbf{d}) = M_{k-1}(\mathbf{d}) + \eta\, R_k(\mathbf{d}) = M_0(\mathbf{d}) + \eta \sum_{j=1}^{k} R_j(\mathbf{d}) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(M_0\)</dt><dd>Base prediction, typically the mean target.</dd>
+  <dt>\(R_j\)</dt><dd>Model \(j\), trained to predict the residuals left by \(M_{j-1}\).</dd>
+  <dt>\(\eta\)</dt><dd>Learning rate, \(0 \lt \eta \le 1\): shrinks each correction.</dd>
+  <dt>\(M_k\)</dt><dd>Ensemble prediction after \(k\) corrections.</dd>
+</dl>
+</div>
+<p>The name: for squared error, the residual is the negative gradient of the loss with respect to the prediction, so each step moves the predictions downhill, like gradient descent in "function space".</p>
+<ul>
+<li>A <strong>learning rate</strong> \(\eta \lt 1\) gives later corrections less impact. One bad correction (say, chasing an outlier) does less damage, so the model is <strong>more robust to outliers</strong> and less prone to overfit, at the cost of needing more models.</li>
+<li>Models can predict only the <strong>sign</strong> of the residual (±1) rather than its magnitude. A huge residual from an outlier then counts the same as a small one, which also reduces sensitivity to outliers.</li>
+<li>For a <strong>categorical</strong> target, the initial model predicts a likelihood for each level, and later models predict corrections to those likelihoods.</li>
+</ul>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Gradient boosting: training points, the mean as the base model and the ensemble after one and three rounds">
+<line class="grid" x1="60.0" y1="216.0" x2="620.0" y2="216.0"/>
+<text class="tk" x="54.0" y="220.0" text-anchor="end">10</text>
+<line class="grid" x1="60.0" y1="180.4" x2="620.0" y2="180.4"/>
+<text class="tk" x="54.0" y="184.4" text-anchor="end">20</text>
+<line class="grid" x1="60.0" y1="144.7" x2="620.0" y2="144.7"/>
+<text class="tk" x="54.0" y="148.7" text-anchor="end">30</text>
+<line class="grid" x1="60.0" y1="109.1" x2="620.0" y2="109.1"/>
+<text class="tk" x="54.0" y="113.1" text-anchor="end">40</text>
+<line class="grid" x1="60.0" y1="73.5" x2="620.0" y2="73.5"/>
+<text class="tk" x="54.0" y="77.5" text-anchor="end">50</text>
+<line class="grid" x1="60.0" y1="37.8" x2="620.0" y2="37.8"/>
+<text class="tk" x="54.0" y="41.8" text-anchor="end">60</text>
+<text class="tk" x="95.0" y="232.0" text-anchor="middle">1</text>
+<text class="tk" x="165.0" y="232.0" text-anchor="middle">2</text>
+<text class="tk" x="235.0" y="232.0" text-anchor="middle">3</text>
+<text class="tk" x="305.0" y="232.0" text-anchor="middle">4</text>
+<text class="tk" x="375.0" y="232.0" text-anchor="middle">5</text>
+<text class="tk" x="445.0" y="232.0" text-anchor="middle">6</text>
+<text class="tk" x="515.0" y="232.0" text-anchor="middle">7</text>
+<text class="tk" x="585.0" y="232.0" text-anchor="middle">8</text>
+<rect class="frame" x="60.0" y="20.0" width="560.0" height="196.0"/>
+<text class="lab" x="340.0" y="254" text-anchor="middle">descriptive feature x</text>
+<text class="lab" x="14" y="118.0" text-anchor="middle" transform="rotate(-90 14 118.0)">target t</text>
+<path class="ln c4 dash thin" d="M60.0 106.0 L620.0 106.0"/>
+<path class="ln c3 thin" d="M60.0 127.6 L130.0 127.6 L130.0 127.6 L200.0 127.6 L200.0 127.6 L270.0 127.6 L270.0 127.6 L340.0 127.6 L340.0 84.4 L410.0 84.4 L410.0 84.4 L480.0 84.4 L480.0 84.4 L550.0 84.4 L550.0 84.4 L620.0 84.4"/>
+<path class="ln c1" d="M60.0 149.6 L130.0 149.6 L130.0 149.6 L200.0 149.6 L200.0 149.6 L270.0 149.6 L270.0 123.5 L340.0 123.5 L340.0 80.3 L410.0 80.3 L410.0 65.1 L480.0 65.1 L480.0 65.1 L550.0 65.1 L550.0 65.1 L620.0 65.1"/>
+<circle class="c4f" cx="95.0" cy="173.2" r="4.5"/>
+<circle class="c4f" cx="165.0" cy="162.5" r="4.5"/>
+<circle class="c4f" cx="235.0" cy="144.7" r="4.5"/>
+<circle class="c4f" cx="305.0" cy="116.2" r="4.5"/>
+<circle class="c4f" cx="375.0" cy="84.1" r="4.5"/>
+<circle class="c4f" cx="445.0" cy="66.3" r="4.5"/>
+<circle class="c4f" cx="515.0" cy="55.6" r="4.5"/>
+<circle class="c4f" cx="585.0" cy="44.9" r="4.5"/>
+<text class="tk halo" x="67.0" y="100.0" text-anchor="start">M₀ = 40.9</text>
+<text class="lab halo" x="613.0" y="201.7" text-anchor="end">thin amber: M₁   thick teal: M₃</text>
+</svg>
+<figcaption><b>Figure 4.1</b> Each round of gradient boosting adds a scaled stump fitted to the residuals.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> Eight training points (dots). The flat dashed line is \(M_0\), the mean (40.9). Each round fits a least-squares stump to the current residuals and adds \(\eta = 0.5\) times it. The steps show \(M_1\) (thin) and \(M_3\) (thick): the ensemble moves toward the data in halving steps, and the training SSE falls from 1 388.9 to 506.8, 205.7 and 103.8 over the three rounds.</p>
+<div class="ex"><div class="hd">Worked example 4.1 <span>Gradient-boosting regression</span></div><div class="bd">
+<p>A pump's power draw (kW): \(M_0 = 60\). Residual stumps: \(R_1\): \(x_1 \le 5\) → −10, else +8. \(R_2\): \(x_2 \le 3\) → +4, else −6. Learning rate \(\eta = 0.5\). Find \(M_2\), the residuals and the MSE for: ID 1 (3, 2), actual 52; ID 2 (3, 5), 47; ID 3 (7, 2), 72; ID 4 (7, 5), 63.</p>
+<div class="step"><i>1</i><div>Corrections (\(R_1, R_2\)): ID 1 (−10, +4); ID 2 (−10, −6); ID 3 (+8, +4); ID 4 (+8, −6).</div></div>
+<div class="step"><i>2</i><div>\(M_2 = 60 + 0.5R_1 + 0.5R_2\): ID 1 \(60 - 5 + 2 = 57\); ID 2 \(60 - 5 - 3 = 52\); ID 3 \(60 + 4 + 2 = 66\); ID 4 \(60 + 4 - 3 = 61\).</div></div>
+<div class="step"><i>3</i><div>Residuals (actual − predicted): −5, −5, 6, 2. Squares 25, 25, 36, 4; SSE 90; MSE \(90/4 = 22.5\) kW².</div></div>
+<div class="step"><i>4</i><div>With \(\eta = 1\), ID 3 would be \(60 + 8 + 4 = 72\): exactly right on this instance, but full-size corrections fit noise just as eagerly.</div></div>
+<div class="ans">Predictions 57, 52, 66 and 61 kW; MSE 22.5 kW². This is regression, so F1 (a classification measure built on TP, FP and FN) does not apply; use SSE, MSE or RMSE.</div>
+</div></div>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 4.4.5; slides 4.1 and 4.2</p>
+</section>
+
+<section id="s5">
+<h2><span class="n">05</span>Stacking</h2>
+<p><strong>Stacking</strong> (stacked generalisation) trains a set of <strong>different</strong> base learners, for example a decision tree, a k-NN classifier and a logistic regression, on the original training data. Their predictions for each instance become new features, the <strong>meta-features</strong>. A final <strong>meta-model</strong> is trained on the meta-features (with the original targets) and learns how best to weigh and combine the base learners.</p>
+<ul>
+<li>Different model types make different kinds of errors (axis-parallel splits, local neighbourhoods, linear boundaries), which gives diversity. The meta-model can learn when to trust which model.</li>
+<li>To avoid leaking training labels, the meta-features are normally produced on data the base learners were not trained on, for example with cross-validation (out-of-fold) predictions.</li>
+<li>Compared with bagging, the combination is <strong>learned</strong> rather than a fixed equal vote. Compared with boosting, the base learners are trained <strong>independently</strong>: later learners do not prioritise earlier errors.</li>
+</ul>
+<p class="reading"><b>Reading</b> Slide 5</p>
+</section>
+
+<section id="s6">
+<h2><span class="n">06</span>Comparing the methods</h2>
+<ul>
+<li>Ensembles of diverse weak learners that beat random guessing perform well: they share a common base level of performance and compensate for each other's weaknesses.</li>
+<li><strong>Bagging</strong> is simpler to implement and parallelise than boosting, so it wins on ease of use and training time. It mainly reduces <strong>variance</strong>.</li>
+<li><strong>Boosting</strong>'s focused training is very effective, mainly reducing <strong>bias</strong>, but it is prone to <strong>overfitting</strong>, especially with noisy labels, which keep gaining weight. Learning rates (shrinkage) reduce this.</li>
+<li>Ensembles work for classification (majority voting) and regression (mean or median).</li>
+</ul>
+<div class="box exam"><span class="label">Exam</span><p>Expect to trace votes and compute TP, FP, FN, precision, recall and F1 for bagging; \(\alpha_t\) and confidence-weighted (and softmax-weighted) scores for AdaBoost; and step-by-step predictions, residuals and SSE/MSE for gradient boosting. Code the classes as ±1 and keep three decimals in \(\alpha\).</p></div>
+</section>
+
+<section id="s7">
+<h2><span class="n">07</span>Practice problems</h2>
+<div class="ex"><div class="hd">Problem 7.1 <span>Bootstrap</span></div><div class="bd">
+<p>Instances 1 to 6; bootstrap sample (1, 3, 3, 4, 6, 6). (a) Repeats? (b) OOB set? (c) What extra step makes this a random forest rather than plain bagging?</p>
+<div class="step"><i>1</i><div>(a) 3 and 6. (b) {2, 5}.</div></div>
+<div class="step"><i>2</i><div>(c) At each split, consider only a random subset of about \(\sqrt{m}\) features.</div></div>
+<div class="ans">Repeats 3 and 6; OOB {2, 5}; random subspace sampling at each split.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 7.2 <span>Confidence factors</span></div><div class="bd">
+<p>Find \(\alpha\) for \(\epsilon = 0.10\), 0.25, 0.50 and 0.60, and interpret.</p>
+<div class="step"><i>1</i><div>\(\tfrac12\ln 9 = 1.099\); \(\tfrac12\ln 3 = 0.549\); \(\tfrac12\ln 1 = 0\); \(\tfrac12\ln(0.4/0.6) = -0.203\).</div></div>
+<div class="ans">Lower error, higher confidence. \(\epsilon = 0.5\) (random guessing) gets no say; \(\epsilon \gt 0.5\) gets a negative weight, which is why weak learners must beat chance.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 7.3 <span>AdaBoost weight update</span></div><div class="bd">
+<p>Five instances with equal weights 0.2. A stump misclassifies instance 3 only. Find \(\epsilon\), \(\alpha\) and the normalised new weights.</p>
+<div class="step"><i>1</i><div>\(\epsilon = 0.2\); \(\alpha = \tfrac12\ln 4 = 0.693\).</div></div>
+<div class="step"><i>2</i><div>Correct: \(0.2e^{-0.693} = 0.1\). Wrong: \(0.2e^{0.693} = 0.4\). Sum \(4(0.1) + 0.4 = 0.8\).</div></div>
+<div class="ans">New weights: 0.125 for the four correct instances and 0.5 for instance 3.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 7.4 <span>Gradient boosting</span></div><div class="bd">
+<p>Targets 10, 14, 18 and 22, so \(M_0 = 16\). Stump \(R_1\) predicts −5 for the first two and +5 for the last two; \(\eta = 0.5\). Find \(M_1\), the new residuals, and the SSE before and after.</p>
+<div class="step"><i>1</i><div>Before: residuals −6, −2, 2, 6; SSE \(36 + 4 + 4 + 36 = 80\).</div></div>
+<div class="step"><i>2</i><div>\(M_1 = 16 \mp 2.5\): 13.5, 13.5, 18.5, 18.5.</div></div>
+<div class="step"><i>3</i><div>Residuals −3.5, 0.5, −0.5, 3.5; SSE \(12.25 + 0.25 + 0.25 + 12.25 = 25\).</div></div>
+<div class="ans">\(M_1\) = (13.5, 13.5, 18.5, 18.5); SSE falls from 80 to 25.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 7.5 <span>Concepts</span></div><div class="bd">
+<p>(a) Why does averaging identical models not help? (b) Contrast how boosting and stacking combine predictions. (c) Why are trees good base learners?</p>
+<div class="step"><i>1</i><div>(a) Identical models make identical errors, so the average equals each model.</div></div>
+<div class="step"><i>2</i><div>(b) Boosting: fixed formula, a vote weighted by each model's training confidence \(\alpha\). Stacking: a meta-model learns the combination from the base predictions.</div></div>
+<div class="step"><i>3</i><div>(c) Tree induction is unstable (small data changes give different trees), which gives diversity; trees are also fast and need little preprocessing.</div></div>
+<div class="ans">Diversity is the key in every case.</div>
+</div></div>
+</section>
+
+<section id="s8">
+<h2><span class="n">08</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>Bagging</h4>
+<p>Bootstrap: \(n\) draws with replacement; P(left out) \(= (1-1/n)^n \to 0.368\).</p>
+<p>Random forest: \(m \approx \sqrt{\#\text{features}}\) per split; grow to pure leaves.</p></div>
+<div><h4>Scoring</h4>
+<p>Precision \(TP/(TP+FP)\); recall \(TP/(TP+FN)\)</p>
+<p>\(F_1 = 2PR/(P+R)\)</p></div>
+<div><h4>AdaBoost</h4>
+<p>\(w_1(i) = 1/n\); \(\epsilon_t = \sum_i w_t(i) I(y_i \ne h_t(x_i))\)</p>
+<p>\(\alpha_t = \tfrac12\ln((1-\epsilon_t)/\epsilon_t)\)</p>
+<p>\(w \leftarrow w e^{+\alpha}\) wrong, \(w e^{-\alpha}\) right; normalise.</p>
+<p>\(H(x) = \sum_t \alpha_t h_t(x)\); softmax \(p_t = e^{\alpha_t}/\sum_j e^{\alpha_j}\)</p></div>
+<div><h4>Gradient boosting</h4>
+<p>\(M_0 = \bar t\); \(M_k = M_{k-1} + \eta R_k\)</p>
+<p>Residual \(= t - M\). Score with SSE or MSE.</p></div>
+<div><h4>Stacking</h4>
+<p>Base predictions become meta-features; a meta-model makes the final prediction.</p></div>
+</div>
+</section>
+
+<footer>
+<p>Sources: 2026DA344_T4W6_EnsembleLearning slides (M. Gwetu, including Engelbrecht's AdaBoost example, slides 3.5 to 3.8); 2026DA344_Week_12_Study_Guide; Kelleher, Mac Namee and D'Arcy (2020), Section 4.4.5. The slides' boosting, gradient-boosting and stacking diagrams were images and are described in words. All worked examples use new numbers.</p>
+</footer>
+</main>
+</div>
+<script src="../assets/ask-gemini.js" data-store="da344-w12" data-course="DA344 Data Analytics"
+        data-topic="Week 12: ensemble learning, diversity, bagging, bootstrap samples, sub-bagging, random forests, out-of-bag error, feature importance, majority voting with precision, recall and F1, boosting, AdaBoost weights and confidence factors, softmax-weighted voting, gradient boosting with residuals and learning rate, stacking and meta-models"></script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 9: Logistic Regression · DA344 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=da344">&larr; Data Analytics</a>
+  <div class="k">DA344 · Week 9</div>
+  <ol>
+    <li><a href="#s1">1. From regression to classification</a></li>
+    <li class="sub"><a href="#s1-boundary">Decision boundaries</a></li>
+    <li class="sub"><a href="#s1-step">Why not a step function</a></li>
+    <li><a href="#s2">2. Logistic regression</a></li>
+    <li class="sub"><a href="#s2-interp">Reading the output</a></li>
+    <li><a href="#s3">3. Training with gradient descent</a></li>
+    <li class="sub"><a href="#s3-norm">Normalisation and learning curves</a></li>
+    <li><a href="#s4">4. Basis functions</a></li>
+    <li><a href="#s5">5. Multinomial logistic regression</a></li>
+    <li class="sub"><a href="#s5-ce">Cross-entropy loss</a></li>
+    <li><a href="#s6">6. Practice problems</a></li>
+    <li><a href="#s7">7. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">DATA ANALYTICS 344 · TERM 4 WEEK 3 (CONTINUED) · ERROR-BASED LEARNING · KELLEHER CH 7</div>
+  <h1>Logistic Regression, Basis Functions and Multiclass Models</h1>
+  <p class="lede">How the linear models of Week 8 become classifiers. Logistic regression squashes a linear score into a probability with the logistic function, which gradient descent can train. Basis functions let a model that is linear in its weights fit curves. One-versus-all models handle targets with more than two classes.</p>
+</header>
+
+<section id="s1">
+<h2><span class="n">01</span>From regression to classification</h2>
+<p>Linear regression predicts an unbounded number. A binary target (Pass/Fail, Fault/OK) needs a class, or better a probability between 0 and 1. Fitting a straight line to 0/1 targets gives predictions below 0 and above 1, which mean nothing as probabilities, and the squared errors from instances far from the boundary pull the line around.</p>
+
+<h3 id="s1-boundary">Decision boundaries</h3>
+<p>The linear score \(z = \mathbf{w}\cdot\mathbf{d}\) still helps: use the line (or plane) \(z = 0\) as a <strong>decision boundary</strong>. Points on or above it belong to one class and points below to the other. With two features the boundary is</p>
+<div class="eq"><span class="tag">Linear decision boundary</span>\[ \mathbf{w}[0] + \mathbf{w}[1]\,\mathbf{d}[1] + \mathbf{w}[2]\,\mathbf{d}[2] = 0 \quad\Longleftrightarrow\quad \mathbf{d}[2] = -\frac{\mathbf{w}[0]}{\mathbf{w}[2]} - \frac{\mathbf{w}[1]}{\mathbf{w}[2]}\,\mathbf{d}[1] \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\mathbf{w}[0]\)</dt><dd>Intercept weight: shifts the boundary without turning it.</dd>
+  <dt>\(\mathbf{w}[1], \mathbf{w}[2]\)</dt><dd>Feature weights: their ratio sets the slope (orientation) of the boundary.</dd>
+  <dt>\(\mathbf{d}[1], \mathbf{d}[2]\)</dt><dd>The two descriptive features.</dd>
+</dl>
+</div>
+<p>Changing \(\mathbf{w}[0]\) moves the boundary parallel to itself. Changing \(\mathbf{w}[1]\) or \(\mathbf{w}[2]\) changes the slope \(-\mathbf{w}[1]/\mathbf{w}[2]\), rotating it. Scaling all weights by the same positive factor leaves the line where it is but makes the logistic model below more confident.</p>
+
+<h3 id="s1-step">Why not a step function?</h3>
+<p>The rule "predict 1 if \(z \ge 0\), else 0" is a <strong>step function</strong> of the score. Its derivative is 0 everywhere except at \(z = 0\), where it is undefined. Gradient descent needs a slope to follow: on a step function the error surface is flat almost everywhere, so the gradient says nothing about which way to move the weights. A smooth replacement is needed.</p>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 7.4.4 (start); slide 5.1</p>
+</section>
+
+<section id="s2">
+<h2><span class="n">02</span>Logistic regression</h2>
+<p>The <strong>logistic</strong> (sigmoid) function is a smooth threshold. It maps any real score to the interval \((0, 1)\): large negative scores give nearly 0, large positive scores nearly 1, and a score of 0 gives exactly 0.5. It is <strong>continuous and differentiable</strong> everywhere, so gradient descent works.</p>
+<div class="eq"><span class="tag">Logistic function and logistic regression (Kelleher Eqs 7.25, 7.26)</span>\[ \text{logistic}(z) = \frac{1}{1 + e^{-z}}, \qquad \mathbb{M}_\mathbf{w}(\mathbf{d}) = \text{logistic}(\mathbf{w}\cdot\mathbf{d}) = \frac{1}{1 + e^{-\mathbf{w}\cdot\mathbf{d}}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(z\)</dt><dd>The linear score, any real number.</dd>
+  <dt>\(e\)</dt><dd>Euler's number, 2.718….</dd>
+  <dt>\(\mathbf{w}\cdot\mathbf{d}\)</dt><dd>Weighted sum \(\sum_j \mathbf{w}[j]\mathbf{d}[j]\) with \(\mathbf{d}[0] = 1\).</dd>
+  <dt>\(\mathbb{M}_\mathbf{w}(\mathbf{d})\)</dt><dd>Modelled probability that the target is the positive class.</dd>
+</dl>
+</div>
+<p>Why the output lies strictly between 0 and 1: \(e^{-z} \gt 0\) for every \(z\), so the denominator \(1 + e^{-z}\) is greater than 1 and the fraction is less than 1 and positive. Its derivative has a neat form, \(\text{logistic}'(z) = \text{logistic}(z)\,(1 - \text{logistic}(z))\), which the training rule uses.</p>
+<p>To classify, apply a <strong>threshold</strong>, normally 0.5: predict positive if \(\mathbb{M}_\mathbf{w}(\mathbf{d}) \ge 0.5\). Because \(\text{logistic}(z) \ge 0.5\) exactly when \(z \ge 0\), the decision boundary is still the linear one from Section 1. Logistic regression is a <strong>linear classifier</strong> with a probability attached.</p>
+
+<figure id="fig21">
+<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="Logistic regression probability of passing against study hours for one absence, with adjustable weights."></svg>
+<div class="fig-ctl">
+<label><span>w₀</span><input type="range" data-k="w0" min="-8" max="4" step="0.1" value="-3" aria-label="Intercept weight"><output></output></label>
+<label><span>w₁</span><input type="range" data-k="w1" min="0.1" max="3" step="0.05" value="0.6" aria-label="Weight of study hours"><output></output></label>
+<label><span>hours</span><input type="range" data-k="h" min="0" max="12" step="0.5" value="6" aria-label="Study hours of the query student"><output></output></label>
+</div>
+<div class="fig-read" aria-live="polite"></div>
+<figcaption><b>Figure 2.1</b> The logistic curve turns a linear score into a probability.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> It starts at worked example 2.1: \(z = w_0 + w_1\,\text{Hours} - 0.4\,\text{Absences}\) with one absence. The curve is \(P(\text{Pass})\) against study hours, and the dashed line is the 0.5 threshold. Changing \(w_0\) slides the curve sideways, moving the boundary. A larger \(w_1\) makes the curve steeper: the model becomes more certain on either side of the boundary.</p>
+
+<div class="ex"><div class="hd">Worked example 2.1 <span>A logistic-regression prediction</span></div><div class="bd">
+<p>A model has \(z = -3 + 0.6\,\text{Hours} - 0.4\,\text{Absences}\) and \(P(\text{Pass}) = 1/(1 + e^{-z})\). Predict for a student with 6 study hours a week and 1 absence, using a 0.5 threshold.</p>
+<div class="step"><i>1</i><div>Score: \(z = -3 + 0.6(6) - 0.4(1) = -3 + 3.6 - 0.4 = 0.2\).</div></div>
+<div class="step"><i>2</i><div>Probability: \(e^{-0.2} = 0.8187\), so \(P = 1/1.8187 = 0.550\).</div></div>
+<div class="step"><i>3</i><div>\(0.550 \ge 0.5\): predict Pass.</div></div>
+<div class="ans">\(P(\text{Pass}) = 0.550\), classified as Pass, only just. With 1 absence the boundary is at \(0.6\,\text{Hours} = 3.4\), so Hours = 5.67.</div>
+</div></div>
+
+<h3 id="s2-interp">Reading the output and the weights</h3>
+<ul>
+<li>The output is a <strong>modelled probability of the positive class</strong>, not a predicted value of any feature. 0.55 does not mean "0.55 study hours" or "55 % of a pass mark"; it means the model estimates a 55 % chance that this student is in the Pass class.</li>
+<li>A <strong>positive weight</strong> (StudyHours, +0.6) means increasing that feature raises the score and the probability of the positive class. A <strong>negative weight</strong> (Absences, −0.4) lowers it. The size of the effect on the probability is not constant: it is largest near \(P = 0.5\) and small where the curve is flat.</li>
+<li>The intercept sets the probability when all features are zero: here \(\text{logistic}(-3) = 0.047\).</li>
+</ul>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 7.4.4; slides 5.1 and 5.2</p>
+</section>
+
+<section id="s3">
+<h2><span class="n">03</span>Training with gradient descent</h2>
+<p>Logistic regression is trained with the same batch gradient descent as linear regression: random initial weights, an error delta per weight summed over all instances, an update scaled by \(\alpha\) at the end of each epoch, and repeat until convergence. With the sum of squared errors as the loss, the chain rule adds the derivative of the logistic function to the error delta:</p>
+<div class="eq"><span class="tag">Logistic-regression update (Kelleher Eq 7.32)</span>\[ \mathbf{w}[j] \leftarrow \mathbf{w}[j] + \alpha \sum_{i=1}^{n} \Big( \big(t_i - \mathbb{M}_\mathbf{w}(\mathbf{d}_i)\big) \times \mathbb{M}_\mathbf{w}(\mathbf{d}_i)\big(1 - \mathbb{M}_\mathbf{w}(\mathbf{d}_i)\big) \times \mathbf{d}_i[j] \Big) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(t_i\)</dt><dd>Target of instance \(i\), coded 0 or 1.</dd>
+  <dt>\(\mathbb{M}_\mathbf{w}(\mathbf{d}_i)\)</dt><dd>Current predicted probability for instance \(i\).</dd>
+  <dt>\(\mathbb{M}(1 - \mathbb{M})\)</dt><dd>Derivative of the logistic function at that instance's score.</dd>
+  <dt>\(\mathbf{d}_i[j]\)</dt><dd>Feature \(j\) of instance \(i\) (\(\mathbf{d}_i[0] = 1\)).</dd>
+  <dt>\(\alpha\)</dt><dd>Learning rate.</dd>
+</dl>
+</div>
+<p>This is the reason for the logistic function: a <strong>differentiable</strong> threshold gives a usable gradient everywhere. The \(\mathbb{M}(1-\mathbb{M})\) factor is largest near \(P = 0.5\), so instances near the boundary drive most of the learning.</p>
+<div class="ex"><div class="hd">Worked example 3.1 <span>One epoch of logistic regression</span></div><div class="bd">
+<p>Normalised feature \(x\) and target \(t\): (−1, 0), (−0.5, 0), (0.5, 1), (1, 1). Start at \(w_0 = 0\), \(w_1 = 0.5\), with \(\alpha = 0.5\).</p>
+<div class="step"><i>1</i><div>Scores \(0.5x\): −0.5, −0.25, 0.25, 0.5. Probabilities: 0.3775, 0.4378, 0.5622, 0.6225.</div></div>
+<div class="step"><i>2</i><div>Terms \((t - \mathbb{M})\mathbb{M}(1-\mathbb{M})\): \(-0.3775(0.3775)(0.6225) = -0.0887\); \(-0.1078\); \(+0.1078\); \(+0.0887\).</div></div>
+<div class="step"><i>3</i><div>Error deltas: \(w_0\): sum of terms \(= 0\). \(w_1\): \((-0.0887)(-1) + (-0.1078)(-0.5) + (0.1078)(0.5) + (0.0887)(1) = 0.2852\).</div></div>
+<div class="step"><i>4</i><div>Update: \(w_0 = 0\), \(w_1 = 0.5 + 0.5(0.2852) = 0.6426\).</div></div>
+<div class="ans">New weights \(w_0 = 0\), \(w_1 = 0.643\). The probabilities move toward the targets (0.345, 0.420, 0.580, 0.655) and \(L_2\) falls from 0.334 to 0.295. The data are symmetric about 0, so the intercept does not change.</div>
+</div></div>
+
+<h3 id="s3-norm">Normalisation and learning curves</h3>
+<p>Always <strong>normalise the descriptive features</strong> before training logistic regression. Features on very different scales give error-surface valleys that are long and narrow: the gradient is dominated by the large-valued feature, a learning rate safe for that feature is far too small for the others, and descent zig-zags slowly. Normalised features also keep scores in a range where the logistic function is not saturated (flat), so gradients do not vanish. The cost is interpretability: weights are then per unit of normalised feature.</p>
+<p>A <strong>learning curve</strong> plots the training error against the iteration (epoch). A typical curve drops steeply at first and then flattens: most of the improvement is early and the model is converging. Reasonable stopping criteria: a maximum number of epochs, or stop when the error improves by less than a small tolerance over an epoch. The learning-rate behaviour is as in Week 8: too small is slow, too large oscillates or diverges, and decay combines a fast start with a stable finish.</p>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 7.4.4 (Algorithm 4 and Figure 7.16); slide 5.2</p>
+</section>
+
+<section id="s4">
+<h2><span class="n">04</span>Basis functions</h2>
+<p>A model using the raw features linearly can only fit straight lines (or flat planes and boundaries). When the true relationship is curved, such as crop yield rising with rainfall up to a point and then falling, a raw linear model underfits.</p>
+<p><strong>Basis functions</strong> \(\phi_k\) transform the raw inputs into new features (squares, products, logs, …). The model is a weighted sum of the basis functions. It is still <strong>linear in the weights</strong>, so the SSE surface stays convex and the same gradient descent rule applies, with \(\phi_k(\mathbf{d})\) in place of \(\mathbf{d}[k]\). The non-linearity lives entirely in the features.</p>
+<div class="eq"><span class="tag">Model with basis functions (Kelleher Eq 7.33)</span>\[ \mathbb{M}_\mathbf{w}(\mathbf{d}) = \sum_{k=0}^{b} \mathbf{w}[k]\,\phi_k(\mathbf{d}) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\phi_k(\mathbf{d})\)</dt><dd>The \(k\)-th basis function of the raw features; \(\phi_0(\mathbf{d}) = 1\) for the intercept.</dd>
+  <dt>\(\mathbf{w}[k]\)</dt><dd>Weight of basis function \(k\).</dd>
+  <dt>\(b\)</dt><dd>Number of basis functions (excluding \(\phi_0\)).</dd>
+</dl>
+</div>
+<p>Common choices:</p>
+<ul>
+<li><strong>Polynomial:</strong> \(\phi_0 = 1\), \(\phi_1 = x\), \(\phi_2 = x^2\) (a quadratic), and so on.</li>
+<li><strong>Interaction:</strong> \(\phi = x_1 x_2\), so the effect of one feature can depend on the other, for example income and debt together in a default model.</li>
+</ul>
+<p>Basis functions work for <strong>classification</strong> too: put them inside the logistic function. Then \(z = 0\) is a curve in the raw feature space, so logistic regression can learn curved decision boundaries (a circle, from \(x_1^2\) and \(x_2^2\) terms, for example).</p>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Crop yield against rainfall with a straight-line fit and a quadratic basis-function fit">
+<line class="grid" x1="60.0" y1="216.0" x2="620.0" y2="216.0"/>
+<text class="tk" x="54.0" y="220.0" text-anchor="end">0</text>
+<line class="grid" x1="60.0" y1="183.3" x2="620.0" y2="183.3"/>
+<text class="tk" x="54.0" y="187.3" text-anchor="end">1</text>
+<line class="grid" x1="60.0" y1="150.7" x2="620.0" y2="150.7"/>
+<text class="tk" x="54.0" y="154.7" text-anchor="end">2</text>
+<line class="grid" x1="60.0" y1="118.0" x2="620.0" y2="118.0"/>
+<text class="tk" x="54.0" y="122.0" text-anchor="end">3</text>
+<line class="grid" x1="60.0" y1="85.3" x2="620.0" y2="85.3"/>
+<text class="tk" x="54.0" y="89.3" text-anchor="end">4</text>
+<line class="grid" x1="60.0" y1="52.7" x2="620.0" y2="52.7"/>
+<text class="tk" x="54.0" y="56.7" text-anchor="end">5</text>
+<line class="grid" x1="60.0" y1="20.0" x2="620.0" y2="20.0"/>
+<text class="tk" x="54.0" y="24.0" text-anchor="end">6</text>
+<text class="tk" x="100.0" y="232.0" text-anchor="middle">1</text>
+<text class="tk" x="180.0" y="232.0" text-anchor="middle">2</text>
+<text class="tk" x="260.0" y="232.0" text-anchor="middle">3</text>
+<text class="tk" x="340.0" y="232.0" text-anchor="middle">4</text>
+<text class="tk" x="420.0" y="232.0" text-anchor="middle">5</text>
+<text class="tk" x="500.0" y="232.0" text-anchor="middle">6</text>
+<text class="tk" x="580.0" y="232.0" text-anchor="middle">7</text>
+<rect class="frame" x="60.0" y="20.0" width="560.0" height="196.0"/>
+<text class="lab" x="340.0" y="254" text-anchor="middle">seasonal rainfall (hundreds of mm)</text>
+<text class="lab" x="14" y="118.0" text-anchor="middle" transform="rotate(-90 14 118.0)">yield (t/ha)</text>
+<path class="ln c3 dash" d="M60.0 101.3 L64.0 101.2 L68.0 101.1 L72.0 100.9 L76.0 100.8 L80.0 100.7 L84.0 100.5 L88.0 100.4 L92.0 100.3 L96.0 100.2 L100.0 100.0 L104.0 99.9 L108.0 99.8 L112.0 99.6 L116.0 99.5 L120.0 99.4 L124.0 99.3 L128.0 99.1 L132.0 99.0 L136.0 98.9 L140.0 98.8 L144.0 98.6 L148.0 98.5 L152.0 98.4 L156.0 98.2 L160.0 98.1 L164.0 98.0 L168.0 97.9 L172.0 97.7 L176.0 97.6 L180.0 97.5 L184.0 97.3 L188.0 97.2 L192.0 97.1 L196.0 97.0 L200.0 96.8 L204.0 96.7 L208.0 96.6 L212.0 96.4 L216.0 96.3 L220.0 96.2 L224.0 96.1 L228.0 95.9 L232.0 95.8 L236.0 95.7 L240.0 95.5 L244.0 95.4 L248.0 95.3 L252.0 95.2 L256.0 95.0 L260.0 94.9 L264.0 94.8 L268.0 94.6 L272.0 94.5 L276.0 94.4 L280.0 94.3 L284.0 94.1 L288.0 94.0 L292.0 93.9 L296.0 93.7 L300.0 93.6 L304.0 93.5 L308.0 93.4 L312.0 93.2 L316.0 93.1 L320.0 93.0 L324.0 92.8 L328.0 92.7 L332.0 92.6 L336.0 92.5 L340.0 92.3 L344.0 92.2 L348.0 92.1 L352.0 91.9 L356.0 91.8 L360.0 91.7 L364.0 91.6 L368.0 91.4 L372.0 91.3 L376.0 91.2 L380.0 91.1 L384.0 90.9 L388.0 90.8 L392.0 90.7 L396.0 90.5 L400.0 90.4 L404.0 90.3 L408.0 90.2 L412.0 90.0 L416.0 89.9 L420.0 89.8 L424.0 89.6 L428.0 89.5 L432.0 89.4 L436.0 89.3 L440.0 89.1 L444.0 89.0 L448.0 88.9 L452.0 88.7 L456.0 88.6 L460.0 88.5 L464.0 88.4 L468.0 88.2 L472.0 88.1 L476.0 88.0 L480.0 87.8 L484.0 87.7 L488.0 87.6 L492.0 87.5 L496.0 87.3 L500.0 87.2 L504.0 87.1 L508.0 86.9 L512.0 86.8 L516.0 86.7 L520.0 86.6 L524.0 86.4 L528.0 86.3 L532.0 86.2 L536.0 86.0 L540.0 85.9 L544.0 85.8 L548.0 85.7 L552.0 85.5 L556.0 85.4 L560.0 85.3 L564.0 85.1 L568.0 85.0 L572.0 84.9 L576.0 84.8 L580.0 84.6 L584.0 84.5 L588.0 84.4 L592.0 84.2 L596.0 84.1 L600.0 84.0 L604.0 83.9 L608.0 83.7 L612.0 83.6 L616.0 83.5 L620.0 83.3"/>
+<path class="ln c1" d="M60.0 179.6 L64.0 176.2 L68.0 172.8 L72.0 169.5 L76.0 166.2 L80.0 162.9 L84.0 159.8 L88.0 156.6 L92.0 153.5 L96.0 150.5 L100.0 147.5 L104.0 144.5 L108.0 141.6 L112.0 138.8 L116.0 136.0 L120.0 133.2 L124.0 130.5 L128.0 127.8 L132.0 125.2 L136.0 122.6 L140.0 120.1 L144.0 117.6 L148.0 115.2 L152.0 112.8 L156.0 110.5 L160.0 108.2 L164.0 106.0 L168.0 103.8 L172.0 101.6 L176.0 99.5 L180.0 97.5 L184.0 95.5 L188.0 93.5 L192.0 91.6 L196.0 89.7 L200.0 87.9 L204.0 86.2 L208.0 84.4 L212.0 82.8 L216.0 81.2 L220.0 79.6 L224.0 78.0 L228.0 76.6 L232.0 75.1 L236.0 73.8 L240.0 72.4 L244.0 71.1 L248.0 69.9 L252.0 68.7 L256.0 67.5 L260.0 66.4 L264.0 65.4 L268.0 64.4 L272.0 63.4 L276.0 62.5 L280.0 61.6 L284.0 60.8 L288.0 60.1 L292.0 59.3 L296.0 58.7 L300.0 58.0 L304.0 57.5 L308.0 56.9 L312.0 56.4 L316.0 56.0 L320.0 55.6 L324.0 55.3 L328.0 55.0 L332.0 54.7 L336.0 54.5 L340.0 54.4 L344.0 54.3 L348.0 54.2 L352.0 54.2 L356.0 54.2 L360.0 54.3 L364.0 54.5 L368.0 54.6 L372.0 54.9 L376.0 55.1 L380.0 55.5 L384.0 55.8 L388.0 56.3 L392.0 56.7 L396.0 57.2 L400.0 57.8 L404.0 58.4 L408.0 59.1 L412.0 59.8 L416.0 60.5 L420.0 61.3 L424.0 62.1 L428.0 63.0 L432.0 64.0 L436.0 65.0 L440.0 66.0 L444.0 67.1 L448.0 68.2 L452.0 69.4 L456.0 70.6 L460.0 71.9 L464.0 73.2 L468.0 74.6 L472.0 76.0 L476.0 77.4 L480.0 78.9 L484.0 80.5 L488.0 82.1 L492.0 83.8 L496.0 85.5 L500.0 87.2 L504.0 89.0 L508.0 90.8 L512.0 92.7 L516.0 94.7 L520.0 96.6 L524.0 98.7 L528.0 100.7 L532.0 102.9 L536.0 105.0 L540.0 107.3 L544.0 109.5 L548.0 111.8 L552.0 114.2 L556.0 116.6 L560.0 119.1 L564.0 121.6 L568.0 124.1 L572.0 126.7 L576.0 129.4 L580.0 132.1 L584.0 134.8 L588.0 137.6 L592.0 140.4 L596.0 143.3 L600.0 146.3 L604.0 149.2 L608.0 152.3 L612.0 155.3 L616.0 158.5 L620.0 161.6"/>
+<circle class="c4f" cx="100.0" cy="147.4" r="4.5"/>
+<circle class="c4f" cx="180.0" cy="98.4" r="4.5"/>
+<circle class="c4f" cx="260.0" cy="65.7" r="4.5"/>
+<circle class="c4f" cx="340.0" cy="52.7" r="4.5"/>
+<circle class="c4f" cx="420.0" cy="62.5" r="4.5"/>
+<circle class="c4f" cx="500.0" cy="88.6" r="4.5"/>
+<circle class="c4f" cx="580.0" cy="131.1" r="4.5"/>
+<text class="lab c1t halo" x="76.0" y="196.4" text-anchor="start">quadratic: −0.014 + 2.402x − 0.290x²</text>
+<text class="lab c3t halo" x="604.0" y="69.0" text-anchor="end">straight line</text>
+</svg>
+<figcaption><b>Figure 4.1</b> A straight line misses the rise and fall; a quadratic basis fits it.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> Seven fields (dots): yield against seasonal rainfall. The straight line is the least-squares fit of \(w_0 + w_1x\) (SSE 7.10 (t/ha)²). The curve is the least-squares fit of \(w_0 + w_1x + w_2x^2\), with \(x\) in hundreds of mm: \(\hat y = -0.014 + 2.402x - 0.290x^2\), SSE 0.008. Both models are linear in their weights.</p>
+<div class="ex"><div class="hd">Worked example 4.1 <span>Evaluating basis features</span></div><div class="bd">
+<p>Use the quadratic model of Figure 4.1, with \(x\) = rainfall in hundreds of mm: \(\hat y = -0.0143 + 2.4024\,x - 0.2905\,x^2\). (a) Compute the basis features and prediction for 450 mm. (b) At what rainfall is predicted yield highest?</p>
+<div class="step"><i>1</i><div>\(x = 4.5\): \(\phi_0 = 1\), \(\phi_1 = 4.5\), \(\phi_2 = 20.25\).</div></div>
+<div class="step"><i>2</i><div>\(\hat y = -0.0143 + 2.4024(4.5) - 0.2905(20.25) = -0.0143 + 10.811 - 5.882 = 4.91\) t/ha.</div></div>
+<div class="step"><i>3</i><div>The peak of a quadratic is at \(x = -w_1/(2w_2) = 2.4024/0.5810 = 4.135\), that is 413.5 mm.</div></div>
+<div class="ans">(a) Features (1, 4.5, 20.25) and prediction 4.91 t/ha. (b) Highest predicted yield at about 414 mm of rain.</div>
+</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>Basis functions must be <strong>designed by hand</strong>: you have to guess the right shape (quadratic? interaction? log?). Each extra basis function adds a weight, so the gradient-descent <strong>search space grows</strong>, training gets slower, and the model can overfit. Neural networks (Week 10) learn useful transformations instead of having them designed.</p></div>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 7.4.5; slide 6</p>
+</section>
+
+<section id="s5">
+<h2><span class="n">05</span>Multinomial logistic regression</h2>
+<p>Targets can be:</p>
+<ul>
+<li><strong>Binary:</strong> two levels (Pass/Fail).</li>
+<li><strong>Multiclass:</strong> more than two levels, and each instance has <em>exactly one</em> (account type: Family, Single or Business).</li>
+<li><strong>Multilabel:</strong> each instance can have <em>several</em> labels at once (a film tagged Comedy and Romance). This is a different problem.</li>
+</ul>
+<p><strong>Multinomial logistic regression</strong> handles multiclass targets with a set of <strong>one-versus-all</strong> models. For a target with \(r\) levels:</p>
+<ol>
+<li>One-hot encode the target, so level \(k\) becomes a binary target "is it level \(k\)?" (1 for level \(k\), 0 for all others).</li>
+<li>Train \(r\) binary logistic regression models, model \(k\) separating level \(k\) from all the rest.</li>
+<li>For a query, run all \(r\) models and <strong>normalise</strong> their outputs so they sum to 1.</li>
+<li>Predict the level whose model gives the highest normalised output.</li>
+</ol>
+<div class="eq"><span class="tag">Normalising one-versus-all outputs (slides; Kelleher Eq 7.38 adapted)</span>\[ \mathbb{M}'_k(\mathbf{q}) = \frac{\mathbb{M}_{\mathbf{w}_k}(\mathbf{q})}{\sum_{l \in \text{levels}(t)} \mathbb{M}_{\mathbf{w}_l}(\mathbf{q})}, \qquad \text{prediction} = \arg\max_k \mathbb{M}'_k(\mathbf{q}) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\mathbb{M}_{\mathbf{w}_k}(\mathbf{q})\)</dt><dd>Output of the one-versus-all model for level \(k\).</dd>
+  <dt>\(\mathbb{M}'_k(\mathbf{q})\)</dt><dd>Normalised output: share of the total, so the \(r\) values sum to 1.</dd>
+</dl>
+</div>
+<p>Dividing every output by the same positive sum does not change their order, so the predicted class is the same as picking the largest raw output; normalising just makes the values read as probabilities. Kelleher's textbook version uses the <strong>softmax</strong> function, \(e^{z_k}/\sum_l e^{z_l}\) applied to the scores, for this step; Week 10 uses softmax in neural networks.</p>
+<div class="ex"><div class="hd">Worked example 5.1 <span>One-versus-all prediction</span></div><div class="bd">
+<p>A vehicle classifier has levels Car, Truck, Bus. The one-hot targets are Car = (1, 0, 0), Truck = (0, 1, 0), Bus = (0, 0, 1). For one query, the three one-versus-all models output 0.60, 0.30 and 0.45. Normalise and predict.</p>
+<div class="step"><i>1</i><div>Three levels, so three binary models are needed.</div></div>
+<div class="step"><i>2</i><div>Sum: \(0.60 + 0.30 + 0.45 = 1.35\).</div></div>
+<div class="step"><i>3</i><div>Normalised: Car \(0.60/1.35 = 0.444\), Truck \(0.30/1.35 = 0.222\), Bus \(0.45/1.35 = 0.333\). Check: \(0.444 + 0.222 + 0.333 = 1\).</div></div>
+<div class="ans">Predict Car (0.444). The raw outputs summed to 1.35, so they were not probabilities across classes until normalised.</div>
+</div></div>
+
+<h3 id="s5-ce">Cross-entropy loss</h3>
+<p>For multiclass models, the <strong>cross-entropy</strong> loss is often used instead of squared error. With a one-hot target \(\mathbf{t}\) and predicted probabilities \(\hat{\mathbf{p}}\):</p>
+<div class="eq"><span class="tag">Cross-entropy loss</span>\[ L_{CE}(\mathbf{t}, \hat{\mathbf{p}}) = -\sum_{k} t_k \ln \hat{p}_k = -\ln \hat{p}_{\text{true class}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(t_k\)</dt><dd>One-hot target: 1 for the true class, 0 otherwise.</dd>
+  <dt>\(\hat{p}_k\)</dt><dd>Predicted probability of class \(k\).</dd>
+  <dt>\(\ln\)</dt><dd>Natural logarithm.</dd>
+</dl>
+</div>
+<p>Only the true class's probability counts. If it is near 1, the loss is near 0; as it approaches 0, \(-\ln\hat p\) grows without limit. Confident wrong answers are punished severely, and the gradient stays large while the model is badly wrong, so it learns faster than with squared error on probabilities. In worked example 5.1, if the true class is Car the loss is \(-\ln 0.444 = 0.811\); if it is Truck, \(-\ln 0.222 = 1.504\).</p>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 7.4.6; slide 7 and the summary (slide 8)</p>
+</section>
+
+<section id="s6">
+<h2><span class="n">06</span>Practice problems</h2>
+<div class="ex"><div class="hd">Problem 6.1 <span>Probability and decision</span></div><div class="bd">
+<p>Using worked example 2.1's model, \(z = -3 + 0.6\,\text{Hours} - 0.4\,\text{Absences}\), find \(P(\text{Pass})\) for 3 hours and 4 absences, and classify.</p>
+<div class="step"><i>1</i><div>\(z = -3 + 1.8 - 1.6 = -2.8\).</div></div>
+<div class="step"><i>2</i><div>\(P = 1/(1 + e^{2.8}) = 1/(1 + 16.445) = 0.057\).</div></div>
+<div class="ans">\(P(\text{Pass}) = 0.057\), well below 0.5: Not Pass.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 6.2 <span>Moving the boundary</span></div><div class="bd">
+<p>A model has \(z = -4 + 2x_1 + x_2\). (a) Write the boundary as \(x_2 = \ldots\). (b) What happens if \(w_0\) becomes −6? (c) If \(w_1\) becomes 1?</p>
+<div class="step"><i>1</i><div>(a) \(-4 + 2x_1 + x_2 = 0 \Rightarrow x_2 = 4 - 2x_1\): slope −2, intercept 4.</div></div>
+<div class="step"><i>2</i><div>(b) \(x_2 = 6 - 2x_1\): same slope, shifted up by 2.</div></div>
+<div class="step"><i>3</i><div>(c) \(x_2 = 4 - x_1\): same intercept, slope −1, so the line rotates about the point (0, 4).</div></div>
+<div class="ans">(a) \(x_2 = 4 - 2x_1\). (b) Shifted parallel. (c) Rotated.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 6.3 <span>Basis functions</span></div><div class="bd">
+<p>A model uses \(\phi_0 = 1\), \(\phi_1 = x\), \(\phi_2 = x^2\) with weights (1, 3, −0.5). (a) Find the features and prediction at \(x = 2\). (b) Give an interaction basis function for \(x_1, x_2\). (c) Why is the model linear?</p>
+<div class="step"><i>1</i><div>(a) \(\phi = (1, 2, 4)\); \(\hat y = 1 + 3(2) - 0.5(4) = 5\).</div></div>
+<div class="step"><i>2</i><div>(b) \(\phi_3 = x_1 x_2\).</div></div>
+<div class="step"><i>3</i><div>(c) The prediction is a weighted sum of fixed features; each weight enters only to the first power.</div></div>
+<div class="ans">(a) (1, 2, 4) and 5. (b) \(x_1 x_2\). (c) Linear in the weights, though curved in \(x\).</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 6.4 <span>Choosing a representation</span></div><div class="bd">
+<p>Raw features or basis functions? (a) Failure probability rises steadily with load. (b) Reaction yield peaks at a moderate temperature. (c) Default risk depends on the debt-to-income combination.</p>
+<div class="step"><i>1</i><div>(a) A steady monotonic trend: raw linear features inside the logistic are enough.</div></div>
+<div class="step"><i>2</i><div>(b) Rise then fall: add a squared term \(T^2\).</div></div>
+<div class="step"><i>3</i><div>(c) A joint effect: add an interaction (or ratio) basis function.</div></div>
+<div class="ans">(a) Raw. (b) Polynomial basis. (c) Interaction basis.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 6.5 <span>Multiclass</span></div><div class="bd">
+<p>Four one-versus-all models (Sedan, SUV, Bakkie, Hatch) output 0.20, 0.50, 0.10, 0.40. (a) How many models for 4 levels? (b) Give the one-hot target for SUV. (c) Normalise and predict. (d) Find the cross-entropy loss if the truth is Hatch.</p>
+<div class="step"><i>1</i><div>(a) 4. (b) (0, 1, 0, 0).</div></div>
+<div class="step"><i>2</i><div>(c) Sum 1.2. Normalised: 0.167, 0.417, 0.083, 0.333. Predict SUV.</div></div>
+<div class="step"><i>3</i><div>(d) \(-\ln 0.333 = 1.099\).</div></div>
+<div class="ans">SUV is predicted (0.417); the loss for a true Hatch is 1.099.</div>
+</div></div>
+</section>
+
+<section id="s7">
+<h2><span class="n">07</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>Logistic regression</h4>
+<p>\(\text{logistic}(z) = 1/(1+e^{-z})\), output in \((0,1)\).</p>
+<p>\(\mathbb{M}_\mathbf{w}(\mathbf{d}) = \text{logistic}(\mathbf{w}\cdot\mathbf{d})\); positive if \(\ge 0.5 \iff z \ge 0\).</p>
+<p>\(\text{logistic}'(z) = \text{logistic}(z)(1 - \text{logistic}(z))\)</p></div>
+<div><h4>Training</h4>
+<p>\(\mathbf{w}[j] \leftarrow \mathbf{w}[j] + \alpha\sum_i (t_i - \mathbb{M}_i)\mathbb{M}_i(1-\mathbb{M}_i)\mathbf{d}_i[j]\)</p>
+<p>Normalise features first. Step function: no usable gradient.</p></div>
+<div><h4>Boundary</h4>
+<p>\(w_0 + w_1x_1 + w_2x_2 = 0\); slope \(-w_1/w_2\), intercept \(-w_0/w_2\).</p></div>
+<div><h4>Basis functions</h4>
+<p>\(\mathbb{M}_\mathbf{w}(\mathbf{d}) = \sum_k \mathbf{w}[k]\phi_k(\mathbf{d})\); e.g. \(1, x, x^2, x_1x_2\).</p></div>
+<div><h4>Multiclass</h4>
+<p>\(r\) one-versus-all models; \(\mathbb{M}'_k = \mathbb{M}_k/\sum_l \mathbb{M}_l\); predict \(\arg\max\).</p>
+<p>\(L_{CE} = -\sum_k t_k\ln\hat p_k\)</p></div>
+</div>
+</section>
+
+<footer>
+<p>Sources: 2026DA344_T4W3_ErrorBasedLearning slides (M. Gwetu), sections 5 to 8; 2026DA344_Week_9_Study_Guide; Kelleher, Mac Namee and D'Arcy (2020), Chapter 7 excluding 7.4.1 and 7.4.7. The slide illustrations of logistic gradient descent and basis functions were images; the update rule and examples here follow the textbook. All worked examples use new numbers.</p>
+</footer>
+</main>
+</div>
+
+<script>
+(function(){
+  const NS = 'http://www.w3.org/2000/svg';
+  const fig = document.getElementById('fig21'), svg = fig.querySelector('svg'), read = fig.querySelector('.fig-read');
+  const ins = fig.querySelectorAll('input'), outs = fig.querySelectorAll('output');
+  const L = 60, R = 620, T = 20, B = 226, XM = 12;
+  const X = v => L + v / XM * (R - L), Y = p => B - p * (B - T);
+  const sig = z => 1 / (1 + Math.exp(-z));
+  function el(tag, a, txt){ const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; }
+  function draw(){
+    const w0 = +ins[0].value, w1 = +ins[1].value, h = +ins[2].value, abs = 1;
+    outs[0].textContent = w0.toFixed(1); outs[1].textContent = w1.toFixed(2); outs[2].textContent = h.toFixed(1);
+    svg.textContent = '';
+    for (const p of [0, 0.25, 0.5, 0.75, 1]){
+      el('line', {class: 'grid', x1: L, x2: R, y1: Y(p), y2: Y(p)});
+      el('text', {class: 'tk', x: L - 6, y: Y(p) + 4, 'text-anchor': 'end'}, p.toFixed(2));
+    }
+    for (let v = 0; v <= XM; v += 2) el('text', {class: 'tk', x: X(v), y: B + 16, 'text-anchor': 'middle'}, v);
+    el('rect', {class: 'frame', x: L, y: T, width: R - L, height: B - T});
+    el('line', {class: 'ln c4 thin dash', x1: L, x2: R, y1: Y(0.5), y2: Y(0.5)});
+    let d = '';
+    for (let i = 0; i <= 240; i++){ const v = XM * i / 240; d += (i ? 'L' : 'M') + X(v).toFixed(1) + ' ' + Y(sig(w0 + w1 * v - 0.4 * abs)).toFixed(1); }
+    el('path', {class: 'ln c1', d: d});
+    const hb = (0.4 * abs - w0) / w1;
+    if (hb >= 0 && hb <= XM){
+      el('line', {class: 'ln c3 dash', x1: X(hb), x2: X(hb), y1: T, y2: B});
+      el('text', {class: 'tk c3t halo', x: X(hb) + 5, y: T + 14}, 'boundary ' + hb.toFixed(2) + ' h');
+    }
+    const z = w0 + w1 * h - 0.4 * abs, p = sig(z);
+    el('circle', {class: p >= 0.5 ? 'c1f' : 'c3f', cx: X(h), cy: Y(p), r: 6});
+    el('text', {class: 'lab', x: (L + R) / 2, y: 262, 'text-anchor': 'middle'}, 'study hours per week (1 absence)');
+    el('text', {class: 'lab', x: 14, y: (T + B) / 2, 'text-anchor': 'middle', transform: 'rotate(-90 14 ' + (T + B) / 2 + ')'}, 'P(Pass)');
+    read.textContent = 'z = ' + w0.toFixed(1) + ' + ' + w1.toFixed(2) + '×' + h.toFixed(1) + ' − 0.4×1 = ' + z.toFixed(3) + ';  P(Pass) = ' + p.toFixed(3) + ' → ' + (p >= 0.5 ? 'Pass' : 'Not Pass');
+  }
+  ins.forEach(i => i.addEventListener('input', draw)); draw();
+})();
+</script>
+<script src="../assets/ask-gemini.js" data-store="da344-w9" data-course="DA344 Data Analytics"
+        data-topic="Week 9: logistic regression, decision boundaries, logistic function, thresholds, gradient descent for logistic regression, normalisation, learning curves, basis functions, multinomial logistic regression, one-versus-all, cross-entropy"></script>
+</body>
+</html>

@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 7: Decision Trees · DA344 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=da344">&larr; Data Analytics</a>
+  <div class="k">DA344 · Week 7</div>
+  <ol>
+    <li><a href="#s1">1. Decision trees</a></li>
+    <li class="sub"><a href="#s1-eval">Evaluating a classifier</a></li>
+    <li><a href="#s2">2. Measuring impurity</a></li>
+    <li class="sub"><a href="#s2-entropy">Entropy</a></li>
+    <li class="sub"><a href="#s2-ig">Information gain</a></li>
+    <li class="sub"><a href="#s2-gr">Information gain ratio</a></li>
+    <li class="sub"><a href="#s2-gini">Gini index</a></li>
+    <li><a href="#s3">3. Tree induction: ID3</a></li>
+    <li><a href="#s4">4. Continuous features</a></li>
+    <li class="sub"><a href="#s4-thresh">Thresholds</a></li>
+    <li class="sub"><a href="#s4-reg">Regression trees</a></li>
+    <li class="sub"><a href="#s4-variants">Model and oblique trees</a></li>
+    <li><a href="#s5">5. Pruning</a></li>
+    <li class="sub"><a href="#s5-ccp">Cost-complexity pruning</a></li>
+    <li><a href="#s6">6. Rule extraction</a></li>
+    <li><a href="#s7">7. Practice problems</a></li>
+    <li><a href="#s8">8. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">DATA ANALYTICS 344 · TERM 4 WEEK 1 · INFORMATION-BASED LEARNING · KELLEHER CH 4</div>
+  <h1>Decision Trees and Information-Based Learning</h1>
+  <p class="lede">How a decision tree predicts, how entropy, information gain, gain ratio and the Gini index choose its tests, how ID3 grows it, and how continuous features, regression targets, pruning and rule extraction fit in. After this page you should be able to build the first split of a tree by hand and explain every choice.</p>
+</header>
+
+<section id="s1">
+<h2><span class="n">01</span>Decision trees</h2>
+<p>A <strong>decision tree</strong> is a supervised model that predicts by asking a sequence of questions about the descriptive features. Each <strong>non-terminal (decision) node</strong> tests one feature. Each branch is one outcome of the test. Each <strong>terminal (leaf) node</strong> holds a prediction of the target feature. To predict for a query, start at the <strong>root</strong> and follow the branch that matches the query at each test until a leaf is reached.</p>
+<div class="box def"><span class="label">Definition</span><p><b>Information-based learning</b> builds a model by choosing, at every step, the descriptive feature that tells you most about the target. "Most information" is measured with entropy (or the Gini index): a test is good if the child nodes it creates are purer than the parent.</p></div>
+<figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="A decision tree for a loan decision. The root tests Income. Low income goes to a leaf Reject. High income goes to a test on Credit history: good gives Approve, poor gives Reject.">
+  <rect class="blkd" x="250" y="14" width="140" height="40" rx="6"/>
+  <text class="lab b" x="320" y="39" text-anchor="middle">Income ≥ 20 000?</text>
+  <line class="ln c4 thin" x1="290" y1="54" x2="150" y2="110"/>
+  <line class="ln c4 thin" x1="350" y1="54" x2="470" y2="110"/>
+  <text class="tk" x="205" y="76" text-anchor="middle">no</text>
+  <text class="tk" x="425" y="76" text-anchor="middle">yes</text>
+  <rect class="blk" x="90" y="110" width="120" height="36" rx="18"/>
+  <text class="lab" x="150" y="133" text-anchor="middle">Reject</text>
+  <rect class="blkd" x="400" y="110" width="140" height="40" rx="6"/>
+  <text class="lab b" x="470" y="135" text-anchor="middle">History = good?</text>
+  <line class="ln c4 thin" x1="440" y1="150" x2="380" y2="200"/>
+  <line class="ln c4 thin" x1="500" y1="150" x2="560" y2="200"/>
+  <text class="tk" x="398" y="172" text-anchor="middle">yes</text>
+  <text class="tk" x="545" y="172" text-anchor="middle">no</text>
+  <rect class="blk" x="320" y="200" width="120" height="36" rx="18"/>
+  <text class="lab" x="380" y="223" text-anchor="middle">Approve</text>
+  <rect class="blk" x="500" y="200" width="120" height="36" rx="18"/>
+  <text class="lab" x="560" y="223" text-anchor="middle">Reject</text>
+  <text class="tk" x="20" y="34">depth 0 (root)</text>
+  <text class="tk" x="20" y="132">depth 1</text>
+  <text class="tk" x="20" y="222">depth 2</text>
+</svg>
+<figcaption><b>Figure 1.1</b> A two-level tree for a loan decision.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> Rectangles are decision nodes and rounded boxes are leaves. A query with Income = 35 000 and History = poor follows root → yes → no and is rejected. The tree has three leaves, so it encodes three rules (Section 6).</p>
+
+<p>Two properties make a tree good:</p>
+<ul>
+<li><strong>Effectiveness</strong> depends on the <em>quality</em> of the tests: good tests separate the classes well, so leaves are accurate.</li>
+<li><strong>Efficiency</strong> depends on the <em>order</em> of the tests: informative tests near the root let most queries reach a leaf after few questions.</li>
+</ul>
+<p>A prediction visits exactly one node per level. In a balanced tree with \(L\) leaves the path length is about \(\log_2 L\), so <strong>shallow trees</strong> predict quickly. Shallow trees are also simpler, easier to interpret and less likely to overfit. The algorithms below are greedy recipes for growing shallow, accurate trees.</p>
+
+<div class="box intuition"><span class="label">Intuition</span><p>Think of the game "Guess who?" (Kelleher Fig 4.3). Asking "Is it a man?" splits the remaining people roughly in half, whatever the answer. Asking "Is it Brian?" usually rules out only one person. Good tests are the ones whose answers you cannot predict in advance: they carry the most information.</p></div>
+
+<div class="ex"><div class="hd">Worked example 1.1 <span>Tracing a prediction</span></div><div class="bd">
+<p>A tree predicts whether a pump needs maintenance. Root: <i>Vibration ≥ 7 mm/s?</i> yes → <b>Service</b>. No → <i>Hours since service ≥ 2 000?</i> no → <b>OK</b>; yes → <i>Temperature ≥ 80 °C?</i> yes → <b>Service</b>, no → <b>OK</b>. Predict for Vibration = 4 mm/s, Hours = 2 600, Temperature = 72 °C.</p>
+<div class="step"><i>1</i><div>Root: 4 ≥ 7 is false, take the "no" branch.</div></div>
+<div class="step"><i>2</i><div>Hours: 2 600 ≥ 2 000 is true, take "yes".</div></div>
+<div class="step"><i>3</i><div>Temperature: 72 ≥ 80 is false, take "no", reaching the leaf OK.</div></div>
+<div class="ans">Prediction: OK. Path: Vibration &lt; 7 → Hours ≥ 2 000 → Temperature &lt; 80 → OK (three tests).</div>
+</div></div>
+
+<h3 id="s1-eval">Evaluating a classifier</h3>
+<p>The slides use a credit-approval tree (Yengejeh, 2023) to recall the confusion-matrix measures from earlier in the module. With TP, TN, FP and FN the counts of true positives, true negatives, false positives and false negatives:</p>
+<div class="eq"><span class="tag">Classification performance</span>\[ \text{Accuracy} = \frac{TP+TN}{TP+TN+FP+FN}, \quad \text{Precision} = \frac{TP}{TP+FP}, \quad \text{Recall} = \frac{TP}{TP+FN}, \quad F_1 = \frac{2}{\frac{1}{\text{precision}} + \frac{1}{\text{recall}}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(TP\)</dt><dd>Positives predicted as positive (count).</dd>
+  <dt>\(TN\)</dt><dd>Negatives predicted as negative (count).</dd>
+  <dt>\(FP\)</dt><dd>Negatives wrongly predicted as positive (count).</dd>
+  <dt>\(FN\)</dt><dd>Positives wrongly predicted as negative (count).</dd>
+  <dt>\(F_1\)</dt><dd>Harmonic mean of precision and recall, between 0 and 1.</dd>
+</dl>
+</div>
+<p>Recall is also called sensitivity. These measures return in Week 12, where you compute them for ensembles.</p>
+<p>In practice trees are trained with libraries, for example <code>rpart</code> and <code>rpart.plot</code> in R or <code>sklearn.tree.DecisionTreeClassifier</code> in Python. These hide the calculations below, which is exactly what the exam asks you to do by hand.</p>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Sections 4.1 and 4.2.1; slides 1.1 to 1.4</p>
+</section>
+
+<section id="s2">
+<h2><span class="n">02</span>Measuring impurity</h2>
+<p>A test is chosen by how much it increases the <strong>purity</strong> of the child nodes with respect to the target feature. A node is pure when all its instances have the same target level.</p>
+<p>The simplest measure is <strong>majority-class purity</strong>: the fraction of the node in its most common class. In the slides, splitting ten patients on FamilyHistory gives a False child with 5 of 7 Benign (purity 5/7) and a True child with 3 of 3 Malignant (purity 3/3). Majority purity looks at one level only, so it cannot tell a node split 5/2 from one split 5/1/1. Entropy fixes this by using every level.</p>
+
+<h3 id="s2-entropy">Entropy</h3>
+<p><strong>Shannon entropy</strong> measures the uncertainty in a node, in <strong>bits</strong>: the average number of yes/no questions needed to identify the target level of a randomly chosen instance. A pure node needs no questions, so its entropy is 0 bits. A node split evenly between two levels needs one question: 1 bit. The more diverse the node, the more bits.</p>
+<div class="eq"><span class="tag">Entropy (Kelleher Eq 4.2)</span>\[ H(t, \mathcal{D}) = -\sum_{l \in \text{levels}(t)} P(t = l)\,\log_2 P(t = l) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(H(t,\mathcal{D})\)</dt><dd>Entropy of target feature \(t\) in dataset (node) \(\mathcal{D}\), in bits.</dd>
+  <dt>\(l\)</dt><dd>One level (class value) of the target.</dd>
+  <dt>\(P(t=l)\)</dt><dd>Fraction of instances in \(\mathcal{D}\) whose target is \(l\).</dd>
+  <dt>\(\log_2\)</dt><dd>Base-2 logarithm; it makes the unit bits. Take \(0 \log_2 0 = 0\).</dd>
+</dl>
+</div>
+<p>Recipe: for each target level, multiply its probability by the log of that probability; sum the products and negate. The negation makes the result non-negative, because logs of probabilities are negative. For \(k\) equally likely levels \(H = \log_2 k\), the maximum: 1 bit for two classes, 1.585 bits for three.</p>
+
+<figure id="fig21">
+<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="Entropy and Gini index of a two-class node plotted against the probability of the positive class. Slide to choose the probability."></svg>
+<div class="fig-ctl">
+<label><span>P(+)</span><input type="range" data-k="p" min="0" max="1" step="0.01" value="0.25" aria-label="Probability of the positive class"><output></output></label>
+</div>
+<div class="fig-read" aria-live="polite"></div>
+<figcaption><b>Figure 2.1</b> Entropy and Gini index of a two-class node against the class proportion.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> It starts at P(+) = 0.25, the node of worked example 2.1 (3 of 12). Slide to change the class mix. Both measures are zero for a pure node (P = 0 or 1) and largest at an even split (P = 0.5), where entropy is 1 bit and Gini 0.5. Entropy is steeper near the pure ends, which is the "better contrast" the slides mention. The dashed line is twice the Gini index: scaled, the two curves are very close, which is why they usually pick the same split.</p>
+
+<div class="ex"><div class="hd">Worked example 2.1 <span>Entropy and Gini of a node</span></div><div class="bd">
+<p>A node holds 12 loan applications: 3 Approve and 9 Reject. Find its entropy and Gini index.</p>
+<div class="step"><i>1</i><div>Probabilities: \(P(\text{Approve}) = 3/12 = 0.25\), \(P(\text{Reject}) = 9/12 = 0.75\).</div></div>
+<div class="step"><i>2</i><div>Entropy: \(H = -(0.25\log_2 0.25 + 0.75\log_2 0.75) = -(0.25(-2) + 0.75(-0.4150)) = 0.5 + 0.3113 = 0.8113\) bits.</div></div>
+<div class="step"><i>3</i><div>Gini: \(1 - (0.25^2 + 0.75^2) = 1 - (0.0625 + 0.5625) = 0.375\).</div></div>
+<div class="ans">\(H = 0.811\) bits and Gini \(= 0.375\). The node is fairly impure, though not as impure as an even split (1 bit, 0.5).</div>
+</div></div>
+
+<div class="box watch"><span class="label">Watch out</span><p>Use base-2 logs. On a calculator, \(\log_2 x = \ln x / \ln 2\). A common slip is forgetting the leading minus sign, which gives a negative entropy: entropy is never negative.</p></div>
+
+<h3 id="s2-ig">Information gain</h3>
+<p>To score a test on descriptive feature \(d\), partition the node by the levels of \(d\), work out the entropy of each child, and take the weighted average: the <strong>remaining entropy</strong>. The <strong>information gain</strong> is how much the test reduced the entropy. Choose the test with the largest gain.</p>
+<div class="eq"><span class="tag">Remaining entropy and information gain (Kelleher Eqs 4.3, 4.4)</span>\[ \text{rem}(d, \mathcal{D}) = \sum_{l \in \text{levels}(d)} \frac{|\mathcal{D}_{d=l}|}{|\mathcal{D}|}\, H(t, \mathcal{D}_{d=l}), \qquad IG(d, \mathcal{D}) = H(t, \mathcal{D}) - \text{rem}(d, \mathcal{D}) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\text{rem}(d,\mathcal{D})\)</dt><dd>Entropy left after splitting on \(d\), in bits.</dd>
+  <dt>\(\mathcal{D}_{d=l}\)</dt><dd>The child partition: instances whose feature \(d\) equals level \(l\).</dd>
+  <dt>\(|\mathcal{D}_{d=l}|/|\mathcal{D}|\)</dt><dd>Weight: the fraction of the parent's instances that go to that child.</dd>
+  <dt>\(IG(d,\mathcal{D})\)</dt><dd>Information gain of the test on \(d\), in bits; never negative.</dd>
+</dl>
+</div>
+<p>The children must be <strong>weighted by size</strong>. A tiny pure child should not make up for a big impure one: a split that peels off one pure instance and leaves 99 mixed ones has hardly helped.</p>
+<p>Slide check (ten-patient table): the parent has 5 Benign and 5 Malignant, so \(H = 1\) bit. FamilyHistory = False has 5 Benign, 2 Malignant: \(H = 0.8631\) bits. FamilyHistory = True is pure: 0 bits. \(\text{rem} = 0.7(0.8631) + 0.3(0) = 0.6042\) bits and \(IG = 1 - 0.6042 = 0.3958\) bits.</p>
+
+<div class="ex"><div class="hd">Worked example 2.2 <span>Choosing the root test</span></div><div class="bd">
+<p>Twelve applications: 6 Approve, 6 Reject. Three candidate features:</p>
+<div class="tbl"><table><thead><tr><th>Feature</th><th>Child</th><th>Approve</th><th>Reject</th></tr></thead><tbody>
+<tr><td rowspan="2">Employed</td><td>yes (6)</td><td>5</td><td>1</td></tr>
+<tr><td>no (6)</td><td>1</td><td>5</td></tr>
+<tr><td rowspan="3">History</td><td>good (4)</td><td>4</td><td>0</td></tr>
+<tr><td>fair (4)</td><td>2</td><td>2</td></tr>
+<tr><td>poor (4)</td><td>0</td><td>4</td></tr>
+<tr><td>ApplicantID</td><td>12 children of 1</td><td colspan="2">each child pure</td></tr>
+</tbody></table></div>
+<div class="step"><i>1</i><div>Parent: 6/6 split, so \(H(t,\mathcal{D}) = 1\) bit.</div></div>
+<div class="step"><i>2</i><div>Employed: each child is 5/1, \(H = -(\tfrac56\log_2\tfrac56 + \tfrac16\log_2\tfrac16) = 0.6500\) bits. \(\text{rem} = \tfrac{6}{12}(0.65) + \tfrac{6}{12}(0.65) = 0.6500\). \(IG = 0.3500\) bits.</div></div>
+<div class="step"><i>3</i><div>History: good and poor are pure (0 bits), fair is 2/2 (1 bit). \(\text{rem} = \tfrac{4}{12}(0) + \tfrac{4}{12}(1) + \tfrac{4}{12}(0) = 0.3333\). \(IG = 0.6667\) bits.</div></div>
+<div class="step"><i>4</i><div>ApplicantID: every child holds one instance, so every child is pure. \(\text{rem} = 0\) and \(IG = 1\) bit.</div></div>
+<div class="ans">By information gain, ApplicantID wins (1 bit), then History (0.667), then Employed (0.350). ApplicantID is useless for new applicants, though. The gain ratio below fixes this.</div>
+</div></div>
+
+<h3 id="s2-gr">Information gain ratio</h3>
+<p>Information gain is <strong>biased toward features with many levels</strong>. With many levels each child is small, small children are likely to be pure by chance, and any impure ones carry little weight. An identifier feature is the extreme case: it gets the maximum gain and generalises not at all.</p>
+<p>The <strong>information gain ratio</strong> divides the gain by the entropy of the feature itself (the <em>split information</em>). A feature that shatters the data into many small partitions has a large split information, so its ratio is pulled down.</p>
+<div class="eq"><span class="tag">Information gain ratio (Kelleher Eq 4.8)</span>\[ GR(d, \mathcal{D}) = \frac{IG(d, \mathcal{D})}{-\displaystyle\sum_{l \in \text{levels}(d)} P(d = l)\,\log_2 P(d = l)} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(GR(d,\mathcal{D})\)</dt><dd>Gain ratio of feature \(d\) (dimensionless).</dd>
+  <dt>\(IG(d,\mathcal{D})\)</dt><dd>Information gain from Eq 4.4, in bits.</dd>
+  <dt>\(P(d=l)\)</dt><dd>Fraction of instances with level \(l\) of the <em>descriptive</em> feature (not the target).</dd>
+  <dt>Denominator</dt><dd>Split information: the entropy of \(d\), in bits.</dd>
+</dl>
+</div>
+<p>Slide check: FamilyHistory sends 7 of 10 to False and 3 to True. Split information \(= -(0.7\log_2 0.7 + 0.3\log_2 0.3) = 0.8813\) bits, so \(GR = 0.3958/0.8813 = 0.4491\).</p>
+
+<div class="ex"><div class="hd">Worked example 2.3 <span>Gain ratio removes the ID bias</span></div><div class="bd">
+<p>Continue worked example 2.2 with the gain ratio.</p>
+<div class="step"><i>1</i><div>Employed splits 6/6: split info \(= 1\) bit. \(GR = 0.3500/1 = 0.3500\).</div></div>
+<div class="step"><i>2</i><div>History splits 4/4/4: split info \(= \log_2 3 = 1.5850\) bits. \(GR = 0.6667/1.5850 = 0.4206\).</div></div>
+<div class="step"><i>3</i><div>ApplicantID splits into 12 singletons: split info \(= \log_2 12 = 3.5850\) bits. \(GR = 1/3.5850 = 0.2789\).</div></div>
+<div class="ans">By gain ratio History wins (0.421), ahead of Employed (0.350) and ApplicantID (0.279). History becomes the root test.</div>
+</div></div>
+
+<h3 id="s2-gini">Gini index</h3>
+<p>The <strong>Gini index</strong> is a cheaper impurity measure (no logarithms). It is the probability of misclassifying a random instance from the node if you label it at random according to the node's class distribution: the "expected misclassification".</p>
+<div class="eq"><span class="tag">Gini index (Kelleher Eq 4.9)</span>\[ \text{Gini}(t, \mathcal{D}) = 1 - \sum_{l \in \text{levels}(t)} P(t = l)^2 \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\text{Gini}(t,\mathcal{D})\)</dt><dd>Gini index of node \(\mathcal{D}\); 0 for a pure node, at most \(1 - 1/k\) for \(k\) levels.</dd>
+  <dt>\(P(t=l)\)</dt><dd>Fraction of the node with target level \(l\).</dd>
+</dl>
+</div>
+<p>Gini-based information gain uses the same recipe as before, with Gini in place of entropy: parent Gini minus the size-weighted average of the child Gini values. Slide check: parent \(1 - (0.5^2 + 0.5^2) = 0.5\); FamilyHistory = False \(1 - ((5/7)^2 + (2/7)^2) = 0.4082\); True \(= 0\). Gain \(= 0.5 - (0.7 \times 0.4082 + 0.3 \times 0) = 0.2143\).</p>
+<p>Comparing the two measures (slides 2.6):</p>
+<ul>
+<li>Gini is bounded in \([0, 1)\), which makes values easy to read. Entropy is unbounded as the number of levels grows, which gives stronger contrast between impure nodes.</li>
+<li>Both are expectations over the class distribution: entropy is the expected number of bits needed, Gini the expected misclassification rate.</li>
+<li>They usually recommend the same split. Which is better depends on the data, so choose by performance on a <strong>validation set</strong>.</li>
+</ul>
+
+<div class="ex"><div class="hd">Worked example 2.4 <span>Gini-based gain</span></div><div class="bd">
+<p>Repeat worked example 2.2 for Employed and History with the Gini index.</p>
+<div class="step"><i>1</i><div>Parent (6/6): \(\text{Gini} = 1 - (0.5^2 + 0.5^2) = 0.5\).</div></div>
+<div class="step"><i>2</i><div>Employed children (5/1): \(1 - ((5/6)^2 + (1/6)^2) = 1 - 26/36 = 0.2778\) each. Weighted: \(0.2778\). Gain \(= 0.5 - 0.2778 = 0.2222\).</div></div>
+<div class="step"><i>3</i><div>History: pure children 0, fair child \(1 - (0.5^2 + 0.5^2) = 0.5\). Weighted: \(\tfrac{4}{12}(0.5) = 0.1667\). Gain \(= 0.5 - 0.1667 = 0.3333\).</div></div>
+<div class="ans">Gini gain prefers History (0.333) over Employed (0.222), the same ranking as entropy.</div>
+</div></div>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Sections 4.2.2 to 4.2.3 and 4.4.1; slides 2.1 to 2.6</p>
+</section>
+
+<section id="s3">
+<h2><span class="n">03</span>Tree induction: the ID3 algorithm</h2>
+<p><strong>ID3</strong> (Iterative Dichotomiser 3) grows a tree top-down and greedily. At each node it picks the feature with the highest information gain, splits on it, and repeats on each child with that feature removed. It is <strong>recursive</strong>: building a subtree is the same problem as building the whole tree, on fewer instances and features.</p>
+<p>ID3(\(\mathbf{d}\), \(\mathcal{D}\)), where \(\mathbf{d}\) is the set of remaining descriptive features and \(\mathcal{D}\) the instances at this node:</p>
+<ol>
+<li><strong>Base case 1, no impurity:</strong> if every instance in \(\mathcal{D}\) has the same target level, return a leaf with that level.</li>
+<li><strong>Base case 2, no features left:</strong> if \(\mathbf{d}\) is empty, return a leaf with the majority target level of \(\mathcal{D}\).</li>
+<li><strong>Base case 3, no instances:</strong> if \(\mathcal{D}\) is empty, return a leaf with the majority level of the <em>parent's</em> instances.</li>
+<li><strong>Recursive case:</strong> find \(d[\text{best}] = \arg\max_{d \in \mathbf{d}} IG(d, \mathcal{D})\). Make a node that tests \(d[\text{best}]\). For each level \(l\) of \(d[\text{best}]\), add a branch whose child is ID3(\(\mathbf{d} - \{d[\text{best}]\}\), \(\mathcal{D}_{d[\text{best}]=l}\)).</li>
+</ol>
+<p>A categorical feature is removed once used: every instance below that node already has the same value, so testing it again gains nothing.</p>
+<div class="box intuition"><span class="label">Intuition</span><p>ID3's <strong>inductive bias</strong> is a preference for shallow trees, put into practice greedily: it takes the locally best test and never reconsiders. That is fast, but the tree is not guaranteed to be the smallest possible. A standard tree tests one feature per node, so its decision boundaries are <strong>axis-parallel</strong> (lines like \(x_1 = c\)).</p></div>
+<div class="ex"><div class="hd">Worked example 3.1 <span>Finishing the tree</span></div><div class="bd">
+<p>Continue worked example 2.3 with History at the root. The good child (4 Approve) and the poor child (4 Reject) are pure. The fair child has 2 Approve, 2 Reject; within it, Employed = yes gives 2 Approve and Employed = no gives 2 Reject. Grow the rest with ID3.</p>
+<div class="step"><i>1</i><div>History = good: base case 1 (pure), leaf Approve. History = poor: leaf Reject.</div></div>
+<div class="step"><i>2</i><div>History = fair: \(H = 1\) bit. Splitting on Employed makes both children pure: \(\text{rem} = 0\), \(IG = 1\) bit, the maximum possible. Make an Employed node.</div></div>
+<div class="step"><i>3</i><div>Both Employed children are pure: leaves Approve (yes) and Reject (no).</div></div>
+<div class="ans">The tree is History at the root; good → Approve, poor → Reject, fair → Employed (yes → Approve, no → Reject). Depth 2, four leaves, every training instance classified correctly.</div>
+</div></div>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 4.3 (Algorithm 1, the ID3 algorithm); slide 3</p>
+</section>
+
+<section id="s4">
+<h2><span class="n">04</span>Continuous features</h2>
+<h3 id="s4-thresh">Continuous descriptive features: thresholds</h3>
+<p>A categorical feature's partitions are its distinct levels. A continuous feature could be split in infinitely many places. Two ways to make it usable:</p>
+<ul>
+<li><strong>Binning</strong> (Week 3): turn it into a categorical feature with equal-width or equal-frequency bins, chosen before training and without looking at the target.</li>
+<li><strong>Thresholding</strong> (more common): make a binary test \(d \ge \theta\) and learn the best threshold \(\theta\) from the target.</li>
+</ul>
+<p>To find candidate thresholds efficiently:</p>
+<ol>
+<li>Sort the instances by the continuous feature.</li>
+<li>Wherever two <em>adjacent</em> instances have <em>different</em> target levels, take the midpoint of their feature values as a candidate.</li>
+<li>Score each candidate split with information gain (or Gini), as if it were a binary feature. Keep the best; it then competes with the other features.</li>
+</ol>
+<p>Midpoints between adjacent instances with the <em>same</em> target need not be tried. Moving the threshold within a run of one class only moves same-class instances from one side to the other, which cannot beat a threshold at the run's boundary.</p>
+<div class="box def"><span class="label">Reusing a continuous feature</span><p>A categorical feature is used at most once on a path. A continuous feature can be tested <strong>again further down the same path with a different threshold</strong>: after Elevation ≥ 1 975, the branch can still ask Elevation ≥ 3 000 to separate two classes that both lie above 1 975.</p></div>
+
+<figure>
+<svg viewBox="0 0 640 170" class="fig" role="img" aria-label="Eight instances sorted by temperature from 12 to 35 degrees, labelled Cold, Mild and Hot, with candidate thresholds at 16.5 and 25.5 degrees.">
+  <line class="axis" x1="40" y1="90" x2="610" y2="90"/>
+  <line class="axis" x1="40.0" y1="86" x2="40.0" y2="94"/><text class="tk" x="40.0" y="110" text-anchor="middle">10</text>
+<line class="axis" x1="145.6" y1="86" x2="145.6" y2="94"/><text class="tk" x="145.6" y="110" text-anchor="middle">15</text>
+<line class="axis" x1="251.1" y1="86" x2="251.1" y2="94"/><text class="tk" x="251.1" y="110" text-anchor="middle">20</text>
+<line class="axis" x1="356.7" y1="86" x2="356.7" y2="94"/><text class="tk" x="356.7" y="110" text-anchor="middle">25</text>
+<line class="axis" x1="462.2" y1="86" x2="462.2" y2="94"/><text class="tk" x="462.2" y="110" text-anchor="middle">30</text>
+<line class="axis" x1="567.8" y1="86" x2="567.8" y2="94"/><text class="tk" x="567.8" y="110" text-anchor="middle">35</text>
+<circle class="c4f" cx="82.2" cy="90" r="6"/>
+<text class="lab" x="82.2" y="66" text-anchor="middle">Cold</text>
+<circle class="c4f" cx="145.6" cy="90" r="6"/>
+<text class="lab" x="145.6" y="50" text-anchor="middle">Cold</text>
+<circle class="c1f" cx="208.9" cy="90" r="6"/>
+<text class="lab c1t" x="208.9" y="66" text-anchor="middle">Mild</text>
+<circle class="c1f" cx="272.2" cy="90" r="6"/>
+<text class="lab c1t" x="272.2" y="50" text-anchor="middle">Mild</text>
+<circle class="c1f" cx="335.6" cy="90" r="6"/>
+<text class="lab c1t" x="335.6" y="66" text-anchor="middle">Mild</text>
+<circle class="c3f" cx="398.9" cy="90" r="6"/>
+<text class="lab c3t" x="398.9" y="50" text-anchor="middle">Hot</text>
+<circle class="c3f" cx="483.3" cy="90" r="6"/>
+<text class="lab c3t" x="483.3" y="66" text-anchor="middle">Hot</text>
+<circle class="c3f" cx="567.8" cy="90" r="6"/>
+<text class="lab c3t" x="567.8" y="50" text-anchor="middle">Hot</text>
+<line class="ln c4 thin dash" x1="177.2" y1="30" x2="177.2" y2="130"/><text class="lab b" x="177.2" y="146" text-anchor="middle">θ = 16.5</text>
+<line class="ln c4 thin dash" x1="367.2" y1="30" x2="367.2" y2="130"/><text class="lab b" x="367.2" y="146" text-anchor="middle">θ = 25.5</text>
+<text class="lab" x="325" y="166" text-anchor="middle">temperature (°C)</text>
+</svg>
+<figcaption><b>Figure 4.1</b> Candidate thresholds sit only where the class changes.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> The instances of worked example 4.1, sorted by temperature. Adjacent instances differ in class in only two places, so only two thresholds (dashed) need to be scored, out of seven possible midpoints.</p>
+
+<div class="ex"><div class="hd">Worked example 4.1 <span>Choosing a threshold</span></div><div class="bd">
+<p>Eight days, sorted by Temperature (°C), with target Comfort: 12 Cold, 15 Cold, 18 Mild, 21 Mild, 24 Mild, 27 Hot, 31 Hot, 35 Hot. Find the best threshold by information gain.</p>
+<div class="step"><i>1</i><div>Class changes: between 15 and 18 (Cold → Mild) and between 24 and 27 (Mild → Hot). Candidates: \(\theta = 16.5\) °C and \(\theta = 25.5\) °C.</div></div>
+<div class="step"><i>2</i><div>Parent: 2 Cold, 3 Mild, 3 Hot. \(H = -(\tfrac28\log_2\tfrac28 + 2 \times \tfrac38\log_2\tfrac38) = 1.5613\) bits.</div></div>
+<div class="step"><i>3</i><div>\(\theta = 16.5\): below = {Cold, Cold}, \(H = 0\). Above = 3 Mild, 3 Hot, \(H = 1\). \(\text{rem} = \tfrac28(0) + \tfrac68(1) = 0.75\). \(IG = 0.8113\) bits.</div></div>
+<div class="step"><i>4</i><div>\(\theta = 25.5\): below = 2 Cold, 3 Mild, \(H = 0.9710\). Above = 3 Hot, \(H = 0\). \(\text{rem} = \tfrac58(0.9710) = 0.6068\). \(IG = 0.9544\) bits.</div></div>
+<div class="ans">Use Temperature ≥ 25.5 °C (IG = 0.954 bits). The "below" branch is still mixed, so the tree can test Temperature again there with \(\theta = 16.5\) °C.</div>
+</div></div>
+
+<h3 id="s4-reg">Continuous targets: regression trees</h3>
+<p>A tree whose leaves predict a number is a <strong>regression tree</strong>. Three changes to ID3:</p>
+<ul>
+<li><strong>Split criterion:</strong> entropy and Gini need class levels, so use <strong>variance</strong> (equivalently mean squared error). The best split minimises the size-weighted variance of the children.</li>
+<li><strong>Leaf prediction:</strong> the <strong>mean</strong> target of the training instances in the leaf, not the majority class. The mean minimises the squared error within the leaf.</li>
+<li><strong>Stopping:</strong> continuous targets are almost never "pure", so base case 1 is replaced by an <strong>early-stopping</strong> rule such as a minimum leaf size (for example 5 % of the data). Too small a leaf overfits; too large a leaf underfits.</li>
+</ul>
+<div class="eq"><span class="tag">Variance and the regression split (Kelleher Eqs 4.10, 4.11)</span>\[ \text{var}(t, \mathcal{D}) = \frac{\sum_{i=1}^{n} (t_i - \bar{t})^2}{n - 1}, \qquad d[\text{best}] = \arg\min_{d \in \mathbf{d}} \sum_{l \in \text{levels}(d)} \frac{|\mathcal{D}_{d=l}|}{|\mathcal{D}|}\, \text{var}(t, \mathcal{D}_{d=l}) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\text{var}(t,\mathcal{D})\)</dt><dd>Sample variance of the target in node \(\mathcal{D}\) (target units squared).</dd>
+  <dt>\(t_i\)</dt><dd>Target value of instance \(i\).</dd>
+  <dt>\(\bar{t}\)</dt><dd>Mean target in the node; also the leaf's prediction.</dd>
+  <dt>\(n\)</dt><dd>Number of instances in the node.</dd>
+  <dt>\(d[\text{best}]\)</dt><dd>The feature whose split gives the lowest weighted child variance.</dd>
+</dl>
+</div>
+
+<div class="ex"><div class="hd">Worked example 4.2 <span>A regression split</span></div><div class="bd">
+<p>Six days of bicycle rentals: weekdays 810, 950, 880; weekend days 1 420, 1 510, 1 390. Of these, the days with 950 and 1 420 were rainy. Compare splitting on DayType with splitting on Rain.</p>
+<div class="step"><i>1</i><div>DayType: weekday mean 880, variance \(\tfrac{(-70)^2 + 70^2 + 0^2}{2} = 4\,900\). Weekend mean 1 440, variance \(\tfrac{(-20)^2 + 70^2 + (-50)^2}{2} = 3\,900\). Weighted: \(0.5(4\,900) + 0.5(3\,900) = 4\,400\).</div></div>
+<div class="step"><i>2</i><div>Rain: rainy {950, 1 420}, mean 1 185, variance 110 450. Dry {810, 880, 1 510, 1 390}, mean 1 147.5, variance 125 225. Weighted: \(\tfrac26(110\,450) + \tfrac46(125\,225) = 120\,300\).</div></div>
+<div class="ans">Split on DayType (weighted variance 4 400 against 120 300). The leaves predict 880 rentals on weekdays and 1 440 at weekends.</div>
+</div></div>
+
+<h3 id="s4-variants">Model trees and oblique trees</h3>
+<p>Because each leaf predicts a constant, a regression tree's prediction function is <strong>piecewise constant</strong>: a staircase. Deeper trees give more, narrower steps and follow the data more closely (slides 7.2 show depths 0 to 5 fitting a wavy curve). Two extensions address the limits of standard trees:</p>
+<ul>
+<li>A <strong>model tree</strong> fits a regression function (linear or non-linear) to the instances in each leaf, instead of using their mean. Prediction inside a leaf then varies with the features, so a model tree can follow a trend with far fewer leaves.</li>
+<li>An <strong>oblique tree</strong> tests a linear combination of numeric features at a node, such as \(0.6\,\text{Elevation} + 40\,\text{Slope} \ge 1\,800\), instead of one feature. Its boundaries can be slanted rather than axis-parallel, which suits classes separated by a diagonal. The cost: finding a good hyperplane at each node needs a search, which is much slower, and the tests are harder to interpret.</li>
+</ul>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Noisy curved data with a four-leaf regression tree fit (steps) and a two-leaf model tree fit (straight line segments)">
+<line class="grid" x1="60.0" y1="216.0" x2="620.0" y2="216.0"/>
+<text class="tk" x="54.0" y="220.0" text-anchor="end">0</text>
+<line class="grid" x1="60.0" y1="176.8" x2="620.0" y2="176.8"/>
+<text class="tk" x="54.0" y="180.8" text-anchor="end">10</text>
+<line class="grid" x1="60.0" y1="137.6" x2="620.0" y2="137.6"/>
+<text class="tk" x="54.0" y="141.6" text-anchor="end">20</text>
+<line class="grid" x1="60.0" y1="98.4" x2="620.0" y2="98.4"/>
+<text class="tk" x="54.0" y="102.4" text-anchor="end">30</text>
+<line class="grid" x1="60.0" y1="59.2" x2="620.0" y2="59.2"/>
+<text class="tk" x="54.0" y="63.2" text-anchor="end">40</text>
+<line class="grid" x1="60.0" y1="20.0" x2="620.0" y2="20.0"/>
+<text class="tk" x="54.0" y="24.0" text-anchor="end">50</text>
+<text class="tk" x="60.0" y="232.0" text-anchor="middle">0</text>
+<text class="tk" x="116.0" y="232.0" text-anchor="middle">1</text>
+<text class="tk" x="172.0" y="232.0" text-anchor="middle">2</text>
+<text class="tk" x="228.0" y="232.0" text-anchor="middle">3</text>
+<text class="tk" x="284.0" y="232.0" text-anchor="middle">4</text>
+<text class="tk" x="340.0" y="232.0" text-anchor="middle">5</text>
+<text class="tk" x="396.0" y="232.0" text-anchor="middle">6</text>
+<text class="tk" x="452.0" y="232.0" text-anchor="middle">7</text>
+<text class="tk" x="508.0" y="232.0" text-anchor="middle">8</text>
+<text class="tk" x="564.0" y="232.0" text-anchor="middle">9</text>
+<text class="tk" x="620.0" y="232.0" text-anchor="middle">10</text>
+<rect class="frame" x="60.0" y="20.0" width="560.0" height="196.0"/>
+<text class="lab" x="340.0" y="254" text-anchor="middle">descriptive feature x</text>
+<text class="lab" x="14" y="118.0" text-anchor="middle" transform="rotate(-90 14 118.0)">target t</text>
+<path class="ln c1" d="M60.0 183.9 L270.0 183.9"/>
+<path class="ln c1" d="M270.0 134.0 L354.0 134.0"/>
+<path class="ln c1" d="M354.0 85.0 L438.0 85.0"/>
+<path class="ln c1" d="M438.0 47.6 L620.0 47.6"/>
+<path class="ln c3 dash" d="M60.0 205.9 L354.0 131.1"/>
+<path class="ln c3 dash" d="M354.0 89.0 L620.0 31.8"/>
+<circle class="c4f" cx="60.0" cy="188.8" r="3"/>
+<circle class="c4f" cx="88.0" cy="198.4" r="3"/>
+<circle class="c4f" cx="116.0" cy="191.1" r="3"/>
+<circle class="c4f" cx="144.0" cy="184.1" r="3"/>
+<circle class="c4f" cx="172.0" cy="191.2" r="3"/>
+<circle class="c4f" cx="200.0" cy="180.3" r="3"/>
+<circle class="c4f" cx="228.0" cy="168.3" r="3"/>
+<circle class="c4f" cx="256.0" cy="168.8" r="3"/>
+<circle class="c4f" cx="284.0" cy="149.9" r="3"/>
+<circle class="c4f" cx="312.0" cy="129.5" r="3"/>
+<circle class="c4f" cx="340.0" cy="122.7" r="3"/>
+<circle class="c4f" cx="368.0" cy="99.5" r="3"/>
+<circle class="c4f" cx="396.0" cy="79.0" r="3"/>
+<circle class="c4f" cx="424.0" cy="76.6" r="3"/>
+<circle class="c4f" cx="452.0" cy="60.7" r="3"/>
+<circle class="c4f" cx="480.0" cy="48.7" r="3"/>
+<circle class="c4f" cx="508.0" cy="54.2" r="3"/>
+<circle class="c4f" cx="536.0" cy="44.9" r="3"/>
+<circle class="c4f" cx="564.0" cy="37.9" r="3"/>
+<circle class="c4f" cx="592.0" cy="47.0" r="3"/>
+<circle class="c4f" cx="620.0" cy="40.1" r="3"/>
+<line class="grid" x1="270.0" y1="20.0" x2="270.0" y2="216.0"/>
+<line class="grid" x1="354.0" y1="20.0" x2="354.0" y2="216.0"/>
+<line class="grid" x1="438.0" y1="20.0" x2="438.0" y2="216.0"/>
+<text class="lab c1t halo" x="71.2" y="35.7" text-anchor="start">steps: regression tree (4 leaves)</text>
+<text class="lab c3t halo" x="71.2" y="55.3" text-anchor="start">dashed: model tree (2 leaves, a line in each)</text>
+</svg>
+<figcaption><b>Figure 4.2</b> A regression tree fits steps; a model tree fits a line in each leaf.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.2:</b> The dots are 21 noisy samples of a curve. The solid steps are a four-leaf regression tree grown greedily by minimising squared error; the grey verticals are its three thresholds. The dashed lines are a two-leaf model tree, split at the same root threshold, with a least-squares line in each leaf. With half the leaves, the model tree follows the trend more closely.</p>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Sections 4.4.2 and 4.4.3; slides 4.1, 4.2, 7.2 and 7.3</p>
+</section>
+
+<section id="s5">
+<h2><span class="n">05</span>Pruning</h2>
+<p>A deep tree with many partitions ends with many leaves that hold only a few instances each. Those leaves fit <strong>noise</strong> and <strong>sampling variance</strong> in the training data: the tree <strong>overfits</strong>, scoring well on training data and worse on new data.</p>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Training and validation accuracy against maximum tree depth from 1 to 8">
+<line class="grid" x1="60.0" y1="216.0" x2="620.0" y2="216.0"/>
+<text class="tk" x="54.0" y="220.0" text-anchor="end">0.6</text>
+<line class="grid" x1="60.0" y1="167.0" x2="620.0" y2="167.0"/>
+<text class="tk" x="54.0" y="171.0" text-anchor="end">0.7</text>
+<line class="grid" x1="60.0" y1="118.0" x2="620.0" y2="118.0"/>
+<text class="tk" x="54.0" y="122.0" text-anchor="end">0.8</text>
+<line class="grid" x1="60.0" y1="69.0" x2="620.0" y2="69.0"/>
+<text class="tk" x="54.0" y="73.0" text-anchor="end">0.9</text>
+<line class="grid" x1="60.0" y1="20.0" x2="620.0" y2="20.0"/>
+<text class="tk" x="54.0" y="24.0" text-anchor="end">1</text>
+<text class="tk" x="95.0" y="232.0" text-anchor="middle">1</text>
+<text class="tk" x="165.0" y="232.0" text-anchor="middle">2</text>
+<text class="tk" x="235.0" y="232.0" text-anchor="middle">3</text>
+<text class="tk" x="305.0" y="232.0" text-anchor="middle">4</text>
+<text class="tk" x="375.0" y="232.0" text-anchor="middle">5</text>
+<text class="tk" x="445.0" y="232.0" text-anchor="middle">6</text>
+<text class="tk" x="515.0" y="232.0" text-anchor="middle">7</text>
+<text class="tk" x="585.0" y="232.0" text-anchor="middle">8</text>
+<rect class="frame" x="60.0" y="20.0" width="560.0" height="196.0"/>
+<text class="lab" x="340.0" y="254" text-anchor="middle">maximum tree depth</text>
+<text class="lab" x="14" y="118.0" text-anchor="middle" transform="rotate(-90 14 118.0)">accuracy</text>
+<path class="ln c4" d="M95.0 176.8 L165.0 132.7 L235.0 98.4 L305.0 69.0 L375.0 49.4 L445.0 34.7 L515.0 24.9 L585.0 20.0"/>
+<path class="ln c1" d="M95.0 186.6 L165.0 147.4 L235.0 118.0 L305.0 103.3 L375.0 108.2 L445.0 122.9 L515.0 137.6 L585.0 147.4"/>
+<circle class="c4f" cx="95.0" cy="176.8" r="3.5"/>
+<circle class="c1f" cx="95.0" cy="186.6" r="3.5"/>
+<circle class="c4f" cx="165.0" cy="132.7" r="3.5"/>
+<circle class="c1f" cx="165.0" cy="147.4" r="3.5"/>
+<circle class="c4f" cx="235.0" cy="98.4" r="3.5"/>
+<circle class="c1f" cx="235.0" cy="118.0" r="3.5"/>
+<circle class="c4f" cx="305.0" cy="69.0" r="3.5"/>
+<circle class="c1f" cx="305.0" cy="103.3" r="3.5"/>
+<circle class="c4f" cx="375.0" cy="49.4" r="3.5"/>
+<circle class="c1f" cx="375.0" cy="108.2" r="3.5"/>
+<circle class="c4f" cx="445.0" cy="34.7" r="3.5"/>
+<circle class="c1f" cx="445.0" cy="122.9" r="3.5"/>
+<circle class="c4f" cx="515.0" cy="24.9" r="3.5"/>
+<circle class="c1f" cx="515.0" cy="137.6" r="3.5"/>
+<circle class="c4f" cx="585.0" cy="20.0" r="3.5"/>
+<circle class="c1f" cx="585.0" cy="147.4" r="3.5"/>
+<line class="ln c3 dash thin" x1="305.0" y1="20.0" x2="305.0" y2="216.0"/>
+<text class="lab c3t halo" x="311.0" y="201.3" text-anchor="start">best validation accuracy (depth 4)</text>
+<text class="lab halo" x="507.0" y="22.4" text-anchor="end">training</text>
+<text class="lab c1t halo" x="585.0" y="137.4" text-anchor="end">validation</text>
+</svg>
+<figcaption><b>Figure 5.1</b> Training accuracy keeps rising with depth; validation accuracy peaks.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.1:</b> Illustrative accuracies for trees of maximum depth 1 to 8 (practice problem 7.4 uses these numbers). Training accuracy (ink) climbs to 1.00. Validation accuracy (teal) peaks at 0.83 at depth 4 and then falls: beyond depth 4 the extra splits fit noise. Choose depth 4.</p>
+<p>Two families of remedies:</p>
+<ul>
+<li><strong>Pre-pruning</strong> (early stopping) stops growth during induction: a maximum depth, a minimum number of instances per node, a minimum information gain, or a statistical test that the split is significant. It is cheap but can stop too early, before a split that only pays off one level further down.</li>
+<li><strong>Post-pruning</strong> grows the full tree, then removes weak branches <strong>bottom-up</strong>. In <strong>reduced-error pruning</strong>, a hold-out <strong>validation set</strong> is passed through the tree. For each subtree whose children are leaves, compare the error of the parent (as a leaf predicting its majority) with the size-weighted error of its children. If the parent's error is <strong>equal to or lower than</strong> the children's, prune the children.</li>
+</ul>
+<div class="ex"><div class="hd">Worked example 5.1 <span>Reduced-error pruning decision</span></div><div class="bd">
+<p>A node receives 20 validation instances. Used as a leaf it misclassifies 4. Its two leaf children receive 12 and 8 validation instances and misclassify 2 and 3. Prune?</p>
+<div class="step"><i>1</i><div>Parent error rate: \(4/20 = 0.20\).</div></div>
+<div class="step"><i>2</i><div>Children's weighted error: \(\tfrac{12}{20}\cdot\tfrac{2}{12} + \tfrac{8}{20}\cdot\tfrac{3}{8} = \tfrac{5}{20} = 0.25\).</div></div>
+<div class="ans">0.20 ≤ 0.25, so prune: replace the subtree with a leaf. The split made validation error worse.</div>
+</div></div>
+<p>Pruning makes trees robust (slides 7.1): outliers and noisy patterns tend to be isolated in small leaves, and small leaves of minority classes caused by sampling variance are the first to be pruned.</p>
+
+<h3 id="s5-ccp">Cost-complexity pruning</h3>
+<p><strong>Cost-complexity (weakest-link) pruning</strong> (Mackey, 2015) trades fit against size with one parameter, \(\alpha \ge 0\). It minimises</p>
+<div class="eq"><span class="tag">Cost-complexity objective</span>\[ C_\alpha(T) = \sum_{R_m \in T} \sum_{x_i \in R_m} \left(y_i - \hat{y}_{R_m}\right)^2 + \alpha\,|T| \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(T\)</dt><dd>A pruned version of the full tree \(T_0\).</dd>
+  <dt>\(R_m\)</dt><dd>The region (leaf) \(m\) of \(T\).</dd>
+  <dt>\(y_i\)</dt><dd>Target of training instance \(x_i\) in that leaf.</dd>
+  <dt>\(\hat{y}_{R_m}\)</dt><dd>The leaf's prediction (its mean).</dd>
+  <dt>\(\alpha\)</dt><dd>Complexity parameter: the penalty per leaf, in the units of the RSS.</dd>
+  <dt>\(|T|\)</dt><dd>Number of leaves of \(T\).</dd>
+</dl>
+</div>
+<p>The double sum is the residual sum of squares (RSS). With \(\alpha = 0\) the full tree wins (it has the smallest RSS). As \(\alpha \to \infty\) the single-leaf tree wins. In between, larger \(\alpha\) favours smaller trees.</p>
+<p>The procedure builds a nested sequence of trees:</p>
+<ol>
+<li>Start with the full tree \(T_0\). For every internal node, compute the cost of collapsing its subtree into one leaf, per leaf removed:
+\[ \frac{\text{RSS}(T_1) - \text{RSS}(T_0)}{|T_0| - |T_1|} \]
+Collapse the subtree where this is <strong>smallest</strong> (the weakest link): it buys the most simplicity for the least increase in error. This gives \(T_1\).</li>
+<li>Repeat to get \(T_0, T_1, \ldots, T_m\), where \(T_m\) is a single leaf.</li>
+<li>Choose \(\alpha\) by <strong>10-fold cross-validation</strong>: for each fold, grow the sequence on the other nine folds, compute the RSS of each tree on the held-out fold, and pick the \(\alpha\) with the lowest average error.</li>
+</ol>
+<p>For classification, it is typical to grow the tree with Gini or entropy but to prune using the <strong>misclassification rate</strong>.</p>
+<div class="ex"><div class="hd">Worked example 5.2 <span>Weakest link and the effect of α</span></div><div class="bd">
+<p>(a) A full tree has two prunable subtrees. Subtree A has 3 leaves with RSS 40; collapsed to a leaf, its RSS is 100. Subtree B has 2 leaves with RSS 55; collapsed, 70. Which is pruned first? (b) Three candidate trees: 6 leaves with RSS 120, 3 leaves with RSS 180, 1 leaf with RSS 400. Which minimises \(C_\alpha\) for \(\alpha = 10\) and \(\alpha = 30\)?</p>
+<div class="step"><i>1</i><div>A: \((100 - 40)/(3 - 1) = 30\) per leaf removed. B: \((70 - 55)/(2 - 1) = 15\). B is the weakest link: prune B first.</div></div>
+<div class="step"><i>2</i><div>\(\alpha = 10\): \(120 + 60 = 180\); \(180 + 30 = 210\); \(400 + 10 = 410\). Minimum: the 6-leaf tree.</div></div>
+<div class="step"><i>3</i><div>\(\alpha = 30\): \(120 + 180 = 300\); \(180 + 90 = 270\); \(400 + 30 = 430\). Minimum: the 3-leaf tree.</div></div>
+<div class="ans">Prune B first. At \(\alpha = 10\) keep 6 leaves; at \(\alpha = 30\) the 3-leaf tree is best. The two tie at \(\alpha = 20\) (both 240).</div>
+</div></div>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 4.4.4; Mackey (2015) Lecture 19; slides 5.1 to 5.3</p>
+</section>
+
+<section id="s6">
+<h2><span class="n">06</span>Rule extraction</h2>
+<p>After a tree is induced and pruned, it can be rewritten as a set of IF–THEN <strong>production rules</strong>, one per root-to-leaf path:</p>
+<ul>
+<li>each decision node on the path becomes a condition (clause) in the rule's <strong>antecedent</strong>;</li>
+<li>the conditions are joined with <strong>AND</strong>, because an instance reaches the leaf only if it passes every test on the path;</li>
+<li>the leaf's class is the rule's <strong>consequent</strong> (decision).</li>
+</ul>
+<p>So the <strong>number of rules equals the number of leaves</strong>. The rules are mutually exclusive and exhaustive, because every instance follows exactly one path. Extract rules <em>after</em> pruning, otherwise the rule set contains the overfitted, over-specific rules of the full tree. The rules explain a prediction in plain words: the antecedent of the rule that fired is the reason.</p>
+<div class="ex"><div class="hd">Worked example 6.1 <span>Rules from the loan tree</span></div><div class="bd">
+<p>Extract rules from the tree of worked example 3.1.</p>
+<div class="step"><i>1</i><div>IF History = good THEN Approve.</div></div>
+<div class="step"><i>2</i><div>IF History = fair AND Employed = yes THEN Approve.</div></div>
+<div class="step"><i>3</i><div>IF History = fair AND Employed = no THEN Reject.</div></div>
+<div class="step"><i>4</i><div>IF History = poor THEN Reject.</div></div>
+<div class="ans">Four leaves give four rules. In rule 2 the antecedent is "History = fair AND Employed = yes" and the consequent is "Approve".</div>
+</div></div>
+<div class="key"><span class="tag">Summary of the week</span><p>Decision trees are interpretable supervised models: decision nodes test descriptive features and leaves predict the target. They can predict and also yield production rules that explain predictions. Regression trees predict leaf means; model trees put a regression in each leaf. Standard trees have axis-parallel boundaries; oblique trees use linear combinations but need a hyperplane search. Pruning makes trees robust to outliers, noise and sampling variance.</p></div>
+<p class="reading"><b>Reading</b> Slides 6 and 7.1; compare rule sets from Week 6</p>
+</section>
+
+<section id="s7">
+<h2><span class="n">07</span>Practice problems</h2>
+
+<div class="ex"><div class="hd">Problem 7.1 <span>Entropy, Gini and gain</span></div><div class="bd">
+<p>A parent node has 12 instances: 4 Faulty and 8 OK. Feature Sensor splits it into High (3 Faulty, 1 OK) and Low (1 Faulty, 7 OK). Find (a) the parent entropy and Gini index, (b) the information gain, (c) the gain ratio and (d) the Gini gain.</p>
+<div class="step"><i>1</i><div>Parent: \(H = -(\tfrac13\log_2\tfrac13 + \tfrac23\log_2\tfrac23) = 0.9183\) bits. Gini \(= 1 - (\tfrac19 + \tfrac49) = 0.4444\).</div></div>
+<div class="step"><i>2</i><div>High (3/1): \(H = 0.8113\). Low (1/7): \(H = 0.5436\). \(\text{rem} = \tfrac{4}{12}(0.8113) + \tfrac{8}{12}(0.5436) = 0.6328\). \(IG = 0.9183 - 0.6328 = 0.2855\) bits.</div></div>
+<div class="step"><i>3</i><div>Split information for a 4/8 split: \(0.9183\) bits. \(GR = 0.2855/0.9183 = 0.3109\).</div></div>
+<div class="step"><i>4</i><div>Gini High \(= 1 - (0.75^2 + 0.25^2) = 0.375\); Low \(= 1 - ((1/8)^2 + (7/8)^2) = 0.2188\). Weighted \(= \tfrac13(0.375) + \tfrac23(0.2188) = 0.2708\). Gain \(= 0.4444 - 0.2708 = 0.1736\).</div></div>
+<div class="ans">(a) 0.918 bits, 0.444; (b) 0.286 bits; (c) 0.311; (d) 0.174.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 7.2 <span>Thresholds and reuse</span></div><div class="bd">
+<p>Sorted by Depth (m): 2 Sand, 5 Sand, 9 Clay, 14 Clay, 20 Rock, 26 Rock, 33 Clay. (a) List the candidate thresholds. (b) Why is 7 m a candidate but 3.5 m is not? (c) Why might Depth appear twice on one path?</p>
+<div class="step"><i>1</i><div>Class changes: 5→9 (Sand→Clay), 14→20 (Clay→Rock), 26→33 (Rock→Clay). Candidates: 7, 17 and 29.5 m.</div></div>
+<div class="step"><i>2</i><div>2 and 5 m are both Sand. A threshold between them only separates Sand from Sand, so it is never better than the boundary at 7 m.</div></div>
+<div class="step"><i>3</i><div>Clay appears in two separate depth ranges. After a test Depth ≥ 17, the ≥ 17 branch still mixes Rock and Clay, which a second test Depth ≥ 29.5 separates.</div></div>
+<div class="ans">(a) 7, 17 and 29.5 m. (b) Same class on both sides. (c) Continuous features may be reused with a different threshold.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 7.3 <span>Regression leaf and model tree</span></div><div class="bd">
+<p>A regression-tree leaf holds monthly water use (kL) of 620, 700, 740, 780 and 860. (a) What does it predict? (b) What shape is a one-feature regression tree's prediction? (c) How would a model tree differ in this leaf?</p>
+<div class="step"><i>1</i><div>Mean: \((620 + 700 + 740 + 780 + 860)/5 = 3\,700/5 = 740\) kL.</div></div>
+<div class="step"><i>2</i><div>Every query in the leaf gets 740 kL, so the prediction is a staircase: constant within each leaf, jumping between leaves.</div></div>
+<div class="step"><i>3</i><div>A model tree fits, say, a linear regression on the leaf's five instances, so its prediction changes with the features inside the leaf.</div></div>
+<div class="ans">(a) 740 kL. (b) Piecewise constant. (c) A fitted function per leaf instead of a constant.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 7.4 <span>Choosing depth</span></div><div class="bd">
+<p>Use the accuracies of Figure 5.1. Training: 0.68, 0.77, 0.84, 0.90, 0.94, 0.97, 0.99, 1.00. Validation: 0.66, 0.74, 0.80, 0.83, 0.82, 0.79, 0.76, 0.74 for depths 1 to 8. Which depth do you choose, and where does overfitting start?</p>
+<div class="step"><i>1</i><div>Training accuracy rises steadily: deeper trees always fit the training data better.</div></div>
+<div class="step"><i>2</i><div>Validation accuracy rises to 0.83 at depth 4, then falls.</div></div>
+<div class="ans">Choose depth 4. Overfitting starts beyond depth 4, where training accuracy still rises but validation accuracy drops.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 7.5 <span>Oblique versus axis-parallel</span></div><div class="bd">
+<p>Two classes are separated by the line \(x_2 = x_1\). How does a standard tree model this boundary, and how does an oblique tree?</p>
+<div class="step"><i>1</i><div>A standard tree can only test one feature at a time, so it approximates the diagonal with a staircase of many axis-parallel splits: a deep tree.</div></div>
+<div class="step"><i>2</i><div>An oblique tree can test \(x_2 - x_1 \ge 0\) in one node.</div></div>
+<div class="ans">Standard: many splits forming a staircase. Oblique: one split. Advantage of oblique: a smaller, more accurate tree. Limitation: a costly hyperplane search and harder-to-read tests.</div>
+</div></div>
+</section>
+
+<section id="s8">
+<h2><span class="n">08</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>Impurity</h4>
+<p>\(H(t,\mathcal{D}) = -\sum_l P(t=l)\log_2 P(t=l)\)</p>
+<p>\(\text{Gini}(t,\mathcal{D}) = 1 - \sum_l P(t=l)^2\)</p>
+<p>Two classes: max \(H = 1\) bit, max Gini \(= 0.5\).</p></div>
+<div><h4>Choosing a split</h4>
+<p>\(\text{rem}(d,\mathcal{D}) = \sum_l \frac{|\mathcal{D}_{d=l}|}{|\mathcal{D}|} H(t,\mathcal{D}_{d=l})\)</p>
+<p>\(IG = H(t,\mathcal{D}) - \text{rem}(d,\mathcal{D})\)</p>
+<p>\(GR = IG / \left(-\sum_l P(d=l)\log_2 P(d=l)\right)\)</p>
+<p>Gini gain: same as IG with Gini in place of \(H\).</p></div>
+<div><h4>Regression trees</h4>
+<p>\(\text{var}(t,\mathcal{D}) = \sum_i (t_i - \bar t)^2/(n-1)\)</p>
+<p>Best split: minimum weighted child variance. Leaf predicts the mean.</p></div>
+<div><h4>Pruning</h4>
+<p>Reduced error: prune if parent error ≤ weighted child error (validation set).</p>
+<p>\(C_\alpha(T) = \text{RSS}(T) + \alpha|T|\)</p>
+<p>Weakest link: minimise \(\frac{\text{RSS}(T_1)-\text{RSS}(T_0)}{|T_0|-|T_1|}\).</p></div>
+<div><h4>ID3 base cases</h4>
+<p>Pure node → leaf of that class. No features → majority leaf. No instances → parent's majority.</p></div>
+<div><h4>Key facts</h4>
+<p>Thresholds: midpoints where adjacent sorted targets differ. Continuous features can be reused on a path. Rules = leaves; conditions ANDed.</p></div>
+</div>
+</section>
+
+<footer>
+<p>Sources: 2026DA344_T4W1_InformationBasedLearning slides (M. Gwetu); 2026DA344_Week_7_Study_Guide; Kelleher, Mac Namee and D'Arcy (2020), Chapter 4 excluding 4.4.5; Mackey (2015), Lecture 19. Slide figures (the ID3 pseudocode, the regression- and model-tree illustrations) were images and are described from the textbook. All examples here use new numbers.</p>
+</footer>
+</main>
+</div>
+
+<script>
+(function(){
+  const NS = 'http://www.w3.org/2000/svg';
+  const fig = document.getElementById('fig21'), svg = fig.querySelector('svg');
+  const inp = fig.querySelector('input'), out = fig.querySelector('output'), read = fig.querySelector('.fig-read');
+  const L = 60, R = 620, T = 20, B = 226;
+  const X = p => L + p * (R - L), Y = v => B - v / 1.05 * (B - T);
+  const H = p => (p <= 0 || p >= 1) ? 0 : -(p * Math.log2(p) + (1 - p) * Math.log2(1 - p));
+  const G = p => 1 - p * p - (1 - p) * (1 - p);
+  function el(tag, a, txt){ const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; }
+  function path(f){ let d = ''; for (let i = 0; i <= 200; i++){ const p = i / 200; d += (i ? 'L' : 'M') + X(p).toFixed(1) + ' ' + Y(f(p)).toFixed(1); } return d; }
+  function draw(){
+    const p = +inp.value; out.textContent = p.toFixed(2);
+    svg.textContent = '';
+    for (const v of [0, 0.25, 0.5, 0.75, 1]){
+      el('line', {class: 'grid', x1: L, x2: R, y1: Y(v), y2: Y(v)});
+      el('text', {class: 'tk', x: L - 6, y: Y(v) + 4, 'text-anchor': 'end'}, v.toFixed(2));
+      el('text', {class: 'tk', x: X(v), y: B + 16, 'text-anchor': 'middle'}, v.toFixed(2));
+    }
+    el('rect', {class: 'frame', x: L, y: Y(1.05), width: R - L, height: B - Y(1.05)});
+    el('path', {class: 'ln c1', d: path(H)});
+    el('path', {class: 'ln c3', d: path(G)});
+    el('path', {class: 'ln c3 thin dash', d: path(q => 2 * G(q))});
+    el('line', {class: 'ln c4 thin dash', x1: X(p), x2: X(p), y1: Y(0), y2: Y(1.05)});
+    el('circle', {class: 'c1f', cx: X(p), cy: Y(H(p)), r: 5});
+    el('circle', {class: 'c3f', cx: X(p), cy: Y(G(p)), r: 5});
+    el('text', {class: 'lab c1t halo', x: X(0.5), y: Y(1) - 6, 'text-anchor': 'middle'}, 'entropy (bits)');
+    el('text', {class: 'lab c3t halo', x: X(0.5), y: Y(0.5) + 18, 'text-anchor': 'middle'}, 'Gini index');
+    el('text', {class: 'lab', x: (L + R) / 2, y: 262, 'text-anchor': 'middle'}, 'P(positive class)');
+    el('text', {class: 'lab', x: 14, y: (T + B) / 2, 'text-anchor': 'middle', transform: 'rotate(-90 14 ' + (T + B) / 2 + ')'}, 'impurity');
+    read.textContent = 'P(+) = ' + p.toFixed(2) + ':  entropy = ' + H(p).toFixed(4) + ' bits,  Gini = ' + G(p).toFixed(4) + ',  majority purity = ' + Math.max(p, 1 - p).toFixed(2);
+  }
+  inp.addEventListener('input', draw); draw();
+})();
+</script>
+<script src="../assets/ask-gemini.js" data-store="da344-w7" data-course="DA344 Data Analytics"
+        data-topic="Week 7: decision trees, entropy, information gain, gain ratio, Gini index, ID3, continuous features and thresholds, regression, model and oblique trees, pruning, cost-complexity pruning, rule extraction"></script>
+</body>
+</html>

@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 11: Deep Learning · DA344 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=da344">&larr; Data Analytics</a>
+  <div class="k">DA344 · Week 11</div>
+  <ol>
+    <li><a href="#s1">1. Preventing overfitting</a></li>
+    <li class="sub"><a href="#s1-es">Early stopping</a></li>
+    <li class="sub"><a href="#s1-drop">Dropout</a></li>
+    <li><a href="#s2">2. Deep network use cases</a></li>
+    <li><a href="#s3">3. CNN structure</a></li>
+    <li><a href="#s4">4. Convolution</a></li>
+    <li class="sub"><a href="#s4-dims">Output size, padding and stride</a></li>
+    <li class="sub"><a href="#s4-depth">Depth, filters and parameters</a></li>
+    <li><a href="#s5">5. Pooling and the full CNN</a></li>
+    <li class="sub"><a href="#s5-classic">Classic architectures</a></li>
+    <li><a href="#s6">6. RNN structure</a></li>
+    <li><a href="#s7">7. RNN types</a></li>
+    <li><a href="#s8">8. Backpropagation through time</a></li>
+    <li><a href="#s9">9. Practice problems</a></li>
+    <li><a href="#s10">10. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">DATA ANALYTICS 344 · TERM 4 WEEK 5 · DEEP LEARNING · KELLEHER 8.4.4–8.4.6 · SEFIDIAN CNN NOTES 1.1–1.7</div>
+  <h1>Deep Learning: Regularisation, CNNs and RNNs</h1>
+  <p class="lede">Deep networks have huge numbers of parameters and overfit easily, so early stopping and dropout are used to keep them general. Convolutional networks exploit the local structure of images; recurrent networks carry a hidden state through time. This page covers how both are built, how to compute their outputs and sizes by hand, and how they are trained.</p>
+</header>
+
+<section id="s1">
+<h2><span class="n">01</span>Preventing overfitting</h2>
+<p>Deep learning models can have millions of parameters. That capacity lets them fit complex functions, and also memorise noise in the training data: they are prone to <strong>overfitting</strong>. The two methods in this module are early stopping and dropout. Both are forms of <strong>regularisation</strong>: they keep weights small, so that predictions are stable under small changes in the input and outliers are not amplified.</p>
+
+<h3 id="s1-es">Early stopping</h3>
+<p>During training, the training loss keeps falling. The loss on a separate <strong>validation set</strong> falls at first, then starts to rise once the network begins fitting noise. <strong>Early stopping</strong> watches the validation loss and stops training around that point.</p>
+<ul>
+<li>A <strong>patience</strong> parameter sets how many <strong>consecutive</strong> epochs the validation error may increase before training is stopped. Patience greater than 1 stops a single noisy uptick from ending training too soon.</li>
+<li>After stopping, keep the version of the model with the <strong>lowest validation error</strong>, not the last one trained. In practice the weights are saved whenever a new best is reached.</li>
+</ul>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Training and validation loss over ten epochs; validation loss is lowest at epoch 7 and training stops after epoch 9">
+<line class="grid" x1="60.0" y1="194.2" x2="620.0" y2="194.2"/>
+<text class="tk" x="54.0" y="198.2" text-anchor="end">0.2</text>
+<line class="grid" x1="60.0" y1="150.7" x2="620.0" y2="150.7"/>
+<text class="tk" x="54.0" y="154.7" text-anchor="end">0.4</text>
+<line class="grid" x1="60.0" y1="107.1" x2="620.0" y2="107.1"/>
+<text class="tk" x="54.0" y="111.1" text-anchor="end">0.6</text>
+<line class="grid" x1="60.0" y1="63.6" x2="620.0" y2="63.6"/>
+<text class="tk" x="54.0" y="67.6" text-anchor="end">0.8</text>
+<line class="grid" x1="60.0" y1="20.0" x2="620.0" y2="20.0"/>
+<text class="tk" x="54.0" y="24.0" text-anchor="end">1</text>
+<text class="tk" x="88.0" y="232.0" text-anchor="middle">1</text>
+<text class="tk" x="144.0" y="232.0" text-anchor="middle">2</text>
+<text class="tk" x="200.0" y="232.0" text-anchor="middle">3</text>
+<text class="tk" x="256.0" y="232.0" text-anchor="middle">4</text>
+<text class="tk" x="312.0" y="232.0" text-anchor="middle">5</text>
+<text class="tk" x="368.0" y="232.0" text-anchor="middle">6</text>
+<text class="tk" x="424.0" y="232.0" text-anchor="middle">7</text>
+<text class="tk" x="480.0" y="232.0" text-anchor="middle">8</text>
+<text class="tk" x="536.0" y="232.0" text-anchor="middle">9</text>
+<text class="tk" x="592.0" y="232.0" text-anchor="middle">10</text>
+<rect class="frame" x="60.0" y="20.0" width="560.0" height="196.0"/>
+<text class="lab" x="340.0" y="254" text-anchor="middle">epoch</text>
+<text class="lab" x="14" y="118.0" text-anchor="middle" transform="rotate(-90 14 118.0)">loss</text>
+<path class="ln c4" d="M88.0 46.1 L144.0 89.7 L200.0 118.0 L256.0 137.6 L312.0 152.8 L368.0 163.7 L424.0 172.4 L480.0 179.0 L536.0 185.5 L592.0 189.9"/>
+<path class="ln c1" d="M88.0 41.8 L144.0 81.0 L200.0 104.9 L256.0 118.0 L312.0 124.5 L368.0 122.4 L424.0 126.7 L480.0 120.2 L536.0 113.6 L592.0 107.1"/>
+<circle class="c1f" cx="88.0" cy="41.8" r="3.5"/>
+<circle class="c1f" cx="144.0" cy="81.0" r="3.5"/>
+<circle class="c1f" cx="200.0" cy="104.9" r="3.5"/>
+<circle class="c1f" cx="256.0" cy="118.0" r="3.5"/>
+<circle class="c1f" cx="312.0" cy="124.5" r="3.5"/>
+<circle class="c1f" cx="368.0" cy="122.4" r="3.5"/>
+<circle class="c1f" cx="424.0" cy="126.7" r="3.5"/>
+<circle class="c1f" cx="480.0" cy="120.2" r="3.5"/>
+<circle class="c1f" cx="536.0" cy="113.6" r="3.5"/>
+<circle class="c1f" cx="592.0" cy="107.1" r="3.5"/>
+<line class="ln c3 dash thin" x1="536.0" y1="20.0" x2="536.0" y2="216.0"/>
+<circle class="ln c3" cx="424.0" cy="126.7" r="8"/>
+<text class="lab c3t halo" x="424.0" y="150.7" text-anchor="middle">best: epoch 7</text>
+<text class="lab c3t halo" x="530.0" y="30.9" text-anchor="end">stop after epoch 9</text>
+<text class="lab c1t halo" x="608.8" y="97.1" text-anchor="end">validation</text>
+<text class="lab halo" x="608.8" y="179.9" text-anchor="end">training</text>
+</svg>
+<figcaption><b>Figure 1.1</b> Validation loss bottoms out while training loss keeps falling.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> The validation losses of worked example 1.1 (teal) and an illustrative training loss (ink). Validation loss reaches its minimum of 0.51 at epoch 7. With patience 2, the increases at epochs 8 and 9 stop training after epoch 9 (dashed), and the epoch-7 weights are restored. The single rise at epoch 6 did not trigger a stop because epoch 7 improved again.</p>
+<div class="ex"><div class="hd">Worked example 1.1 <span>Early stopping with patience</span></div><div class="bd">
+<p>Validation loss by epoch: 0.90, 0.72, 0.61, 0.55, 0.52, 0.53, 0.51, 0.54, 0.57, 0.60. Patience is 2 consecutive increases. When does training stop, and which model is kept? What would patience 1 do?</p>
+<div class="step"><i>1</i><div>Epoch 6 rises (0.52 → 0.53): one increase. Epoch 7 falls to 0.51: the count resets and 0.51 is the new best.</div></div>
+<div class="step"><i>2</i><div>Epoch 8 rises (0.54), epoch 9 rises (0.57): two consecutive increases. Stop after epoch 9.</div></div>
+<div class="step"><i>3</i><div>Keep the epoch-7 model (loss 0.51).</div></div>
+<div class="step"><i>4</i><div>Patience 1 would stop after epoch 6 and keep epoch 5 (0.52), missing the better epoch 7.</div></div>
+<div class="ans">Stop after epoch 9; keep epoch 7 (validation loss 0.51). Patience 1 would have settled for 0.52.</div>
+</div></div>
+
+<h3 id="s1-drop">Dropout</h3>
+<p>In each feedforward phase, <strong>dropout</strong> picks a random set of neurons from the input and hidden layers and drops them: they are deleted from the network for that forward and backward pass and reinstated afterwards. Each training step therefore trains a smaller, randomly thinned network. No neuron can rely on particular others being present, so the network learns redundant, robust features, an effect similar to averaging many smaller networks.</p>
+<p><strong>Inverted dropout</strong> is how it is implemented:</p>
+<ul>
+<li>For each layer, draw a <strong>dropmask</strong>: a vector of 0s and 1s where each entry is 1 (keep) with probability \(p\).</li>
+<li>Multiply the activations by the mask: dropped neurons output 0.</li>
+<li><strong>Divide the kept activations by \(p\)</strong>. On average only a fraction \(p\) of the neurons survive, so scaling up by \(1/p\) keeps the expected weighted sum into the next layer the same as without dropout. At prediction time no neurons are dropped and nothing is rescaled.</li>
+</ul>
+<div class="eq"><span class="tag">Inverted dropout</span>\[ \tilde{\mathbf{a}} = \frac{\mathbf{m} \odot \mathbf{a}}{p}, \qquad m_i \sim \text{Bernoulli}(p) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\mathbf{a}\)</dt><dd>Activations of a layer in the forward pass.</dd>
+  <dt>\(\mathbf{m}\)</dt><dd>Dropmask: each entry 1 with probability \(p\), else 0.</dd>
+  <dt>\(\odot\)</dt><dd>Elementwise product.</dd>
+  <dt>\(p\)</dt><dd>Probability that a neuron is kept (not dropped).</dd>
+  <dt>\(\tilde{\mathbf{a}}\)</dt><dd>Activations passed to the next layer during training.</dd>
+</dl>
+</div>
+<div class="ex"><div class="hd">Worked example 1.2 <span>Applying a dropmask</span></div><div class="bd">
+<p>A hidden layer outputs \(\mathbf{a} = (2.0, 0.5, 3.0, 1.2)\). The keep probability is \(p = 0.75\) and the drawn mask is \((1, 0, 1, 1)\). Find the activations passed on.</p>
+<div class="step"><i>1</i><div>Mask: \((2.0, 0, 3.0, 1.2)\).</div></div>
+<div class="step"><i>2</i><div>Divide by 0.75: \((2.667, 0, 4.0, 1.6)\).</div></div>
+<div class="ans">\((2.667, 0, 4.000, 1.600)\). Neuron 2 is dropped for this step; the others are scaled up by \(1/0.75 = 1.333\).</div>
+</div></div>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 8.4.4; slide 1</p>
+</section>
+
+<section id="s2">
+<h2><span class="n">02</span>Deep neural network use cases</h2>
+<p>The choice of output layer and loss depends on the task:</p>
+<div class="tbl"><table><thead><tr><th>Task</th><th>Example</th><th>Output activation</th><th>Loss</th></tr></thead><tbody>
+<tr><td>Regression, one or more outputs</td><td>a stock price from financial indicators; temperature and humidity jointly from the same atmospheric features</td><td>Linear (one node per target)</td><td>Sum of squared errors</td></tr>
+<tr><td>Regression of similarity/dissimilarity</td><td>distance between two biometric feature vectors, used by a k-NN verifier (Siamese network)</td><td>Sigmoid</td><td>Contrastive loss</td></tr>
+<tr><td>Classification, two or more classes</td><td>disease present from clinical measurements; iris species from petal and sepal sizes</td><td>Softmax</td><td>Cross-entropy</td></tr>
+</tbody></table></div>
+<p>Contrastive loss trains a network so that pairs from the same class get a small output distance and pairs from different classes get a distance of at least a set margin.</p>
+<p>A general fully connected DNN treats every input independently of its position. It does not know that neighbouring pixels belong together, or that one time step follows another. So it is not effective for tasks that need <strong>local visual</strong> features (use a CNN) or <strong>sequential/temporal</strong> features (use an RNN). It also needs a weight for every input–neuron pair, which explodes for images.</p>
+<p class="reading"><b>Reading</b> Slide 2</p>
+</section>
+
+<section id="s3">
+<h2><span class="n">03</span>CNN structure</h2>
+<p>A traditional <strong>convolutional neural network</strong> (CNN) is built as: <strong>input → convolution (+ ReLU) → pooling → … → flatten → fully connected → output</strong>. It takes an image and can produce, for example, softmax class probabilities or another image.</p>
+<ul>
+<li>A <strong>grayscale</strong> image is a 2-D matrix of height × width, with values from 0 (black) to 255 (white): \(0 \le \text{Img}(i,j) \le 255\). A 28 × 28 grayscale image has shape 28 × 28 (or 28 × 28 × 1).</li>
+<li>A <strong>colour</strong> image in RGB is a 3-D array, height × width × 3: three <strong>channels</strong> (red, green, blue). A 28 × 28 RGB image has shape 28 × 28 × 3.</li>
+<li><strong>Normalise</strong> the image (range or z-score) before convolution so that the learned features respond to patterns of relative intensity, such as edges, rather than to how bright the image happens to be.</li>
+</ul>
+<p>Three ideas make convolutional layers work:</p>
+<ul>
+<li><strong>Local receptive field:</strong> each neuron in a convolutional layer looks only at a small patch of the input (say 3 × 3), not the whole image.</li>
+<li><strong>Weight sharing:</strong> all neurons in one <strong>feature map</strong> use the <em>same</em> filter weights, applied at different positions. A feature detector (a vertical-edge detector, say) useful in one part of the image is useful everywhere.</li>
+<li><strong>Feature map:</strong> the grid of outputs from one filter: the filtered image. Each filter gives one feature map; the maps are stacked like channels.</li>
+</ul>
+<p>Because a shared weight is used at every position, backpropagation computes a separate weight update for each neuron that uses it. The <strong>effective update</strong> applied to the shared weight is the <strong>sum</strong> of those separate updates.</p>
+<div class="box def"><span class="label">Channel or feature map?</span><p>A <b>channel</b> is one slice of the depth of a volume. For an input image the channels are colours (R, G, B). For a hidden layer the channels <em>are</em> the feature maps, one per filter. "Depth" means the number of channels.</p></div>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 8.4.5; Sefidian notes 1.1; slide 3</p>
+</section>
+
+<section id="s4">
+<h2><span class="n">04</span>Convolution</h2>
+<p><strong>Convolution</strong> slides a small filter (kernel) over the image like a window. At each position it multiplies the kernel elementwise with the image tile under it, sums the products and adds a bias; that number is one pixel of the output feature map. A ReLU is then applied to the feature map.</p>
+<div class="eq"><span class="tag">One convolution output</span>\[ z_{r,c} = \sum_{u}\sum_{v} K_{u,v}\,X_{r+u,\,c+v} + b, \qquad a_{r,c} = \text{ReLU}(z_{r,c}) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(X\)</dt><dd>Input image (or previous feature map).</dd>
+  <dt>\(K_{u,v}\)</dt><dd>Kernel weight at row \(u\), column \(v\) of the filter.</dd>
+  <dt>\(b\)</dt><dd>The filter's bias (one per filter).</dd>
+  <dt>\(z_{r,c}\)</dt><dd>Output pixel at row \(r\), column \(c\) of the feature map.</dd>
+  <dt>\(a_{r,c}\)</dt><dd>After ReLU.</dd>
+</dl>
+</div>
+<figure>
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="A 4 by 4 input with a highlighted 3 by 3 tile, a 3 by 3 vertical-edge kernel, and the resulting 2 by 2 feature map.">
+<rect class="blkd" x="30" y="40" width="36" height="36"/><text class="lab" x="48.0" y="63.0" text-anchor="middle">1</text>
+<rect class="blkd" x="66" y="40" width="36" height="36"/><text class="lab" x="84.0" y="63.0" text-anchor="middle">0</text>
+<rect class="blkd" x="102" y="40" width="36" height="36"/><text class="lab" x="120.0" y="63.0" text-anchor="middle">2</text>
+<rect class="cell" x="138" y="40" width="36" height="36"/><text class="lab" x="156.0" y="63.0" text-anchor="middle">1</text>
+<rect class="blkd" x="30" y="76" width="36" height="36"/><text class="lab" x="48.0" y="99.0" text-anchor="middle">0</text>
+<rect class="blkd" x="66" y="76" width="36" height="36"/><text class="lab" x="84.0" y="99.0" text-anchor="middle">1</text>
+<rect class="blkd" x="102" y="76" width="36" height="36"/><text class="lab" x="120.0" y="99.0" text-anchor="middle">3</text>
+<rect class="cell" x="138" y="76" width="36" height="36"/><text class="lab" x="156.0" y="99.0" text-anchor="middle">0</text>
+<rect class="blkd" x="30" y="112" width="36" height="36"/><text class="lab" x="48.0" y="135.0" text-anchor="middle">2</text>
+<rect class="blkd" x="66" y="112" width="36" height="36"/><text class="lab" x="84.0" y="135.0" text-anchor="middle">1</text>
+<rect class="blkd" x="102" y="112" width="36" height="36"/><text class="lab" x="120.0" y="135.0" text-anchor="middle">0</text>
+<rect class="cell" x="138" y="112" width="36" height="36"/><text class="lab" x="156.0" y="135.0" text-anchor="middle">1</text>
+<rect class="cell" x="30" y="148" width="36" height="36"/><text class="lab" x="48.0" y="171.0" text-anchor="middle">1</text>
+<rect class="cell" x="66" y="148" width="36" height="36"/><text class="lab" x="84.0" y="171.0" text-anchor="middle">0</text>
+<rect class="cell" x="102" y="148" width="36" height="36"/><text class="lab" x="120.0" y="171.0" text-anchor="middle">1</text>
+<rect class="cell" x="138" y="148" width="36" height="36"/><text class="lab" x="156.0" y="171.0" text-anchor="middle">2</text>
+<text class="lab b" x="102.0" y="30" text-anchor="middle">input X (4 × 4)</text>
+<text class="lab b" x="200" y="120" text-anchor="middle">∗</text>
+<rect class="cell" x="230" y="58" width="36" height="36"/><text class="lab" x="248.0" y="81.0" text-anchor="middle">1</text>
+<rect class="cell" x="266" y="58" width="36" height="36"/><text class="lab" x="284.0" y="81.0" text-anchor="middle">0</text>
+<rect class="cell" x="302" y="58" width="36" height="36"/><text class="lab" x="320.0" y="81.0" text-anchor="middle">-1</text>
+<rect class="cell" x="230" y="94" width="36" height="36"/><text class="lab" x="248.0" y="117.0" text-anchor="middle">1</text>
+<rect class="cell" x="266" y="94" width="36" height="36"/><text class="lab" x="284.0" y="117.0" text-anchor="middle">0</text>
+<rect class="cell" x="302" y="94" width="36" height="36"/><text class="lab" x="320.0" y="117.0" text-anchor="middle">-1</text>
+<rect class="cell" x="230" y="130" width="36" height="36"/><text class="lab" x="248.0" y="153.0" text-anchor="middle">1</text>
+<rect class="cell" x="266" y="130" width="36" height="36"/><text class="lab" x="284.0" y="153.0" text-anchor="middle">0</text>
+<rect class="cell" x="302" y="130" width="36" height="36"/><text class="lab" x="320.0" y="153.0" text-anchor="middle">-1</text>
+<text class="lab b" x="284.0" y="48" text-anchor="middle">kernel K (3 × 3)</text>
+<text class="lab b" x="380" y="120" text-anchor="middle">+ 0.5 =</text>
+<rect class="blkd" x="440" y="76" width="36" height="36"/><text class="lab" x="458.0" y="99.0" text-anchor="middle">-1.5</text>
+<rect class="cell" x="476" y="76" width="36" height="36"/><text class="lab" x="494.0" y="99.0" text-anchor="middle">0.5</text>
+<rect class="cell" x="440" y="112" width="36" height="36"/><text class="lab" x="458.0" y="135.0" text-anchor="middle">-0.5</text>
+<rect class="cell" x="476" y="112" width="36" height="36"/><text class="lab" x="494.0" y="135.0" text-anchor="middle">-0.5</text>
+<text class="lab b" x="476.0" y="66" text-anchor="middle">feature map (2 × 2)</text>
+<text class="tk" x="30" y="212">tile sum: (1+0+2) − (2+3+0) = −2; −2 + 0.5 = −1.5</text>
+</svg>
+<figcaption><b>Figure 4.1</b> A 3 × 3 kernel slid over a 4 × 4 input gives a 2 × 2 feature map.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> The numbers of worked example 4.1. The highlighted tile produces the highlighted output: elementwise products summed, plus the bias 0.5, gives −1.5. Sliding the window one column right gives 0.5, and so on. Deep-learning "convolution" does not flip the kernel; mathematically it is cross-correlation, but the name stuck (Sefidian 1.1).</p>
+<div class="ex"><div class="hd">Worked example 4.1 <span>Computing a feature map</span></div><div class="bd">
+<p>Input \(X = \begin{bmatrix}1&amp;0&amp;2&amp;1\\0&amp;1&amp;3&amp;0\\2&amp;1&amp;0&amp;1\\1&amp;0&amp;1&amp;2\end{bmatrix}\), kernel \(K = \begin{bmatrix}1&amp;0&amp;-1\\1&amp;0&amp;-1\\1&amp;0&amp;-1\end{bmatrix}\) (a vertical-edge detector), bias \(b = 0.5\), valid convolution, stride 1.</p>
+<div class="step"><i>1</i><div>The kernel adds the tile's left column and subtracts its right column. Top-left tile (rows 1–3, columns 1–3): left column \(1 + 0 + 2 = 3\), right column \(2 + 3 + 0 = 5\). \(z = 3 - 5 + 0.5 = -1.5\).</div></div>
+<div class="step"><i>2</i><div>Top-right (columns 2–4): left \(0 + 1 + 1 = 2\), right \(1 + 0 + 1 = 2\). \(z = 0 + 0.5 = 0.5\).</div></div>
+<div class="step"><i>3</i><div>Bottom-left (rows 2–4, columns 1–3): left \(0 + 2 + 1 = 3\), right \(3 + 0 + 1 = 4\). \(z = -0.5\). Bottom-right: left \(1 + 1 + 0 = 2\), right \(0 + 1 + 2 = 3\). \(z = -0.5\).</div></div>
+<div class="step"><i>4</i><div>Size check: \(O = (4 - 3 + 0)/1 + 1 = 2\).</div></div>
+<div class="ans">Feature map \(\begin{bmatrix}-1.5 &amp; 0.5\\ -0.5 &amp; -0.5\end{bmatrix}\); after ReLU \(\begin{bmatrix}0 &amp; 0.5\\ 0 &amp; 0\end{bmatrix}\). Only the top-right position has a strong enough dark-to-bright vertical edge to fire.</div>
+</div></div>
+
+<h3 id="s4-dims">Output size, padding and stride</h3>
+<div class="eq"><span class="tag">Output dimension</span>\[ O = \frac{I - F + 2P}{S} + 1 \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(O\)</dt><dd>Output height (or width) in pixels.</dd>
+  <dt>\(I\)</dt><dd>Input height (or width).</dd>
+  <dt>\(F\)</dt><dd>Filter size (filters are square: height = width = \(F\)).</dd>
+  <dt>\(P\)</dt><dd>Padding: rows/columns of zeros added on each side.</dd>
+  <dt>\(S\)</dt><dd>Stride: the step size of the sliding window.</dd>
+</dl>
+</div>
+<p>If the division is not exact, round <strong>down</strong>: the window cannot hang off the edge. Since \(F\) need not divide the image size, some border pixels may not be fully covered, and pixels at the edge are used by fewer windows than those in the middle: the <strong>border effect</strong>. <strong>Padding</strong> adds zeros around the image to fix this:</p>
+<ul>
+<li><strong>Valid</strong> padding: no padding, \(P = 0\). The output shrinks by \(F - 1\).</li>
+<li><strong>Same</strong> padding: just enough padding that the output size equals the input size. For \(S = 1\), \(P = (F-1)/2\), which is why filter sizes are usually odd (3, 5, 7).</li>
+</ul>
+<div class="ex"><div class="hd">Worked example 4.2 <span>Output dimensions</span></div><div class="bd">
+<p>A 64 × 64 image is convolved with a 5 × 5 filter. Find the output size for (a) \(P = 0, S = 1\), (b) \(P = 2, S = 1\), (c) \(P = 2, S = 2\).</p>
+<div class="step"><i>1</i><div>(a) \((64 - 5 + 0)/1 + 1 = 60\): 60 × 60 (valid).</div></div>
+<div class="step"><i>2</i><div>(b) \((64 - 5 + 4)/1 + 1 = 64\): 64 × 64 (same, since \(P = (5-1)/2 = 2\)).</div></div>
+<div class="step"><i>3</i><div>(c) \((64 - 5 + 4)/2 + 1 = 32.5\), rounded down to 32: 32 × 32.</div></div>
+<div class="ans">60 × 60, 64 × 64 and 32 × 32. A stride of 2 roughly halves each dimension.</div>
+</div></div>
+
+<h3 id="s4-depth">Depth, filters and parameters</h3>
+<ul>
+<li>A filter's <strong>depth must equal the input's depth</strong>: on an RGB image, a "3 × 3" filter is really 3 × 3 × 3, and one output pixel sums all 27 products plus a bias. The filter has to cover every channel at that position.</li>
+<li>The <strong>output depth equals the number of filters</strong>: each filter produces one feature map, and the maps are stacked.</li>
+<li>Parameters of a convolutional layer: \((F \times F \times C_{\text{in}} + 1) \times N_{\text{filters}}\). This does not depend on the image size: <strong>sparsity of connections</strong>.</li>
+</ul>
+<div class="box watch"><span class="label">Watch out</span><p>Sefidian's notes say an RGB filter is "a cube \(f \times f \times f\)". That is a slip: the depth of the filter is the number of input channels, \(f \times f \times n_C\) (\(f \times f \times 3\) for RGB), as the same notes state later under "notation and volumes".</p></div>
+<div class="ex"><div class="hd">Worked example 4.3 <span>Why convolution saves parameters</span></div><div class="bd">
+<p>A 64 × 64 × 3 image goes into a layer of 10 filters of size 5 × 5 with valid padding. Find the filter depth, the output shape and the parameter count, and compare with a fully connected layer of 100 neurons on the same image.</p>
+<div class="step"><i>1</i><div>Filter depth = input depth = 3, so each filter is 5 × 5 × 3.</div></div>
+<div class="step"><i>2</i><div>Output: \((64 - 5)/1 + 1 = 60\), depth 10 (one per filter): 60 × 60 × 10.</div></div>
+<div class="step"><i>3</i><div>Parameters: \((5 \cdot 5 \cdot 3 + 1) \times 10 = 76 \times 10 = 760\).</div></div>
+<div class="step"><i>4</i><div>Fully connected: \(64 \cdot 64 \cdot 3 = 12\,288\) inputs × 100 neurons = 1 228 800 weights (plus 100 biases).</div></div>
+<div class="ans">The convolutional layer has 760 parameters against about 1.23 million: weight sharing and local receptive fields cut the parameter count by a factor of over 1 600.</div>
+</div></div>
+<p class="reading"><b>Reading</b> Slide 4; Sefidian notes 1.1, 1.2 and 1.6</p>
+</section>
+
+<section id="s5">
+<h2><span class="n">05</span>Pooling and the full CNN</h2>
+<p><strong>Pooling</strong> downsamples each feature map by aggregating a window of pixels into one value. It slides a window like convolution, with an operator such as <strong>max</strong>, <strong>mean</strong>, <strong>sum</strong> or <strong>median</strong>. A 2 × 2 window with stride 2 halves each spatial dimension (the windows do not overlap). Pooling acts on each channel separately, so the depth is unchanged.</p>
+<ul>
+<li>Pooling has <strong>no weights to learn</strong>: only hyper-parameters (window size, stride, operator). In backpropagation its derivative is fixed by the operation (for max pooling, the gradient goes only to the position that was the maximum).</li>
+<li>It shrinks the representation, which speeds up later layers, makes detected features a little robust to small shifts, and lets later convolutions see a larger region of the original image. Repeated convolution and pooling therefore extract progressively more <strong>abstract</strong> features: edges, then textures and parts, then objects.</li>
+</ul>
+<figure>
+<svg viewBox="0 0 640 210" class="fig" role="img" aria-label="A 4 by 4 feature map divided into four 2 by 2 windows, with the resulting 2 by 2 max-pooled and mean-pooled maps.">
+<rect class="blkd" x="40" y="40" width="36" height="36"/><text class="lab" x="58.0" y="63.0" text-anchor="middle">3</text>
+<rect class="blkd" x="76" y="40" width="36" height="36"/><text class="lab" x="94.0" y="63.0" text-anchor="middle">1</text>
+<rect class="cell" x="112" y="40" width="36" height="36"/><text class="lab" x="130.0" y="63.0" text-anchor="middle">0</text>
+<rect class="cell" x="148" y="40" width="36" height="36"/><text class="lab" x="166.0" y="63.0" text-anchor="middle">2</text>
+<rect class="blkd" x="40" y="76" width="36" height="36"/><text class="lab" x="58.0" y="99.0" text-anchor="middle">4</text>
+<rect class="blkd" x="76" y="76" width="36" height="36"/><text class="lab" x="94.0" y="99.0" text-anchor="middle">6</text>
+<rect class="cell" x="112" y="76" width="36" height="36"/><text class="lab" x="130.0" y="99.0" text-anchor="middle">1</text>
+<rect class="cell" x="148" y="76" width="36" height="36"/><text class="lab" x="166.0" y="99.0" text-anchor="middle">1</text>
+<rect class="cell" x="40" y="112" width="36" height="36"/><text class="lab" x="58.0" y="135.0" text-anchor="middle">0</text>
+<rect class="cell" x="76" y="112" width="36" height="36"/><text class="lab" x="94.0" y="135.0" text-anchor="middle">2</text>
+<rect class="blkd" x="112" y="112" width="36" height="36"/><text class="lab" x="130.0" y="135.0" text-anchor="middle">5</text>
+<rect class="blkd" x="148" y="112" width="36" height="36"/><text class="lab" x="166.0" y="135.0" text-anchor="middle">3</text>
+<rect class="cell" x="40" y="148" width="36" height="36"/><text class="lab" x="58.0" y="171.0" text-anchor="middle">1</text>
+<rect class="cell" x="76" y="148" width="36" height="36"/><text class="lab" x="94.0" y="171.0" text-anchor="middle">1</text>
+<rect class="blkd" x="112" y="148" width="36" height="36"/><text class="lab" x="130.0" y="171.0" text-anchor="middle">2</text>
+<rect class="blkd" x="148" y="148" width="36" height="36"/><text class="lab" x="166.0" y="171.0" text-anchor="middle">8</text>
+<text class="lab b" x="112" y="28" text-anchor="middle">feature map A</text>
+<rect class="blkd" x="290" y="76" width="36" height="36"/><text class="lab" x="308.0" y="99.0" text-anchor="middle">6</text>
+<rect class="cell" x="326" y="76" width="36" height="36"/><text class="lab" x="344.0" y="99.0" text-anchor="middle">2</text>
+<rect class="cell" x="290" y="112" width="36" height="36"/><text class="lab" x="308.0" y="135.0" text-anchor="middle">2</text>
+<rect class="blkd" x="326" y="112" width="36" height="36"/><text class="lab" x="344.0" y="135.0" text-anchor="middle">8</text>
+<text class="lab b" x="326" y="64" text-anchor="middle">max</text>
+<rect class="blkd" x="440" y="76" width="36" height="36"/><text class="lab" x="458.0" y="99.0" text-anchor="middle">3.5</text>
+<rect class="cell" x="476" y="76" width="36" height="36"/><text class="lab" x="494.0" y="99.0" text-anchor="middle">1</text>
+<rect class="cell" x="440" y="112" width="36" height="36"/><text class="lab" x="458.0" y="135.0" text-anchor="middle">1</text>
+<rect class="blkd" x="476" y="112" width="36" height="36"/><text class="lab" x="494.0" y="135.0" text-anchor="middle">4.5</text>
+<text class="lab b" x="476" y="64" text-anchor="middle">mean</text>
+<path class="ln c4" d="M200 112 L270 112"/><path class="c4f" d="M270 106 L280 112 L270 118 Z"/>
+</svg>
+<figcaption><b>Figure 5.1</b> 2 × 2 pooling with stride 2 halves each dimension.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.1:</b> The feature map of worked example 5.1. Each shaded 2 × 2 window becomes one output value. Max pooling keeps the strongest response in each window; mean pooling averages it.</p>
+<div class="ex"><div class="hd">Worked example 5.1 <span>Pooling</span></div><div class="bd">
+<p>Pool \(A = \begin{bmatrix}3&amp;1&amp;0&amp;2\\4&amp;6&amp;1&amp;1\\0&amp;2&amp;5&amp;3\\1&amp;1&amp;2&amp;8\end{bmatrix}\) with non-overlapping 2 × 2 windows (stride 2) using max, mean, sum and median.</p>
+<div class="step"><i>1</i><div>Windows: top-left {3, 1, 4, 6}, top-right {0, 2, 1, 1}, bottom-left {0, 2, 1, 1}, bottom-right {5, 3, 2, 8}.</div></div>
+<div class="step"><i>2</i><div>Max: 6, 2, 2, 8. Mean: 3.5, 1, 1, 4.5.</div></div>
+<div class="step"><i>3</i><div>Sum: 14, 4, 4, 18. Median (mean of the middle two): 3.5, 1, 1, 4.</div></div>
+<div class="ans">Max \(\begin{bmatrix}6&amp;2\\2&amp;8\end{bmatrix}\), mean \(\begin{bmatrix}3.5&amp;1\\1&amp;4.5\end{bmatrix}\), sum \(\begin{bmatrix}14&amp;4\\4&amp;18\end{bmatrix}\), median \(\begin{bmatrix}3.5&amp;1\\1&amp;4\end{bmatrix}\). Output 2 × 2: \((4 - 2)/2 + 1 = 2\).</div>
+</div></div>
+<p>After the last convolution and pooling stage, the 3-D volume is <strong>flattened</strong> into one long vector, because a fully connected layer expects a vector of inputs. The fully connected layers (usually ReLU, often with dropout) combine the extracted features, and the output layer (for example softmax) makes the prediction. Training learns the <strong>kernel weights</strong> and the <strong>fully connected weights</strong> by backpropagation. Most of a CNN's parameters sit in its fully connected layers.</p>
+
+<h3 id="s5-classic">Classic architectures (Sefidian 1.7)</h3>
+<div class="tbl"><table><thead><tr><th>Network</th><th>Layout</th><th>Notes</th></tr></thead><tbody>
+<tr><td>LeNet-5</td><td>INPUT → CONV → POOL → CONV → POOL → FC → FC → OUTPUT</td><td>Digit recognition. Sigmoid/tanh rather than ReLU, average pooling. About 60 thousand parameters.</td></tr>
+<tr><td>AlexNet</td><td>227 × 227 × 3 → CONV → POOL → CONV → POOL → CONV → CONV → CONV → POOL → FC → FC → softmax</td><td>Like LeNet but much bigger; ReLU, max pooling, mostly "same" convolutions. About 60 million parameters.</td></tr>
+<tr><td>VGG-16</td><td>224 × 224 × 3 → blocks of CONV (64, 128, 256, 512, 512 filters) each followed by POOL → FC 4096 → FC 4096 → softmax 1000</td><td>Uniform design: every CONV is 3 × 3, stride 1, same; every max-pool is 2 × 2, stride 2. The notes give about 128 million parameters; the figure usually quoted is about 138 million.</td></tr>
+</tbody></table></div>
+<p>The pattern across all three: spatial size shrinks and depth (number of filters) grows as you go deeper.</p>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 8.4.5; Sefidian notes 1.3 to 1.7; slides 5 and 5.2</p>
+</section>
+
+<section id="s6">
+<h2><span class="n">06</span>RNN structure</h2>
+<p>A <strong>recurrent neural network</strong> (RNN) models <strong>temporal (sequential)</strong> data: sensor readings, ECG traces, text. Temporal data has three dimensions:</p>
+<ul>
+<li><strong>Instances:</strong> the separate sequences (one patient's ECG trace).</li>
+<li><strong>Timestamps:</strong> the positions in each sequence (one per millisecond).</li>
+<li><strong>Features:</strong> what is measured at each timestamp (the voltage, or several leads).</li>
+</ul>
+<p>Every timestamp has the same number of features, but instances can have different numbers of timestamps. Mini-batch training needs equal lengths, so sequences are <strong>padded</strong>: <strong>pre-padding</strong> adds filler (zeros) at the start, <strong>post-padding</strong> at the end.</p>
+<p>At every timestamp the RNN receives a new input \(\mathbf{x}^{t}\) and keeps a <strong>hidden state</strong> \(\mathbf{h}^{t}\), a memory of important information from earlier inputs. The new hidden state combines the current input with the previous hidden state, and the output is computed from the hidden state:</p>
+<div class="eq"><span class="tag">Simple RNN (SRNN)</span>\[ \mathbf{h}^{t} = \varphi\!\left(\mathbf{W}_{hh}\,\mathbf{h}^{t-1} + \mathbf{W}_{xh}\,\mathbf{x}^{t} + \mathbf{b}_h\right), \qquad \hat{\mathbf{y}}^{t} = \varphi_o\!\left(\mathbf{W}_{hy}\,\mathbf{h}^{t} + \mathbf{b}_y\right) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\mathbf{x}^{t}\)</dt><dd>Input at timestamp \(t\).</dd>
+  <dt>\(\mathbf{h}^{t-1}\)</dt><dd>Previous hidden state (\(\mathbf{h}^0\) is usually zero).</dd>
+  <dt>\(\mathbf{h}^{t}\)</dt><dd>Current hidden state, passed on to step \(t+1\).</dd>
+  <dt>\(\mathbf{W}_{xh}, \mathbf{W}_{hh}, \mathbf{W}_{hy}\)</dt><dd>Input-to-hidden, hidden-to-hidden (recurrent) and hidden-to-output weights; the <em>same</em> at every timestamp.</dd>
+  <dt>\(\varphi, \varphi_o\)</dt><dd>Hidden activation (e.g. ReLU or tanh) and output activation.</dd>
+  <dt>\(\hat{\mathbf{y}}^{t}\)</dt><dd>Output at timestamp \(t\).</dd>
+</dl>
+</div>
+<p>The input \(\mathbf{x}^t\) is what is observed now. The hidden state \(\mathbf{h}^t\) is the network's summary of everything up to now: it depends on \(\mathbf{x}^t\), \(\mathbf{x}^{t-1}\), and so on through the recurrence. The weights are shared across time for the same reason a CNN shares filters across space: the same rule applies at every step, and the model handles sequences of any length with a fixed number of parameters.</p>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 8.4.6; slide 6</p>
+</section>
+
+<section id="s7">
+<h2><span class="n">07</span>RNN types</h2>
+<p>An RNN is often drawn <strong>rolled out</strong> (unrolled) along the timeline, one copy of the cell per timestamp, all with the same weights. Where inputs enter and outputs leave gives four configurations:</p>
+<figure>
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="Four unrolled RNN configurations: one-to-one, one-to-many, many-to-one and many-to-many, showing where inputs enter and outputs leave.">
+<rect class="blkd" x="56" y="96" width="28" height="28" rx="4"/>
+<circle class="blk" cx="70" cy="160" r="9"/><line class="ln c4 thin" x1="70" y1="151" x2="70" y2="124"/>
+<circle class="c1f" cx="70" cy="60" r="9"/><line class="ln c1 thin" x1="70" y1="96" x2="70" y2="69"/>
+<text class="lab b" x="70.0" y="205" text-anchor="middle">one-to-one</text>
+<rect class="blkd" x="181" y="96" width="28" height="28" rx="4"/>
+<circle class="blk" cx="195" cy="160" r="9"/><line class="ln c4 thin" x1="195" y1="151" x2="195" y2="124"/>
+<circle class="c1f" cx="195" cy="60" r="9"/><line class="ln c1 thin" x1="195" y1="96" x2="195" y2="69"/>
+<rect class="blkd" x="221" y="96" width="28" height="28" rx="4"/>
+<circle class="c1f" cx="235" cy="60" r="9"/><line class="ln c1 thin" x1="235" y1="96" x2="235" y2="69"/>
+<line class="ln c4 thin" x1="209" y1="110" x2="221" y2="110"/>
+<rect class="blkd" x="261" y="96" width="28" height="28" rx="4"/>
+<circle class="c1f" cx="275" cy="60" r="9"/><line class="ln c1 thin" x1="275" y1="96" x2="275" y2="69"/>
+<line class="ln c4 thin" x1="249" y1="110" x2="261" y2="110"/>
+<text class="lab b" x="235.0" y="205" text-anchor="middle">one-to-many</text>
+<rect class="blkd" x="336" y="96" width="28" height="28" rx="4"/>
+<circle class="blk" cx="350" cy="160" r="9"/><line class="ln c4 thin" x1="350" y1="151" x2="350" y2="124"/>
+<rect class="blkd" x="376" y="96" width="28" height="28" rx="4"/>
+<circle class="blk" cx="390" cy="160" r="9"/><line class="ln c4 thin" x1="390" y1="151" x2="390" y2="124"/>
+<line class="ln c4 thin" x1="364" y1="110" x2="376" y2="110"/>
+<rect class="blkd" x="416" y="96" width="28" height="28" rx="4"/>
+<circle class="blk" cx="430" cy="160" r="9"/><line class="ln c4 thin" x1="430" y1="151" x2="430" y2="124"/>
+<circle class="c1f" cx="430" cy="60" r="9"/><line class="ln c1 thin" x1="430" y1="96" x2="430" y2="69"/>
+<line class="ln c4 thin" x1="404" y1="110" x2="416" y2="110"/>
+<text class="lab b" x="390.0" y="205" text-anchor="middle">many-to-one</text>
+<rect class="blkd" x="491" y="96" width="28" height="28" rx="4"/>
+<circle class="blk" cx="505" cy="160" r="9"/><line class="ln c4 thin" x1="505" y1="151" x2="505" y2="124"/>
+<circle class="c1f" cx="505" cy="60" r="9"/><line class="ln c1 thin" x1="505" y1="96" x2="505" y2="69"/>
+<rect class="blkd" x="531" y="96" width="28" height="28" rx="4"/>
+<circle class="blk" cx="545" cy="160" r="9"/><line class="ln c4 thin" x1="545" y1="151" x2="545" y2="124"/>
+<circle class="c1f" cx="545" cy="60" r="9"/><line class="ln c1 thin" x1="545" y1="96" x2="545" y2="69"/>
+<line class="ln c4 thin" x1="519" y1="110" x2="531" y2="110"/>
+<rect class="blkd" x="571" y="96" width="28" height="28" rx="4"/>
+<circle class="blk" cx="585" cy="160" r="9"/><line class="ln c4 thin" x1="585" y1="151" x2="585" y2="124"/>
+<circle class="c1f" cx="585" cy="60" r="9"/><line class="ln c1 thin" x1="585" y1="96" x2="585" y2="69"/>
+<line class="ln c4 thin" x1="559" y1="110" x2="571" y2="110"/>
+<text class="lab b" x="545.0" y="205" text-anchor="middle">many-to-many</text>
+<text class="tk" x="8" y="64">outputs</text><text class="tk" x="8" y="164">inputs</text>
+</svg>
+<figcaption><b>Figure 7.1</b> Four ways to connect inputs and outputs to an unrolled RNN.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 7.1:</b> Boxes are the same RNN cell at successive timestamps; arrows to the right carry the hidden state. Ink circles below are inputs, teal circles above are outputs.</p>
+<div class="tbl"><table><thead><tr><th>Type</th><th>Input → output</th><th>Example from the slides</th></tr></thead><tbody>
+<tr><td>One-to-one</td><td>one vector → one vector</td><td>An ordinary (vanilla) feedforward network.</td></tr>
+<tr><td>One-to-many</td><td>one input → a sequence</td><td>Automatic medical-image annotation (an image in, a sentence out).</td></tr>
+<tr><td>Many-to-one</td><td>a sequence → one output</td><td>Automatic ECG diagnosis (a trace in, a diagnosis out).</td></tr>
+<tr><td>Many-to-many</td><td>a sequence → a sequence</td><td>Text autocompletion (predict the next word at every step), language translation.</td></tr>
+</tbody></table></div>
+<div class="ex"><div class="hd">Worked example 7.1 <span>Many-to-one SRNN</span></div><div class="bd">
+<p>Scalar inputs \(x^1 = 2\), \(x^2 = 1\), \(x^3 = 3\); \(h^t = \text{ReLU}(0.4x^t + 0.5h^{t-1})\) with \(h^0 = 0\); a single output after the last step, \(\hat{y} = 3h^3 + 0.5\) (linear). Find \(\hat{y}\).</p>
+<div class="step"><i>1</i><div>\(h^1 = \text{ReLU}(0.4 \cdot 2 + 0) = 0.8\).</div></div>
+<div class="step"><i>2</i><div>\(h^2 = \text{ReLU}(0.4 \cdot 1 + 0.5 \cdot 0.8) = 0.8\).</div></div>
+<div class="step"><i>3</i><div>\(h^3 = \text{ReLU}(0.4 \cdot 3 + 0.5 \cdot 0.8) = 1.6\).</div></div>
+<div class="step"><i>4</i><div>\(\hat{y} = 3(1.6) + 0.5 = 5.3\).</div></div>
+<div class="ans">\(\hat{y} = 5.3\). Many inputs, one output: many-to-one. \(x^1\) still affects \(\hat{y}\) through \(h^1 \to h^2 \to h^3\).</div>
+</div></div>
+<div class="ex"><div class="hd">Worked example 7.2 <span>One-to-many SRNN</span></div><div class="bd">
+<p>One input \(x = 5\) sets \(h^0 = \text{ReLU}(0.6x)\). Then \(h^t = \text{ReLU}(0.8h^{t-1})\) and \(\hat{y}^t = 2h^t - 1\) for \(t = 1, 2, 3\). Find the outputs.</p>
+<div class="step"><i>1</i><div>\(h^0 = \text{ReLU}(3) = 3\).</div></div>
+<div class="step"><i>2</i><div>\(h^1 = 2.4\), \(h^2 = 1.92\), \(h^3 = 1.536\).</div></div>
+<div class="step"><i>3</i><div>\(\hat{y}^1 = 3.8\), \(\hat{y}^2 = 2.84\), \(\hat{y}^3 = 2.072\).</div></div>
+<div class="ans">Outputs 3.8, 2.84 and 2.072 from one input. The input reaches step 3 only through the chain of hidden states, shrinking by 0.8 each step.</div>
+</div></div>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 8.4.6; slide 7</p>
+</section>
+
+<section id="s8">
+<h2><span class="n">08</span>Backpropagation through time</h2>
+<p>RNN weights start random, so early predictions are poor. To train, roll the RNN out over the timestamps of a training sequence. The unrolled network is an ordinary deep feedforward network in which the same weight matrices appear once per timestamp. If every function in it is <strong>differentiable</strong>, the chain rule gives \(\partial L/\partial \mathbf{W}\) for each weight matrix: this is <strong>backpropagation through time</strong> (BPTT).</p>
+<p>Because \(\mathbf{W}_{hh}\) (and \(\mathbf{W}_{xh}\)) is used at every step, it gets a gradient contribution from every step. The gradient for a repeated weight is the <strong>sum</strong> of its contributions across all timestamps: the same rule as for a shared CNN filter. The network then learns from every timestamp of the training instance.</p>
+<div class="ex"><div class="hd">Worked example 8.1 <span>Summing gradients through time</span></div><div class="bd">
+<p>A linear RNN \(h^t = w\,h^{t-1} + x^t\) with \(w = 0.5\), \(h^0 = 0\) and inputs (1, 1, 1). The loss is \(L = \tfrac12(2 - h^3)^2\). Find \(\partial L/\partial w\).</p>
+<div class="step"><i>1</i><div>Forward: \(h^1 = 1\), \(h^2 = 1.5\), \(h^3 = 1.75\). \(\partial L/\partial h^3 = -(2 - 1.75) = -0.25\).</div></div>
+<div class="step"><i>2</i><div>Step 3 uses \(w\) directly with input \(h^2\): contribution \(-0.25 \times 1.5 = -0.375\).</div></div>
+<div class="step"><i>3</i><div>Step 2 uses \(w\) with input \(h^1\); its effect reaches \(h^3\) through one more factor \(w\): \(-0.25 \times 0.5 \times 1 = -0.125\).</div></div>
+<div class="step"><i>4</i><div>Step 1 uses \(w\) with input \(h^0 = 0\): contribution 0.</div></div>
+<div class="ans">\(\partial L/\partial w = -0.375 - 0.125 + 0 = -0.5\). Contributions from earlier steps carry extra factors of \(w\), which is where vanishing and exploding gradients come from.</div>
+</div></div>
+<ul>
+<li><strong>Diminishing (vanishing) gradients:</strong> a contribution from \(k\) steps back carries roughly \(k\) factors of the recurrent weight times the activation slope. If these are below 1, it shrinks geometrically: \(0.5^{20} \approx 10^{-6}\). The network cannot learn <strong>long-range dependencies</strong> because distant timestamps barely affect the update.</li>
+<li><strong>Exploding gradients:</strong> if the factors are above 1, contributions grow geometrically (\(1.5^{20} \approx 3\,300\)). Updates become huge and training is unstable. (A common fix, beyond this module, is to clip the gradient's size; LSTM and GRU cells address vanishing gradients.)</li>
+</ul>
+<div class="key"><span class="tag">Summary of the week</span><p>Deep networks model complex functions but overfit; early stopping and dropout regularise them. CNNs use local receptive fields, weight sharing and pooling (subsampling), loosely mimicking the visual system. RNNs process variable-length sequences and keep a hidden state, so predictions use current and past inputs. Both use padding to standardise input sizes. Both are trained by backpropagation; pooling has no weights, and in RNNs BPTT sums the gradients of shared weights over all timestamps.</p></div>
+<p class="reading"><b>Reading</b> Kelleher et al. (2020) Section 8.4.6; slides 8 and 9</p>
+</section>
+
+<section id="s9">
+<h2><span class="n">09</span>Practice problems</h2>
+<div class="ex"><div class="hd">Problem 9.1 <span>Convolution and size</span></div><div class="bd">
+<p>Input \(\begin{bmatrix}2&amp;1&amp;0\\1&amp;3&amp;1\\0&amp;2&amp;2\end{bmatrix}\), kernel \(\begin{bmatrix}0&amp;1\\1&amp;-1\end{bmatrix}\), bias \(-1\), valid, stride 1. Find the feature map and check its size.</p>
+<div class="step"><i>1</i><div>Top-left tile [[2, 1], [1, 3]]: \(0 + 1 + 1 - 3 - 1 = -2\). Top-right [[1, 0], [3, 1]]: \(0 + 0 + 3 - 1 - 1 = 1\).</div></div>
+<div class="step"><i>2</i><div>Bottom-left [[1, 3], [0, 2]]: \(0 + 3 + 0 - 2 - 1 = 0\). Bottom-right [[3, 1], [2, 2]]: \(0 + 1 + 2 - 2 - 1 = 0\).</div></div>
+<div class="ans">\(\begin{bmatrix}-2&amp;1\\0&amp;0\end{bmatrix}\), size \((3 - 2)/1 + 1 = 2\).</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 9.2 <span>Dimensions</span></div><div class="bd">
+<p>(a) 28 × 28 input, 3 × 3 filter, same padding: what \(P\) and output size? (b) 32 × 32 input, 3 × 3 filter, \(P = 0\), \(S = 2\)? (c) A 32 × 32 × 3 image with 16 filters: filter depth and output depth?</p>
+<div class="step"><i>1</i><div>(a) \(P = (3 - 1)/2 = 1\); \(O = (28 - 3 + 2)/1 + 1 = 28\).</div></div>
+<div class="step"><i>2</i><div>(b) \((32 - 3)/2 + 1 = 15.5\), rounded down to 15.</div></div>
+<div class="step"><i>3</i><div>(c) Filter depth 3, output depth 16.</div></div>
+<div class="ans">(a) \(P = 1\), 28 × 28. (b) 15 × 15. (c) 3 and 16.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 9.3 <span>Dropout and outputs</span></div><div class="bd">
+<p>(a) A neuron with activation 1.8 is kept with \(p = 0.6\). What is passed on? (b) Choose output activation and loss for: predicting a house price; classifying 5 bird species; learning a distance between two face embeddings.</p>
+<div class="step"><i>1</i><div>(a) \(1.8/0.6 = 3.0\).</div></div>
+<div class="step"><i>2</i><div>(b) Linear + SSE; softmax + cross-entropy; sigmoid + contrastive loss.</div></div>
+<div class="ans">(a) 3.0. (b) As listed.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 9.4 <span>RNN</span></div><div class="bd">
+<p>\(h^t = \text{ReLU}(0.5x^t + 0.25h^{t-1})\), \(h^0 = 0\), inputs (4, 2, 0), output \(\hat{y} = 2h^3 - 1\). Find \(h^1, h^2, h^3\) and \(\hat{y}\). Which configuration is it, and what is one application?</p>
+<div class="step"><i>1</i><div>\(h^1 = 2\); \(h^2 = 1 + 0.5 = 1.5\); \(h^3 = 0 + 0.375 = 0.375\).</div></div>
+<div class="step"><i>2</i><div>\(\hat{y} = 0.75 - 1 = -0.25\).</div></div>
+<div class="ans">0.375 and −0.25. Many-to-one, for example ECG diagnosis.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 9.5 <span>Temporal data</span></div><div class="bd">
+<p>A dataset holds accelerometer recordings (x, y and z acceleration every 10 ms) from 200 runners, of different lengths. Identify instances, timestamps and features, and say how to batch them.</p>
+<div class="step"><i>1</i><div>Instances: the 200 recordings. Timestamps: the 10 ms samples. Features: 3 (x, y and z) at each timestamp.</div></div>
+<div class="ans">Pad the shorter sequences (pre- or post-padding with zeros) to a common length before mini-batch training.</div>
+</div></div>
+</section>
+
+<section id="s10">
+<h2><span class="n">10</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>Regularisation</h4>
+<p>Early stopping: stop after <i>patience</i> consecutive validation increases; keep the lowest-validation model.</p>
+<p>Inverted dropout: \(\tilde{\mathbf a} = \mathbf m \odot \mathbf a / p\).</p></div>
+<div><h4>Output choices</h4>
+<p>Regression: linear + SSE. Similarity: sigmoid + contrastive. Classification: softmax + cross-entropy.</p></div>
+<div><h4>Convolution</h4>
+<p>\(z = \sum K \odot \text{tile} + b\), then ReLU.</p>
+<p>\(O = \lfloor (I - F + 2P)/S \rfloor + 1\); same: \(P = (F-1)/2\).</p>
+<p>Filter depth = input depth; output depth = number of filters.</p>
+<p>Params: \((F^2 C_\text{in} + 1) N_\text{filters}\).</p></div>
+<div><h4>Pooling</h4>
+<p>Max, mean, sum or median per window; 2 × 2 stride 2 halves height and width; no weights; depth unchanged.</p></div>
+<div><h4>RNN</h4>
+<p>\(\mathbf h^t = \varphi(\mathbf W_{hh}\mathbf h^{t-1} + \mathbf W_{xh}\mathbf x^t + \mathbf b)\)</p>
+<p>\(\hat{\mathbf y}^t = \varphi_o(\mathbf W_{hy}\mathbf h^t + \mathbf b_y)\)</p>
+<p>BPTT: sum shared-weight gradients over timestamps.</p></div>
+</div>
+</section>
+
+<footer>
+<p>Sources: 2026DA344_T4W5_DeepLearning slides (M. Gwetu); 2026DA344_Week_11_Study_Guide; Kelleher, Mac Namee and D'Arcy (2020), Sections 8.4.4 to 8.4.6; Convolutional-Neural-Networks-Notes (Sefidian, 2022), Sections 1.1 to 1.7 only. The slide illustrations of CNN feedforward, RNN structure and BPTT were images and are described in words. All worked examples use new numbers.</p>
+</footer>
+</main>
+</div>
+<script src="../assets/ask-gemini.js" data-store="da344-w11" data-course="DA344 Data Analytics"
+        data-topic="Week 11: overfitting in deep networks, early stopping and patience, dropout and inverted dropout, output activations and losses, CNN structure, convolution, padding, stride, output dimensions, filters and feature maps, pooling, classic CNN architectures, RNN structure, padding sequences, hidden state, RNN types, backpropagation through time, vanishing and exploding gradients"></script>
+</body>
+</html>
