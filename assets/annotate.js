@@ -4,10 +4,11 @@
    Two buttons sit beside the theme button:
      Annotate      opens the annotation bar: pen, highlighter, text note, eraser, four colours, undo,
                    and a menu to export, import or clear annotations. Esc or Done closes it.
-     Save as PDF   a picture of the page as it is on screen (theme, opened answers, figures in their
-                   current state, annotations), cut into A4 pages between paragraphs, figures and
-                   rows. Because the PDF is images of the page, it looks exactly like the screen; its
-                   text cannot be selected.
+     Save as PDF   a picture of the page as the site draws it (theme, opened answers, figures in their
+                   current state, annotations), always in the desktop layout and at about 9.5 pt.
+                   Pages break only between lines and paragraphs, never through a line, a paragraph,
+                   a figure or a mark, and a heading stays with what follows it. Because the PDF is
+                   images of the page, it looks like the site; its text cannot be selected.
 
    Annotations stay in this browser (localStorage "notes-annot-<data-store>"). Each mark is pinned to
    the paragraph, figure or heading it was drawn on, so it moves with it when answers are opened or
@@ -62,8 +63,8 @@
     while (a && a !== main){ const up = a.parentElement; p.unshift(Array.prototype.indexOf.call(up.children, a)); a = up; }
     return p.join('.');
   }
-  function resolve(path){
-    let a = main;
+  function resolve(path, root = main){
+    let a = root;
     if (path) for (const i of path.split('.')){ a = a && a.children[+i]; }
     return a || null;
   }
@@ -78,8 +79,9 @@
     return a;
   }
   // Where an anchor's top-left corner is, in <main>'s coordinates; null if it is hidden.
-  function originOf(it, mr){
-    const a = resolve(it.a);
+  // root is <main>, or the copy of it that a PDF is made from.
+  function originOf(it, mr, root = main){
+    const a = resolve(it.a, root);
     if (!a) return {x: it.o[0], y: it.o[1]};            // the page has changed: fall back to where it was
     // checkVisibility also catches the inside of a closed <details>, which still has a box in Chrome
     if (a.checkVisibility ? !a.checkVisibility() : !a.getClientRects().length) return null;
@@ -109,24 +111,27 @@
   function draw(it){
     let n = nodes.get(it.id);
     if (it.k === 'ink'){
-      if (!n){ n = document.createElementNS(SVGNS, 'path'); nodes.set(it.id, n); (it.tool === 'hl' ? gHl : gPen).append(n); }
+      if (!n){ n = document.createElementNS(SVGNS, 'path'); n.dataset.id = it.id; nodes.set(it.id, n); (it.tool === 'hl' ? gHl : gPen).append(n); }
       n.setAttribute('class', (it.tool === 'hl' ? 'hl hc-' : 'pen pc-') + (it.c || 1));
       n.setAttribute('d', pathD(it.p));
       if (it.tool !== 'hl') n.style.strokeWidth = it.w || 2.2;
     } else if (!n){
-      n = noteNode(it); nodes.set(it.id, n); layer.append(n);
+      n = noteNode(it); n.dataset.id = it.id; nodes.set(it.id, n); layer.append(n);
     }
     return n;
   }
   function undraw(it){ const n = nodes.get(it.id); if (n) n.remove(); nodes.delete(it.id); }
 
   let placing = 0;
-  function place(){
-    placing = 0;
-    const mr = main.getBoundingClientRect();
+  // Put every mark where its anchor is now. For a PDF, root is the copy of <main> and the marks are
+  // its copies, found by data-id.
+  function place(root = main){
+    if (root === main) placing = 0;
+    const mr = root.getBoundingClientRect();
     for (const it of items){
-      const n = nodes.get(it.id); if (!n) continue;
-      const o = originOf(it, mr);
+      const n = root === main ? nodes.get(it.id) : root.querySelector('.annot-layer [data-id="' + it.id + '"]');
+      if (!n) continue;
+      const o = originOf(it, mr, root);
       if (it.k === 'ink'){
         if (o) n.setAttribute('transform', 'translate(' + r1(o.x) + ' ' + r1(o.y) + ')');
         n.style.display = o ? '' : 'none';
@@ -137,7 +142,7 @@
       }
     }
   }
-  const placeSoon = () => { if (!placing) placing = requestAnimationFrame(place); };
+  const placeSoon = () => { if (!placing) placing = requestAnimationFrame(() => place()); };
   function render(){ items.forEach(draw); place(); }
 
   // ---------- text notes ----------
@@ -375,9 +380,17 @@
   }
 
   // ---------- Save as PDF ----------
-  // The page is copied into an SVG <foreignObject> with the site's styles, drawn to a canvas one A4
-  // page at a time, and the pictures are put into a PDF with jsPDF. Media queries are evaluated now,
-  // against the real window, so the copy is laid out exactly like the screen.
+  // The PDF is pictures of the page, so it looks like the site. <main> is copied into a hidden frame the
+  // width of a desktop window, with the site's CSS and the fonts embedded, so every PDF has the desktop
+  // layout (an 800 px column) whatever screen it was made on. The page breaks are measured on that copy.
+  // The same copy goes into an SVG <foreignObject>, which is drawn to a canvas one A4 page at a time,
+  // and jsPDF puts the pictures into the PDF.
+  const PDF = {
+    width: 800,            // the copy's column width, in CSS px: the desktop width of <main>
+    window: 1280,          // the frame's width, which decides the media queries
+    side: 24, top: 18,     // A4 margins in mm; the column is 162 mm wide, so 16.5 px body text prints at about 9.5 pt
+    scale: 2,              // canvas pixels per CSS px
+  };
   let jspdfReady = null;
   function loadJsPDF(){
     if (window.jspdf) return Promise.resolve();
@@ -387,23 +400,25 @@
       document.head.append(s);
     });
   }
-  function rulesText(rules){
+  // The page's CSS as text, with each media query decided now for the given window (an SVG image
+  // would otherwise decide them against its own size).
+  function rulesText(rules, win){
     let out = '';
     for (const r of rules){
-      if (r.type === CSSRule.MEDIA_RULE){ if (matchMedia(r.media.mediaText).matches) out += rulesText(r.cssRules); }
-      else if (r.type === CSSRule.IMPORT_RULE){ try{ if (r.styleSheet) out += rulesText(r.styleSheet.cssRules); }catch(e){} }
+      if (r.type === CSSRule.MEDIA_RULE){ if (win.matchMedia(r.media.mediaText).matches) out += rulesText(r.cssRules, win); }
+      else if (r.type === CSSRule.IMPORT_RULE){ try{ if (r.styleSheet) out += rulesText(r.styleSheet.cssRules, win); }catch(e){} }
       // html and body rules go to the copy's root, so it inherits line-height as a ratio, not as pixels
       else if (r.type === CSSRule.STYLE_RULE && /^(html|body)$/.test(r.selectorText)) out += r.cssText.replace(r.selectorText, '.pdf-root') + '\n';
       else out += r.cssText + '\n';
     }
     return out;
   }
-  function pageCSS(){
+  function pageCSS(win){
     let out = '';
     for (const s of document.styleSheets){
-      if (s.media && s.media.mediaText && !matchMedia(s.media.mediaText).matches) continue;
+      if (s.media && s.media.mediaText && !win.matchMedia(s.media.mediaText).matches) continue;
       let rules; try{ rules = s.cssRules; }catch(e){ continue; }   // the cross-origin font sheet: see fontCSS
-      out += rulesText(rules);
+      out += rulesText(rules, win);
     }
     return out;
   }
@@ -430,18 +445,38 @@
       return out;
     })();
   }
-  // Where a page may end: between paragraphs, rows, figures and marks, never through one.
-  const UNBREAKABLE = 'p,li,dt,dd,tr,figure,pre,blockquote,h1,h2,h3,h4,summary,mjx-container,svg,img,.eq,.formula,.ans,.plan,.fig-ctl,.anim-controls,.annot-note';
-  function breaks(height){
-    const mr = main.getBoundingClientRect(), spans = [];
-    for (const e of main.querySelectorAll(UNBREAKABLE)){
-      if (e.closest('.annot-ink') || e === ink) continue;
-      const r = e.getBoundingClientRect(); if (!r.height) continue;
-      const keep = /^H[1-4]$/.test(e.tagName) ? 60 : 0;          // keep a heading with what follows it
-      spans.push([r.top - mr.top, r.bottom - mr.top + keep]);
+
+  // Where a page may end. Spans a break must not fall inside: every line of text; every paragraph,
+  // row, figure, equation and mark as a whole; and every heading together with the start of what
+  // follows it. The breaks are the gaps between the spans.
+  const WHOLE = 'p,tr,dt,figure,pre,summary,img,mjx-container[display="true"],.eq,.formula,.ans,.plan,.fig-ctl,.fig-read,.anim-controls,.annot-note,.qp>b';
+  const HEADS = 'h1,h2,h3,h4,h5,.kicker,.label,.tag';
+  const BLOCKS = 'p,ul,ol,dl,div,figure,table,pre,blockquote,section';
+  function nextAfter(e, root){
+    for (let x = e; x && x !== root; x = x.parentElement){
+      for (let n = x.nextElementSibling; n; n = n.nextElementSibling) if (n.getClientRects().length && !n.classList.contains('annot-layer')) return n;
     }
-    for (const n of gPen.children) spans.push(box(n, mr));
-    for (const n of gHl.children) spans.push(box(n, mr));
+    return null;
+  }
+  function breaks(root, height){
+    const mr = root.getBoundingClientRect(), spans = [], lay = root.querySelector('.annot-layer');
+    const add = r => { if (r.height > 0) spans.push([r.top - mr.top, r.bottom - mr.top]); };
+    const doc = root.ownerDocument, walk = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT), range = doc.createRange();
+    for (let t; (t = walk.nextNode());){
+      if (!t.data.trim() || (lay && lay.contains(t))) continue;
+      range.selectNodeContents(t);
+      for (const r of range.getClientRects()) add(r);
+    }
+    for (const e of root.querySelectorAll(WHOLE)) add(e.getBoundingClientRect());
+    for (const e of root.querySelectorAll('svg')) if (!e.closest('.annot-layer')) add(e.getBoundingClientRect());
+    // a list item or definition with no paragraphs or sublists inside is kept whole too
+    for (const e of root.querySelectorAll('li,dd')) if (!e.querySelector(BLOCKS)) add(e.getBoundingClientRect());
+    for (const e of root.querySelectorAll(HEADS)){
+      const r = e.getBoundingClientRect(); if (!r.height) continue;
+      const n = nextAfter(e, root), nr = n && n.getBoundingClientRect();
+      spans.push([r.top - mr.top, (nr ? Math.max(r.bottom, nr.top + Math.min(nr.height, 48)) : r.bottom) - mr.top]);
+    }
+    if (lay) for (const n of lay.querySelectorAll('path')) add(n.getBoundingClientRect());
     spans.sort((a, b) => a[0] - b[0]);
     const cuts = []; let end = -Infinity;
     for (const [t, b] of spans){
@@ -451,15 +486,37 @@
     cuts.push(height);
     return cuts;
   }
-  function box(n, mr){ const r = n.getBoundingClientRect(); return r.height ? [r.top - mr.top, r.bottom - mr.top] : [0, 0]; }
-  function contentHeight(){
-    const mr = main.getBoundingClientRect(); let h = 0;
-    for (const c of main.children){ if (c === layer) continue; const r = c.getBoundingClientRect(); if (r.height) h = Math.max(h, r.bottom - mr.top + (parseFloat(getComputedStyle(c).marginBottom) || 0)); }
-    for (const n of [...gPen.children, ...gHl.children, ...layer.querySelectorAll('.annot-note')]) h = Math.max(h, box(n, mr)[1]);
+  // Pages of at most pageH. A block taller than a page (a large figure) gets a page of its own, drawn
+  // smaller to fit, rather than being cut; only a block over 1.6 pages tall is cut.
+  function paginate(cuts, H, pageH){
+    const pages = [];
+    for (let y = 0; y < H - 1;){
+      let next = H;
+      if (H - y > pageH){
+        const fit = cuts.filter(c => c > y + 1 && c <= y + pageH), last = fit[fit.length - 1];
+        if (last > y + pageH * 0.35) next = last;
+        else {
+          const over = cuts.find(c => c > y + pageH);
+          next = over && over <= y + pageH * 1.6 ? over : last || y + pageH;
+        }
+      }
+      pages.push([y, next - y]); y = next;
+    }
+    return pages;
+  }
+  function contentHeight(root){
+    const mr = root.getBoundingClientRect(), win = root.ownerDocument.defaultView; let h = 0;
+    for (const c of root.children){
+      if (c.classList.contains('annot-layer')) continue;
+      const r = c.getBoundingClientRect();
+      if (r.height) h = Math.max(h, r.bottom - mr.top + (parseFloat(win.getComputedStyle(c).marginBottom) || 0));
+    }
+    const lay = root.querySelector('.annot-layer');
+    if (lay) for (const n of lay.querySelectorAll('path,.annot-note')){ const r = n.getBoundingClientRect(); if (r.height) h = Math.max(h, r.bottom - mr.top); }
     return Math.ceil(h + 16);
   }
-  function copyOfMain(width){
-    const copy = main.cloneNode(true);
+  function copyOfMain(doc){
+    const copy = doc.importNode(main, true);
     // what the reader has set: ticks, slider positions, choices and note text
     const from = main.querySelectorAll('input,textarea,select'), to = copy.querySelectorAll('input,textarea,select');
     from.forEach((s, i) => {
@@ -470,53 +527,64 @@
       else d.setAttribute('value', s.value);
     });
     main.querySelectorAll('canvas').forEach((c, i) => {
-      const img = el('img'); try{ img.src = c.toDataURL(); }catch(e){}
+      const img = doc.createElement('img'); try{ img.src = c.toDataURL(); }catch(e){}
       img.width = c.clientWidth; img.height = c.clientHeight; copy.querySelectorAll('canvas')[i].replaceWith(img);
     });
-    copy.querySelectorAll('script,.annot-x,.annot-bar').forEach(n => n.remove());
-    copy.querySelectorAll('textarea').forEach(t => { if (!t.textContent) t.removeAttribute('placeholder'); });
-    copy.style.margin = '0'; copy.style.width = width + 'px'; copy.style.maxWidth = 'none'; copy.style.paddingBottom = '0';
+    // Only inside the layer, so the anchors' child indices stay the same. The copy's scripts never run.
+    copy.querySelectorAll('.annot-x,.annot-bar').forEach(n => n.remove());
+    copy.querySelectorAll('textarea').forEach(t => { if (!t.textContent) t.removeAttribute('placeholder'); t.style.height = 'auto'; });
+    copy.querySelectorAll('.wide-math').forEach(m => m.classList.remove('wide-math'));   // measured for this screen, not the PDF's
+    copy.style.margin = '0'; copy.style.width = PDF.width + 'px'; copy.style.maxWidth = 'none'; copy.style.paddingBottom = '0';
     return copy;
   }
   function loadImage(src){
     return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('The page could not be drawn.')); i.src = src; });
   }
+  const tick = ms => new Promise(r => setTimeout(r, ms));
   async function savePDF(){
     if (pdfBtn.disabled) return;
     pdfBtn.disabled = true; pdfBtn.setAttribute('aria-busy', 'true');
     const wasOpen = open; if (wasOpen) toggle(false);
+    const frame = el('iframe'); frame.setAttribute('aria-hidden', 'true'); frame.tabIndex = -1;
+    frame.style.cssText = 'position:fixed;left:-30000px;top:0;height:900px;border:0;opacity:0;pointer-events:none;width:' + PDF.window + 'px';
     try{
       say('Making the PDF…', true);
       await Promise.all([loadJsPDF(), document.fonts ? document.fonts.ready : null,
         window.MathJax && MathJax.startup && MathJax.startup.promise]);
       place();
-      const W = main.clientWidth, H = contentHeight();
-      const bs = getComputedStyle(document.body), root = document.documentElement;
-      const wrap = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-      wrap.className = 'pdf-root';                     // gets the html and body rules (see rulesText)
-      wrap.style.width = W + 'px'; wrap.style.height = H + 'px'; wrap.style.overflow = 'hidden';
-      const style = el('style'); style.textContent = (await fontCSS()) + '\n' + pageCSS();
+      document.body.append(frame);
+      const doc = frame.contentDocument, win = frame.contentWindow, root = document.documentElement;
+      doc.open(); doc.write('<!doctype html><html><head><meta charset="utf-8"></head><body></body></html>'); doc.close();
+      if (root.dataset.theme) doc.documentElement.dataset.theme = root.dataset.theme;
+      doc.body.style.margin = '0';
+
+      // the copy: the html and body rules apply to .pdf-root, which holds the styles, the maths glyphs and <main>
+      const W = PDF.width, wrap = doc.createElement('div');
+      wrap.className = 'pdf-root'; wrap.style.width = W + 'px';
+      const style = doc.createElement('style'); style.textContent = (await fontCSS()) + '\n' + pageCSS(win);
       wrap.append(style);
       const cache = document.getElementById('MJX-SVG-global-cache');
-      if (cache && !main.contains(cache)) wrap.append(cache.cloneNode(true));
-      wrap.append(copyOfMain(W));
+      if (cache && !main.contains(cache)) wrap.append(doc.importNode(cache, true));
+      const copy = copyOfMain(doc);
+      wrap.append(copy); doc.body.append(wrap);
+      void wrap.offsetHeight;                                     // lay it out, so its fonts start loading
+      await doc.fonts.ready; await tick(60);
+      copy.querySelectorAll('textarea').forEach(t => { t.style.height = t.scrollHeight + 'px'; });
+      place(copy);                                                // the marks, re-pinned to the copy's layout
+      const H = contentHeight(copy);
+      wrap.style.height = H + 'px'; wrap.style.overflow = 'hidden';
+      const cuts = breaks(copy, H);
       const body = encodeURIComponent(new XMLSerializer().serializeToString(wrap));
+      const bgCSS = win.getComputedStyle(wrap).backgroundColor;
+      frame.remove();
       const theme = root.dataset.theme ? ' data-theme="' + root.dataset.theme + '"' : '';
 
       const {jsPDF} = window.jspdf;
       const pdf = new jsPDF({unit: 'mm', format: 'a4', orientation: 'portrait', compress: true});
-      const PW = 210, PH = 297, M = 10, mm = (PW - 2*M) / W, pageH = (PH - 2*M) / mm;
-      const bg = (bs.backgroundColor.match(/[\d.]+/g) || [255, 255, 255]).slice(0, 3).map(Number);
-      const cuts = breaks(H), pages = [];
-      for (let y = 0; y < H - 1;){
-        let next = H;
-        if (H - y > pageH){
-          const fit = cuts.filter(c => c > y + pageH * 0.4 && c <= y + pageH);
-          next = fit.length ? fit[fit.length - 1] : y + pageH;
-        }
-        pages.push([y, next - y]); y = next;
-      }
-      const S = 2, canvas = el('canvas'), ctx = canvas.getContext('2d');
+      const PW = 210, PH = 297, cw = PW - 2*PDF.side, ch = PH - 2*PDF.top, mm = cw / W, pageH = ch / mm;
+      const bg = (bgCSS.match(/[\d.]+/g) || [255, 255, 255]).slice(0, 3).map(Number);
+      const pages = paginate(cuts, H, pageH);
+      const S = PDF.scale, canvas = el('canvas'), ctx = canvas.getContext('2d');
       for (let i = 0; i < pages.length; i++){
         say('Making the PDF: page ' + (i + 1) + ' of ' + pages.length + '…', true);
         const [y, h] = pages[i];
@@ -525,11 +593,12 @@
           + '<foreignObject x="0" y="0" width="' + W + '" height="' + H + '">';
         const img = await loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(head) + body + encodeURIComponent('</foreignObject></svg>'));
         canvas.width = W*S; canvas.height = Math.ceil(h*S);
-        ctx.fillStyle = bs.backgroundColor; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = bgCSS; ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         if (i) pdf.addPage();
         pdf.setFillColor(bg[0], bg[1], bg[2]); pdf.rect(0, 0, PW, PH, 'F');
-        pdf.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', M, M, PW - 2*M, h * mm, undefined, 'FAST');
+        const fit = Math.min(1, pageH / h);                       // an over-tall page is drawn smaller
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', PDF.side + cw * (1 - fit) / 2, PDF.top, cw * fit, h * mm * fit, undefined, 'FAST');
       }
       const name = (document.title.split(' · ')[0] || 'notes').replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, ' ').trim();
       pdf.save(name + '.pdf');
@@ -538,6 +607,7 @@
       say('Could not make the PDF: ' + (e && e.message ? e.message : e), true);
       setTimeout(() => say(''), 6000);
     }finally{
+      frame.remove();
       pdfBtn.disabled = false; pdfBtn.removeAttribute('aria-busy');
       if (wasOpen) toggle(true);
     }

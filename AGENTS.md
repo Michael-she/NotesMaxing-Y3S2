@@ -175,10 +175,13 @@ theme button.
   readers' marks, so keep a page's structure stable once people have annotated it. Export writes every
   page's annotations to one `.json` file (`format: "notesmaxing-annotations"`); import merges one back
   in by mark id.
-- **Save as PDF:** a picture of the page exactly as it looks on screen, not a print layout. `<main>`
-  is copied into an SVG `<foreignObject>` with the site's CSS (media queries evaluated against the real
-  window) and the fonts embedded. It is drawn one A4 page at a time, with breaks only between
-  paragraphs, rows, figures and marks, and the pages go into jsPDF (from cdnjs). The text in the PDF
+- **Save as PDF:** pictures of the page as the site draws it, not a print layout. `<main>` is copied
+  into a hidden frame 1280 px wide, so the PDF always has the desktop layout (an 800 px column) on
+  any device, with the site's CSS and the fonts embedded. The page breaks are measured there: never
+  inside a line of text, a paragraph, a table row, a figure, an equation or a mark, and a heading or
+  label stays with the start of what follows it. A figure taller than a page gets its own page, drawn
+  smaller. The copy is drawn through an SVG `<foreignObject>` one A4 page at a time (24 mm side
+  margins, so body text is about 9.5 pt) and jsPDF (from cdnjs) makes the file. The text in the PDF
   cannot be selected. Pages styled only through `site.css` come out right; a style that depends on
   `body` classes will not show in the PDF.
 

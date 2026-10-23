@@ -565,16 +565,16 @@ details.memo .sol{padding:6px 18px 16px}
 details.memo .mp>h4{display:flex;align-items:baseline;gap:10px;margin:1em 0 .35em}
 .mp>h4 .pt{font-family:var(--f-mono);font-size:13px;font-weight:500;color:var(--genoa);flex:none}
 .mp>h4 .mk{margin-left:auto}
-ol.steps{list-style:none;counter-reset:st;margin:0;padding:0}
-ol.steps>li{counter-increment:st;display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:0 10px;padding:.5em 0;border-top:1px dashed var(--rule);max-width:none}
-ol.steps>li:first-child{border-top:0}
-ol.steps>li::before{content:counter(st);font-family:var(--f-mono);font-size:12px;color:var(--ink-2);padding-top:.2em}
-ol.steps>li>div{min-width:0;overflow-x:auto;overflow-y:hidden;padding-bottom:8px;margin-bottom:-8px}
-ol.steps>li>div>p{margin:0 0 .45em}
-ol.steps>li>div>:last-child{margin-bottom:0}
-ol.steps .mt{font-family:var(--f-mono);font-size:12px;color:var(--breaker);white-space:nowrap;padding-top:.2em}
-ol.steps .mt::before{content:"\2713\00a0"}
-ol.steps .mt:empty{visibility:hidden}
+.memo ol.steps{list-style:none;counter-reset:st;margin:0;padding:0}
+.memo ol.steps>li{counter-increment:st;display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:0 10px;padding:.5em 0;border-top:1px dashed var(--rule);max-width:none}
+.memo ol.steps>li:first-child{border-top:0}
+.memo ol.steps>li::before{content:counter(st);font-family:var(--f-mono);font-size:12px;color:var(--ink-2);padding-top:.2em}
+.memo ol.steps>li>div{min-width:0;overflow-x:auto;overflow-y:hidden;padding-bottom:8px;margin-bottom:-8px}
+.memo ol.steps>li>div>p{margin:0 0 .45em}
+.memo ol.steps>li>div>:last-child{margin-bottom:0}
+.memo ol.steps .mt{font-family:var(--f-mono);font-size:12px;color:var(--breaker);white-space:nowrap;padding-top:.2em}
+.memo ol.steps .mt::before{content:"\2713\00a0"}
+.memo ol.steps .mt:empty{visibility:hidden}
 .memo .ans{margin:.5em 0 .2em 32px;padding:8px 14px;background:var(--wash);border-left:3px solid var(--genoa);border-radius:0 8px 8px 0}
 .memo .ans>p{margin:0}
 .memo .chk{margin:.5em 0 0 32px;font-size:14px;color:var(--ink-2)}
