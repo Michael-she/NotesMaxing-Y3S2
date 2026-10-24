@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 2: Coulomb damping and energy methods · Vibration and Noise · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=vibration">&larr; Vibration and Noise</a>
+  <div class="k">Vibration and Noise · Week 2</div>
+  <ol>
+    <li><a href="#coulomb">1. Coulomb damping</a></li>
+    <li class="sub"><a href="#coulomb-solve">Half cycle at a time</a></li>
+    <li class="sub"><a href="#coulomb-stop">When it stops</a></li>
+    <li><a href="#energy">2. Energy methods</a></li>
+    <li class="sub"><a href="#energy-recipe">Recipe</a></li>
+    <li class="sub"><a href="#halfpipe">Half-pipe example</a></li>
+    <li class="sub"><a href="#testq">Typical test question</a></li>
+    <li class="sub"><a href="#stiffness">Stiffness and inertia</a></li>
+    <li><a href="#tut1">3. Tutorial 1</a></li>
+    <li class="sub"><a href="#tut-homework">Homework problems</a></li>
+    <li class="sub"><a href="#tut-ap">Additional problems</a></li>
+    <li><a href="#practice">4. Practice problems</a></li>
+    <li><a href="#sheet">5. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">VIBRATION AND NOISE 354 · INMAN 1.4, 1.5, 1.10 · LECTURES 3 AND 4 · TUTORIAL 1</div>
+  <h1>Coulomb damping, energy methods and modelling</h1>
+  <p class="lede">Free vibration with dry friction, deriving equations of motion from energy, equivalent stiffness and inertia, and the worked additional problems of Tutorial 1.</p>
+</header>
+
+<section id="coulomb">
+<h2><span class="n">01</span>Coulomb (dry friction) damping</h2>
+
+<p>Viscous damping (week 1) is a convenient model, but many real systems lose energy through <strong>dry sliding friction</strong> instead. This is <strong>Coulomb damping</strong>. Its friction force has a constant size \(\mu N\) and always opposes the velocity, which makes the equation of motion <strong>nonlinear</strong> and piecewise.</p>
+<figure>
+<svg viewBox="0 0 640 200" class="fig" role="img" aria-label="Mass on a rough surface attached to a wall by a spring, with its free-body diagram while moving left">
+<line class="ln c4" x1="40.0" y1="30.0" x2="40.0" y2="160.0"/><path class="ln c4 thin" d="M40.0 37.0 l9.0 -7.0 M40.0 51.0 l9.0 -7.0 M40.0 65.0 l9.0 -7.0 M40.0 79.0 l9.0 -7.0 M40.0 93.0 l9.0 -7.0 M40.0 107.0 l9.0 -7.0 M40.0 121.0 l9.0 -7.0 M40.0 135.0 l9.0 -7.0 M40.0 149.0 l9.0 -7.0"/><line class="ln c4" x1="40.0" y1="160.0" x2="330.0" y2="160.0"/><path class="ln c4 thin" d="M47.0 160.0 l-7.0 9.0 M61.0 160.0 l-7.0 9.0 M75.0 160.0 l-7.0 9.0 M89.0 160.0 l-7.0 9.0 M103.0 160.0 l-7.0 9.0 M117.0 160.0 l-7.0 9.0 M131.0 160.0 l-7.0 9.0 M145.0 160.0 l-7.0 9.0 M159.0 160.0 l-7.0 9.0 M173.0 160.0 l-7.0 9.0 M187.0 160.0 l-7.0 9.0 M201.0 160.0 l-7.0 9.0 M215.0 160.0 l-7.0 9.0 M229.0 160.0 l-7.0 9.0 M243.0 160.0 l-7.0 9.0 M257.0 160.0 l-7.0 9.0 M271.0 160.0 l-7.0 9.0 M285.0 160.0 l-7.0 9.0 M299.0 160.0 l-7.0 9.0 M313.0 160.0 l-7.0 9.0 M327.0 160.0 l-7.0 9.0"/><path class="ln c4" d="M40.0 95.0 L52.0 95.0 L57.7 103.0 L69.0 87.0 L80.3 103.0 L91.7 87.0 L103.0 103.0 L114.3 87.0 L125.7 103.0 L137.0 87.0 L148.3 103.0 L159.7 87.0 L171.0 103.0 L182.3 87.0 L188.0 95.0 L200.0 95.0"/><rect class="blk" x="200" y="60" width="90" height="100" rx="2"/><text class="lab b" x="245" y="115" text-anchor="middle">m</text><text class="lab" x="120" y="78" text-anchor="middle">k</text><text class="lab" x="245" y="182" text-anchor="middle">μ</text><line class="ln c3" x1="245.0" y1="42.0" x2="289.0" y2="42.0"/><path class="c3f" d="M300.0 42.0 L289.0 36.5 L289.0 47.5 Z"/><line class="ln c3 thin" x1="245" y1="35" x2="245" y2="49"/><text class="lab c3t" x="262" y="32">x(t)</text><rect class="blk" x="450" y="60" width="80" height="70" rx="2"/><text class="lab b" x="490" y="100" text-anchor="middle">m</text><line class="ln c4" x1="450.0" y1="85.0" x2="401.0" y2="85.0"/><path class="c4f" d="M390.0 85.0 L401.0 90.5 L401.0 79.5 Z"/><text class="lab" x="384" y="89" text-anchor="end">kx</text><line class="ln c3" x1="530.0" y1="118.0" x2="579.0" y2="118.0"/><path class="c3f" d="M590.0 118.0 L579.0 112.5 L579.0 123.5 Z"/><text class="lab c3t" x="596" y="122">μN</text><line class="ln c4" x1="490.0" y1="130.0" x2="490.0" y2="169.0"/><path class="c4f" d="M490.0 180.0 L495.5 169.0 L484.5 169.0 Z"/><text class="lab" x="500" y="182">mg</text><line class="ln c4" x1="470.0" y1="190.0" x2="470.0" y2="147.0"/><path class="c4f" d="M470.0 136.0 L464.5 147.0 L475.5 147.0 Z"/><text class="lab" x="460" y="182" text-anchor="end">N</text><line class="ln c2" x1="600.0" y1="60.0" x2="556.0" y2="60.0"/><path class="c2f" d="M545.0 60.0 L556.0 65.5 L556.0 54.5 Z"/><text class="lab c2t" x="580" y="50" text-anchor="middle">ẋ &lt; 0</text>
+</svg>
+<figcaption><b>Figure 1.1</b> Spring-mass on a rough surface, and its free-body diagram while moving left.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> The mass has been pulled to the right and released, so it moves left (\(\dot x \lt 0\)). The spring force \(kx\) acts to the left and the friction force \(\mu N\) opposes the motion, so it acts to the right. The normal force \(N\) balances the weight, \(N = mg\).</p>
+<p>With \(\mu\) the kinetic (dynamic) coefficient of friction and \(\mu_s\) the static coefficient, the friction force is</p>
+<div class="eq"><span class="tag">Coulomb friction force</span>\[ f_f = \begin{cases} -\mu N & \dot x \gt 0 \\ 0 \ldots \mu_s N & \dot x = 0 \\ \mu N & \dot x \lt 0 \end{cases} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(f_f\)</dt><dd>Friction force on the mass, positive to the right (N).</dd>
+  <dt>\(\mu\)</dt><dd>Kinetic coefficient of friction.</dd>
+  <dt>\(N\)</dt><dd>Normal force (N); \(N = mg\) on a horizontal surface.</dd>
+  <dt>\(\mu_s\)</dt><dd>Static coefficient of friction: while the mass is at rest, friction can supply anything up to \(\mu_sN\).</dd>
+  <dt>\(\dot x\)</dt><dd>Velocity of the mass (m/s).</dd>
+</dl>
+</div>
+<p>Newton's second law, \(m\ddot x = -kx + f_f\), gives the equation of motion. Written with the <strong>signum function</strong> it is one line:</p>
+<div class="eq"><span class="tag">Equation of motion with Coulomb damping</span>\[ m\ddot x + \mu N\,\mathrm{sgn}(\dot x) + kx = 0, \qquad \mathrm{sgn}(\dot x) = \begin{cases} -1 & \dot x \lt 0 \\ 0 & \dot x = 0 \\ 1 & \dot x \gt 0 \end{cases} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(m\)</dt><dd>Mass (kg).</dd>
+  <dt>\(\ddot x\)</dt><dd>Acceleration (m/s²).</dd>
+  <dt>\(\mu N\)</dt><dd>Size of the kinetic friction force (N).</dd>
+  <dt>\(\mathrm{sgn}(\dot x)\)</dt><dd>Sign of the velocity: switches the friction direction.</dd>
+  <dt>\(k\)</dt><dd>Stiffness (N/m).</dd>
+  <dt>\(x\)</dt><dd>Displacement from the unstretched spring position (m).</dd>
+</dl>
+</div>
+<h3 id="coulomb-solve">Solving it one half cycle at a time</h3>
+<p>Within one stroke the velocity does not change sign, so the friction force is constant and the equation is linear: an undamped oscillator with a constant force. Its solution is the free solution (homogeneous part) plus a constant (particular part) \(\pm\mu N/k\), the static deflection the friction force alone would cause.</p>
+<p>Release from rest at \(x_0 \gt 0\): the mass moves left, \(\dot x \lt 0\), so \(m\ddot x + kx = \mu N\). With \(x(0) = x_0\) and \(\dot x(0) = 0\):</p>
+<div class="eq"><span class="tag">First half cycle</span>\[ x(t) = \left(x_0 - \frac{\mu N}{k}\right)\cos\omega_n t + \frac{\mu N}{k}, \qquad 0 \le t \le \frac{\pi}{\omega_n} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(x_0\)</dt><dd>Initial displacement, released from rest (m).</dd>
+  <dt>\(\mu N/k\)</dt><dd>Offset caused by friction (m): the centre of this half cycle.</dd>
+  <dt>\(\omega_n\)</dt><dd>Natural frequency \(\sqrt{k/m}\) (rad/s).</dd>
+  <dt>\(t\)</dt><dd>Time (s).</dd>
+</dl>
+</div>
+<p>The velocity \(\dot x = -\omega_n(x_0 - \mu N/k)\sin\omega_n t\) is next zero at \(t = \pi/\omega_n\), where \(x = -(x_0 - 2\mu N/k)\). The friction then flips, \(m\ddot x + kx = -\mu N\), and the second stroke starts from this new rest point:</p>
+\[ x(t) = \left(x_0 - \frac{3\mu N}{k}\right)\cos\omega_n t - \frac{\mu N}{k}, \qquad \frac{\pi}{\omega_n} \le t \le \frac{2\pi}{\omega_n}, \]
+<p>which ends at \(x = x_0 - 4\mu N/k\). The pattern repeats: each stroke is half a cosine about \(\pm\mu N/k\), and every turning point is \(2\mu N/k\) closer to zero than the last.</p>
+<div class="eq"><span class="tag">Coulomb decay</span>\[ \Delta x_{\text{half cycle}} = \frac{2\mu N}{k}, \qquad \Delta x_{\text{cycle}} = \frac{4\mu N}{k}, \qquad \text{envelope slope} = -\frac{2\mu N\omega_n}{\pi k} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\Delta x\)</dt><dd>Loss of amplitude (m) per half cycle or per full cycle.</dd>
+  <dt>\(\mu N\)</dt><dd>Kinetic friction force (N).</dd>
+  <dt>\(k\)</dt><dd>Stiffness (N/m).</dd>
+  <dt>\(\omega_n\)</dt><dd>Natural frequency (rad/s).</dd>
+</dl>
+</div>
+<div class="key"><span class="tag">Key idea</span><p>Coulomb damping: the oscillation frequency stays exactly \(\omega_n\) (viscous damping lowers it to \(\omega_d\)); the peaks fall on <strong>straight lines</strong>, not an exponential; and the motion stops after a <strong>finite</strong> time, usually away from equilibrium.</p></div>
+<h3 id="coulomb-stop">When does it stop?</h3>
+<p>At each turning point the mass is momentarily at rest and only the spring pulls on it. It moves off again only if the spring force beats static friction, \(k|x| \gt \mu_sN\). So the motion stops at the first turning point inside the band</p>
+<div class="eq"><span class="tag">Stick condition</span>\[ |x| \le \frac{\mu_s N}{k} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(x\)</dt><dd>Displacement at a turning point (m).</dd>
+  <dt>\(\mu_s N\)</dt><dd>Largest static friction force (N).</dd>
+  <dt>\(k\)</dt><dd>Stiffness (N/m).</dd>
+</dl>
+</div>
+<div class="box watch"><span class="label">Watch out</span><p>The mass does <strong>not</strong> come to rest at the spring's unstretched position. It sticks wherever the last turning point falls inside the band. If only one friction coefficient is given, use \(\mu_s = \mu\), as the lecture example does.</p></div>
+<div class="ex"><div class="hd">Worked example 1.1 <span>Coulomb decay</span></div><div class="bd">
+<p>A 2 kg mass slides on a surface with \(\mu = 0.1\) and is held by a spring of 800 N/m. It is released from rest at 30 mm. Take \(\mu_s = \mu\). Find the loss per cycle, the turning points, where it stops and when.</p>
+<div class="step"><i>1</i><div>\(\omega_n = \sqrt{800/2} = 20\) rad/s; \(\mu N/k = 0.1(2)(9.81)/800 = 2.453\) mm.</div></div>
+<div class="step"><i>2</i><div>Each half cycle loses \(2\mu N/k = 4.91\) mm, each cycle \(9.81\) mm.</div></div>
+<div class="step"><i>3</i><div>Turning points: 30.00, -25.09, 20.19, -15.29, 10.38, -5.47, 0.57 mm.</div></div>
+<div class="step"><i>4</i><div>The last value, 0.57 mm, is inside the stick band ±2.45 mm, so the mass stops there; the one before it (-5.47 mm) was outside the band.</div></div>
+<div class="step"><i>5</i><div>That is 6 half cycles: \(t = 6\pi/\omega_n = 0.942\) s.</div></div>
+<div class="ans">The mass loses 9.81 mm per cycle, makes 6 strokes and stops at 0.57 mm after 0.942 s.</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="Free response with Coulomb friction: amplitude falls linearly until the mass sticks">
+<rect class="area" x="58.0" y="111.6" width="560" height="14.7"/><line class="grid" x1="58.0" y1="14" x2="58.0" y2="224"/>
+<text class="tk" x="58.0" y="239" text-anchor="middle">0</text>
+<line class="grid" x1="151.3" y1="14" x2="151.3" y2="224"/>
+<text class="tk" x="151.3" y="239" text-anchor="middle">0.2</text>
+<line class="grid" x1="244.7" y1="14" x2="244.7" y2="224"/>
+<text class="tk" x="244.7" y="239" text-anchor="middle">0.4</text>
+<line class="grid" x1="338.0" y1="14" x2="338.0" y2="224"/>
+<text class="tk" x="338.0" y="239" text-anchor="middle">0.6</text>
+<line class="grid" x1="431.3" y1="14" x2="431.3" y2="224"/>
+<text class="tk" x="431.3" y="239" text-anchor="middle">0.8</text>
+<line class="grid" x1="524.7" y1="14" x2="524.7" y2="224"/>
+<text class="tk" x="524.7" y="239" text-anchor="middle">1</text>
+<line class="grid" x1="618.0" y1="14" x2="618.0" y2="224"/>
+<text class="tk" x="618.0" y="239" text-anchor="middle">1.2</text>
+<line class="grid" x1="58" y1="209.0" x2="618" y2="209.0"/>
+<text class="tk" x="52" y="213.0" text-anchor="end">−30</text>
+<line class="grid" x1="58" y1="179.0" x2="618" y2="179.0"/>
+<text class="tk" x="52" y="183.0" text-anchor="end">−20</text>
+<line class="grid" x1="58" y1="149.0" x2="618" y2="149.0"/>
+<text class="tk" x="52" y="153.0" text-anchor="end">−10</text>
+<line class="grid" x1="58" y1="119.0" x2="618" y2="119.0"/>
+<text class="tk" x="52" y="123.0" text-anchor="end">0</text>
+<line class="grid" x1="58" y1="89.0" x2="618" y2="89.0"/>
+<text class="tk" x="52" y="93.0" text-anchor="end">10</text>
+<line class="grid" x1="58" y1="59.0" x2="618" y2="59.0"/>
+<text class="tk" x="52" y="63.0" text-anchor="end">20</text>
+<line class="grid" x1="58" y1="29.0" x2="618" y2="29.0"/>
+<text class="tk" x="52" y="33.0" text-anchor="end">30</text>
+<line class="axis" x1="58" y1="119.0" x2="618" y2="119.0"/>
+<rect class="frame" x="58" y="14" width="560" height="210"/>
+<text class="lab" x="338.0" y="258" text-anchor="middle">time t (s)</text>
+<text class="lab" transform="translate(16 119.0) rotate(-90)" text-anchor="middle">x (mm)</text>
+<defs><clipPath id="cp12"><rect x="58" y="14" width="560" height="210"/></clipPath></defs><g clip-path="url(#cp12)">
+<polyline class="ln c4 thin dash" points="58.0,29.0 614.5,140.7"/>
+<polyline class="ln c4 thin dash" points="58.0,209.0 614.5,97.3"/>
+<polyline class="ln c1" points="58.0,29.0 58.4,29.0 58.7,29.0 59.1,29.1 59.5,29.2 59.9,29.3 60.2,29.4 60.6,29.5 61.0,29.7 61.3,29.8 61.7,30.0 62.1,30.3 62.5,30.5 62.8,30.8 63.2,31.0 63.6,31.3 63.9,31.7 64.3,32.0 64.7,32.4 65.0,32.7 65.4,33.1 65.8,33.6 66.2,34.0 66.5,34.5 66.9,34.9 67.3,35.4 67.6,36.0 68.0,36.5 68.4,37.1 68.8,37.6 69.1,38.2 69.5,38.8 69.9,39.5 70.2,40.1 70.6,40.8 71.0,41.5 71.4,42.2 71.7,42.9 72.1,43.6 72.5,44.4 72.8,45.2 73.2,45.9 73.6,46.8 74.0,47.6 74.3,48.4 74.7,49.3 75.1,50.1 75.4,51.0 75.8,51.9 76.2,52.8 76.5,53.8 76.9,54.7 77.3,55.7 77.7,56.6 78.0,57.6 78.4,58.6 78.8,59.7 79.1,60.7 79.5,61.7 79.9,62.8 80.3,63.8 80.6,64.9 81.0,66.0 81.4,67.1 81.7,68.2 82.1,69.3 82.5,70.5 82.9,71.6 83.2,72.8 83.6,73.9 84.0,75.1 84.3,76.3 84.7,77.5 85.1,78.7 85.5,79.9 85.8,81.1 86.2,82.3 86.6,83.6 86.9,84.8 87.3,86.1 87.7,87.3 88.1,88.6 88.4,89.8 88.8,91.1 89.2,92.4 89.5,93.7 89.9,94.9 90.3,96.2 90.6,97.5 91.0,98.8 91.4,100.1 91.8,101.4 92.1,102.7 92.5,104.0 92.9,105.3 93.2,106.7 93.6,108.0 94.0,109.3 94.4,110.6 94.7,111.9 95.1,113.2 95.5,114.5 95.8,115.9 96.2,117.2 96.6,118.5 97.0,119.8 97.3,121.1 97.7,122.4 98.1,123.7 98.4,125.0 98.8,126.3 99.2,127.6 99.6,128.9 99.9,130.2 100.3,131.4 100.7,132.7 101.0,134.0 101.4,135.2 101.8,136.5 102.1,137.7 102.5,139.0 102.9,140.2 103.3,141.4 103.6,142.7 104.0,143.9 104.4,145.1 104.7,146.3 105.1,147.5 105.5,148.7 105.9,149.8 106.2,151.0 106.6,152.1 107.0,153.3 107.3,154.4 107.7,155.5 108.1,156.6 108.5,157.7 108.8,158.8 109.2,159.9 109.6,160.9 109.9,162.0 110.3,163.0 110.7,164.1 111.1,165.1 111.4,166.1 111.8,167.0 112.2,168.0 112.5,169.0 112.9,169.9 113.3,170.8 113.6,171.7 114.0,172.6 114.4,173.5 114.8,174.4 115.1,175.2 115.5,176.1 115.9,176.9 116.2,177.7 116.6,178.4 117.0,179.2 117.4,180.0 117.7,180.7 118.1,181.4 118.5,182.1 118.8,182.8 119.2,183.4 119.6,184.1 120.0,184.7 120.3,185.3 120.7,185.9 121.1,186.5 121.4,187.0 121.8,187.5 122.2,188.0 122.6,188.5 122.9,189.0 123.3,189.5 123.7,189.9 124.0,190.3 124.4,190.7 124.8,191.1 125.1,191.4 125.5,191.8 125.9,192.1 126.3,192.4 126.6,192.6 127.0,192.9 127.4,193.1 127.7,193.3 128.1,193.5 128.5,193.7 128.9,193.8 129.2,194.0 129.6,194.1 130.0,194.2 130.3,194.2 130.7,194.3 131.1,194.3 131.5,194.3 131.8,194.3 132.2,194.2 132.6,194.2 132.9,194.1 133.3,194.0 133.7,193.9 134.1,193.8 134.4,193.7 134.8,193.5 135.2,193.4 135.5,193.2 135.9,193.0 136.3,192.7 136.7,192.5 137.0,192.3 137.4,192.0 137.8,191.7 138.1,191.4 138.5,191.1 138.9,190.7 139.2,190.4 139.6,190.0 140.0,189.6 140.4,189.2 140.7,188.8 141.1,188.4 141.5,187.9 141.8,187.5 142.2,187.0 142.6,186.5 143.0,186.0 143.3,185.5 143.7,184.9 144.1,184.4 144.4,183.8 144.8,183.2 145.2,182.6 145.6,182.0 145.9,181.4 146.3,180.7 146.7,180.1 147.0,179.4 147.4,178.7 147.8,178.0 148.2,177.3 148.5,176.6 148.9,175.9 149.3,175.1 149.6,174.4 150.0,173.6 150.4,172.8 150.7,172.0 151.1,171.2 151.5,170.4 151.9,169.6 152.2,168.7 152.6,167.9 153.0,167.0 153.3,166.2 153.7,165.3 154.1,164.4 154.5,163.5 154.8,162.6 155.2,161.7 155.6,160.7 155.9,159.8 156.3,158.9 156.7,157.9 157.1,156.9 157.4,156.0 157.8,155.0 158.2,154.0 158.5,153.0 158.9,152.0 159.3,151.0 159.7,150.0 160.0,149.0 160.4,148.0 160.8,147.0 161.1,145.9 161.5,144.9 161.9,143.9 162.2,142.8 162.6,141.8 163.0,140.7 163.4,139.6 163.7,138.6 164.1,137.5 164.5,136.5 164.8,135.4 165.2,134.3 165.6,133.2 166.0,132.2 166.3,131.1 166.7,130.0 167.1,128.9 167.4,127.9 167.8,126.8 168.2,125.7 168.6,124.6 168.9,123.5 169.3,122.5 169.7,121.4 170.0,120.3 170.4,119.2 170.8,118.2 171.2,117.1 171.5,116.0 171.9,114.9 172.3,113.9 172.6,112.8 173.0,111.8 173.4,110.7 173.7,109.7 174.1,108.6 174.5,107.6 174.9,106.5 175.2,105.5 175.6,104.5 176.0,103.5 176.3,102.5 176.7,101.4 177.1,100.4 177.5,99.4 177.8,98.5 178.2,97.5 178.6,96.5 178.9,95.5 179.3,94.6 179.7,93.6 180.1,92.7 180.4,91.8 180.8,90.8 181.2,89.9 181.5,89.0 181.9,88.1 182.3,87.2 182.7,86.3 183.0,85.5 183.4,84.6 183.8,83.8 184.1,82.9 184.5,82.1 184.9,81.3 185.3,80.5 185.6,79.7 186.0,78.9 186.4,78.2 186.7,77.4 187.1,76.7 187.5,75.9 187.8,75.2 188.2,74.5 188.6,73.8 189.0,73.1 189.3,72.5 189.7,71.8 190.1,71.2 190.4,70.6 190.8,70.0 191.2,69.4 191.6,68.8 191.9,68.2 192.3,67.7 192.7,67.1 193.0,66.6 193.4,66.1 193.8,65.6 194.2,65.1 194.5,64.7 194.9,64.2 195.3,63.8 195.6,63.4 196.0,63.0 196.4,62.6 196.8,62.2 197.1,61.9 197.5,61.6 197.9,61.2 198.2,60.9 198.6,60.7 199.0,60.4 199.3,60.1 199.7,59.9 200.1,59.7 200.5,59.5 200.8,59.3 201.2,59.2 201.6,59.0 201.9,58.9 202.3,58.8 202.7,58.7 203.1,58.6 203.4,58.5 203.8,58.5 204.2,58.4 204.5,58.4 204.9,58.4 205.3,58.5 205.7,58.5 206.0,58.5 206.4,58.6 206.8,58.7 207.1,58.7 207.5,58.8 207.9,59.0 208.3,59.1 208.6,59.2 209.0,59.4 209.4,59.5 209.7,59.7 210.1,59.9 210.5,60.1 210.8,60.3 211.2,60.6 211.6,60.8 212.0,61.1 212.3,61.3 212.7,61.6 213.1,61.9 213.4,62.2 213.8,62.5 214.2,62.9 214.6,63.2 214.9,63.6 215.3,63.9 215.7,64.3 216.0,64.7 216.4,65.1 216.8,65.5 217.2,65.9 217.5,66.4 217.9,66.8 218.3,67.3 218.6,67.8 219.0,68.3 219.4,68.7 219.8,69.3 220.1,69.8 220.5,70.3 220.9,70.8 221.2,71.4 221.6,71.9 222.0,72.5 222.3,73.1 222.7,73.7 223.1,74.3 223.5,74.9 223.8,75.5 224.2,76.1 224.6,76.8 224.9,77.4 225.3,78.0 225.7,78.7 226.1,79.4 226.4,80.1 226.8,80.7 227.2,81.4 227.5,82.1 227.9,82.8 228.3,83.6 228.7,84.3 229.0,85.0 229.4,85.7 229.8,86.5 230.1,87.2 230.5,88.0 230.9,88.8 231.3,89.5 231.6,90.3 232.0,91.1 232.4,91.8 232.7,92.6 233.1,93.4 233.5,94.2 233.9,95.0 234.2,95.8 234.6,96.6 235.0,97.5 235.3,98.3 235.7,99.1 236.1,99.9 236.4,100.7 236.8,101.6 237.2,102.4 237.6,103.2 237.9,104.1 238.3,104.9 238.7,105.8 239.0,106.6 239.4,107.4 239.8,108.3 240.2,109.1 240.5,110.0 240.9,110.8 241.3,111.7 241.6,112.5 242.0,113.4 242.4,114.2 242.8,115.0 243.1,115.9 243.5,116.7 243.9,117.6 244.2,118.4 244.6,119.3 245.0,120.1 245.4,120.9 245.7,121.8 246.1,122.6 246.5,123.4 246.8,124.2 247.2,125.1 247.6,125.9 247.9,126.7 248.3,127.5 248.7,128.3 249.1,129.1 249.4,129.9 249.8,130.7 250.2,131.5 250.5,132.3 250.9,133.0 251.3,133.8 251.7,134.6 252.0,135.3 252.4,136.1 252.8,136.8 253.1,137.6 253.5,138.3 253.9,139.0 254.3,139.8 254.6,140.5 255.0,141.2 255.4,141.9 255.7,142.6 256.1,143.3 256.5,143.9 256.9,144.6 257.2,145.3 257.6,145.9 258.0,146.6 258.3,147.2 258.7,147.8 259.1,148.4 259.4,149.0 259.8,149.6 260.2,150.2 260.6,150.8 260.9,151.4 261.3,151.9 261.7,152.5 262.0,153.0 262.4,153.5 262.8,154.1 263.2,154.6 263.5,155.1 263.9,155.5 264.3,156.0 264.6,156.5 265.0,156.9 265.4,157.4 265.8,157.8 266.1,158.2 266.5,158.6 266.9,159.0 267.2,159.4 267.6,159.8 268.0,160.1 268.4,160.5 268.7,160.8 269.1,161.1 269.5,161.4 269.8,161.7 270.2,162.0 270.6,162.2 271.0,162.5 271.3,162.7 271.7,163.0 272.1,163.2 272.4,163.4 272.8,163.6 273.2,163.8 273.5,163.9 273.9,164.1 274.3,164.2 274.7,164.3 275.0,164.5 275.4,164.5 275.8,164.6 276.1,164.7 276.5,164.8 276.9,164.8 277.3,164.8 277.6,164.9 278.0,164.9 278.4,164.8 278.7,164.8 279.1,164.8 279.5,164.8 279.9,164.7 280.2,164.7 280.6,164.6 281.0,164.5 281.3,164.4 281.7,164.3 282.1,164.2 282.5,164.1 282.8,164.0 283.2,163.9 283.6,163.7 283.9,163.6 284.3,163.4 284.7,163.2 285.0,163.1 285.4,162.9 285.8,162.7 286.2,162.5 286.5,162.3 286.9,162.0 287.3,161.8 287.6,161.6 288.0,161.3 288.4,161.0 288.8,160.8 289.1,160.5 289.5,160.2 289.9,159.9 290.2,159.6 290.6,159.3 291.0,159.0 291.4,158.6 291.7,158.3 292.1,158.0 292.5,157.6 292.8,157.2 293.2,156.9 293.6,156.5 294.0,156.1 294.3,155.7 294.7,155.3 295.1,154.9 295.4,154.5 295.8,154.1 296.2,153.6 296.5,153.2 296.9,152.8 297.3,152.3 297.7,151.9 298.0,151.4 298.4,150.9 298.8,150.5 299.1,150.0 299.5,149.5 299.9,149.0 300.3,148.5 300.6,148.0 301.0,147.5 301.4,147.0 301.7,146.5 302.1,145.9 302.5,145.4 302.9,144.9 303.2,144.3 303.6,143.8 304.0,143.2 304.3,142.7 304.7,142.1 305.1,141.6 305.5,141.0 305.8,140.4 306.2,139.9 306.6,139.3 306.9,138.7 307.3,138.1 307.7,137.6 308.0,137.0 308.4,136.4 308.8,135.8 309.2,135.2 309.5,134.6 309.9,134.0 310.3,133.4 310.6,132.8 311.0,132.2 311.4,131.6 311.8,131.0 312.1,130.4 312.5,129.8 312.9,129.1 313.2,128.5 313.6,127.9 314.0,127.3 314.4,126.7 314.7,126.1 315.1,125.5 315.5,124.9 315.8,124.3 316.2,123.6 316.6,123.0 317.0,122.4 317.3,121.8 317.7,121.2 318.1,120.6 318.4,120.0 318.8,119.4 319.2,118.8 319.6,118.2 319.9,117.6 320.3,117.0 320.7,116.4 321.0,115.8 321.4,115.2 321.8,114.6 322.1,114.1 322.5,113.5 322.9,112.9 323.3,112.3 323.6,111.8 324.0,111.2 324.4,110.6 324.7,110.1 325.1,109.5 325.5,109.0 325.9,108.4 326.2,107.9 326.6,107.4 327.0,106.8 327.3,106.3 327.7,105.8 328.1,105.3 328.5,104.8 328.8,104.3 329.2,103.8 329.6,103.3 329.9,102.8 330.3,102.3 330.7,101.8 331.1,101.4 331.4,100.9 331.8,100.4 332.2,100.0 332.5,99.6 332.9,99.1 333.3,98.7 333.6,98.3 334.0,97.9 334.4,97.4 334.8,97.0 335.1,96.6 335.5,96.3 335.9,95.9 336.2,95.5 336.6,95.2 337.0,94.8 337.4,94.5 337.7,94.1 338.1,93.8 338.5,93.5 338.8,93.1 339.2,92.8 339.6,92.5 340.0,92.3 340.3,92.0 340.7,91.7 341.1,91.4 341.4,91.2 341.8,90.9 342.2,90.7 342.6,90.5 342.9,90.3 343.3,90.1 343.7,89.9 344.0,89.7 344.4,89.5 344.8,89.3 345.1,89.2 345.5,89.0 345.9,88.9 346.3,88.7 346.6,88.6 347.0,88.5 347.4,88.4 347.7,88.3 348.1,88.2 348.5,88.1 348.9,88.1 349.2,88.0 349.6,88.0 350.0,87.9 350.3,87.9 350.7,87.9 351.1,87.9 351.5,87.9 351.8,87.9 352.2,87.9 352.6,87.9 352.9,87.9 353.3,88.0 353.7,88.0 354.1,88.0 354.4,88.1 354.8,88.1 355.2,88.2 355.5,88.3 355.9,88.3 356.3,88.4 356.6,88.5 357.0,88.6 357.4,88.7 357.8,88.8 358.1,88.9 358.5,89.0 358.9,89.1 359.2,89.3 359.6,89.4 360.0,89.5 360.4,89.7 360.7,89.8 361.1,90.0 361.5,90.1 361.8,90.3 362.2,90.5 362.6,90.6 363.0,90.8 363.3,91.0 363.7,91.2 364.1,91.4 364.4,91.6 364.8,91.8 365.2,92.0 365.6,92.2 365.9,92.4 366.3,92.7 366.7,92.9 367.0,93.1 367.4,93.4 367.8,93.6 368.2,93.9 368.5,94.1 368.9,94.4 369.3,94.6 369.6,94.9 370.0,95.2 370.4,95.4 370.7,95.7 371.1,96.0 371.5,96.3 371.9,96.6 372.2,96.9 372.6,97.2 373.0,97.5 373.3,97.8 373.7,98.1 374.1,98.4 374.5,98.7 374.8,99.0 375.2,99.4 375.6,99.7 375.9,100.0 376.3,100.3 376.7,100.7 377.1,101.0 377.4,101.4 377.8,101.7 378.2,102.0 378.5,102.4 378.9,102.7 379.3,103.1 379.7,103.4 380.0,103.8 380.4,104.2 380.8,104.5 381.1,104.9 381.5,105.2 381.9,105.6 382.2,106.0 382.6,106.3 383.0,106.7 383.4,107.1 383.7,107.4 384.1,107.8 384.5,108.2 384.8,108.6 385.2,108.9 385.6,109.3 386.0,109.7 386.3,110.1 386.7,110.5 387.1,110.8 387.4,111.2 387.8,111.6 388.2,112.0 388.6,112.3 388.9,112.7 389.3,113.1 389.7,113.5 390.0,113.9 390.4,114.2 390.8,114.6 391.2,115.0 391.5,115.4 391.9,115.7 392.3,116.1 392.6,116.5 393.0,116.8 393.4,117.2 393.7,117.6 394.1,117.9 394.5,118.3 394.9,118.7 395.2,119.0 395.6,119.4 396.0,119.7 396.3,120.1 396.7,120.4 397.1,120.8 397.5,121.1 397.8,121.5 398.2,121.8 398.6,122.2 398.9,122.5 399.3,122.8 399.7,123.2 400.1,123.5 400.4,123.8 400.8,124.2 401.2,124.5 401.5,124.8 401.9,125.1 402.3,125.4 402.7,125.7 403.0,126.0 403.4,126.3 403.8,126.6 404.1,126.9 404.5,127.2 404.9,127.5 405.2,127.8 405.6,128.0 406.0,128.3 406.4,128.6 406.7,128.8 407.1,129.1 407.5,129.4 407.8,129.6 408.2,129.9 408.6,130.1 409.0,130.3 409.3,130.6 409.7,130.8 410.1,131.0 410.4,131.2 410.8,131.4 411.2,131.6 411.6,131.8 411.9,132.0 412.3,132.2 412.7,132.4 413.0,132.6 413.4,132.8 413.8,133.0 414.2,133.1 414.5,133.3 414.9,133.4 415.3,133.6 415.6,133.7 416.0,133.9 416.4,134.0 416.8,134.1 417.1,134.2 417.5,134.4 417.9,134.5 418.2,134.6 418.6,134.7 419.0,134.8 419.3,134.8 419.7,134.9 420.1,135.0 420.5,135.1 420.8,135.1 421.2,135.2 421.6,135.2 421.9,135.3 422.3,135.3 422.7,135.4 423.1,135.4 423.4,135.4 423.8,135.4 424.2,135.4 424.5,135.4 424.9,135.4 425.3,135.4 425.7,135.4 426.0,135.4 426.4,135.4 426.8,135.4 427.1,135.4 427.5,135.4 427.9,135.3 428.3,135.3 428.6,135.3 429.0,135.3 429.4,135.2 429.7,135.2 430.1,135.2 430.5,135.1 430.8,135.1 431.2,135.1 431.6,135.0 432.0,135.0 432.3,134.9 432.7,134.9 433.1,134.8 433.4,134.8 433.8,134.7 434.2,134.7 434.6,134.6 434.9,134.5 435.3,134.5 435.7,134.4 436.0,134.3 436.4,134.3 436.8,134.2 437.2,134.1 437.5,134.1 437.9,134.0 438.3,133.9 438.6,133.8 439.0,133.7 439.4,133.6 439.8,133.6 440.1,133.5 440.5,133.4 440.9,133.3 441.2,133.2 441.6,133.1 442.0,133.0 442.3,132.9 442.7,132.8 443.1,132.7 443.5,132.6 443.8,132.5 444.2,132.4 444.6,132.3 444.9,132.2 445.3,132.1 445.7,131.9 446.1,131.8 446.4,131.7 446.8,131.6 447.2,131.5 447.5,131.4 447.9,131.2 448.3,131.1 448.7,131.0 449.0,130.9 449.4,130.7 449.8,130.6 450.1,130.5 450.5,130.4 450.9,130.2 451.3,130.1 451.6,130.0 452.0,129.8 452.4,129.7 452.7,129.6 453.1,129.4 453.5,129.3 453.8,129.2 454.2,129.0 454.6,128.9 455.0,128.7 455.3,128.6 455.7,128.5 456.1,128.3 456.4,128.2 456.8,128.0 457.2,127.9 457.6,127.8 457.9,127.6 458.3,127.5 458.7,127.3 459.0,127.2 459.4,127.0 459.8,126.9 460.2,126.8 460.5,126.6 460.9,126.5 461.3,126.3 461.6,126.2 462.0,126.0 462.4,125.9 462.8,125.7 463.1,125.6 463.5,125.5 463.9,125.3 464.2,125.2 464.6,125.0 465.0,124.9 465.4,124.7 465.7,124.6 466.1,124.5 466.5,124.3 466.8,124.2 467.2,124.0 467.6,123.9 467.9,123.8 468.3,123.6 468.7,123.5 469.1,123.3 469.4,123.2 469.8,123.1 470.2,122.9 470.5,122.8 470.9,122.7 471.3,122.5 471.7,122.4 472.0,122.3 472.4,122.2 472.8,122.0 473.1,121.9 473.5,121.8 473.9,121.7 474.3,121.5 474.6,121.4 475.0,121.3 475.4,121.2 475.7,121.1 476.1,120.9 476.5,120.8 476.9,120.7 477.2,120.6 477.6,120.5 478.0,120.4 478.3,120.3 478.7,120.2 479.1,120.1 479.4,120.0 479.8,119.9 480.2,119.8 480.6,119.7 480.9,119.6 481.3,119.5 481.7,119.4 482.0,119.3 482.4,119.2 482.8,119.1 483.2,119.0 483.5,118.9 483.9,118.9 484.3,118.8 484.6,118.7 485.0,118.6 485.4,118.5 485.8,118.5 486.1,118.4 486.5,118.3 486.9,118.3 487.2,118.2 487.6,118.1 488.0,118.1 488.4,118.0 488.7,118.0 489.1,117.9 489.5,117.9 489.8,117.8 490.2,117.8 490.6,117.7 490.9,117.7 491.3,117.6 491.7,117.6 492.1,117.6 492.4,117.5 492.8,117.5 493.2,117.5 493.5,117.4 493.9,117.4 494.3,117.4 494.7,117.4 495.0,117.4 495.4,117.3 495.8,117.3 496.1,117.3 496.5,117.3 496.9,117.3 497.3,117.3 497.6,117.3 498.0,117.3 498.4,117.3 498.7,117.3 499.1,117.3 499.5,117.3 499.9,117.3 500.2,117.3 500.6,117.3 501.0,117.3 501.3,117.3 501.7,117.3 502.1,117.3 502.4,117.3 502.8,117.3 503.2,117.3 503.6,117.3 503.9,117.3 504.3,117.3 504.7,117.3 505.0,117.3 505.4,117.3 505.8,117.3 506.2,117.3 506.5,117.3 506.9,117.3 507.3,117.3 507.6,117.3 508.0,117.3 508.4,117.3 508.8,117.3 509.1,117.3 509.5,117.3 509.9,117.3 510.2,117.3 510.6,117.3 511.0,117.3 511.4,117.3 511.7,117.3 512.1,117.3 512.5,117.3 512.8,117.3 513.2,117.3 513.6,117.3 514.0,117.3 514.3,117.3 514.7,117.3 515.1,117.3 515.4,117.3 515.8,117.3 516.2,117.3 516.5,117.3 516.9,117.3 517.3,117.3 517.7,117.3 518.0,117.3 518.4,117.3 518.8,117.3 519.1,117.3 519.5,117.3 519.9,117.3 520.3,117.3 520.6,117.3 521.0,117.3 521.4,117.3 521.7,117.3 522.1,117.3 522.5,117.3 522.9,117.3 523.2,117.3 523.6,117.3 524.0,117.3 524.3,117.3 524.7,117.3 525.1,117.3 525.5,117.3 525.8,117.3 526.2,117.3 526.6,117.3 526.9,117.3 527.3,117.3 527.7,117.3 528.0,117.3 528.4,117.3 528.8,117.3 529.2,117.3 529.5,117.3 529.9,117.3 530.3,117.3 530.6,117.3 531.0,117.3 531.4,117.3 531.8,117.3 532.1,117.3 532.5,117.3 532.9,117.3 533.2,117.3 533.6,117.3 534.0,117.3 534.4,117.3 534.7,117.3 535.1,117.3 535.5,117.3 535.8,117.3 536.2,117.3 536.6,117.3 537.0,117.3 537.3,117.3 537.7,117.3 538.1,117.3 538.4,117.3 538.8,117.3 539.2,117.3 539.5,117.3 539.9,117.3 540.3,117.3 540.7,117.3 541.0,117.3 541.4,117.3 541.8,117.3 542.1,117.3 542.5,117.3 542.9,117.3 543.3,117.3 543.6,117.3 544.0,117.3 544.4,117.3 544.7,117.3 545.1,117.3 545.5,117.3 545.9,117.3 546.2,117.3 546.6,117.3 547.0,117.3 547.3,117.3 547.7,117.3 548.1,117.3 548.5,117.3 548.8,117.3 549.2,117.3 549.6,117.3 549.9,117.3 550.3,117.3 550.7,117.3 551.0,117.3 551.4,117.3 551.8,117.3 552.2,117.3 552.5,117.3 552.9,117.3 553.3,117.3 553.6,117.3 554.0,117.3 554.4,117.3 554.8,117.3 555.1,117.3 555.5,117.3 555.9,117.3 556.2,117.3 556.6,117.3 557.0,117.3 557.4,117.3 557.7,117.3 558.1,117.3 558.5,117.3 558.8,117.3 559.2,117.3 559.6,117.3 560.0,117.3 560.3,117.3 560.7,117.3 561.1,117.3 561.4,117.3 561.8,117.3 562.2,117.3 562.6,117.3 562.9,117.3 563.3,117.3 563.7,117.3 564.0,117.3 564.4,117.3 564.8,117.3 565.1,117.3 565.5,117.3 565.9,117.3 566.3,117.3 566.6,117.3 567.0,117.3 567.4,117.3 567.7,117.3 568.1,117.3 568.5,117.3 568.9,117.3 569.2,117.3 569.6,117.3 570.0,117.3 570.3,117.3 570.7,117.3 571.1,117.3 571.5,117.3 571.8,117.3 572.2,117.3 572.6,117.3 572.9,117.3 573.3,117.3 573.7,117.3 574.1,117.3 574.4,117.3 574.8,117.3 575.2,117.3 575.5,117.3 575.9,117.3 576.3,117.3 576.6,117.3 577.0,117.3 577.4,117.3 577.8,117.3 578.1,117.3 578.5,117.3 578.9,117.3 579.2,117.3 579.6,117.3 580.0,117.3 580.4,117.3 580.7,117.3 581.1,117.3 581.5,117.3 581.8,117.3 582.2,117.3 582.6,117.3 583.0,117.3 583.3,117.3 583.7,117.3 584.1,117.3 584.4,117.3 584.8,117.3 585.2,117.3 585.6,117.3 585.9,117.3 586.3,117.3 586.7,117.3 587.0,117.3 587.4,117.3 587.8,117.3 588.1,117.3 588.5,117.3 588.9,117.3 589.3,117.3 589.6,117.3 590.0,117.3 590.4,117.3 590.7,117.3 591.1,117.3 591.5,117.3 591.9,117.3 592.2,117.3 592.6,117.3 593.0,117.3 593.3,117.3 593.7,117.3 594.1,117.3 594.5,117.3 594.8,117.3 595.2,117.3 595.6,117.3 595.9,117.3 596.3,117.3 596.7,117.3 597.1,117.3 597.4,117.3 597.8,117.3 598.2,117.3 598.5,117.3 598.9,117.3 599.3,117.3 599.6,117.3 600.0,117.3 600.4,117.3 600.8,117.3 601.1,117.3 601.5,117.3 601.9,117.3 602.2,117.3 602.6,117.3 603.0,117.3 603.4,117.3 603.7,117.3 604.1,117.3 604.5,117.3 604.8,117.3 605.2,117.3 605.6,117.3 606.0,117.3 606.3,117.3 606.7,117.3 607.1,117.3 607.4,117.3 607.8,117.3 608.2,117.3 608.6,117.3 608.9,117.3 609.3,117.3 609.7,117.3 610.0,117.3 610.4,117.3 610.8,117.3 611.2,117.3 611.5,117.3 611.9,117.3 612.3,117.3 612.6,117.3 613.0,117.3 613.4,117.3 613.7,117.3 614.1,117.3 614.5,117.3"/>
+</g><circle class="c3f" cx="58.0" cy="29.0" r="3.5"/><circle class="c3f" cx="131.3" cy="194.3" r="3.5"/><circle class="c3f" cx="204.6" cy="58.4" r="3.5"/><circle class="c3f" cx="277.9" cy="164.9" r="3.5"/><circle class="c3f" cx="351.2" cy="87.9" r="3.5"/><circle class="c3f" cx="424.5" cy="135.4" r="3.5"/><circle class="c3f" cx="497.8" cy="117.3" r="3.5"/><text class="lab halo" x="347.3" y="47.0">slope −2μNωₙ/(πk) = 31.2 mm/s</text><text class="tk c1t halo" x="613.3" y="141.4" text-anchor="end">stick band ±μN/k = ±2.45 mm</text><text class="lab halo" x="497.8" y="92.0" text-anchor="middle">stops at 0.57 mm</text>
+</svg>
+<figcaption><b>Figure 1.2</b> Free response of worked example 1.1 with Coulomb friction.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.2:</b> The peaks (amber) lie on the two dashed straight lines of slope \(\mp 2\mu N\omega_n/(\pi k)\). Each stroke is half a cosine centred at \(+\mu N/k\) or \(-\mu N/k\). The mass stops at its sixth turning point, inside the shaded stick band, and stays there.</p>
+<figure id="fig13">
+<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="Coulomb-damped free response; friction coefficients and starting displacement can be changed"></svg>
+<div class="fig-ctl">
+<label><span>μ</span><input type="range" data-k="mu" min="0.02" max="0.3" step="0.01" value="0.1" aria-label="Kinetic friction coefficient μ"><output></output></label>
+<label><span>μₛ</span><input type="range" data-k="mus" min="0.02" max="0.5" step="0.01" value="0.1" aria-label="Static friction coefficient μs"><output></output></label>
+<label><span>x₀</span><input type="range" data-k="x0" min="5" max="60" step="1" value="30" aria-label="Initial displacement x₀ in mm"><output></output></label>
+<label><span>ωₙ</span><input type="range" data-k="wn" min="5" max="40" step="1" value="20" aria-label="Natural frequency ωₙ in rad/s"><output></output></label>
+</div>
+<div class="fig-read" aria-live="polite"></div>
+<figcaption><b>Figure 1.3</b> Coulomb-damped free response for any friction level.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.3:</b> It starts at worked example 1.1 (m = 2 kg, ωₙ = 20 rad/s, μ = μₛ = 0.1, x₀ = 30 mm, so μN/k = 2.45 mm). Raise μₛ above μ to widen the stick band: the mass then stops earlier and further from equilibrium. The faint curve is a viscously damped response with the same loss in its first half cycle, for comparison: its peaks decay exponentially rather than along a straight line.</p>
+<p>Because the decay is linear and its slope is \(2\mu N\omega_n/(\pi k)\), a measured decay gives the friction: read the slope, and if \(N\), \(k\) and \(\omega_n\) are known, solve for \(\mu\).</p>
+<div class="box intuition"><span class="label">Intuition</span><p>The lecture ends with two questions. Is Coulomb friction a convenient model? It is simple to state but nonlinear: you cannot superpose solutions, and every stroke must be solved separately. Is the motion smooth? The displacement and velocity are continuous (the velocity is zero at every switch), but the <strong>acceleration jumps</strong> by \(2\mu N/m\) at each turning point, where the friction force reverses.</p></div>
+<p class="reading"><b>Reading</b> Inman 1.10 (pp. 93 to 107); Lecture 3 notes and video</p>
+
+</section>
+
+<section id="energy">
+<h2><span class="n">02</span>Modelling and energy methods</h2>
+
+<p>So far equations of motion came from Newton's second law, \(\sum F = m\ddot x\), or for rotation about a fixed axis \(\sum M = I\ddot\theta\). For <strong>conservative</strong> systems there is an alternative that avoids free-body diagrams and internal forces.</p>
+<div class="box def"><span class="label">Definition</span><p>A <strong>conservative system</strong> neither gains nor loses energy through external forces: no damping, no friction, no applied force. Its total energy is constant.</p></div>
+<div class="eq"><span class="tag">Energy method</span>\[ T + U = \text{constant} \quad\Rightarrow\quad \frac{d}{dt}(T + U) = 0 \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(T\)</dt><dd>Total kinetic energy (J).</dd>
+  <dt>\(U\)</dt><dd>Total potential energy (J).</dd>
+</dl>
+</div>
+<div class="box exam"><span class="label">Exam</span><p>The lecturer notes that writing the principle \(\frac{{d}}{{dt}}(T + U) = 0\) in a test earns a mark. State it before you start differentiating.</p></div>
+<div class="box watch"><span class="label">Watch out</span><p>Damping and friction remove energy, so the energy method as used here applies only to <strong>conservative, single-degree-of-freedom</strong> systems. Leave the damper out, find the undamped equation of motion, then add damping by Newton if needed.</p></div>
+<div class="tbl"><table><thead><tr><th>Energy</th><th>Expression</th><th>Notes</th></tr></thead><tbody>
+<tr><td>Spring</td><td>\(U = \tfrac12 k(\delta_{st} + x)^2\)</td><td>Total deflection from the free length</td></tr>
+<tr><td>Gravity</td><td>\(U = mgh\)</td><td>\(h\) is the height above a chosen reference</td></tr>
+<tr><td>Translation</td><td>\(T = \tfrac12 mv^2\)</td><td>\(v\) is the speed of the centre of mass</td></tr>
+<tr><td>Rotation</td><td>\(T = \tfrac12 I\omega^2\)</td><td>About the centre of mass (plus translation), or about a fixed pivot alone</td></tr>
+</tbody></table></div>
+<h3 id="energy-recipe">Recipe</h3>
+<ol>
+<li>Choose one coordinate (\(x\) or \(\theta\)) and write every other motion in terms of it (no-slip, rope and lever relations).</li>
+<li>Write \(T\) for every moving mass: translation and rotation.</li>
+<li>Write \(U\) for every spring and for gravity, from a stated reference.</li>
+<li>Differentiate \(T + U\) with respect to time, divide by \(\dot x\) (or \(\dot\theta\)), and use static equilibrium to cancel the constant terms.</li>
+<li>Linearise for small angles: \(\sin\theta \approx \theta\), \(\cos\theta \approx 1 - \theta^2/2\) inside energies.</li>
+</ol>
+<div class="ex"><div class="hd">Worked example 2.1 <span>The spring-mass system by energy</span></div><div class="bd">
+<p>Derive the equation of motion of the hanging spring-mass system of week 1 using energy, with the unstretched spring position as reference.</p>
+<div class="step"><i>1</i><div>\(T = \tfrac12 m\dot x^2\); spring \(U = \tfrac12 k(\delta_{st} + x)^2\); gravity \(U = -mg(\delta_{st} + x)\) (the mass is below the reference).</div></div>
+<div class="step"><i>2</i><div>\(\frac{d}{dt}(T + U) = m\dot x\ddot x + k(\delta_{st} + x)\dot x - mg\dot x = 0\).</div></div>
+<div class="step"><i>3</i><div>Divide by \(\dot x\): \(m\ddot x + kx + (k\delta_{st} - mg) = 0\), and \(k\delta_{st} = mg\).</div></div>
+<div class="ans">\(m\ddot x + kx = 0\): the same result as Newton's law.</div>
+</div></div>
+<div class="note"><span class="tag">Shortcut</span><p>If the energies reduce to \(T = \tfrac12 m_{eq}\dot x^2\) and \(U = \tfrac12 k_{eq}x^2\) (about equilibrium), the method always gives \(m_{eq}\ddot x + k_{eq}x = 0\), so \(\omega_n = \sqrt{k_{eq}/m_{eq}}\). The tutorial solutions write answers in this \(m_{eq}\), \(k_{eq}\) form.</p></div>
+
+<h3 id="halfpipe">Example: a disc rolling in a half-pipe</h3>
+<p>A uniform disc of mass \(m\) and radius \(r\) rolls without slipping inside a circular track of radius \(R\). Find its natural frequency for small swings.</p>
+<figure>
+<svg viewBox="0 0 640 190" class="fig" role="img" aria-label="Disc of radius r rolling inside a circular track of radius R; theta locates the disc centre">
+<polyline class="ln c4" points="91.6,58.7 92.3,62.5 93.2,66.2 94.2,70.0 95.3,73.6 96.5,77.3 97.9,80.9 99.4,84.4 101.0,87.9 102.7,91.4 104.6,94.7 106.6,98.0 108.6,101.3 110.8,104.4 113.2,107.5 115.6,110.5 118.1,113.4 120.7,116.2 123.4,119.0 126.2,121.6 129.1,124.1 132.1,126.6 135.2,128.9 138.3,131.1 141.6,133.2 144.9,135.2 148.2,137.1 151.7,138.8 155.1,140.4 158.7,141.9 162.3,143.3 165.9,144.6 169.6,145.7 173.3,146.7 177.1,147.6 180.8,148.3 184.7,148.9 188.5,149.4 192.3,149.7 196.2,149.9 200.0,150.0 203.8,149.9 207.7,149.7 211.5,149.4 215.3,148.9 219.2,148.3 222.9,147.6 226.7,146.7 230.4,145.7 234.1,144.6 237.7,143.3 241.3,141.9 244.9,140.4 248.3,138.8 251.8,137.1 255.1,135.2 258.4,133.2 261.7,131.1 264.8,128.9 267.9,126.6 270.9,124.1 273.8,121.6 276.6,119.0 279.3,116.2 281.9,113.4 284.4,110.5 286.8,107.5 289.2,104.4 291.4,101.3 293.4,98.0 295.4,94.7 297.3,91.4 299.0,87.9 300.6,84.4 302.1,80.9 303.5,77.3 304.7,73.6 305.8,70.0 306.8,66.2 307.7,62.5 308.4,58.7"/><line class="ln c4 thin dash" x1="200" y1="40" x2="200" y2="150"/><line class="ln c4 thin" x1="200" y1="40" x2="233.9" y2="110.2"/><circle class="blk" cx="233.9" cy="110.2" r="32"/><circle class="c4f" cx="233.9" cy="110.2" r="3"/><line class="ln c1" x1="233.9" y1="110.2" x2="248.4" y2="81.7"/><text class="lab" x="208" y="80">θ</text><text class="lab c1t" x="249.9" y="96.2">φ</text><text class="lab" x="130.0" y="100.0">R</text><text class="lab" x="225.9" y="130.2">r</text><text class="lab" x="390" y="60">R − r : radius of the path of the centre</text><text class="lab" x="390" y="84">centre speed (R − r)θ̇</text><text class="lab" x="390" y="108">no slip: rφ̇ = (R − r)θ̇</text><text class="lab" x="390" y="132">height of centre: (R − r)(1 − cos θ)</text>
+</svg>
+<figcaption><b>Figure 2.1</b> Disc rolling inside a circular track.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> The angle \(\theta\) locates the disc centre on its circular path of radius \(R - r\). The angle \(\varphi\) is the rotation of the disc itself. Rolling without slip links them: \(r\dot\varphi = (R - r)\dot\theta\).</p>
+<figure class="anim" id="anim22">
+<svg viewBox="0 0 640 160" class="fig" role="img" aria-label="Animation: a disc rolling back and forth without slipping inside a circular track"></svg>
+<div class="anim-controls">
+  <button class="btn" type="button">Play</button>
+  <input type="range" min="0" max="1" step="0.002" value="0" aria-label="Progress of the animation">
+</div>
+<script>
+(function(){
+  const root = document.getElementById('anim22'), svg = root.querySelector('svg');
+  const slider = root.querySelector('input'), btn = root.querySelector('button');
+
+  const NS = 'http://www.w3.org/2000/svg';
+  function E(parent, tag, attrs, text){
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.append(e);
+    return e;
+  }
+  const neg = s => s.replace(/-/g, '−');
+  const num = v => neg((+v.toPrecision(6)).toString());
+  const fix = (v, d) => neg(v.toFixed(d));
+  const pts = a => a.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  // Axes, grid and labels; returns scales and a clipped group to draw in.
+  function plot(svg, o){
+    svg.textContent = '';
+    const lx = o.logx, ly = o.logy;
+    const X = v => o.l + (lx ? (Math.log10(v) - Math.log10(o.x0)) / (Math.log10(o.x1) - Math.log10(o.x0)) : (v - o.x0) / (o.x1 - o.x0)) * o.w;
+    const Y = v => o.t + (ly ? (Math.log10(o.y1) - Math.log10(v)) / (Math.log10(o.y1) - Math.log10(o.y0)) : (o.y1 - v) / (o.y1 - o.y0)) * o.h;
+    const defs = E(svg, 'defs', {});
+    E(E(defs, 'clipPath', {id: o.id}), 'rect', {x: o.l, y: o.t, width: o.w, height: o.h});
+    o.xt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: X(v), y1: o.t, x2: X(v), y2: o.t + o.h});
+      E(svg, 'text', {class: 'tk', x: X(v), y: o.t + o.h + 15, 'text-anchor': 'middle'}, o.xf ? o.xf(v) : num(v));
+    });
+    o.yt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: o.l, y1: Y(v), x2: o.l + o.w, y2: Y(v)});
+      E(svg, 'text', {class: 'tk', x: o.l - 6, y: Y(v) + 4, 'text-anchor': 'end'}, o.yf ? o.yf(v) : num(v));
+    });
+    if (o.zero) E(svg, 'line', {class: 'axis', x1: o.l, y1: Y(0), x2: o.l + o.w, y2: Y(0)});
+    E(svg, 'rect', {class: 'frame', x: o.l, y: o.t, width: o.w, height: o.h});
+    E(svg, 'text', {class: 'lab', x: o.l + o.w / 2, y: o.t + o.h + 34, 'text-anchor': 'middle'}, o.xlab);
+    E(svg, 'text', {class: 'lab', transform: 'translate(16 ' + (o.t + o.h / 2) + ') rotate(-90)', 'text-anchor': 'middle'}, o.ylab);
+    const g = E(svg, 'g', {'clip-path': 'url(#' + o.id + ')'}), top = E(svg, 'g', {});
+    return {X, Y, g, top};
+  }
+  function controls(fig, redraw){
+    const inputs = {};
+    fig.querySelectorAll('.fig-ctl input').forEach(i => { inputs[i.dataset.k] = i; i.addEventListener('input', redraw); });
+    const show = (k, text) => { inputs[k].parentNode.querySelector('output').textContent = text; };
+    return {show, val: k => +inputs[k].value};
+  }
+  function nice(v){ const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * p >= v * 0.999) return m * p; return 10 * p; }
+  function ticks(a, b, n){ const raw = (b - a) / n, p = Math.pow(10, Math.floor(Math.log10(raw))); let s = p; for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw){ s = m * p; break; } const out = []; for (let v = Math.ceil(a / s - 1e-9) * s; v <= b + 1e-9; v += s) out.push(+v.toFixed(10)); return out; }
+
+
+  const R = 120, r = 30, cx = 320, cy = 18, th0 = 0.6, a0 = -1.25, a1 = 1.25;
+  const pts2 = []; for (let i = 0; i <= 80; i++){ const a = a0 + (a1 - a0) * i / 80; pts2.push([cx + R * Math.sin(a), cy + R * Math.cos(a)]); }
+  E(svg, 'polyline', {class: 'ln c4', points: pts(pts2)});
+  E(svg, 'line', {class: 'ln c4 thin dash', x1: cx, y1: cy, x2: cx, y2: cy + R});
+  const arm = E(svg, 'line', {class: 'ln c4 thin'});
+  const disc = E(svg, 'circle', {class: 'blk', r});
+  const spoke = E(svg, 'line', {class: 'ln c1'});
+  const hub = E(svg, 'circle', {class: 'c4f', r: 3});
+  const lab = E(svg, 'text', {class: 'lab', x: 470, y: 60}, '');
+  E(svg, 'text', {class: 'tk', x: 470, y: 84}, 'R = 1.0 m, r = 0.1 m (not to scale)');
+  E(svg, 'text', {class: 'tk', x: 470, y: 104}, 'ωₙ = 2.70 rad/s, period 2.33 s');
+  const wn = 1, Tp = 2 * Math.PI;
+  function draw(p){
+    const t = p * Tp, th = th0 * Math.cos(wn * t);
+    const x = cx + (R - r) * Math.sin(th), y = cy + (R - r) * Math.cos(th);
+    const phi = -(R - r) * th / r;   // absolute rotation of the disc for rolling without slip
+    arm.setAttribute('x1', cx); arm.setAttribute('y1', cy); arm.setAttribute('x2', x); arm.setAttribute('y2', y);
+    disc.setAttribute('cx', x); disc.setAttribute('cy', y); hub.setAttribute('cx', x); hub.setAttribute('cy', y);
+    spoke.setAttribute('x1', x); spoke.setAttribute('y1', y);
+    spoke.setAttribute('x2', x + r * Math.sin(phi)); spoke.setAttribute('y2', y - r * Math.cos(phi));
+    lab.textContent = 'θ = ' + fix(th, 2) + ' rad';
+  }
+
+
+  let raf = 0, t0 = 0, start = 0; const RUN = 5000;
+  function frame(now){ const t = ((now - t0) / RUN + start) % 1; slider.value = t; draw(t); raf = requestAnimationFrame(frame); }
+  function play(){ if (raf) return; start = +slider.value; t0 = performance.now(); btn.textContent = 'Pause'; raf = requestAnimationFrame(frame); }
+  function stop(){ cancelAnimationFrame(raf); raf = 0; btn.textContent = 'Play'; }
+  let auto = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  btn.onclick = () => { auto = false; raf ? stop() : play(); };
+  slider.addEventListener('input', () => { auto = false; stop(); draw(+slider.value); });
+  if (auto && 'IntersectionObserver' in window)
+    new IntersectionObserver(e => { if (auto) e[0].isIntersecting ? play() : stop(); }, {threshold: 0.35}).observe(svg);
+  draw(0);
+
+})();
+</script>
+<figcaption><b>Figure 2.2, animated.</b> The disc rolls without slipping, so its spoke turns as the centre swings.</figcaption>
+</figure>
+<div class="eq"><span class="tag">Energies of the rolling disc</span>\[ U = mg(R-r)(1-\cos\theta), \quad T_{\text{roll}} = \tfrac12 I_C\dot\varphi^2 = \tfrac14 mr^2\dot\varphi^2, \quad T_{\text{trans}} = \tfrac12 m(R-r)^2\dot\theta^2 \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(U\)</dt><dd>Gravitational potential energy, zero at the bottom (J).</dd>
+  <dt>\(I_C\)</dt><dd>Moment of inertia of the disc about its centre, \(\tfrac12 mr^2\) (kg m²).</dd>
+  <dt>\(\dot\varphi\)</dt><dd>Spin rate of the disc (rad/s).</dd>
+  <dt>\(\dot\theta\)</dt><dd>Rate of swing of the centre about the track centre (rad/s).</dd>
+  <dt>\(R, r\)</dt><dd>Track and disc radii (m).</dd>
+</dl>
+</div>
+<p>Differentiate, use \(r\dot\varphi = (R-r)\dot\theta\) so that \(\tfrac12 mr^2\dot\varphi\ddot\varphi = \tfrac12 m(R-r)^2\dot\theta\ddot\theta\), and divide by \(\dot\theta\):</p>
+\[ \tfrac32 m(R-r)^2\ddot\theta + mg(R-r)\sin\theta = 0 \quad\Rightarrow\quad \tfrac32(R-r)\ddot\theta + g\theta = 0. \]
+<div class="eq"><span class="tag">Disc in a circular track</span>\[ \omega_n = \sqrt{\frac{2g}{3(R-r)}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\omega_n\)</dt><dd>Natural frequency for small swings (rad/s).</dd>
+  <dt>\(g\)</dt><dd>Gravitational acceleration (m/s²).</dd>
+  <dt>\(R - r\)</dt><dd>Radius of the path of the disc centre (m).</dd>
+</dl>
+</div>
+<div class="ex"><div class="hd">Worked example 2.2 <span>Numbers for the half-pipe</span></div><div class="bd">
+<p>A disc of radius 0.1 m rolls in a track of radius 1.0 m. Find \(\omega_n\) and the period.</p>
+<div class="step"><i>1</i><div>\(R - r = 0.9\) m.</div></div>
+<div class="step"><i>2</i><div>\(\omega_n = \sqrt{2(9.81)/(3 \times 0.9)} = 2.696\) rad/s.</div></div>
+<div class="step"><i>3</i><div>\(T = 2\pi/\omega_n = 2.331\) s.</div></div>
+<div class="ans">\(\omega_n = 2.70\) rad/s, period 2.33 s. A point mass sliding without friction would have \(\sqrt{g/(R-r)} = 3.30\) rad/s: the spin energy makes the rolling disc slower.</div>
+</div></div>
+
+<h3 id="testq">Typical test question: disc, pulley and hanging mass</h3>
+<p>A thin disc of mass \(m\) and radius \(3r\) rolls without slipping and is attached to a spring \(k\). It is connected to a pulley (inner radius \(r\), outer radius \(2r\), inertia \(I_p\)). A box of mass \(2m\) hangs from the outer radius and rests on a spring \(2k\). Use the pulley angle \(\theta\) as the coordinate.</p>
+<ul>
+<li><strong>Kinematics.</strong> The rope on the inner radius moves \(r\theta\): the disc centre and its spring move \(r\theta\), so the disc turns \(r\theta/3r = \theta/3\). The box moves \(2r\theta\).</li>
+<li><strong>Static equilibrium.</strong> With \(T_1 = kr\theta_0\) and \(T_2 = 2mg - 4kr\theta_0\), moments on the pulley give \(rT_1 - 2rT_2 = 0\), so \(\theta_0 = 4mg/(9kr)\).</li>
+<li><strong>Potential energy.</strong> \(U = \tfrac12 k(r\theta + r\theta_0)^2 + \tfrac12(2k)(2r\theta + 2r\theta_0)^2 - 2mg(2r\theta + 2r\theta_0)\).</li>
+<li><strong>Kinetic energy.</strong> Disc rotation \(\tfrac12(\tfrac12 m(3r)^2)(\dot\theta/3)^2 = \tfrac14 mr^2\dot\theta^2\); disc translation \(\tfrac12 m(r\dot\theta)^2\); pulley \(\tfrac12 I_p\dot\theta^2\); box \(\tfrac12(2m)(2r\dot\theta)^2 = 4mr^2\dot\theta^2\). Total \(T = \tfrac{19}{4}mr^2\dot\theta^2 + \tfrac12 I_p\dot\theta^2\).</li>
+<li><strong>Differentiate.</strong> \(9kr^2\theta\dot\theta + (9kr^2\theta_0 - 4mgr)\dot\theta + (\tfrac{19}{2}mr^2 + I_p)\dot\theta\ddot\theta = 0\). The bracket is zero by static equilibrium.</li>
+</ul>
+<div class="eq"><span class="tag">Equation of motion of the test question</span>\[ \left(\tfrac{19}{2}mr^2 + I_p\right)\ddot\theta + 9kr^2\theta = 0, \qquad \omega_n = \sqrt{\frac{9kr^2}{\tfrac{19}{2}mr^2 + I_p}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(m\)</dt><dd>Disc mass (kg); the box is \(2m\).</dd>
+  <dt>\(r\)</dt><dd>Inner pulley radius (m).</dd>
+  <dt>\(I_p\)</dt><dd>Pulley moment of inertia (kg m²).</dd>
+  <dt>\(k\)</dt><dd>Stiffness of the disc spring (N/m); the box spring is \(2k\).</dd>
+  <dt>\(\theta\)</dt><dd>Pulley rotation from static equilibrium (rad).</dd>
+</dl>
+</div>
+<div class="box watch"><span class="label">Watch out</span><p>The lecture notes say "substituting equation 34 into equation 37"; they mean equation 21 (\(\theta_0\)) into equation 24. Gravity always drops out once you measure from static equilibrium: the terms that do not multiply \(\theta\) cancel.</p></div>
+<div class="box exam"><span class="label">Exam</span><p>This disc-pulley-mass layout is the lecture's "typical test question". Practise writing each kinetic energy term with its kinematic link stated; most marks are lost on \(\dot\theta/3\) and \(2r\dot\theta\) type relations.</p></div>
+
+<h3 id="stiffness">Modelling stiffness and inertia</h3>
+<figure>
+<svg viewBox="0 0 640 150" class="fig" role="img" aria-label="Two springs in parallel and two springs in series">
+<line class="ln c4" x1="40.0" y1="20.0" x2="40.0" y2="120.0"/><path class="ln c4 thin" d="M40.0 27.0 l9.0 -7.0 M40.0 41.0 l9.0 -7.0 M40.0 55.0 l9.0 -7.0 M40.0 69.0 l9.0 -7.0 M40.0 83.0 l9.0 -7.0 M40.0 97.0 l9.0 -7.0 M40.0 111.0 l9.0 -7.0"/><path class="ln c4" d="M40.0 45.0 L52.0 45.0 L57.3 53.0 L67.9 37.0 L78.5 53.0 L89.1 37.0 L99.7 53.0 L110.3 37.0 L120.9 53.0 L131.5 37.0 L142.1 53.0 L152.7 37.0 L158.0 45.0 L170.0 45.0"/><path class="ln c4" d="M40.0 95.0 L52.0 95.0 L57.3 103.0 L67.9 87.0 L78.5 103.0 L89.1 87.0 L99.7 103.0 L110.3 87.0 L120.9 103.0 L131.5 87.0 L142.1 103.0 L152.7 87.0 L158.0 95.0 L170.0 95.0"/><line class="ln c4" x1="170" y1="35" x2="170" y2="105"/><line class="ln c3" x1="170.0" y1="70.0" x2="214.0" y2="70.0"/><path class="c3f" d="M225.0 70.0 L214.0 64.5 L214.0 75.5 Z"/><text class="lab c3t" x="230" y="74">F</text><text class="lab" x="100.0" y="33.0" text-anchor="middle">k<tspan dy="4" font-size="9">1</tspan><tspan dy="-4"></tspan></text><text class="lab" x="100.0" y="83.0" text-anchor="middle">k<tspan dy="4" font-size="9">2</tspan><tspan dy="-4"></tspan></text><text class="lab" x="130" y="140" text-anchor="middle">parallel: same x, forces add</text><line class="ln c4" x1="340.0" y1="20.0" x2="340.0" y2="120.0"/><path class="ln c4 thin" d="M340.0 27.0 l9.0 -7.0 M340.0 41.0 l9.0 -7.0 M340.0 55.0 l9.0 -7.0 M340.0 69.0 l9.0 -7.0 M340.0 83.0 l9.0 -7.0 M340.0 97.0 l9.0 -7.0 M340.0 111.0 l9.0 -7.0"/><path class="ln c4" d="M340.0 70.0 L352.0 70.0 L356.3 78.0 L364.9 62.0 L373.5 78.0 L382.1 62.0 L390.7 78.0 L399.3 62.0 L407.9 78.0 L416.5 62.0 L425.1 78.0 L433.7 62.0 L438.0 70.0 L450.0 70.0"/><circle class="c4f" cx="450" cy="70" r="3"/><path class="ln c4" d="M450.0 70.0 L462.0 70.0 L466.3 78.0 L474.9 62.0 L483.5 78.0 L492.1 62.0 L500.7 78.0 L509.3 62.0 L517.9 78.0 L526.5 62.0 L535.1 78.0 L543.7 62.0 L548.0 70.0 L560.0 70.0"/><line class="ln c3" x1="560.0" y1="70.0" x2="599.0" y2="70.0"/><path class="c3f" d="M610.0 70.0 L599.0 64.5 L599.0 75.5 Z"/><text class="lab c3t" x="614" y="74">F</text><text class="lab" x="395.0" y="58.0" text-anchor="middle">k<tspan dy="4" font-size="9">1</tspan><tspan dy="-4"></tspan></text><text class="lab" x="505.0" y="58.0" text-anchor="middle">k<tspan dy="4" font-size="9">2</tspan><tspan dy="-4"></tspan></text><text class="lab" x="475" y="140" text-anchor="middle">series: same F, extensions add</text>
+</svg>
+<figcaption><b>Figure 2.3</b> Springs in parallel and in series.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.3:</b> Parallel springs share the same deflection and their forces add. Series springs carry the same force and their deflections add.</p>
+<div class="eq"><span class="tag">Equivalent springs</span>\[ k_{\text{parallel}} = k_1 + k_2, \qquad k_{\text{series}} = \frac{k_1k_2}{k_1 + k_2} \;\left(\frac{1}{k_{\text{series}}} = \frac{1}{k_1} + \frac{1}{k_2}\right) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(k_1, k_2\)</dt><dd>Individual stiffnesses (N/m).</dd>
+</dl>
+</div>
+<div class="tbl"><table><thead><tr><th>Element</th><th>Stiffness</th><th>Symbols</th></tr></thead><tbody>
+<tr><td>Bar in tension or compression</td><td>\(k = EA/l\)</td><td>\(E\) Young's modulus (Pa), \(A\) area (m²), \(l\) length (m)</td></tr>
+<tr><td>Rod in torsion</td><td>\(k = GJ_p/l\) (N m/rad)</td><td>\(G\) shear modulus (Pa), \(J_p\) polar second moment of area (m⁴)</td></tr>
+<tr><td>Helical spring</td><td>\(k = \dfrac{Gd^4}{64nR^3}\)</td><td>\(d\) wire diameter, \(R\) coil radius (m), \(n\) number of coils</td></tr>
+<tr><td>Cantilever, load at the tip</td><td>\(k = 3EI/l^3\)</td><td>\(I\) second moment of area (m⁴)</td></tr>
+</tbody></table></div>
+<div class="tbl"><table><thead><tr><th>Body</th><th>Mass moment of inertia</th></tr></thead><tbody>
+<tr><td>Point mass at distance \(l\)</td><td>\(ml^2\)</td></tr>
+<tr><td>Thin rod about its end</td><td>\(\tfrac13 ml^2\)</td></tr>
+<tr><td>Thin rod about its centre</td><td>\(\tfrac1{12}ml^2\)</td></tr>
+<tr><td>Solid disc or cylinder about its axis</td><td>\(\tfrac12 mr^2\)</td></tr>
+<tr><td>Parallel-axis theorem</td><td>\(I_O = I_C + md^2\)</td></tr>
+</tbody></table></div>
+<div class="ex"><div class="hd">Worked example 2.3 <span>Combining stiffnesses</span></div><div class="bd">
+<p>A steel helical spring (\(G = 80\) GPa, \(d = 5\) mm, coil radius \(R = 25\) mm, 10 coils) is attached to the tip of a steel cantilever (\(E = 200\) GPa, 300 mm long, 20 mm wide, 5 mm thick, bending about the thin direction). Find each stiffness and the combination in series and in parallel.</p>
+<div class="step"><i>1</i><div>Spring: \(k_s = \dfrac{80\times10^9(0.005)^4}{64(10)(0.025)^3} = 5000\) N/m.</div></div>
+<div class="step"><i>2</i><div>Beam: \(I = bh^3/12 = 0.02(0.005)^3/12 = 2.083\times10^{-10}\) m⁴; \(k_b = 3(200\times10^9)(2.083\times10^{-10})/0.3^3 = 4630\) N/m.</div></div>
+<div class="step"><i>3</i><div>Series (mass on the spring, spring on the beam tip): \(k = 5000(4630)/(5000 + 4630) = 2404\) N/m.</div></div>
+<div class="step"><i>4</i><div>Parallel (both acting on the mass): \(k = 5000 + 4630 = 9630\) N/m.</div></div>
+<div class="ans">Series 2404 N/m, parallel 9630 N/m. In series the softer element dominates; in parallel the stiffer one does.</div>
+</div></div>
+<p class="reading"><b>Reading</b> Inman 1.4 and 1.5; Lecture 4 notes and videos (energy methods, half-pipe example)</p>
+
+</section>
+
+<section id="tut1">
+<h2><span class="n">03</span>Tutorial 1</h2>
+
+<p>Tutorial 1 covers free vibration of SDOF systems. The partial solutions list what the tutorial is meant to teach:</p>
+<ul>
+<li>Start every problem with a free-body diagram showing all forces and distances.</li>
+<li>Choose coordinates from static equilibrium so gravity drops out, giving a homogeneous equation.</li>
+<li>Decide whether a sum of forces or a sum of moments is more convenient; for moments, know the inertias of point masses, rods and discs.</li>
+<li>Linearise with \(\sin\theta \approx \theta\), \(\cos\theta \approx 1\).</li>
+<li>Read \(\omega_n\) (or \(\omega_d\)), \(A\) and \(\phi\) from the solution and connect them to a sketch.</li>
+<li>Know how viscous and Coulomb decays differ, and use the decay to find damping or friction. For Coulomb damping, know where the mass finally rests.</li>
+<li>The energy method applies only to conservative SDOF systems.</li>
+</ul>
+<h3 id="tut-homework">Homework problems from Inman</h3>
+<div class="tbl"><table><thead><tr><th>Problems</th><th>Topic</th><th>Key result from the partial solutions</th></tr></thead><tbody>
+<tr><td>1.11</td><td>Mass on a spring on an incline</td><td>\(\omega_n = \sqrt{k/m}\): gravity sets the static deflection only</td></tr>
+<tr><td>1.16, 1.18</td><td>Frequency, parallel springs</td><td>\(f_n = \tfrac{1}{2\pi}\sqrt{k/m}\); \(k_{eq} = k_1 + k_2\) (+ \(k_3\))</td></tr>
+<tr><td>1.21</td><td>Inverted-type pendulum with a spring</td><td>\(ml\ddot\theta + (kl + mg)\theta = 0\): here gravity <em>does</em> change \(\omega_n\)</td></tr>
+<tr><td>1.27, 1.29, 1.32</td><td>Reading a plot; changing \(k\)</td><td>\(A_{\ddot x} = \omega_n^2A_x\), \(\omega_n = 2\pi/T\), \(k = (2\pi/T)^2m\)</td></tr>
+<tr><td>1.35</td><td>Lever with a spring, static offset</td><td>\(ml_2^2\ddot\theta + kl_1^2\theta = 0\), gravity drops out</td></tr>
+<tr><td>1.44, 1.56, 1.91</td><td>Damped response; \(\zeta\), \(\omega_d\)</td><td>1.44: \(x(t) = e^{-t}\sin t\); 1.91: \(k_{eq} = k_1 + (1/k_2 + 1/k_3)^{-1}\)</td></tr>
+<tr><td>1.101</td><td>Log decrement</td><td>\(\delta = \tfrac15\ln(1/0.25)\), then \(\zeta\), \(c = 2\zeta\sqrt{km}\)</td></tr>
+<tr><td>1.65, 1.67, 1.70, 1.82</td><td>Energy methods</td><td>1.65: \(T = \tfrac16 ml^2\dot\theta^2\) for a rod about its end; 1.70: pipe rolling in a pipe, like section 2</td></tr>
+<tr><td>1.124, 1.126</td><td>Coulomb friction</td><td>Decay rate \(\Delta x/\Delta t = 2F_c\omega_n/(\pi k)\)</td></tr>
+</tbody></table></div>
+<h3 id="tut-ap">Additional problems</h3>
+<p><strong>Problem 1</strong> (equations of motion by Newton, small angles, point masses):</p>
+<div class="tbl"><table><thead><tr><th>System</th><th>Equation of motion</th><th>\(\omega_n\)</th></tr></thead><tbody>
+<tr><td>(a) Hanging spring-mass</td><td>\(m\ddot x + kx = 0\)</td><td>\(\sqrt{k/m}\)</td></tr>
+<tr><td>(b) Uniform rod pendulum, length \(l\)</td><td>\(\ddot\theta + \dfrac{3g}{2l}\theta = 0\)</td><td>\(\sqrt{3g/2l}\): independent of material and mass</td></tr>
+<tr><td>(c) Pendulum with spring at \(0.5l\)</td><td>\(ml\ddot\theta + (\tfrac14 kl + mg)\theta = 0\)</td><td>\(\sqrt{(kl + 4mg)/(4ml)}\)</td></tr>
+<tr><td>(d) Horizontal rod, tip mass on a spring</td><td>\((m + \tfrac13\rho l)\ddot\theta + k\theta = 0\)</td><td>\(\sqrt{3k/(3m + \rho l)}\)</td></tr>
+</tbody></table></div>
+<div class="ex"><div class="hd">Worked example AP2 <span>Four springs</span></div><div class="bd">
+<p>Mass \(m = 4\) kg with \(k_1 = k_2 = 26\) N/m in parallel on one side and \(k_3 = k_4 = 96\) N/m in series on the other. \(x_0 = 0.1\) m, \(v_0 = -0.1\) m/s. Find the equation of motion, \(f_n\) and \(x(t)\).</p>
+<div class="step"><i>1</i><div>\(k_1\) and \(k_2\) are in parallel; \(k_3\) and \(k_4\) are in series; the two groups both act on the mass, so they add: \(k_{eq} = k_1 + k_2 + \left(\tfrac{1}{k_3} + \tfrac{1}{k_4}\right)^{-1} = 52 + 48 = 100\) N/m.</div></div>
+<div class="step"><i>2</i><div>\(m\ddot x + k_{eq}x = 0\), \(\omega_n = \sqrt{100/4} = 5\) rad/s, \(f_n = 0.796\) Hz.</div></div>
+<div class="step"><i>3</i><div>\(A = \sqrt{5^2(0.1)^2 + 0.1^2}/5 = 0.1020\) m. \(v_0 \lt 0\), so \(\phi = \pi - \tan^{-1}(0.5/0.1) = 1.768\) rad.</div></div>
+<div class="ans">\(x(t) = 0.1020\sin(5t + 1.768)\) m, period 1.257 s. The tutorial statement gives \(k_1 = k_2 = 26\) "N/n" and \(v_0 = -0.1\) "m"; these are typos for N/m and m/s.</div>
+</div></div>
+<div class="ex"><div class="hd">Worked example AP3 <span>Hinged rod with a mass, two springs and a damper</span></div><div class="bd">
+<p>Rod (\(\rho = 2\) kg/m, \(l = 2\) m) hinged at one end, spring \(k_1 = 1000\) N/m at the tip, mass \(m = 2\) kg at the middle with spring \(k_2 = 200\) N/m and damper \(c = 50\) N s/m. \(\theta(0) = \pi/12\), \(\dot\theta(0) = 0\).</p>
+<div class="step"><i>1</i><div>Moments about the hinge: \(m_{eq}\ddot\theta + c_{eq}\dot\theta + k_{eq}\theta = 0\) with \(m_{eq} = \tfrac13\rho l\cdot l^2 + m(l/2)^2 = \dfrac{4\rho l^3 + 3ml^2}{12}\), \(c_{eq} = cl^2/4\), \(k_{eq} = \dfrac{(4k_1 + k_2)l^2}{4}\).</div></div>
+<div class="step"><i>2</i><div>\(m_{eq} = (64 + 24)/12 = 7.333\) kg m², \(c_{eq} = 50\) N m s/rad, \(k_{eq} = 4200\) N m/rad.</div></div>
+<div class="step"><i>3</i><div>\(\omega_n = \sqrt{4200/7.333} = 23.93\) rad/s; \(\zeta = 50/(2\sqrt{4200 \times 7.333}) = 0.1425\); \(\omega_d = 23.69\) rad/s.</div></div>
+<div class="step"><i>4</i><div>\(\theta(t) = 0.2645\,e^{-3.409t}\sin(23.69t + 1.428)\) rad.</div></div>
+<div class="ans">\(\omega_n = 23.9\) rad/s (3.81 Hz), \(\zeta = 0.142\), decaying from \(\pi/12 = 0.262\) rad with a period of 0.265 s.</div>
+</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>In AP3 the springs are unstretched with the rod horizontal, so gravity on the rod and mass is <em>not</em> balanced there. Measured from horizontal, the equation carries a constant term \((\rho l\cdot l/2 + ml/2)g = 58.9\) N m, which shifts equilibrium by \(58.9/4200 = 0.014\) rad (0.8°). The partial solution leaves it out; the frequency and damping ratio are unaffected.</p></div>
+<div class="ex"><div class="hd">Worked example AP4 <span>Pulley with Coulomb friction</span></div><div class="bd">
+<p>Mass \(m_1 = 1\) kg on a rough surface (\(\mu = 0.4\)) is tied to a wall by \(k_1 = 200\) N/m and by a rope to radius \(r/2\) of a pulley (\(M = 0.5\) kg solid disc, \(r = 0.25\) m). Mass \(m_2 = 2\) kg hangs from radius \(r\) on springs \(k_2 = k_3 = 30\) N/m. \(\theta(0) = \pi/10\), \(\dot\theta(0) = 0\).</p>
+<div class="step"><i>1</i><div>(a) One degree of freedom: with inextensible ropes, the pulley angle \(\theta\) fixes both masses (\(x_1 = r\theta/2\), \(x_2 = r\theta\)).</div></div>
+<div class="step"><i>2</i><div>(b) Moments about the pulley axis, from static equilibrium: \(J\ddot\theta + \mu m_1g\tfrac{r}{2}\,\mathrm{sgn}(\dot\theta) + K\theta = 0\), with \(J = \tfrac12 Mr^2 + \tfrac14 m_1r^2 + m_2r^2\) and \(K = \tfrac14 k_1r^2 + (k_2 + k_3)r^2\).</div></div>
+<div class="step"><i>3</i><div>\(J = 0.15625\) kg m², \(K = 6.875\) N m/rad, friction torque \(0.4905\) N m. \(\omega_n = 6.633\) rad/s; friction offset \(0.0713\) rad.</div></div>
+<div class="step"><i>4</i><div>(c, d) Turning points: 0.3142, -0.1715, 0.0288 rad. The last is inside the band, so the pulley sticks after 2 strokes, at \(t = 2\pi/\omega_n = 0.947\) s.</div></div>
+<div class="step"><i>5</i><div>(e) Frictionless, by energy: \(T = \tfrac12 J\dot\theta^2\), \(U = \tfrac12 K\theta^2\), so \(J\ddot\theta + K\theta = 0\) and \(\omega_n = 6.633\) rad/s (1.056 Hz).</div></div>
+<div class="ans">The pulley stops at \(\theta = 0.0288\) rad after 0.95 s.</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="Angle of the pulley in additional problem 4: two half cycles, then it sticks at 0.029 rad">
+<rect class="area" x="58.0" y="110.3" width="560" height="49.3"/><line class="grid" x1="58.0" y1="14" x2="58.0" y2="204"/>
+<text class="tk" x="58.0" y="219" text-anchor="middle">0</text>
+<line class="grid" x1="151.3" y1="14" x2="151.3" y2="204"/>
+<text class="tk" x="151.3" y="219" text-anchor="middle">0.5</text>
+<line class="grid" x1="244.7" y1="14" x2="244.7" y2="204"/>
+<text class="tk" x="244.7" y="219" text-anchor="middle">1</text>
+<line class="grid" x1="338.0" y1="14" x2="338.0" y2="204"/>
+<text class="tk" x="338.0" y="219" text-anchor="middle">1.5</text>
+<line class="grid" x1="431.3" y1="14" x2="431.3" y2="204"/>
+<text class="tk" x="431.3" y="219" text-anchor="middle">2</text>
+<line class="grid" x1="524.7" y1="14" x2="524.7" y2="204"/>
+<text class="tk" x="524.7" y="219" text-anchor="middle">2.5</text>
+<line class="grid" x1="618.0" y1="14" x2="618.0" y2="204"/>
+<text class="tk" x="618.0" y="219" text-anchor="middle">3</text>
+<line class="grid" x1="58" y1="204.0" x2="618" y2="204.0"/>
+<text class="tk" x="52" y="208.0" text-anchor="end">−0.2</text>
+<line class="grid" x1="58" y1="169.5" x2="618" y2="169.5"/>
+<text class="tk" x="52" y="173.5" text-anchor="end">−0.1</text>
+<line class="grid" x1="58" y1="134.9" x2="618" y2="134.9"/>
+<text class="tk" x="52" y="138.9" text-anchor="end">0</text>
+<line class="grid" x1="58" y1="100.4" x2="618" y2="100.4"/>
+<text class="tk" x="52" y="104.4" text-anchor="end">0.1</text>
+<line class="grid" x1="58" y1="65.8" x2="618" y2="65.8"/>
+<text class="tk" x="52" y="69.8" text-anchor="end">0.2</text>
+<line class="grid" x1="58" y1="31.3" x2="618" y2="31.3"/>
+<text class="tk" x="52" y="35.3" text-anchor="end">0.3</text>
+<line class="axis" x1="58" y1="134.9" x2="618" y2="134.9"/>
+<rect class="frame" x="58" y="14" width="560" height="190"/>
+<text class="lab" x="338.0" y="238" text-anchor="middle">time t (s)</text>
+<text class="lab" transform="translate(16 109.0) rotate(-90)" text-anchor="middle">θ (rad)</text>
+<polyline class="ln c1" points="58.0,26.4 58.4,26.4 58.7,26.4 59.1,26.4 59.5,26.5 59.9,26.6 60.2,26.6 60.6,26.7 61.0,26.9 61.4,27.0 61.7,27.1 62.1,27.3 62.5,27.4 62.9,27.6 63.2,27.8 63.6,28.0 64.0,28.3 64.3,28.5 64.7,28.8 65.1,29.0 65.5,29.3 65.8,29.6 66.2,29.9 66.6,30.3 67.0,30.6 67.3,31.0 67.7,31.3 68.1,31.7 68.5,32.1 68.8,32.5 69.2,32.9 69.6,33.4 69.9,33.8 70.3,34.3 70.7,34.8 71.1,35.3 71.4,35.8 71.8,36.3 72.2,36.8 72.6,37.4 72.9,37.9 73.3,38.5 73.7,39.1 74.1,39.7 74.4,40.3 74.8,40.9 75.2,41.5 75.5,42.2 75.9,42.8 76.3,43.5 76.7,44.2 77.0,44.9 77.4,45.6 77.8,46.3 78.2,47.0 78.5,47.7 78.9,48.5 79.3,49.2 79.7,50.0 80.0,50.8 80.4,51.6 80.8,52.4 81.1,53.2 81.5,54.0 81.9,54.8 82.3,55.7 82.6,56.5 83.0,57.4 83.4,58.3 83.8,59.1 84.1,60.0 84.5,60.9 84.9,61.8 85.3,62.7 85.6,63.7 86.0,64.6 86.4,65.5 86.7,66.5 87.1,67.4 87.5,68.4 87.9,69.4 88.2,70.3 88.6,71.3 89.0,72.3 89.4,73.3 89.7,74.3 90.1,75.3 90.5,76.3 90.9,77.3 91.2,78.4 91.6,79.4 92.0,80.4 92.3,81.5 92.7,82.5 93.1,83.6 93.5,84.6 93.8,85.7 94.2,86.8 94.6,87.8 95.0,88.9 95.3,90.0 95.7,91.1 96.1,92.2 96.5,93.2 96.8,94.3 97.2,95.4 97.6,96.5 97.9,97.6 98.3,98.7 98.7,99.8 99.1,100.9 99.4,102.0 99.8,103.1 100.2,104.3 100.6,105.4 100.9,106.5 101.3,107.6 101.7,108.7 102.1,109.8 102.4,110.9 102.8,112.0 103.2,113.2 103.5,114.3 103.9,115.4 104.3,116.5 104.7,117.6 105.0,118.7 105.4,119.8 105.8,120.9 106.2,122.0 106.5,123.1 106.9,124.2 107.3,125.3 107.7,126.4 108.0,127.5 108.4,128.6 108.8,129.7 109.1,130.7 109.5,131.8 109.9,132.9 110.3,134.0 110.6,135.0 111.0,136.1 111.4,137.2 111.8,138.2 112.1,139.2 112.5,140.3 112.9,141.3 113.3,142.4 113.6,143.4 114.0,144.4 114.4,145.4 114.7,146.4 115.1,147.4 115.5,148.4 115.9,149.4 116.2,150.4 116.6,151.4 117.0,152.3 117.4,153.3 117.7,154.2 118.1,155.2 118.5,156.1 118.9,157.0 119.2,158.0 119.6,158.9 120.0,159.8 120.3,160.7 120.7,161.6 121.1,162.4 121.5,163.3 121.8,164.2 122.2,165.0 122.6,165.8 123.0,166.7 123.3,167.5 123.7,168.3 124.1,169.1 124.5,169.9 124.8,170.7 125.2,171.4 125.6,172.2 125.9,172.9 126.3,173.7 126.7,174.4 127.1,175.1 127.4,175.8 127.8,176.5 128.2,177.2 128.6,177.8 128.9,178.5 129.3,179.1 129.7,179.8 130.1,180.4 130.4,181.0 130.8,181.6 131.2,182.1 131.5,182.7 131.9,183.3 132.3,183.8 132.7,184.3 133.0,184.9 133.4,185.4 133.8,185.8 134.2,186.3 134.5,186.8 134.9,187.2 135.3,187.7 135.7,188.1 136.0,188.5 136.4,188.9 136.8,189.3 137.1,189.6 137.5,190.0 137.9,190.3 138.3,190.7 138.6,191.0 139.0,191.3 139.4,191.5 139.8,191.8 140.1,192.1 140.5,192.3 140.9,192.5 141.3,192.7 141.6,192.9 142.0,193.1 142.4,193.3 142.7,193.4 143.1,193.6 143.5,193.7 143.9,193.8 144.2,193.9 144.6,194.0 145.0,194.0 145.4,194.1 145.7,194.1 146.1,194.1 146.5,194.1 146.9,194.1 147.2,194.1 147.6,194.1 148.0,194.1 148.3,194.1 148.7,194.0 149.1,194.0 149.5,193.9 149.8,193.9 150.2,193.8 150.6,193.8 151.0,193.7 151.3,193.6 151.7,193.5 152.1,193.4 152.5,193.3 152.8,193.2 153.2,193.1 153.6,193.0 153.9,192.9 154.3,192.8 154.7,192.7 155.1,192.5 155.4,192.4 155.8,192.2 156.2,192.1 156.6,191.9 156.9,191.8 157.3,191.6 157.7,191.4 158.1,191.2 158.4,191.0 158.8,190.8 159.2,190.6 159.5,190.4 159.9,190.2 160.3,190.0 160.7,189.8 161.0,189.6 161.4,189.3 161.8,189.1 162.2,188.9 162.5,188.6 162.9,188.4 163.3,188.1 163.7,187.8 164.0,187.6 164.4,187.3 164.8,187.0 165.1,186.8 165.5,186.5 165.9,186.2 166.3,185.9 166.6,185.6 167.0,185.3 167.4,185.0 167.8,184.7 168.1,184.3 168.5,184.0 168.9,183.7 169.3,183.4 169.6,183.0 170.0,182.7 170.4,182.3 170.7,182.0 171.1,181.6 171.5,181.3 171.9,180.9 172.2,180.6 172.6,180.2 173.0,179.8 173.4,179.5 173.7,179.1 174.1,178.7 174.5,178.3 174.9,177.9 175.2,177.5 175.6,177.1 176.0,176.7 176.3,176.3 176.7,175.9 177.1,175.5 177.5,175.1 177.8,174.7 178.2,174.3 178.6,173.9 179.0,173.5 179.3,173.0 179.7,172.6 180.1,172.2 180.5,171.8 180.8,171.3 181.2,170.9 181.6,170.5 181.9,170.0 182.3,169.6 182.7,169.2 183.1,168.7 183.4,168.3 183.8,167.8 184.2,167.4 184.6,166.9 184.9,166.5 185.3,166.0 185.7,165.6 186.1,165.1 186.4,164.7 186.8,164.2 187.2,163.8 187.5,163.3 187.9,162.9 188.3,162.4 188.7,161.9 189.0,161.5 189.4,161.0 189.8,160.6 190.2,160.1 190.5,159.7 190.9,159.2 191.3,158.7 191.7,158.3 192.0,157.8 192.4,157.4 192.8,156.9 193.1,156.4 193.5,156.0 193.9,155.5 194.3,155.1 194.6,154.6 195.0,154.2 195.4,153.7 195.8,153.3 196.1,152.8 196.5,152.4 196.9,151.9 197.3,151.5 197.6,151.0 198.0,150.6 198.4,150.1 198.7,149.7 199.1,149.3 199.5,148.8 199.9,148.4 200.2,148.0 200.6,147.5 201.0,147.1 201.4,146.7 201.7,146.2 202.1,145.8 202.5,145.4 202.9,145.0 203.2,144.6 203.6,144.2 204.0,143.7 204.3,143.3 204.7,142.9 205.1,142.5 205.5,142.1 205.8,141.7 206.2,141.3 206.6,141.0 207.0,140.6 207.3,140.2 207.7,139.8 208.1,139.4 208.5,139.1 208.8,138.7 209.2,138.3 209.6,138.0 209.9,137.6 210.3,137.3 210.7,136.9 211.1,136.6 211.4,136.2 211.8,135.9 212.2,135.6 212.6,135.2 212.9,134.9 213.3,134.6 213.7,134.3 214.1,134.0 214.4,133.7 214.8,133.4 215.2,133.1 215.5,132.8 215.9,132.5 216.3,132.2 216.7,131.9 217.0,131.6 217.4,131.4 217.8,131.1 218.2,130.9 218.5,130.6 218.9,130.3 219.3,130.1 219.7,129.9 220.0,129.6 220.4,129.4 220.8,129.2 221.1,129.0 221.5,128.8 221.9,128.6 222.3,128.4 222.6,128.2 223.0,128.0 223.4,127.8 223.8,127.6 224.1,127.4 224.5,127.3 224.9,127.1 225.3,126.9 225.6,126.8 226.0,126.7 226.4,126.5 226.7,126.4 227.1,126.3 227.5,126.1 227.9,126.0 228.2,125.9 228.6,125.8 229.0,125.7 229.4,125.6 229.7,125.5 230.1,125.5 230.5,125.4 230.9,125.3 231.2,125.2 231.6,125.2 232.0,125.1 232.3,125.1 232.7,125.1 233.1,125.0 233.5,125.0 233.8,125.0 234.2,125.0 234.6,125.0 235.0,125.0 235.3,125.0 235.7,125.0 236.1,125.0 236.5,125.0 236.8,125.0 237.2,125.0 237.6,125.0 237.9,125.0 238.3,125.0 238.7,125.0 239.1,125.0 239.4,125.0 239.8,125.0 240.2,125.0 240.6,125.0 240.9,125.0 241.3,125.0 241.7,125.0 242.1,125.0 242.4,125.0 242.8,125.0 243.2,125.0 243.5,125.0 243.9,125.0 244.3,125.0 244.7,125.0 245.0,125.0 245.4,125.0 245.8,125.0 246.2,125.0 246.5,125.0 246.9,125.0 247.3,125.0 247.7,125.0 248.0,125.0 248.4,125.0 248.8,125.0 249.1,125.0 249.5,125.0 249.9,125.0 250.3,125.0 250.6,125.0 251.0,125.0 251.4,125.0 251.8,125.0 252.1,125.0 252.5,125.0 252.9,125.0 253.3,125.0 253.6,125.0 254.0,125.0 254.4,125.0 254.7,125.0 255.1,125.0 255.5,125.0 255.9,125.0 256.2,125.0 256.6,125.0 257.0,125.0 257.4,125.0 257.7,125.0 258.1,125.0 258.5,125.0 258.9,125.0 259.2,125.0 259.6,125.0 260.0,125.0 260.3,125.0 260.7,125.0 261.1,125.0 261.5,125.0 261.8,125.0 262.2,125.0 262.6,125.0 263.0,125.0 263.3,125.0 263.7,125.0 264.1,125.0 264.5,125.0 264.8,125.0 265.2,125.0 265.6,125.0 265.9,125.0 266.3,125.0 266.7,125.0 267.1,125.0 267.4,125.0 267.8,125.0 268.2,125.0 268.6,125.0 268.9,125.0 269.3,125.0 269.7,125.0 270.1,125.0 270.4,125.0 270.8,125.0 271.2,125.0 271.5,125.0 271.9,125.0 272.3,125.0 272.7,125.0 273.0,125.0 273.4,125.0 273.8,125.0 274.2,125.0 274.5,125.0 274.9,125.0 275.3,125.0 275.7,125.0 276.0,125.0 276.4,125.0 276.8,125.0 277.1,125.0 277.5,125.0 277.9,125.0 278.3,125.0 278.6,125.0 279.0,125.0 279.4,125.0 279.8,125.0 280.1,125.0 280.5,125.0 280.9,125.0 281.3,125.0 281.6,125.0 282.0,125.0 282.4,125.0 282.7,125.0 283.1,125.0 283.5,125.0 283.9,125.0 284.2,125.0 284.6,125.0 285.0,125.0 285.4,125.0 285.7,125.0 286.1,125.0 286.5,125.0 286.9,125.0 287.2,125.0 287.6,125.0 288.0,125.0 288.3,125.0 288.7,125.0 289.1,125.0 289.5,125.0 289.8,125.0 290.2,125.0 290.6,125.0 291.0,125.0 291.3,125.0 291.7,125.0 292.1,125.0 292.5,125.0 292.8,125.0 293.2,125.0 293.6,125.0 293.9,125.0 294.3,125.0 294.7,125.0 295.1,125.0 295.4,125.0 295.8,125.0 296.2,125.0 296.6,125.0 296.9,125.0 297.3,125.0 297.7,125.0 298.1,125.0 298.4,125.0 298.8,125.0 299.2,125.0 299.5,125.0 299.9,125.0 300.3,125.0 300.7,125.0 301.0,125.0 301.4,125.0 301.8,125.0 302.2,125.0 302.5,125.0 302.9,125.0 303.3,125.0 303.7,125.0 304.0,125.0 304.4,125.0 304.8,125.0 305.1,125.0 305.5,125.0 305.9,125.0 306.3,125.0 306.6,125.0 307.0,125.0 307.4,125.0 307.8,125.0 308.1,125.0 308.5,125.0 308.9,125.0 309.3,125.0 309.6,125.0 310.0,125.0 310.4,125.0 310.7,125.0 311.1,125.0 311.5,125.0 311.9,125.0 312.2,125.0 312.6,125.0 313.0,125.0 313.4,125.0 313.7,125.0 314.1,125.0 314.5,125.0 314.9,125.0 315.2,125.0 315.6,125.0 316.0,125.0 316.3,125.0 316.7,125.0 317.1,125.0 317.5,125.0 317.8,125.0 318.2,125.0 318.6,125.0 319.0,125.0 319.3,125.0 319.7,125.0 320.1,125.0 320.5,125.0 320.8,125.0 321.2,125.0 321.6,125.0 321.9,125.0 322.3,125.0 322.7,125.0 323.1,125.0 323.4,125.0 323.8,125.0 324.2,125.0 324.6,125.0 324.9,125.0 325.3,125.0 325.7,125.0 326.1,125.0 326.4,125.0 326.8,125.0 327.2,125.0 327.5,125.0 327.9,125.0 328.3,125.0 328.7,125.0 329.0,125.0 329.4,125.0 329.8,125.0 330.2,125.0 330.5,125.0 330.9,125.0 331.3,125.0 331.7,125.0 332.0,125.0 332.4,125.0 332.8,125.0 333.1,125.0 333.5,125.0 333.9,125.0 334.3,125.0 334.6,125.0 335.0,125.0 335.4,125.0 335.8,125.0 336.1,125.0 336.5,125.0 336.9,125.0 337.3,125.0 337.6,125.0 338.0,125.0 338.4,125.0 338.7,125.0 339.1,125.0 339.5,125.0 339.9,125.0 340.2,125.0 340.6,125.0 341.0,125.0 341.4,125.0 341.7,125.0 342.1,125.0 342.5,125.0 342.9,125.0 343.2,125.0 343.6,125.0 344.0,125.0 344.3,125.0 344.7,125.0 345.1,125.0 345.5,125.0 345.8,125.0 346.2,125.0 346.6,125.0 347.0,125.0 347.3,125.0 347.7,125.0 348.1,125.0 348.5,125.0 348.8,125.0 349.2,125.0 349.6,125.0 349.9,125.0 350.3,125.0 350.7,125.0 351.1,125.0 351.4,125.0 351.8,125.0 352.2,125.0 352.6,125.0 352.9,125.0 353.3,125.0 353.7,125.0 354.1,125.0 354.4,125.0 354.8,125.0 355.2,125.0 355.5,125.0 355.9,125.0 356.3,125.0 356.7,125.0 357.0,125.0 357.4,125.0 357.8,125.0 358.2,125.0 358.5,125.0 358.9,125.0 359.3,125.0 359.7,125.0 360.0,125.0 360.4,125.0 360.8,125.0 361.1,125.0 361.5,125.0 361.9,125.0 362.3,125.0 362.6,125.0 363.0,125.0 363.4,125.0 363.8,125.0 364.1,125.0 364.5,125.0 364.9,125.0 365.3,125.0 365.6,125.0 366.0,125.0 366.4,125.0 366.7,125.0 367.1,125.0 367.5,125.0 367.9,125.0 368.2,125.0 368.6,125.0 369.0,125.0 369.4,125.0 369.7,125.0 370.1,125.0 370.5,125.0 370.9,125.0 371.2,125.0 371.6,125.0 372.0,125.0 372.3,125.0 372.7,125.0 373.1,125.0 373.5,125.0 373.8,125.0 374.2,125.0 374.6,125.0 375.0,125.0 375.3,125.0 375.7,125.0 376.1,125.0 376.5,125.0 376.8,125.0 377.2,125.0 377.6,125.0 377.9,125.0 378.3,125.0 378.7,125.0 379.1,125.0 379.4,125.0 379.8,125.0 380.2,125.0 380.6,125.0 380.9,125.0 381.3,125.0 381.7,125.0 382.1,125.0 382.4,125.0 382.8,125.0 383.2,125.0 383.5,125.0 383.9,125.0 384.3,125.0 384.7,125.0 385.0,125.0 385.4,125.0 385.8,125.0 386.2,125.0 386.5,125.0 386.9,125.0 387.3,125.0 387.7,125.0 388.0,125.0 388.4,125.0 388.8,125.0 389.1,125.0 389.5,125.0 389.9,125.0 390.3,125.0 390.6,125.0 391.0,125.0 391.4,125.0 391.8,125.0 392.1,125.0 392.5,125.0 392.9,125.0 393.3,125.0 393.6,125.0 394.0,125.0 394.4,125.0 394.7,125.0 395.1,125.0 395.5,125.0 395.9,125.0 396.2,125.0 396.6,125.0 397.0,125.0 397.4,125.0 397.7,125.0 398.1,125.0 398.5,125.0 398.9,125.0 399.2,125.0 399.6,125.0 400.0,125.0 400.3,125.0 400.7,125.0 401.1,125.0 401.5,125.0 401.8,125.0 402.2,125.0 402.6,125.0 403.0,125.0 403.3,125.0 403.7,125.0 404.1,125.0 404.5,125.0 404.8,125.0 405.2,125.0 405.6,125.0 405.9,125.0 406.3,125.0 406.7,125.0 407.1,125.0 407.4,125.0 407.8,125.0 408.2,125.0 408.6,125.0 408.9,125.0 409.3,125.0 409.7,125.0 410.1,125.0 410.4,125.0 410.8,125.0 411.2,125.0 411.5,125.0 411.9,125.0 412.3,125.0 412.7,125.0 413.0,125.0 413.4,125.0 413.8,125.0 414.2,125.0 414.5,125.0 414.9,125.0 415.3,125.0 415.7,125.0 416.0,125.0 416.4,125.0 416.8,125.0 417.1,125.0 417.5,125.0 417.9,125.0 418.3,125.0 418.6,125.0 419.0,125.0 419.4,125.0 419.8,125.0 420.1,125.0 420.5,125.0 420.9,125.0 421.3,125.0 421.6,125.0 422.0,125.0 422.4,125.0 422.7,125.0 423.1,125.0 423.5,125.0 423.9,125.0 424.2,125.0 424.6,125.0 425.0,125.0 425.4,125.0 425.7,125.0 426.1,125.0 426.5,125.0 426.9,125.0 427.2,125.0 427.6,125.0 428.0,125.0 428.3,125.0 428.7,125.0 429.1,125.0 429.5,125.0 429.8,125.0 430.2,125.0 430.6,125.0 431.0,125.0 431.3,125.0 431.7,125.0 432.1,125.0 432.5,125.0 432.8,125.0 433.2,125.0 433.6,125.0 433.9,125.0 434.3,125.0 434.7,125.0 435.1,125.0 435.4,125.0 435.8,125.0 436.2,125.0 436.6,125.0 436.9,125.0 437.3,125.0 437.7,125.0 438.1,125.0 438.4,125.0 438.8,125.0 439.2,125.0 439.5,125.0 439.9,125.0 440.3,125.0 440.7,125.0 441.0,125.0 441.4,125.0 441.8,125.0 442.2,125.0 442.5,125.0 442.9,125.0 443.3,125.0 443.7,125.0 444.0,125.0 444.4,125.0 444.8,125.0 445.1,125.0 445.5,125.0 445.9,125.0 446.3,125.0 446.6,125.0 447.0,125.0 447.4,125.0 447.8,125.0 448.1,125.0 448.5,125.0 448.9,125.0 449.3,125.0 449.6,125.0 450.0,125.0 450.4,125.0 450.7,125.0 451.1,125.0 451.5,125.0 451.9,125.0 452.2,125.0 452.6,125.0 453.0,125.0 453.4,125.0 453.7,125.0 454.1,125.0 454.5,125.0 454.9,125.0 455.2,125.0 455.6,125.0 456.0,125.0 456.3,125.0 456.7,125.0 457.1,125.0 457.5,125.0 457.8,125.0 458.2,125.0 458.6,125.0 459.0,125.0 459.3,125.0 459.7,125.0 460.1,125.0 460.5,125.0 460.8,125.0 461.2,125.0 461.6,125.0 461.9,125.0 462.3,125.0 462.7,125.0 463.1,125.0 463.4,125.0 463.8,125.0 464.2,125.0 464.6,125.0 464.9,125.0 465.3,125.0 465.7,125.0 466.1,125.0 466.4,125.0 466.8,125.0 467.2,125.0 467.5,125.0 467.9,125.0 468.3,125.0 468.7,125.0 469.0,125.0 469.4,125.0 469.8,125.0 470.2,125.0 470.5,125.0 470.9,125.0 471.3,125.0 471.7,125.0 472.0,125.0 472.4,125.0 472.8,125.0 473.1,125.0 473.5,125.0 473.9,125.0 474.3,125.0 474.6,125.0 475.0,125.0 475.4,125.0 475.8,125.0 476.1,125.0 476.5,125.0 476.9,125.0 477.3,125.0 477.6,125.0 478.0,125.0 478.4,125.0 478.7,125.0 479.1,125.0 479.5,125.0 479.9,125.0 480.2,125.0 480.6,125.0 481.0,125.0 481.4,125.0 481.7,125.0 482.1,125.0 482.5,125.0 482.9,125.0 483.2,125.0 483.6,125.0 484.0,125.0 484.3,125.0 484.7,125.0 485.1,125.0 485.5,125.0 485.8,125.0 486.2,125.0 486.6,125.0 487.0,125.0 487.3,125.0 487.7,125.0 488.1,125.0 488.5,125.0 488.8,125.0 489.2,125.0 489.6,125.0 489.9,125.0 490.3,125.0 490.7,125.0 491.1,125.0 491.4,125.0 491.8,125.0 492.2,125.0 492.6,125.0 492.9,125.0 493.3,125.0 493.7,125.0 494.1,125.0 494.4,125.0 494.8,125.0 495.2,125.0 495.5,125.0 495.9,125.0 496.3,125.0 496.7,125.0 497.0,125.0 497.4,125.0 497.8,125.0 498.2,125.0 498.5,125.0 498.9,125.0 499.3,125.0 499.7,125.0 500.0,125.0 500.4,125.0 500.8,125.0 501.1,125.0 501.5,125.0 501.9,125.0 502.3,125.0 502.6,125.0 503.0,125.0 503.4,125.0 503.8,125.0 504.1,125.0 504.5,125.0 504.9,125.0 505.3,125.0 505.6,125.0 506.0,125.0 506.4,125.0 506.7,125.0 507.1,125.0 507.5,125.0 507.9,125.0 508.2,125.0 508.6,125.0 509.0,125.0 509.4,125.0 509.7,125.0 510.1,125.0 510.5,125.0 510.9,125.0 511.2,125.0 511.6,125.0 512.0,125.0 512.3,125.0 512.7,125.0 513.1,125.0 513.5,125.0 513.8,125.0 514.2,125.0 514.6,125.0 515.0,125.0 515.3,125.0 515.7,125.0 516.1,125.0 516.5,125.0 516.8,125.0 517.2,125.0 517.6,125.0 517.9,125.0 518.3,125.0 518.7,125.0 519.1,125.0 519.4,125.0 519.8,125.0 520.2,125.0 520.6,125.0 520.9,125.0 521.3,125.0 521.7,125.0 522.1,125.0 522.4,125.0 522.8,125.0 523.2,125.0 523.5,125.0 523.9,125.0 524.3,125.0 524.7,125.0 525.0,125.0 525.4,125.0 525.8,125.0 526.2,125.0 526.5,125.0 526.9,125.0 527.3,125.0 527.7,125.0 528.0,125.0 528.4,125.0 528.8,125.0 529.1,125.0 529.5,125.0 529.9,125.0 530.3,125.0 530.6,125.0 531.0,125.0 531.4,125.0 531.8,125.0 532.1,125.0 532.5,125.0 532.9,125.0 533.3,125.0 533.6,125.0 534.0,125.0 534.4,125.0 534.7,125.0 535.1,125.0 535.5,125.0 535.9,125.0 536.2,125.0 536.6,125.0 537.0,125.0 537.4,125.0 537.7,125.0 538.1,125.0 538.5,125.0 538.9,125.0 539.2,125.0 539.6,125.0 540.0,125.0 540.3,125.0 540.7,125.0 541.1,125.0 541.5,125.0 541.8,125.0 542.2,125.0 542.6,125.0 543.0,125.0 543.3,125.0 543.7,125.0 544.1,125.0 544.5,125.0 544.8,125.0 545.2,125.0 545.6,125.0 545.9,125.0 546.3,125.0 546.7,125.0 547.1,125.0 547.4,125.0 547.8,125.0 548.2,125.0 548.6,125.0 548.9,125.0 549.3,125.0 549.7,125.0 550.1,125.0 550.4,125.0 550.8,125.0 551.2,125.0 551.5,125.0 551.9,125.0 552.3,125.0 552.7,125.0 553.0,125.0 553.4,125.0 553.8,125.0 554.2,125.0 554.5,125.0 554.9,125.0 555.3,125.0 555.7,125.0 556.0,125.0 556.4,125.0 556.8,125.0 557.1,125.0 557.5,125.0 557.9,125.0 558.3,125.0 558.6,125.0 559.0,125.0 559.4,125.0 559.8,125.0 560.1,125.0 560.5,125.0 560.9,125.0 561.3,125.0 561.6,125.0 562.0,125.0 562.4,125.0 562.7,125.0 563.1,125.0 563.5,125.0 563.9,125.0 564.2,125.0 564.6,125.0 565.0,125.0 565.4,125.0 565.7,125.0 566.1,125.0 566.5,125.0 566.9,125.0 567.2,125.0 567.6,125.0 568.0,125.0 568.3,125.0 568.7,125.0 569.1,125.0 569.5,125.0 569.8,125.0 570.2,125.0 570.6,125.0 571.0,125.0 571.3,125.0 571.7,125.0 572.1,125.0 572.5,125.0 572.8,125.0 573.2,125.0 573.6,125.0 573.9,125.0 574.3,125.0 574.7,125.0 575.1,125.0 575.4,125.0 575.8,125.0 576.2,125.0 576.6,125.0 576.9,125.0 577.3,125.0 577.7,125.0 578.1,125.0 578.4,125.0 578.8,125.0 579.2,125.0 579.5,125.0 579.9,125.0 580.3,125.0 580.7,125.0 581.0,125.0 581.4,125.0 581.8,125.0 582.2,125.0 582.5,125.0 582.9,125.0 583.3,125.0 583.7,125.0 584.0,125.0 584.4,125.0 584.8,125.0 585.1,125.0 585.5,125.0 585.9,125.0 586.3,125.0 586.6,125.0 587.0,125.0 587.4,125.0 587.8,125.0 588.1,125.0 588.5,125.0 588.9,125.0 589.3,125.0 589.6,125.0 590.0,125.0 590.4,125.0 590.7,125.0 591.1,125.0 591.5,125.0 591.9,125.0 592.2,125.0 592.6,125.0 593.0,125.0 593.4,125.0 593.7,125.0 594.1,125.0 594.5,125.0 594.9,125.0 595.2,125.0 595.6,125.0 596.0,125.0 596.3,125.0 596.7,125.0 597.1,125.0 597.5,125.0 597.8,125.0 598.2,125.0 598.6,125.0 599.0,125.0 599.3,125.0 599.7,125.0 600.1,125.0 600.5,125.0 600.8,125.0 601.2,125.0 601.6,125.0 601.9,125.0 602.3,125.0 602.7,125.0 603.1,125.0 603.4,125.0 603.8,125.0 604.2,125.0 604.6,125.0 604.9,125.0 605.3,125.0 605.7,125.0 606.1,125.0 606.4,125.0 606.8,125.0 607.2,125.0 607.5,125.0 607.9,125.0 608.3,125.0 608.7,125.0 609.0,125.0 609.4,125.0 609.8,125.0 610.2,125.0 610.5,125.0 610.9,125.0 611.3,125.0 611.7,125.0 612.0,125.0 612.4,125.0 612.8,125.0 613.1,125.0 613.5,125.0 613.9,125.0 614.3,125.0 614.6,125.0 615.0,125.0 615.4,125.0 615.8,125.0 616.1,125.0 616.5,125.0 616.9,125.0 617.3,125.0 617.6,125.0 618.0,125.0"/><text class="lab halo" x="244.7" y="76.2">sticks at θ = 0.0288 rad, t = 0.947 s</text><text class="tk c1t halo" x="608.7" y="105.3" text-anchor="end">±μm₁g(r/2)/k_eq = ±0.0713 rad</text>
+</svg>
+<figcaption><b>Figure 3.1</b> Pulley angle in additional problem 4.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> Two strokes at \(\omega_n = 6.63\) rad/s, each losing \(2 \times 0.0713\) rad, then the pulley sticks inside the shaded band. This matches the plot in the partial solutions, which shows the motion ending just after \(2\pi/\omega_n\).</p>
+<div class="box watch"><span class="label">Watch out</span><p>The typed equation for AP4(b) in the partial solutions is garbled: it omits the pulley inertia \(\tfrac12 Mr^2\), drops \(\theta\) from the stiffness term and writes the friction moment arm as \(r\) rather than \(r/2\). The equation above is derived from the problem statement; its response agrees with their plot.</p></div>
+<p class="reading"><b>Reading</b> VN354 Tut 1.pdf; VN354 Tut 1 Partial Solutions 2026.pdf</p>
+
+</section>
+
+<section id="practice">
+<h2><span class="n">04</span>Practice problems</h2>
+<details><summary>Problem 4.1. A 5 kg block on a 2 kN/m spring slides with \(\mu = \mu_s = 0.15\). Released from rest at 20 mm, how many strokes does it make, where does it stop, and when?</summary><div class="sol"><p>\(\omega_n = 20\) rad/s; \(\mu N/k = 0.15(5)(9.81)/2000 = 3.679\) mm, so each stroke loses 7.357 mm. Turning points: 20.000, -12.643, 5.285, 2.072 mm. The last stroke does not even cross zero: it swings about +μN/k = 3.679 mm from 5.285 mm to 2.072 mm. That point is inside ±3.679 mm, so it stops there after 3 strokes, at \(t = 3\pi/20 = 0.471\) s.</p></div></details>
+<details><summary>Problem 4.2. A measured free decay drops from 40 mm to 16 mm in 3 full cycles, losing the same amount each cycle. The system has \(k = 5\) kN/m, \(m = 10\) kg. Is it viscous or Coulomb damped, and what is \(\mu\)?</summary><div class="sol"><p>A constant loss per cycle means Coulomb damping. \(4\mu N/k = (40 - 16)/3 = 8\) mm per cycle, so \(\mu = 0.008(5000)/(4 \times 10 \times 9.81) = 0.102\).</p></div></details>
+<details><summary>Problem 4.3. A solid cylinder (mass \(m\), radius \(r\)) rolls without slipping on a flat floor, with a spring \(k\) attached at its axle. Find \(\omega_n\) by the energy method, and evaluate it for \(m = 3\) kg, \(k = 900\) N/m.</summary><div class="sol"><p>\(T = \tfrac12 m\dot x^2 + \tfrac12(\tfrac12 mr^2)(\dot x/r)^2 = \tfrac34 m\dot x^2\); \(U = \tfrac12 kx^2\). So \(\tfrac32 m\ddot x + kx = 0\) and \(\omega_n = \sqrt{2k/3m} = \sqrt{1800/9} = 14.14\) rad/s. The radius does not appear.</p></div></details>
+<details><summary>Problem 4.4. A uniform rod of length 0.6 m swings about one end. Find its period for small swings.</summary><div class="sol"><p>\(\tfrac13 ml^2\ddot\theta + mg\tfrac{l}{2}\theta = 0\), so \(\omega_n = \sqrt{3g/2l} = \sqrt{3(9.81)/1.2} = 4.952\) rad/s and \(T = 1.269\) s.</p></div></details>
+<details><summary>Problem 4.5. Two springs of 300 N/m and 600 N/m support a 2 kg mass, first in series, then in parallel. Find both natural frequencies.</summary><div class="sol"><p>Series: \(k = 300(600)/900 = 200\) N/m, \(\omega_n = 10\) rad/s. Parallel: \(k = 900\) N/m, \(\omega_n = \sqrt{450} = 21.21\) rad/s.</p></div></details>
+<details><summary>Problem 4.6. A 3 kg block on a 1200 N/m spring has \(\mu = 0.2\). It is at rest at \(x = 4\) mm from the unstretched position. Will it move if \(\mu_s = 0.25\)?</summary><div class="sol"><p>Spring force \(1200(0.004) = 4.8\) N. Static friction can supply up to \(0.25(3)(9.81) = 7.36\) N. Since 4.8 N &lt; 7.36 N, the block stays put. (Equivalently, 4 mm is inside \(\mu_sN/k = 6.13\) mm.)</p></div></details>
+<details><summary>Problem 4.7. Explain why the half-pipe disc oscillates more slowly than a bead sliding without friction on the same circle.</summary><div class="sol"><p>Both have the same restoring potential \(mg(R-r)(1-\cos\theta)\), but the rolling disc stores extra kinetic energy in spin, \(\tfrac14 m(R-r)^2\dot\theta^2\). Its effective inertia is 1.5 times larger, so \(\omega_n\) is \(1/\sqrt{1.5} = 0.816\) times the bead's.</p></div></details>
+</section>
+
+<section id="sheet">
+<h2><span class="n">05</span>Formula sheet</h2>
+
+<div class="sheet"><div><h4>Coulomb damping</h4>
+<p>\(m\ddot x + \mu N\,\mathrm{sgn}(\dot x) + kx = 0\)</p>
+<p>Stroke: \(x = (x_i \mp \mu N/k)\cos\omega_n(t - t_i) \pm \mu N/k\)</p>
+<p>Loss \(2\mu N/k\) per half cycle, \(4\mu N/k\) per cycle</p>
+<p>Envelope slope \(-2\mu N\omega_n/(\pi k)\); stops when \(|x| \le \mu_sN/k\)</p>
+<p>Frequency stays \(\omega_n = \sqrt{k/m}\)</p>
+</div><div><h4>Energy method</h4>
+<p>\(T + U = \text{const}\), \(\frac{d}{dt}(T + U) = 0\)</p>
+<p>\(U = \tfrac12 k(\delta_{st} + x)^2\), \(U = mgh\)</p>
+<p>\(T = \tfrac12 mv^2\), \(T = \tfrac12 I\omega^2\)</p>
+<p>\(T = \tfrac12 m_{eq}\dot x^2\), \(U = \tfrac12 k_{eq}x^2 \Rightarrow \omega_n = \sqrt{k_{eq}/m_{eq}}\)</p>
+<p>Disc in a track: \(\omega_n = \sqrt{2g/3(R-r)}\)</p>
+</div><div><h4>Stiffness</h4>
+<p>Parallel \(k_1 + k_2\); series \(k_1k_2/(k_1 + k_2)\)</p>
+<p>Bar \(EA/l\); torsion \(GJ_p/l\)</p>
+<p>Helical \(Gd^4/(64nR^3)\); cantilever \(3EI/l^3\)</p>
+</div><div><h4>Inertia</h4>
+<p>Point \(ml^2\); rod end \(\tfrac13 ml^2\); rod centre \(\tfrac1{12}ml^2\)</p>
+<p>Disc \(\tfrac12 mr^2\); \(I_O = I_C + md^2\)</p>
+<p>Rolling: \(v = r\omega\)</p>
+</div></div>
+
+</section>
+
+<footer>
+<p>Sources: LesingLecture3_a.pdf (Lecture 3: Coulomb damping), LectureLesing4.pdf (Lecture 4: modelling and energy methods), VN354 Tut 1.pdf, VN354 Tut 1 Partial Solutions 2026.pdf, and transcripts of the Lecture 3 video, the Lecture 4 video (energy methods and half-pipe example) and the energy method worked example video. The module framework lists hysteretic damping with Lecture 3, but neither the notes nor the video cover it. The Inman homework problems are summarised from the partial solutions only; the textbook problem statements were not available. All numbers were recomputed.</p>
+</footer>
+</main>
+</div>
+<script>
+(function(){
+
+  const NS = 'http://www.w3.org/2000/svg';
+  function E(parent, tag, attrs, text){
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.append(e);
+    return e;
+  }
+  const neg = s => s.replace(/-/g, '−');
+  const num = v => neg((+v.toPrecision(6)).toString());
+  const fix = (v, d) => neg(v.toFixed(d));
+  const pts = a => a.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  // Axes, grid and labels; returns scales and a clipped group to draw in.
+  function plot(svg, o){
+    svg.textContent = '';
+    const lx = o.logx, ly = o.logy;
+    const X = v => o.l + (lx ? (Math.log10(v) - Math.log10(o.x0)) / (Math.log10(o.x1) - Math.log10(o.x0)) : (v - o.x0) / (o.x1 - o.x0)) * o.w;
+    const Y = v => o.t + (ly ? (Math.log10(o.y1) - Math.log10(v)) / (Math.log10(o.y1) - Math.log10(o.y0)) : (o.y1 - v) / (o.y1 - o.y0)) * o.h;
+    const defs = E(svg, 'defs', {});
+    E(E(defs, 'clipPath', {id: o.id}), 'rect', {x: o.l, y: o.t, width: o.w, height: o.h});
+    o.xt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: X(v), y1: o.t, x2: X(v), y2: o.t + o.h});
+      E(svg, 'text', {class: 'tk', x: X(v), y: o.t + o.h + 15, 'text-anchor': 'middle'}, o.xf ? o.xf(v) : num(v));
+    });
+    o.yt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: o.l, y1: Y(v), x2: o.l + o.w, y2: Y(v)});
+      E(svg, 'text', {class: 'tk', x: o.l - 6, y: Y(v) + 4, 'text-anchor': 'end'}, o.yf ? o.yf(v) : num(v));
+    });
+    if (o.zero) E(svg, 'line', {class: 'axis', x1: o.l, y1: Y(0), x2: o.l + o.w, y2: Y(0)});
+    E(svg, 'rect', {class: 'frame', x: o.l, y: o.t, width: o.w, height: o.h});
+    E(svg, 'text', {class: 'lab', x: o.l + o.w / 2, y: o.t + o.h + 34, 'text-anchor': 'middle'}, o.xlab);
+    E(svg, 'text', {class: 'lab', transform: 'translate(16 ' + (o.t + o.h / 2) + ') rotate(-90)', 'text-anchor': 'middle'}, o.ylab);
+    const g = E(svg, 'g', {'clip-path': 'url(#' + o.id + ')'}), top = E(svg, 'g', {});
+    return {X, Y, g, top};
+  }
+  function controls(fig, redraw){
+    const inputs = {};
+    fig.querySelectorAll('.fig-ctl input').forEach(i => { inputs[i.dataset.k] = i; i.addEventListener('input', redraw); });
+    const show = (k, text) => { inputs[k].parentNode.querySelector('output').textContent = text; };
+    return {show, val: k => +inputs[k].value};
+  }
+  function nice(v){ const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * p >= v * 0.999) return m * p; return 10 * p; }
+  function ticks(a, b, n){ const raw = (b - a) / n, p = Math.pow(10, Math.floor(Math.log10(raw))); let s = p; for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw){ s = m * p; break; } const out = []; for (let v = Math.ceil(a / s - 1e-9) * s; v <= b + 1e-9; v += s) out.push(+v.toFixed(10)); return out; }
+
+  const fig = document.getElementById('fig13'), svg = fig.querySelector('svg'), read = fig.querySelector('.fig-read');
+  const c = controls(fig, draw), g = 9.81, m = 2;
+  function run(x0, f, fs, wn){
+    // returns peaks [{t, x}] and a function x(t)
+    const pk = [{t: 0, x: x0}]; let x = x0, t0 = 0;
+    while (Math.abs(x) > fs && pk.length < 400){ const s = Math.sign(x); x = -(Math.abs(x) - 2 * f) * s; t0 += Math.PI / wn; pk.push({t: t0, x}); }
+    const fn = t => {
+      for (let i = 0; i < pk.length - 1; i++){
+        if (t <= pk[i + 1].t){ const s = Math.sign(pk[i].x); return (pk[i].x - s * f) * Math.cos(wn * (t - pk[i].t)) + s * f; }
+      }
+      return pk[pk.length - 1].x;
+    };
+    return {pk, fn};
+  }
+  function draw(){
+    const mu = c.val('mu'), x0 = c.val('x0'), wn = c.val('wn');
+    let mus = c.val('mus'); if (mus < mu) mus = mu;
+    c.show('mu', mu.toFixed(2)); c.show('mus', mus.toFixed(2) + (c.val('mus') < mu ? ' (= μ)' : '')); c.show('x0', x0.toFixed(0) + ' mm'); c.show('wn', wn.toFixed(0) + ' rad/s');
+    const k = m * wn * wn, f = 1000 * mu * m * g / k, fs = 1000 * mus * m * g / k;   // mm
+    const R = run(x0, f, fs, wn), tEnd = R.pk[R.pk.length - 1].t;
+    const T = Math.max(tEnd * 1.25, 2 * Math.PI / wn * 2);
+    const xt = ticks(0, T, 7), ym = nice(x0 * 1.1);
+    const P = plot(svg, {id: 'cp13', l: 62, t: 14, w: 556, h: 206, x0: 0, x1: T, y0: -ym, y1: ym, xt, yt: ticks(-ym, ym, 6), xlab: 'time t (s)', ylab: 'x (mm)', zero: true});
+    const {X, Y, g: G, top} = P;
+    E(G, 'rect', {class: 'area', x: X(0), y: Y(fs), width: X(T) - X(0), height: Y(-fs) - Y(fs)});
+    // viscous comparison: same first-half-cycle loss -> exp(-z wn pi/wd) = (x0 - 2f)/x0
+    const ratio = (x0 - 2 * f) / x0;
+    if (ratio > 0){
+      const d = -Math.log(ratio), z = d / Math.sqrt(Math.PI * Math.PI + d * d), wd = wn * Math.sqrt(1 - z * z);
+      const A = Math.hypot(z * wn * x0, x0 * wd) / wd, ph = Math.atan2(x0 * wd, z * wn * x0), a = [];
+      for (let i = 0; i <= 600; i++){ const t = T * i / 600; a.push([X(t), Y(A * Math.exp(-z * wn * t) * Math.sin(wd * t + ph))]); }
+      E(G, 'polyline', {class: 'ln c4 thin ref', points: pts(a)});
+    }
+    const e1 = [[X(0), Y(x0)], [X(T), Y(x0 - 2 * f * wn / Math.PI * T)]], e2 = e1.map(p => [p[0], 2 * Y(0) - p[1]]);
+    E(G, 'polyline', {class: 'ln c4 thin dash', points: pts(e1)}); E(G, 'polyline', {class: 'ln c4 thin dash', points: pts(e2)});
+    const a = []; for (let i = 0; i <= 900; i++){ const t = T * i / 900; a.push([X(t), Y(R.fn(t))]); }
+    E(G, 'polyline', {class: 'ln c1', points: pts(a)});
+    R.pk.forEach(p => E(top, 'circle', {class: 'c3f', cx: X(p.t), cy: Y(p.x), r: 3}));
+    const n = R.pk.length - 1, xf = R.pk[n].x;
+    read.innerHTML = `μN/k = ${f.toFixed(2)} mm, so each half cycle loses ${(2 * f).toFixed(2)} mm and each full cycle ${(4 * f).toFixed(2)} mm. ` +
+      (n === 0 ? `The spring force at x₀ cannot overcome static friction (x₀ ≤ μₛN/k = ${fs.toFixed(2)} mm), so the mass never moves.` :
+      `The mass reverses ${n} time${n > 1 ? 's' : ''} and sticks at t = ${tEnd.toFixed(3)} s (${n}π/ωₙ) at x = ${fix(xf, 2)} mm, inside the stick band ±μₛN/k = ±${fs.toFixed(2)} mm.`);
+  }
+  draw();
+})();
+</script>
+<script src="../assets/ask-gemini.js" data-store="vibration-w2" data-course="Vibration and Noise 354"
+        data-topic="Week 2: Coulomb friction damping, piecewise solution, linear decay, stick condition, energy method, rolling disc in a track, disc-pulley test question, equivalent stiffness, mass moments of inertia, Tutorial 1"></script>
+</body>
+</html>

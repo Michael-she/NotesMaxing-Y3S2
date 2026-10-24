@@ -124,8 +124,57 @@ window.NOTES_MANIFEST = {
    "id": "vibration",
    "folder": "Vibration-and-Noise",
    "code": "",
-   "name": "Vibration and Noise",
-   "notes": [],
+   "name": "Vibration and Noise 354",
+   "notes": [
+    {
+     "title": "Free vibration of a single-degree-of-freedom system, and measuring it",
+     "week": 1,
+     "track": "",
+     "href": "Vibration-and-Noise/vibration_Week01_Notes_Free-Vibration-and-Measurement.html"
+    },
+    {
+     "title": "Coulomb damping, energy methods and modelling",
+     "week": 2,
+     "track": "",
+     "href": "Vibration-and-Noise/vibration_Week02_Notes_Coulomb-Damping-and-Energy-Methods.html"
+    },
+    {
+     "title": "Harmonic excitation of single-degree-of-freedom systems",
+     "week": 3,
+     "track": "",
+     "href": "Vibration-and-Noise/vibration_Week03_Notes_Harmonic-Excitation.html"
+    },
+    {
+     "title": "Base excitation, rotating unbalance and numerical simulation",
+     "week": 4,
+     "track": "",
+     "href": "Vibration-and-Noise/vibration_Week04_Notes_Base-Excitation-and-Numerical-Simulation.html"
+    },
+    {
+     "title": "Undamped two-degree-of-freedom systems",
+     "week": 5,
+     "track": "",
+     "href": "Vibration-and-Noise/vibration_Week05_Notes_Two-Degree-of-Freedom-Systems.html"
+    },
+    {
+     "title": "Modal analysis of two-degree-of-freedom systems",
+     "week": 6,
+     "track": "",
+     "href": "Vibration-and-Noise/vibration_Week06_Notes_Modal-Analysis.html"
+    },
+    {
+     "title": "Signal processing and experimental modal analysis",
+     "week": 7,
+     "track": "",
+     "href": "Vibration-and-Noise/vibration_Week07_Notes_Signal-Processing-and-EMA.html"
+    },
+    {
+     "title": "Design for vibration suppression: isolation and absorbers",
+     "week": 8,
+     "track": "",
+     "href": "Vibration-and-Noise/vibration_Week08_Notes_Design-for-Vibration-Suppression.html"
+    }
+   ],
    "exams": [],
    "papers": []
   },
