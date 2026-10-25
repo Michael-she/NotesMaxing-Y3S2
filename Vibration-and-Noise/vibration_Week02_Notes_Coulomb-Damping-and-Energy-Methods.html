@@ -291,14 +291,14 @@
   const disc = E(svg, 'circle', {class: 'blk', r});
   const spoke = E(svg, 'line', {class: 'ln c1'});
   const hub = E(svg, 'circle', {class: 'c4f', r: 3});
-  const lab = E(svg, 'text', {class: 'lab', x: 470, y: 60}, '');
-  E(svg, 'text', {class: 'tk', x: 470, y: 84}, 'R = 1.0 m, r = 0.1 m (not to scale)');
-  E(svg, 'text', {class: 'tk', x: 470, y: 104}, 'ωₙ = 2.70 rad/s, period 2.33 s');
+  const lab = E(svg, 'text', {class: 'lab', x: 455, y: 60}, '');
+  E(svg, 'text', {class: 'tk', x: 455, y: 84}, 'R = 1.0 m, r = 0.1 m (not to scale)');
+  E(svg, 'text', {class: 'tk', x: 455, y: 104}, 'ωₙ = 2.70 rad/s, period 2.33 s');
   const wn = 1, Tp = 2 * Math.PI;
   function draw(p){
     const t = p * Tp, th = th0 * Math.cos(wn * t);
     const x = cx + (R - r) * Math.sin(th), y = cy + (R - r) * Math.cos(th);
-    const phi = -(R - r) * th / r;   // absolute rotation of the disc for rolling without slip
+    const phi = (R - r) * th / r;    // r·dφ = (R − r)·dθ: rolling without slip, clockwise as the centre moves right
     arm.setAttribute('x1', cx); arm.setAttribute('y1', cy); arm.setAttribute('x2', x); arm.setAttribute('y2', y);
     disc.setAttribute('cx', x); disc.setAttribute('cy', y); hub.setAttribute('cx', x); hub.setAttribute('cy', y);
     spoke.setAttribute('x1', x); spoke.setAttribute('y1', y);
