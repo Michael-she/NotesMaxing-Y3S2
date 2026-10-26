@@ -412,6 +412,12 @@ window.NOTES_MANIFEST = {
    "name": "Electronics",
    "notes": [
     {
+     "title": "BJT DC analysis, load lines and transfer curves",
+     "week": 7,
+     "track": "",
+     "href": "Electronics/EL245_Week07_Notes_BJT-DC-Analysis-and-Load-Lines.html"
+    },
+    {
      "title": "BJT Biasing and Multistage Circuits",
      "week": 9,
      "track": "",

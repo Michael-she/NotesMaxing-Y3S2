@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 7: BJT DC analysis and load lines · EL245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=electronics">&larr; Electronics</a>
+  <div class="k">EL245 · Week 7</div>
+  <ol>
+    <li><a href="#ce">1. The common-emitter circuit</a></li>
+    <li class="sub"><a href="#ce-npn">npn analysis</a></li>
+    <li class="sub"><a href="#ce-pnp">pnp analysis</a></li>
+    <li><a href="#loadline">2. Load lines and modes</a></li>
+    <li class="sub"><a href="#ll-input">Input load line</a></li>
+    <li class="sub"><a href="#ll-output">Output load line</a></li>
+    <li class="sub"><a href="#modes">Modes of operation</a></li>
+    <li><a href="#sat">3. Saturation and assume-then-check</a></li>
+    <li><a href="#vtc">4. Voltage transfer characteristics</a></li>
+    <li><a href="#emitter-r">5. Commonly used bipolar circuits</a></li>
+    <li class="sub"><a href="#re-loadline">Emitter resistor and its load line</a></li>
+    <li class="sub"><a href="#cb-design">Designing a common-base bias</a></li>
+    <li class="sub"><a href="#tolerance">Resistor tolerances</a></li>
+    <li class="sub"><a href="#load-r">A load resistor and Thevenin</a></li>
+    <li><a href="#spice">6. Checking with SPICE</a></li>
+    <li><a href="#practice">7. Practice problems</a></li>
+    <li><a href="#sheet">8. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">ELECTRONICS 245 · NEAMEN 5.2.1 TO 5.2.4 · LECTURES 14 TO 16</div>
+  <h1>BJT DC analysis, load lines and transfer curves</h1>
+  <p class="lede">How to find the DC currents and voltages in a bipolar transistor circuit, decide which mode the transistor is in, draw its load line and transfer curve, and design simple bias circuits that still work when the resistors are off by 10 %.</p>
+</header>
+
+<section id="ce">
+<h2><span class="n">01</span>The common-emitter circuit</h2>
+<p class="reading"><b>Reading</b> Neamen 5.2.1; Lecture 14, slides 3 to 9</p>
+<p>A transistor circuit is named after the terminal shared by its input and output. In the <strong>common-emitter</strong> (CE) circuit the input drives the base, the output is taken at the collector, and the emitter is common to both. The other two configurations are common-base (CB) and common-collector (CC).</p>
+<p>DC analysis finds the <strong>quiescent</strong> values: the currents and voltages with no signal applied. Together they are the <strong>Q-point</strong>.</p>
+
+<div class="box def"><span class="label">Definition</span><p><strong>Forward-active mode.</strong> The base-emitter junction is forward biased and the base-collector junction is reverse biased. In this mode the transistor is modelled as a fixed junction voltage \(V_{BE(on)}\) between base and emitter and a dependent current source \(\beta I_B\) from collector to emitter.</p></div>
+
+<h3 id="ce-npn">npn analysis</h3>
+<p>For the npn circuit in Figure 1.1, the base loop contains only \(V_{BB}\), \(R_B\) and the junction, so it gives \(I_B\) on its own. The collector current then follows from \(\beta\), and the collector loop gives \(V_{CE}\).</p>
+<figure>
+<svg viewBox="0 0 440 240" class="fig small" role="img" aria-label="npn common-emitter circuit with base supply VBB through RB and collector resistor RC to VCC">
+<polyline class="ln c4" points="268,24 292,24"/>
+<text class="lab" x="280" y="17" text-anchor="middle">V<tspan dy="3" font-size="75%">CC</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="280,24 280,46.8 287,49.3 273,54.4 287,59.5 273,64.5 287,69.6 273,74.7 280,77.2 280,100"/>
+<text class="lab" x="292" y="66" text-anchor="start">R<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="280,100 280,114"/>
+<polyline class="ln c4" points="240,140 260,140"/>
+<polyline class="ln c4" points="260,126 260,154"/>
+<polyline class="ln c4" points="260,134 280,122 280,114"/>
+<polyline class="ln c4" points="260,146 280,158 280,166"/>
+<polygon class="c4f" points="280,158 272.4,157.1 275.6,151.7"/>
+<polyline class="ln c4" points="280,166 280,200"/>
+<polyline class="ln c4" points="280,200 280,206"/>
+<polyline class="ln c4" points="271,206 289,206"/>
+<polyline class="ln c4" points="275,210 285,210"/>
+<polyline class="ln c4" points="278,214 282,214"/>
+<polyline class="ln c4" points="130,140 157,140 160,133 166,147 172,133 178,147 184,133 190,147 193,140 220,140"/>
+<text class="lab" x="175" y="128" text-anchor="middle">R<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="220,140 240,140"/>
+<polyline class="ln c4" points="80,140 130,140"/>
+<polyline class="ln c4" points="80,140 80,159"/>
+<polyline class="ln c4" points="80,181 80,200"/>
+<circle class="ln c4" cx="80" cy="170" r="11"/>
+<text class="lab" x="80" y="169" text-anchor="middle">+</text>
+<text class="lab" x="80" y="180" text-anchor="middle">−</text>
+<text class="lab" x="64" y="174" text-anchor="end">V<tspan dy="3" font-size="75%">BB</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="80,200 80,206"/>
+<polyline class="ln c4" points="71,206 89,206"/>
+<polyline class="ln c4" points="75,210 85,210"/>
+<polyline class="ln c4" points="78,214 82,214"/>
+<line class="ln c3 thin" x1="176" y1="158" x2="204" y2="158"/>
+<polygon class="c3f" points="204,158 198,160.7 198,155.3"/>
+<text class="lab" x="190" y="176" text-anchor="middle">I<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan></text>
+<line class="ln c3 thin" x1="262" y1="50" x2="262" y2="80"/>
+<polygon class="c3f" points="262,80 259.3,74 264.7,74"/>
+<text class="lab" x="256" y="70" text-anchor="end">I<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan></text>
+<line class="ln c3 thin" x1="262" y1="172" x2="262" y2="196"/>
+<polygon class="c3f" points="262,196 259.3,190 264.7,190"/>
+<text class="lab" x="256" y="192" text-anchor="end">I<tspan dy="3" font-size="75%">E</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab" x="318" y="124" text-anchor="middle">+</text>
+<text class="lab" x="318" y="146" text-anchor="start">V<tspan dy="3" font-size="75%">CE</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab" x="318" y="168" text-anchor="middle">−</text>
+</svg>
+<figcaption><b>Figure 1.1</b> npn common-emitter circuit with a base supply and a collector resistor.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> \(V_{BB}\) drives the base through \(R_B\). The collector current flows from \(V_{CC}\) through \(R_C\) into the collector, and \(I_E = I_B + I_C\) leaves the emitter to ground.</p>
+
+<div class="eq"><span class="tag">npn common emitter, forward-active</span>\[ I_B = \frac{V_{BB} - V_{BE(on)}}{R_B} \qquad I_C = \beta I_B \qquad I_E = (1+\beta) I_B \qquad V_{CE} = V_{CC} - I_C R_C \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(I_B\)</dt><dd>Base current (A).</dd>
+  <dt>\(V_{BB}\)</dt><dd>Supply driving the base resistor (V).</dd>
+  <dt>\(V_{BE(on)}\)</dt><dd>Base-emitter turn-on voltage, 0.7 V unless stated otherwise.</dd>
+  <dt>\(R_B\)</dt><dd>Base resistor (\(\Omega\)).</dd>
+  <dt>\(I_C\)</dt><dd>Collector current (A).</dd>
+  <dt>\(\beta\)</dt><dd>Common-emitter current gain (no unit).</dd>
+  <dt>\(I_E\)</dt><dd>Emitter current (A).</dd>
+  <dt>\(V_{CE}\)</dt><dd>Collector-emitter voltage (V).</dd>
+  <dt>\(V_{CC}\)</dt><dd>Collector supply voltage (V).</dd>
+  <dt>\(R_C\)</dt><dd>Collector resistor (\(\Omega\)).</dd>
+</dl>
+</div>
+
+<p>The power the transistor turns into heat is the sum over its two junctions:</p>
+<div class="eq"><span class="tag">Transistor power dissipation</span>\[ P_T = I_B V_{BE} + I_C V_{CE} \approx I_C V_{CE} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(P_T\)</dt><dd>Power dissipated in the transistor (W).</dd>
+  <dt>\(I_B\)</dt><dd>Base current (A).</dd>
+  <dt>\(V_{BE}\)</dt><dd>Base-emitter voltage (V).</dd>
+  <dt>\(I_C\)</dt><dd>Collector current (A).</dd>
+  <dt>\(V_{CE}\)</dt><dd>Collector-emitter voltage (V).</dd>
+</dl>
+</div>
+<p>The approximation holds when \(I_C \gg I_B\), which is true in forward-active mode. It does not hold in saturation, where \(V_{CE}\) is small and the base term is no longer negligible.</p>
+
+<div class="ex"><div class="hd">Worked example 1.1 <span>npn Q-point and power</span></div><div class="bd">
+<p>In Figure 1.1, \(V_{BB} = 3\ \text{V}\), \(R_B = 150\ \text{k}\Omega\), \(R_C = 2.2\ \text{k}\Omega\), \(V_{CC} = 12\ \text{V}\), \(\beta = 120\) and \(V_{BE(on)} = 0.7\ \text{V}\). Find \(I_B\), \(I_C\), \(I_E\), \(V_{CE}\) and \(P_T\).</p>
+<div class="step"><i>1</i><div>\(V_{BB} \gt V_{BE(on)}\), so the B-E junction is forward biased: \(I_B = (3 - 0.7)/150\ \text{k}\Omega = 15.33\ \mu\text{A}\).</div></div>
+<div class="step"><i>2</i><div>Assume forward-active: \(I_C = 120 \times 15.33\ \mu\text{A} = 1.840\ \text{mA}\) and \(I_E = 121 \times 15.33\ \mu\text{A} = 1.855\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>Collector loop: \(V_{CE} = 12 - (1.840\ \text{mA})(2.2\ \text{k}\Omega) = 7.95\ \text{V}\).</div></div>
+<div class="step"><i>4</i><div>Check: \(V_{CE} = 7.95\ \text{V} \gt V_{BE(on)}\), so the B-C junction is reverse biased and the assumption holds.</div></div>
+<div class="step"><i>5</i><div>\(P_T = (15.33\ \mu\text{A})(0.7) + (1.840\ \text{mA})(7.95) = 14.6\ \text{mW}\).</div></div>
+<div class="ans">\(I_B = 15.3\ \mu\text{A}\), \(I_C = 1.84\ \text{mA}\), \(I_E = 1.86\ \text{mA}\), \(V_{CE} = 7.95\ \text{V}\), \(P_T = 14.6\ \text{mW}\): forward-active, with almost all the power in the collector junction.</div>
+</div></div>
+
+<h3 id="ce-pnp">pnp analysis</h3>
+<p>The pnp transistor works the same way with every polarity reversed. The emitter-base junction is forward biased (\(V_{EB(on)} = 0.7\ \text{V}\)), current flows <em>out</em> of the base and collector and <em>into</em> the emitter, and the output voltage is \(V_{EC}\). Circuits are usually drawn with the emitter at the top so that positive supplies can be used (Figure 1.2).</p>
+<figure>
+<svg viewBox="0 0 440 250" class="fig small" role="img" aria-label="pnp common-emitter circuit: emitter to V plus, base through RB to VBB, collector through RC to ground">
+<polyline class="ln c4" points="268,30 292,30"/>
+<text class="lab" x="280" y="23" text-anchor="middle">V+</text>
+<polyline class="ln c4" points="280,30 280,94"/>
+<polyline class="ln c4" points="240,120 260,120"/>
+<polyline class="ln c4" points="260,106 260,134"/>
+<polyline class="ln c4" points="260,126 280,138 280,146"/>
+<polyline class="ln c4" points="260,114 280,102 280,94"/>
+<polygon class="c4f" points="262,112.8 266.4,106.5 269.6,111.9"/>
+<polyline class="ln c4" points="280,146 280,160"/>
+<polyline class="ln c4" points="280,160 280,176.2 287,178 273,181.6 287,185.2 273,188.8 287,192.4 273,196 280,197.8 280,214"/>
+<text class="lab" x="292" y="191" text-anchor="start">R<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="280,214 280,220"/>
+<polyline class="ln c4" points="271,220 289,220"/>
+<polyline class="ln c4" points="275,224 285,224"/>
+<polyline class="ln c4" points="278,228 282,228"/>
+<polyline class="ln c4" points="130,120 157,120 160,113 166,127 172,113 178,127 184,113 190,127 193,120 220,120"/>
+<text class="lab" x="175" y="108" text-anchor="middle">R<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="220,120 240,120"/>
+<polyline class="ln c4" points="80,120 130,120"/>
+<polyline class="ln c4" points="80,120 80,144"/>
+<polyline class="ln c4" points="80,166 80,190"/>
+<circle class="ln c4" cx="80" cy="155" r="11"/>
+<text class="lab" x="80" y="154" text-anchor="middle">+</text>
+<text class="lab" x="80" y="165" text-anchor="middle">−</text>
+<text class="lab" x="64" y="159" text-anchor="end">V<tspan dy="3" font-size="75%">BB</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="80,190 80,196"/>
+<polyline class="ln c4" points="71,196 89,196"/>
+<polyline class="ln c4" points="75,200 85,200"/>
+<polyline class="ln c4" points="78,204 82,204"/>
+<line class="ln c3 thin" x1="204" y1="138" x2="176" y2="138"/>
+<polygon class="c3f" points="176,138 182,135.3 182,140.7"/>
+<text class="lab" x="190" y="156" text-anchor="middle">I<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan></text>
+<line class="ln c3 thin" x1="262" y1="168" x2="262" y2="198"/>
+<polygon class="c3f" points="262,198 259.3,192 264.7,192"/>
+<text class="lab" x="256" y="190" text-anchor="end">I<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab" x="318" y="98" text-anchor="middle">+</text>
+<text class="lab" x="318" y="122" text-anchor="start">V<tspan dy="3" font-size="75%">EC</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab" x="318" y="146" text-anchor="middle">−</text>
+</svg>
+<figcaption><b>Figure 1.2</b> pnp common-emitter circuit with the emitter tied to the positive supply.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.2:</b> The emitter sits at \(V^+\). The base is pulled below it through \(R_B\) towards \(V_{BB}\), so \(I_B\) flows out of the base. \(I_C\) flows out of the collector through \(R_C\) to ground.</p>
+
+<div class="eq"><span class="tag">pnp, emitter at V+, forward-active</span>\[ I_B = \frac{V^+ - V_{EB(on)} - V_{BB}}{R_B} \qquad I_C = \beta I_B \qquad V_{EC} = V^+ - I_C R_C \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(I_B\)</dt><dd>Base current, flowing out of the base (A).</dd>
+  <dt>\(V^+\)</dt><dd>Positive supply connected to the emitter (V).</dd>
+  <dt>\(V_{EB(on)}\)</dt><dd>Emitter-base turn-on voltage, 0.7 V.</dd>
+  <dt>\(V_{BB}\)</dt><dd>Voltage the base resistor returns to (V).</dd>
+  <dt>\(R_B\)</dt><dd>Base resistor (\(\Omega\)).</dd>
+  <dt>\(I_C\)</dt><dd>Collector current, flowing out of the collector (A).</dd>
+  <dt>\(\beta\)</dt><dd>Current gain.</dd>
+  <dt>\(V_{EC}\)</dt><dd>Emitter-collector voltage (V).</dd>
+  <dt>\(R_C\)</dt><dd>Collector resistor (\(\Omega\)).</dd>
+</dl>
+</div>
+
+<div class="box watch"><span class="label">Watch out</span><p>Write every KVL loop with the arrows and polarities of the actual device. Copying the npn equations and only swapping subscripts is the usual way pnp answers come out negative. If a current comes out negative, the transistor is not on, not "on backwards".</p></div>
+
+<div class="ex"><div class="hd">Worked example 1.2 <span>pnp with the emitter at V+</span></div><div class="bd">
+<p>In Figure 1.2, \(V^+ = 5\ \text{V}\), \(V_{BB} = 1.5\ \text{V}\), \(R_B = 300\ \text{k}\Omega\), \(R_C = 4\ \text{k}\Omega\), \(\beta = 100\) and \(V_{EB(on)} = 0.7\ \text{V}\). Find \(I_B\), \(I_C\) and \(V_{EC}\).</p>
+<div class="step"><i>1</i><div>The emitter (5 V) is more than 0.7 V above \(V_{BB}\) (1.5 V), so the E-B junction is forward biased.</div></div>
+<div class="step"><i>2</i><div>Base loop from \(V^+\) down to \(V_{BB}\): \(I_B = (5 - 0.7 - 1.5)/300\ \text{k}\Omega = 9.33\ \mu\text{A}\).</div></div>
+<div class="step"><i>3</i><div>\(I_C = 100 \times 9.33\ \mu\text{A} = 0.933\ \text{mA}\).</div></div>
+<div class="step"><i>4</i><div>\(V_{EC} = 5 - (0.933\ \text{mA})(4\ \text{k}\Omega) = 1.27\ \text{V}\), which is more than \(V_{EC(sat)} = 0.2\ \text{V}\): forward-active is confirmed.</div></div>
+<div class="ans">\(I_B = 9.33\ \mu\text{A}\), \(I_C = 0.933\ \text{mA}\), \(V_{EC} = 1.27\ \text{V}\).</div>
+</div></div>
+</section>
+
+<section id="loadline">
+<h2><span class="n">02</span>Load lines and modes of operation</h2>
+<p class="reading"><b>Reading</b> Neamen 5.2.2; Lecture 14, slides 10 to 15</p>
+<p>A <strong>load line</strong> is the straight-line I-V relation that the external circuit forces on the transistor. Plotting it on top of the transistor's own characteristics shows the Q-point as the intersection, and shows at a glance how close the circuit is to cutoff or saturation.</p>
+
+<h3 id="ll-input">Input load line</h3>
+<p>The base loop gives a line in the \(i_B\)-\(v_{BE}\) plane. It meets the axes at \(v_{BE} = V_{BB}\) (no current) and \(i_B = V_{BB}/R_B\) (junction shorted). With the ideal junction model the transistor characteristic is a vertical line at \(V_{BE(on)}\), so the Q-point is where the load line crosses 0.7 V.</p>
+<div class="eq"><span class="tag">Input load line</span>\[ i_B = \frac{V_{BB} - v_{BE}}{R_B} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(i_B\)</dt><dd>Base current (A).</dd>
+  <dt>\(V_{BB}\)</dt><dd>Base supply (V).</dd>
+  <dt>\(v_{BE}\)</dt><dd>Base-emitter voltage (V).</dd>
+  <dt>\(R_B\)</dt><dd>Base resistor (\(\Omega\)).</dd>
+</dl>
+</div>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Input load line IB against VBE for worked example 1.1 crossing the ideal junction at 0.7 V">
+<line class="grid" x1="60" y1="20" x2="60" y2="215"/>
+<text class="tk" x="60" y="231" text-anchor="middle">0</text>
+<line class="grid" x1="138.6" y1="20" x2="138.6" y2="215"/>
+<text class="tk" x="138.6" y="231" text-anchor="middle">0.5</text>
+<line class="grid" x1="217.1" y1="20" x2="217.1" y2="215"/>
+<text class="tk" x="217.1" y="231" text-anchor="middle">1</text>
+<line class="grid" x1="295.7" y1="20" x2="295.7" y2="215"/>
+<text class="tk" x="295.7" y="231" text-anchor="middle">1.5</text>
+<line class="grid" x1="374.3" y1="20" x2="374.3" y2="215"/>
+<text class="tk" x="374.3" y="231" text-anchor="middle">2</text>
+<line class="grid" x1="452.9" y1="20" x2="452.9" y2="215"/>
+<text class="tk" x="452.9" y="231" text-anchor="middle">2.5</text>
+<line class="grid" x1="531.4" y1="20" x2="531.4" y2="215"/>
+<text class="tk" x="531.4" y="231" text-anchor="middle">3</text>
+<line class="grid" x1="610" y1="20" x2="610" y2="215"/>
+<text class="tk" x="610" y="231" text-anchor="middle">3.5</text>
+<line class="grid" x1="60" y1="215" x2="610" y2="215"/>
+<text class="tk" x="54" y="219" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="176" x2="610" y2="176"/>
+<text class="tk" x="54" y="180" text-anchor="end">5</text>
+<line class="grid" x1="60" y1="137" x2="610" y2="137"/>
+<text class="tk" x="54" y="141" text-anchor="end">10</text>
+<line class="grid" x1="60" y1="98" x2="610" y2="98"/>
+<text class="tk" x="54" y="102" text-anchor="end">15</text>
+<line class="grid" x1="60" y1="59" x2="610" y2="59"/>
+<text class="tk" x="54" y="63" text-anchor="end">20</text>
+<line class="grid" x1="60" y1="20" x2="610" y2="20"/>
+<text class="tk" x="54" y="24" text-anchor="end">25</text>
+<rect class="frame" x="60" y="20" width="550" height="195"/>
+<text class="lab" x="335" y="251" text-anchor="middle">v<tspan dy="3" font-size="75%">BE</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="16" y="117.5" text-anchor="middle" transform="rotate(-90 16 117.5)">i<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan> (µA)</text>
+<polyline class="ln c4" points="60,215 170,215 170,20"/>
+<polyline class="ln c1" points="60,59 531.4,215"/>
+<circle class="c3f" cx="170" cy="95.4" r="4"/>
+<text class="lab" x="180" y="89.4" text-anchor="start">Q (0.7 V, 15.3 µA)</text>
+<text class="lab c1t" x="527.4" y="207" text-anchor="end">V<tspan dy="3" font-size="75%">BB</tspan><tspan dy="-3"> </tspan> = 3 V</text>
+<text class="lab c1t" x="68" y="53" text-anchor="start">V<tspan dy="3" font-size="75%">BB</tspan><tspan dy="-3"> </tspan>/R<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan> = 20 µA</text>
+</svg>
+<figcaption><b>Figure 2.1</b> Input load line of worked example 1.1 against the ideal B-E junction.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> The teal line runs from 20 µA at \(v_{BE} = 0\) to zero at \(v_{BE} = 3\ \text{V}\). The dark line is the ideal junction: no current below 0.7 V, any current at 0.7 V. They meet at \(I_{BQ} = 15.3\ \mu\text{A}\).</p>
+
+<h3 id="ll-output">Output load line</h3>
+<p>The collector loop gives the output load line. Its intercepts are \(V_{CC}\) on the voltage axis and \(V_{CC}/R_C\) on the current axis. The transistor's output characteristics are a family of curves, one per base current. The Q-point is where the load line crosses the curve for \(I_{BQ}\).</p>
+<div class="eq"><span class="tag">Output load line (CE, no emitter resistor)</span>\[ i_C = \frac{V_{CC} - v_{CE}}{R_C} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(i_C\)</dt><dd>Collector current (A).</dd>
+  <dt>\(V_{CC}\)</dt><dd>Collector supply (V).</dd>
+  <dt>\(v_{CE}\)</dt><dd>Collector-emitter voltage (V).</dd>
+  <dt>\(R_C\)</dt><dd>Collector resistor (\(\Omega\)).</dd>
+</dl>
+</div>
+<figure>
+<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="Output characteristics for IB of 5, 10, 15.3 and 20 microamps with the load line of worked example 1.1">
+<line class="grid" x1="60" y1="20" x2="60" y2="255"/>
+<text class="tk" x="60" y="271" text-anchor="middle">0</text>
+<line class="grid" x1="102.3" y1="20" x2="102.3" y2="255"/>
+<text class="tk" x="102.3" y="271" text-anchor="middle">1</text>
+<line class="grid" x1="144.6" y1="20" x2="144.6" y2="255"/>
+<text class="tk" x="144.6" y="271" text-anchor="middle">2</text>
+<line class="grid" x1="186.9" y1="20" x2="186.9" y2="255"/>
+<text class="tk" x="186.9" y="271" text-anchor="middle">3</text>
+<line class="grid" x1="229.2" y1="20" x2="229.2" y2="255"/>
+<text class="tk" x="229.2" y="271" text-anchor="middle">4</text>
+<line class="grid" x1="271.5" y1="20" x2="271.5" y2="255"/>
+<text class="tk" x="271.5" y="271" text-anchor="middle">5</text>
+<line class="grid" x1="313.8" y1="20" x2="313.8" y2="255"/>
+<text class="tk" x="313.8" y="271" text-anchor="middle">6</text>
+<line class="grid" x1="356.2" y1="20" x2="356.2" y2="255"/>
+<text class="tk" x="356.2" y="271" text-anchor="middle">7</text>
+<line class="grid" x1="398.5" y1="20" x2="398.5" y2="255"/>
+<text class="tk" x="398.5" y="271" text-anchor="middle">8</text>
+<line class="grid" x1="440.8" y1="20" x2="440.8" y2="255"/>
+<text class="tk" x="440.8" y="271" text-anchor="middle">9</text>
+<line class="grid" x1="483.1" y1="20" x2="483.1" y2="255"/>
+<text class="tk" x="483.1" y="271" text-anchor="middle">10</text>
+<line class="grid" x1="525.4" y1="20" x2="525.4" y2="255"/>
+<text class="tk" x="525.4" y="271" text-anchor="middle">11</text>
+<line class="grid" x1="567.7" y1="20" x2="567.7" y2="255"/>
+<text class="tk" x="567.7" y="271" text-anchor="middle">12</text>
+<line class="grid" x1="610" y1="20" x2="610" y2="255"/>
+<text class="tk" x="610" y="271" text-anchor="middle">13</text>
+<line class="grid" x1="60" y1="255" x2="610" y2="255"/>
+<text class="tk" x="54" y="259" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="215.8" x2="610" y2="215.8"/>
+<text class="tk" x="54" y="219.8" text-anchor="end">1</text>
+<line class="grid" x1="60" y1="176.7" x2="610" y2="176.7"/>
+<text class="tk" x="54" y="180.7" text-anchor="end">2</text>
+<line class="grid" x1="60" y1="137.5" x2="610" y2="137.5"/>
+<text class="tk" x="54" y="141.5" text-anchor="end">3</text>
+<line class="grid" x1="60" y1="98.3" x2="610" y2="98.3"/>
+<text class="tk" x="54" y="102.3" text-anchor="end">4</text>
+<line class="grid" x1="60" y1="59.2" x2="610" y2="59.2"/>
+<text class="tk" x="54" y="63.2" text-anchor="end">5</text>
+<line class="grid" x1="60" y1="20" x2="610" y2="20"/>
+<text class="tk" x="54" y="24" text-anchor="end">6</text>
+<rect class="frame" x="60" y="20" width="550" height="235"/>
+<text class="lab" x="335" y="291" text-anchor="middle">v<tspan dy="3" font-size="75%">CE</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="16" y="137.5" text-anchor="middle" transform="rotate(-90 16 137.5)">i<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan> (mA)</text>
+<polyline class="ln c4 thin" points="60,255 68.5,231.5 610,231.5"/>
+<text class="tk" x="606" y="226.5" text-anchor="end">5 µA</text>
+<polyline class="ln c4 thin" points="60,255 68.5,208 610,208"/>
+<text class="tk" x="606" y="203" text-anchor="end">10 µA</text>
+<polyline class="ln c4 thin" points="60,255 68.5,182.9 610,182.9"/>
+<text class="tk" x="606" y="177.9" text-anchor="end">15.3 µA</text>
+<polyline class="ln c4 thin" points="60,255 68.5,161 610,161"/>
+<text class="tk" x="606" y="156" text-anchor="end">20 µA</text>
+<polyline class="ln c1" points="60,41.4 567.7,255"/>
+<circle class="c3f" cx="396.4" cy="182.9" r="4"/>
+<text class="lab" x="404.4" y="172.9" text-anchor="start">Q (7.95 V, 1.84 mA)</text>
+<text class="lab c1t" x="76.6" y="45.4" text-anchor="start">V<tspan dy="3" font-size="75%">CC</tspan><tspan dy="-3"> </tspan>/R<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan> = 5.45 mA</text>
+<text class="lab c3t" x="102.3" y="114" text-anchor="start">saturation</text>
+<text class="lab c3t" x="607.9" y="250.3" text-anchor="end">cutoff</text>
+</svg>
+<figcaption><b>Figure 2.2</b> Output characteristics and load line of worked example 1.1.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.2:</b> Each thin curve is \(i_C = \beta i_B\) for one base current (ideal, flat in the active region). The teal load line runs from 5.45 mA to 12 V. Raising \(I_B\) moves the Q-point up the line towards saturation; lowering it moves it down towards cutoff.</p>
+
+<div class="box intuition"><span class="label">Intuition</span><p>The load line does not depend on the transistor at all. Changing \(\beta\) or \(I_B\) only slides the Q-point along the same line. Changing \(R_C\) or \(V_{CC}\) moves the line itself.</p></div>
+
+<h3 id="modes">Modes of operation</h3>
+<p>The two junctions can each be on or off, which gives four modes (Figure 2.3). Analogue amplifiers are biased in forward-active mode. Switching circuits move between cutoff and saturation.</p>
+<figure>
+<svg viewBox="0 0 440 260" class="fig small" role="img" aria-label="Operating modes set by the signs of vBE and vBC">
+<polyline class="ln c4" points="40,130 400,130"/>
+<polygon class="c4f" points="404,130 397,133.2 397,126.8"/>
+<polyline class="ln c4" points="220,240 220,20"/>
+<polygon class="c4f" points="220,16 223.2,23 216.8,23"/>
+<text class="lab" x="408" y="150" text-anchor="end">v<tspan dy="3" font-size="75%">BE</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab" x="228" y="24" text-anchor="start">v<tspan dy="3" font-size="75%">BC</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab" x="310" y="80" text-anchor="middle">Saturation</text>
+<text class="tk" x="310" y="98" text-anchor="middle">both junctions on</text>
+<text class="lab" x="310" y="190" text-anchor="middle">Forward-active</text>
+<text class="tk" x="310" y="208" text-anchor="middle">B-E on, B-C off</text>
+<text class="lab" x="130" y="80" text-anchor="middle">Inverse-active</text>
+<text class="tk" x="130" y="98" text-anchor="middle">B-E off, B-C on</text>
+<text class="lab" x="130" y="190" text-anchor="middle">Cutoff</text>
+<text class="tk" x="130" y="208" text-anchor="middle">both junctions off</text>
+</svg>
+<figcaption><b>Figure 2.3</b> The four modes set by the signs of the junction voltages of an npn transistor.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.3:</b> For an npn device, forward-active needs \(v_{BE} \gt 0\) and \(v_{BC} \lt 0\). Inverse-active swaps the roles of collector and emitter and is rarely used. For a pnp device every voltage is reversed.</p>
+</section>
+
+<section id="sat">
+<h2><span class="n">03</span>Saturation and the assume-then-check method</h2>
+<p class="reading"><b>Reading</b> Neamen 5.2.2; Lecture 14, slides 13 to 18</p>
+<p>You usually cannot tell from the circuit which mode the transistor is in. The lecture's method is to guess, solve and test.</p>
+<div class="key"><span class="tag">Key idea</span><p>
+1. Assume forward-active: \(V_{BE} = V_{BE(on)}\), \(I_B \gt 0\), \(I_C = \beta I_B\).<br>
+2. Solve the now linear circuit.<br>
+3. Test the assumption: it fails if \(I_B \lt 0\) (the transistor is in cutoff) or if \(V_{CE} \lt V_{CE(sat)}\) (it is in saturation).<br>
+4. If it fails, assume the mode the test points to and solve again.</p></div>
+
+<p>In <strong>saturation</strong> both junctions are forward biased. The collector-emitter voltage is fixed at \(V_{CE(sat)}\) (0.2 V in this course) and \(I_C = \beta I_B\) no longer holds: the external circuit sets \(I_C\), and it is smaller than \(\beta I_B\). The ratio actually present is the <strong>forced beta</strong>.</p>
+<div class="eq"><span class="tag">Saturation</span>\[ V_{CE} = V_{CE(sat)} \qquad I_{C(sat)} = \frac{V_{CC} - V_{CE(sat)}}{R_C} \qquad \beta_{forced} = \frac{I_C}{I_B} \lt \beta \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(V_{CE}\)</dt><dd>Collector-emitter voltage (V).</dd>
+  <dt>\(V_{CE(sat)}\)</dt><dd>Saturation voltage, 0.2 V unless stated.</dd>
+  <dt>\(I_{C(sat)}\)</dt><dd>Collector current in saturation, set by the collector loop (A).</dd>
+  <dt>\(V_{CC}\)</dt><dd>Collector supply (V).</dd>
+  <dt>\(R_C\)</dt><dd>Collector resistor (\(\Omega\)).</dd>
+  <dt>\(\beta_{forced}\)</dt><dd>Ratio \(I_C/I_B\) actually present in saturation (no unit).</dd>
+  <dt>\(I_C\)</dt><dd>Collector current (A).</dd>
+  <dt>\(I_B\)</dt><dd>Base current (A).</dd>
+  <dt>\(\beta\)</dt><dd>Current gain in forward-active mode.</dd>
+</dl>
+</div>
+<p>In saturation, \(I_E = I_B + I_C\) still holds, because it is Kirchhoff's current law, not a transistor property.</p>
+
+<div class="ex"><div class="hd">Worked example 3.1 <span>a transistor driven into saturation</span></div><div class="bd">
+<p>A CE circuit like Figure 1.1 has \(V_{BB} = 5\ \text{V}\), \(R_B = 100\ \text{k}\Omega\), \(R_C = 3\ \text{k}\Omega\), \(V_{CC} = 9\ \text{V}\), \(\beta = 80\), \(V_{BE(on)} = 0.7\ \text{V}\) and \(V_{CE(sat)} = 0.2\ \text{V}\). Find the currents, \(\beta_{forced}\) and \(P_T\).</p>
+<div class="step"><i>1</i><div>\(I_B = (5 - 0.7)/100\ \text{k}\Omega = 43.0\ \mu\text{A}\).</div></div>
+<div class="step"><i>2</i><div>Assume forward-active: \(I_C = 80 \times 43.0\ \mu\text{A} = 3.44\ \text{mA}\), so \(V_{CE} = 9 - (3.44)(3) = -1.32\ \text{V}\). This is impossible, so the transistor is saturated.</div></div>
+<div class="step"><i>3</i><div>Saturation: \(I_{C(sat)} = (9 - 0.2)/3\ \text{k}\Omega = 2.933\ \text{mA}\). The base current is unchanged at 43.0 µA because the base loop has not changed.</div></div>
+<div class="step"><i>4</i><div>\(\beta_{forced} = 2.933/0.043 = 68.2\), which is less than 80, as it must be.</div></div>
+<div class="step"><i>5</i><div>\(I_E = 2.933 + 0.043 = 2.976\ \text{mA}\); \(P_T = (43.0\ \mu\text{A})(0.7) + (2.933\ \text{mA})(0.2) = 0.617\ \text{mW}\).</div></div>
+<div class="ans">\(I_B = 43.0\ \mu\text{A}\), \(I_C = 2.93\ \text{mA}\), \(I_E = 2.98\ \text{mA}\), \(\beta_{forced} = 68.2\), \(P_T = 0.617\ \text{mW}\). A saturated switch dissipates far less than the same transistor in the active region.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Worked example 3.2 <span>the edge of saturation</span></div><div class="bd">
+<p>For the circuit of worked example 3.1, what value of \(V_{BB}\) puts the transistor exactly at the edge of saturation?</p>
+<div class="step"><i>1</i><div>At the edge both descriptions hold: \(V_{CE} = 0.2\ \text{V}\) and \(I_C = \beta I_B\). So \(I_C = 2.933\ \text{mA}\) and \(I_B = 2.933/80 = 36.7\ \mu\text{A}\).</div></div>
+<div class="step"><i>2</i><div>Base loop: \[ V_{BB} = I_B R_B + V_{BE(on)} = (36.7\ \mu\text{A})(100\ \text{k}\Omega) + 0.7 = 4.37\ \text{V} \]</div></div>
+<div class="ans">\(V_{BB} = 4.37\ \text{V}\). Above this the transistor saturates; below it (and above 0.7 V) it is forward-active.</div>
+</div></div>
+
+<div class="note"><span class="tag">Two ways to mark the edge</span><p>Lecture 15 (TYU 5.8) uses a different boundary: the point where \(V_{BC} = 0\), so \(V_{CE} = V_{BE(on)} = 0.7\ \text{V}\). For the circuit above that gives \(I_C = (9 - 0.7)/3\ \text{k}\Omega = 2.77\ \text{mA}\), \(I_B = 34.6\ \mu\text{A}\) and \(V_{BB} = 4.16\ \text{V}\). Read the question: "\(V_{BC} = 0\)" and "edge of saturation with \(V_{CE(sat)} = 0.2\ \text{V}\)" give different answers.</p></div>
+
+<div class="box exam"><span class="label">Exam</span><p>Always show the test of your assumption. A full-marks answer states the assumed mode, shows the contradiction or the confirmation (for example "\(V_{CE} = -1.32\ \text{V} \lt V_{CE(sat)}\), so saturated"), and only then gives the final values.</p></div>
+</section>
+
+<section id="vtc">
+<h2><span class="n">04</span>Voltage transfer characteristics</h2>
+<p class="reading"><b>Reading</b> Neamen 5.2.3; Lecture 15</p>
+<p>A <strong>voltage transfer characteristic</strong> (VTC) plots the output voltage against the input voltage over a whole range. It is built one mode at a time: find where the transistor turns on, write \(V_O\) as a function of \(V_I\) in the active region, and find where that expression reaches the saturation limit.</p>
+
+<div class="ex"><div class="hd">Worked example 4.1 <span>VTC of an npn inverter</span></div><div class="bd">
+<p>An npn transistor has its base driven from \(V_I\) through \(R_B = 120\ \text{k}\Omega\) and its collector connected to \(V^+ = 5\ \text{V}\) through \(R_C = 4\ \text{k}\Omega\); the emitter is grounded. \(\beta = 100\), \(V_{BE(on)} = 0.7\ \text{V}\), \(V_{CE(sat)} = 0.2\ \text{V}\). Develop the VTC for \(0 \le V_I \le 5\ \text{V}\).</p>
+<div class="step"><i>1</i><div>Cutoff: for \(V_I \le 0.7\ \text{V}\), \(I_B = I_C = 0\) and \(V_O = 5\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>Active: \(I_B = (V_I - 0.7)/R_B\), so
+\[ V_O = 5 - \frac{\beta R_C}{R_B}(V_I - 0.7) = 5 - 3.33(V_I - 0.7) \]
+The slope (the voltage gain in this region) is \(-3.33\).</div></div>
+<div class="step"><i>3</i><div>Saturation starts when \(V_O = 0.2\ \text{V}\): \(V_I = 0.7 + 4.8/3.33 = 2.14\ \text{V}\). Above that, \(V_O = 0.2\ \text{V}\).</div></div>
+<div class="ans">\(V_O = 5\ \text{V}\) for \(V_I \le 0.7\ \text{V}\); falls linearly with slope \(-3.33\) to 0.2 V at \(V_I = 2.14\ \text{V}\); stays at 0.2 V beyond (Figure 4.1).</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Voltage transfer curve of the npn inverter in worked example 4.1">
+<line class="grid" x1="60" y1="20" x2="60" y2="215"/>
+<text class="tk" x="60" y="231" text-anchor="middle">0</text>
+<line class="grid" x1="115" y1="20" x2="115" y2="215"/>
+<text class="tk" x="115" y="231" text-anchor="middle">0.5</text>
+<line class="grid" x1="170" y1="20" x2="170" y2="215"/>
+<text class="tk" x="170" y="231" text-anchor="middle">1</text>
+<line class="grid" x1="225" y1="20" x2="225" y2="215"/>
+<text class="tk" x="225" y="231" text-anchor="middle">1.5</text>
+<line class="grid" x1="280" y1="20" x2="280" y2="215"/>
+<text class="tk" x="280" y="231" text-anchor="middle">2</text>
+<line class="grid" x1="335" y1="20" x2="335" y2="215"/>
+<text class="tk" x="335" y="231" text-anchor="middle">2.5</text>
+<line class="grid" x1="390" y1="20" x2="390" y2="215"/>
+<text class="tk" x="390" y="231" text-anchor="middle">3</text>
+<line class="grid" x1="445" y1="20" x2="445" y2="215"/>
+<text class="tk" x="445" y="231" text-anchor="middle">3.5</text>
+<line class="grid" x1="500" y1="20" x2="500" y2="215"/>
+<text class="tk" x="500" y="231" text-anchor="middle">4</text>
+<line class="grid" x1="555" y1="20" x2="555" y2="215"/>
+<text class="tk" x="555" y="231" text-anchor="middle">4.5</text>
+<line class="grid" x1="610" y1="20" x2="610" y2="215"/>
+<text class="tk" x="610" y="231" text-anchor="middle">5</text>
+<line class="grid" x1="60" y1="215" x2="610" y2="215"/>
+<text class="tk" x="54" y="219" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="179.5" x2="610" y2="179.5"/>
+<text class="tk" x="54" y="183.5" text-anchor="end">1</text>
+<line class="grid" x1="60" y1="144.1" x2="610" y2="144.1"/>
+<text class="tk" x="54" y="148.1" text-anchor="end">2</text>
+<line class="grid" x1="60" y1="108.6" x2="610" y2="108.6"/>
+<text class="tk" x="54" y="112.6" text-anchor="end">3</text>
+<line class="grid" x1="60" y1="73.2" x2="610" y2="73.2"/>
+<text class="tk" x="54" y="77.2" text-anchor="end">4</text>
+<line class="grid" x1="60" y1="37.7" x2="610" y2="37.7"/>
+<text class="tk" x="54" y="41.7" text-anchor="end">5</text>
+<rect class="frame" x="60" y="20" width="550" height="195"/>
+<text class="lab" x="335" y="251" text-anchor="middle">V<tspan dy="3" font-size="75%">I</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="16" y="117.5" text-anchor="middle" transform="rotate(-90 16 117.5)">V<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan> (V)</text>
+<polyline class="ln c1" points="60,37.7 137,37.7 295.4,207.9 610,207.9"/>
+<circle class="c4f" cx="137" cy="37.7" r="3"/>
+<circle class="c4f" cx="295.4" cy="207.9" r="3"/>
+<text class="lab c3t" x="98.5" y="29.7" text-anchor="middle">cutoff</text>
+<text class="lab c3t" x="229.5" y="115.7" text-anchor="start">active</text>
+<text class="lab c3t" x="456" y="199.9" text-anchor="middle">saturation</text>
+<text class="tk" x="301.4" y="199.9" text-anchor="start">2.14 V</text>
+</svg>
+<figcaption><b>Figure 4.1</b> Voltage transfer curve of the npn inverter in worked example 4.1.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> The three straight segments are cutoff, forward-active and saturation. The dots mark the two breakpoints, at 0.7 V and 2.14 V. A logic inverter uses the two flat ends; an amplifier is biased in the middle of the sloped part.</p>
+
+<p>For a pnp transistor with its emitter at \(V^+\), the order is reversed: a high input turns it off and a low input saturates it.</p>
+<div class="ex"><div class="hd">Worked example 4.2 <span>VTC of a pnp stage</span></div><div class="bd">
+<p>A pnp transistor has its emitter at \(V^+ = 5\ \text{V}\), its base driven from \(V_I\) through \(R_B = 200\ \text{k}\Omega\), and its collector connected to ground through \(R_C = 10\ \text{k}\Omega\); \(V_O\) is the collector voltage. \(\beta = 60\), \(V_{EB(on)} = 0.7\ \text{V}\), \(V_{EC(sat)} = 0.2\ \text{V}\).</p>
+<div class="step"><i>1</i><div>The transistor turns on when the base is 0.7 V below the emitter: \(V_I \lt 4.3\ \text{V}\). Above that, \(V_O = 0\).</div></div>
+<div class="step"><i>2</i><div>Active: \(I_B = (4.3 - V_I)/R_B\) and \(V_O = I_C R_C = \dfrac{\beta R_C}{R_B}(4.3 - V_I) = 3(4.3 - V_I)\).</div></div>
+<div class="step"><i>3</i><div>Saturation when \(V_O = V^+ - V_{EC(sat)} = 4.8\ \text{V}\): \(4.3 - V_I = 1.6\), so \(V_I = 2.7\ \text{V}\).</div></div>
+<div class="ans">\(V_O = 4.8\ \text{V}\) for \(V_I \le 2.7\ \text{V}\); falls with slope \(-3\) to 0 V at \(V_I = 4.3\ \text{V}\); 0 V beyond (Figure 4.2).</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Voltage transfer curve of the pnp circuit in worked example 4.2">
+<line class="grid" x1="60" y1="20" x2="60" y2="215"/>
+<text class="tk" x="60" y="231" text-anchor="middle">0</text>
+<line class="grid" x1="115" y1="20" x2="115" y2="215"/>
+<text class="tk" x="115" y="231" text-anchor="middle">0.5</text>
+<line class="grid" x1="170" y1="20" x2="170" y2="215"/>
+<text class="tk" x="170" y="231" text-anchor="middle">1</text>
+<line class="grid" x1="225" y1="20" x2="225" y2="215"/>
+<text class="tk" x="225" y="231" text-anchor="middle">1.5</text>
+<line class="grid" x1="280" y1="20" x2="280" y2="215"/>
+<text class="tk" x="280" y="231" text-anchor="middle">2</text>
+<line class="grid" x1="335" y1="20" x2="335" y2="215"/>
+<text class="tk" x="335" y="231" text-anchor="middle">2.5</text>
+<line class="grid" x1="390" y1="20" x2="390" y2="215"/>
+<text class="tk" x="390" y="231" text-anchor="middle">3</text>
+<line class="grid" x1="445" y1="20" x2="445" y2="215"/>
+<text class="tk" x="445" y="231" text-anchor="middle">3.5</text>
+<line class="grid" x1="500" y1="20" x2="500" y2="215"/>
+<text class="tk" x="500" y="231" text-anchor="middle">4</text>
+<line class="grid" x1="555" y1="20" x2="555" y2="215"/>
+<text class="tk" x="555" y="231" text-anchor="middle">4.5</text>
+<line class="grid" x1="610" y1="20" x2="610" y2="215"/>
+<text class="tk" x="610" y="231" text-anchor="middle">5</text>
+<line class="grid" x1="60" y1="215" x2="610" y2="215"/>
+<text class="tk" x="54" y="219" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="179.5" x2="610" y2="179.5"/>
+<text class="tk" x="54" y="183.5" text-anchor="end">1</text>
+<line class="grid" x1="60" y1="144.1" x2="610" y2="144.1"/>
+<text class="tk" x="54" y="148.1" text-anchor="end">2</text>
+<line class="grid" x1="60" y1="108.6" x2="610" y2="108.6"/>
+<text class="tk" x="54" y="112.6" text-anchor="end">3</text>
+<line class="grid" x1="60" y1="73.2" x2="610" y2="73.2"/>
+<text class="tk" x="54" y="77.2" text-anchor="end">4</text>
+<line class="grid" x1="60" y1="37.7" x2="610" y2="37.7"/>
+<text class="tk" x="54" y="41.7" text-anchor="end">5</text>
+<rect class="frame" x="60" y="20" width="550" height="195"/>
+<text class="lab" x="335" y="251" text-anchor="middle">V<tspan dy="3" font-size="75%">I</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="16" y="117.5" text-anchor="middle" transform="rotate(-90 16 117.5)">V<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan> (V)</text>
+<polyline class="ln c1" points="60,44.8 357,44.8 533,215 610,215"/>
+<circle class="c4f" cx="357" cy="44.8" r="3"/>
+<circle class="c4f" cx="533" cy="215" r="3"/>
+<text class="lab c3t" x="208.5" y="36.8" text-anchor="middle">saturation</text>
+<text class="lab c3t" x="455" y="129.9" text-anchor="start">active</text>
+<text class="lab c3t" x="571.5" y="183.1" text-anchor="middle">cutoff</text>
+<text class="tk" x="357" y="66.8" text-anchor="middle">2.7 V</text>
+<text class="tk" x="539" y="207" text-anchor="start">4.3 V</text>
+</svg>
+<figcaption><b>Figure 4.2</b> Voltage transfer curve of the pnp stage in worked example 4.2.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.2:</b> The curve is the mirror image of Figure 4.1: saturated for low inputs, cut off above \(V^+ - V_{EB(on)} = 4.3\ \text{V}\).</p>
+
+<div class="box watch"><span class="label">Watch out</span><p>On the slides, Example 5.6 states \(V_A = \infty\) (the Early voltage), which is why the active-region segments are straight. A real transistor, as in the lecture's NgSpice run, gives slightly curved segments and breakpoints that are not exactly at the hand-calculated values.</p></div>
+</section>
+
+<section id="emitter-r">
+<h2><span class="n">05</span>Commonly used bipolar circuits</h2>
+<p class="reading"><b>Reading</b> Neamen 5.2.4; Lecture 16</p>
+
+<h3 id="re-loadline">Emitter resistor and its load line</h3>
+<p>Adding an emitter resistor \(R_E\) puts \(I_E\) into the base loop, so \(I_B\) and \(I_E\) are no longer separate. Substitute \(I_E = (1+\beta)I_B\) and solve the base loop for \(I_B\).</p>
+<div class="eq"><span class="tag">Base loop with an emitter resistor</span>\[ I_B = \frac{V_{BB} - V_{BE(on)} - V^-}{R_B + (1+\beta) R_E} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(I_B\)</dt><dd>Base current (A).</dd>
+  <dt>\(V_{BB}\)</dt><dd>Voltage the base resistor returns to (V); 0 when it goes to ground.</dd>
+  <dt>\(V_{BE(on)}\)</dt><dd>0.7 V.</dd>
+  <dt>\(V^-\)</dt><dd>Supply at the bottom of \(R_E\) (V); 0 if \(R_E\) goes to ground.</dd>
+  <dt>\(R_B\)</dt><dd>Base resistor (\(\Omega\)).</dd>
+  <dt>\(\beta\)</dt><dd>Current gain.</dd>
+  <dt>\(R_E\)</dt><dd>Emitter resistor (\(\Omega\)).</dd>
+</dl>
+</div>
+<div class="box intuition"><span class="label">Intuition</span><p>Seen from the base, \(R_E\) looks \((1+\beta)\) times larger, because every microampere of base current brings \((1+\beta)\) microamperes through \(R_E\). This term appears again and again in amplifier work.</p></div>
+
+<p>The output loop now contains both \(R_C\) and \(R_E\). Writing \(I_E = \frac{1+\beta}{\beta} I_C\) gives a load line with an effective resistance slightly larger than \(R_C + R_E\).</p>
+<div class="eq"><span class="tag">Load line with an emitter resistor</span>\[ V_{CE} = (V^+ - V^-) - I_C\left(R_C + \frac{1+\beta}{\beta} R_E\right) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(V_{CE}\)</dt><dd>Collector-emitter voltage (V).</dd>
+  <dt>\(V^+\)</dt><dd>Supply at the top of \(R_C\) (V).</dd>
+  <dt>\(V^-\)</dt><dd>Supply at the bottom of \(R_E\) (V).</dd>
+  <dt>\(I_C\)</dt><dd>Collector current (A).</dd>
+  <dt>\(R_C\)</dt><dd>Collector resistor (\(\Omega\)).</dd>
+  <dt>\(\beta\)</dt><dd>Current gain.</dd>
+  <dt>\(R_E\)</dt><dd>Emitter resistor (\(\Omega\)).</dd>
+</dl>
+</div>
+
+<figure>
+<svg viewBox="0 0 440 290" class="fig small" role="img" aria-label="npn with emitter resistor RE to V minus, base through RB to ground, collector through RC to V plus">
+<polyline class="ln c4" points="268,24 292,24"/>
+<text class="lab" x="280" y="17" text-anchor="middle">V⁺ = 5 V</text>
+<polyline class="ln c4" points="280,24 280,46.8 287,49.3 273,54.4 287,59.5 273,64.5 287,69.6 273,74.7 280,77.2 280,100"/>
+<text class="lab" x="292" y="66" text-anchor="start">R<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan> = 4 kΩ</text>
+<polyline class="ln c4" points="280,100 280,114"/>
+<polyline class="ln c4" points="240,140 260,140"/>
+<polyline class="ln c4" points="260,126 260,154"/>
+<polyline class="ln c4" points="260,134 280,122 280,114"/>
+<polyline class="ln c4" points="260,146 280,158 280,166"/>
+<polygon class="c4f" points="280,158 272.4,157.1 275.6,151.7"/>
+<polyline class="ln c4" points="280,166 280,180"/>
+<polyline class="ln c4" points="280,180 280,202.2 287,204.7 273,209.6 287,214.5 273,219.5 287,224.4 273,229.3 280,231.8 280,254"/>
+<text class="lab" x="292" y="221" text-anchor="start">R<tspan dy="3" font-size="75%">E</tspan><tspan dy="-3"> </tspan> = 2 kΩ</text>
+<polyline class="ln c4" points="268,254 292,254"/>
+<text class="lab" x="280" y="272" text-anchor="middle">V⁻ = −5 V</text>
+<polyline class="ln c4" points="120,140 150,140 153.3,133 160,147 166.7,133 173.3,147 180,133 186.7,147 190,140 220,140"/>
+<text class="lab" x="170" y="128" text-anchor="middle">R<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan> = 100 kΩ</text>
+<polyline class="ln c4" points="220,140 240,140"/>
+<polyline class="ln c4" points="120,140 90,140 90,160"/>
+<polyline class="ln c4" points="90,160 90,166"/>
+<polyline class="ln c4" points="81,166 99,166"/>
+<polyline class="ln c4" points="85,170 95,170"/>
+<polyline class="ln c4" points="88,174 92,174"/>
+<text class="lab" x="330" y="124" text-anchor="middle">+</text>
+<text class="lab" x="330" y="146" text-anchor="middle">V<tspan dy="3" font-size="75%">CE</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab" x="330" y="168" text-anchor="middle">−</text>
+</svg>
+<figcaption><b>Figure 5.1</b> npn stage with an emitter resistor and positive and negative supplies.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.1:</b> The base returns to ground through \(R_B\), so \(V_{BB} = 0\). The negative supply under \(R_E\) is what forward biases the B-E junction.</p>
+
+<div class="ex"><div class="hd">Worked example 5.1 <span>emitter resistor with split supplies</span></div><div class="bd">
+<p>Analyse Figure 5.1 with \(\beta = 100\) and \(V_{BE(on)} = 0.7\ \text{V}\). Then draw the load line.</p>
+<div class="step"><i>1</i><div>Base loop from ground through \(R_B\), the junction and \(R_E\) to \(-5\ \text{V}\): \[ I_B = \dfrac{0 - 0.7 - (-5)}{100\ \text{k} + (101)(2\ \text{k})} = \dfrac{4.3}{302\ \text{k}\Omega} = 14.24\ \mu\text{A} \]</div></div>
+<div class="step"><i>2</i><div>\(I_C = 100 I_B = 1.424\ \text{mA}\); \(I_E = 101 I_B = 1.438\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>\(V_{CE} = 5 - (1.424)(4) - (1.438)(2) - (-5) = 1.43\ \text{V}\). This exceeds 0.2 V, so forward-active is confirmed.</div></div>
+<div class="step"><i>4</i><div>Load line: \(R_C + \frac{101}{100}R_E = 6.02\ \text{k}\Omega\), so \(V_{CE} = 10 - 6.02 I_C\) (mA, V). Intercepts: \(V_{CE} = 10\ \text{V}\) and \(I_C = 10/6.02 = 1.66\ \text{mA}\).</div></div>
+<div class="ans">\(I_B = 14.2\ \mu\text{A}\), \(I_C = 1.42\ \text{mA}\), \(V_{CE} = 1.43\ \text{V}\). The Q-point sits close to saturation (Figure 5.2), which leaves little room for the output to swing down.</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Load line with emitter resistor for worked example 5.1">
+<line class="grid" x1="60" y1="20" x2="60" y2="215"/>
+<text class="tk" x="60" y="231" text-anchor="middle">0</text>
+<line class="grid" x1="110" y1="20" x2="110" y2="215"/>
+<text class="tk" x="110" y="231" text-anchor="middle">1</text>
+<line class="grid" x1="160" y1="20" x2="160" y2="215"/>
+<text class="tk" x="160" y="231" text-anchor="middle">2</text>
+<line class="grid" x1="210" y1="20" x2="210" y2="215"/>
+<text class="tk" x="210" y="231" text-anchor="middle">3</text>
+<line class="grid" x1="260" y1="20" x2="260" y2="215"/>
+<text class="tk" x="260" y="231" text-anchor="middle">4</text>
+<line class="grid" x1="310" y1="20" x2="310" y2="215"/>
+<text class="tk" x="310" y="231" text-anchor="middle">5</text>
+<line class="grid" x1="360" y1="20" x2="360" y2="215"/>
+<text class="tk" x="360" y="231" text-anchor="middle">6</text>
+<line class="grid" x1="410" y1="20" x2="410" y2="215"/>
+<text class="tk" x="410" y="231" text-anchor="middle">7</text>
+<line class="grid" x1="460" y1="20" x2="460" y2="215"/>
+<text class="tk" x="460" y="231" text-anchor="middle">8</text>
+<line class="grid" x1="510" y1="20" x2="510" y2="215"/>
+<text class="tk" x="510" y="231" text-anchor="middle">9</text>
+<line class="grid" x1="560" y1="20" x2="560" y2="215"/>
+<text class="tk" x="560" y="231" text-anchor="middle">10</text>
+<line class="grid" x1="610" y1="20" x2="610" y2="215"/>
+<text class="tk" x="610" y="231" text-anchor="middle">11</text>
+<line class="grid" x1="60" y1="215" x2="610" y2="215"/>
+<text class="tk" x="54" y="219" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="166.2" x2="610" y2="166.2"/>
+<text class="tk" x="54" y="170.2" text-anchor="end">0.5</text>
+<line class="grid" x1="60" y1="117.5" x2="610" y2="117.5"/>
+<text class="tk" x="54" y="121.5" text-anchor="end">1</text>
+<line class="grid" x1="60" y1="68.8" x2="610" y2="68.8"/>
+<text class="tk" x="54" y="72.8" text-anchor="end">1.5</text>
+<line class="grid" x1="60" y1="20" x2="610" y2="20"/>
+<text class="tk" x="54" y="24" text-anchor="end">2</text>
+<rect class="frame" x="60" y="20" width="550" height="195"/>
+<text class="lab" x="335" y="251" text-anchor="middle">v<tspan dy="3" font-size="75%">CE</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="16" y="117.5" text-anchor="middle" transform="rotate(-90 16 117.5)">i<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan> (mA)</text>
+<polyline class="ln c1" points="60,53 560,215"/>
+<circle class="c3f" cx="131.4" cy="76.2" r="4"/>
+<text class="lab" x="141.4" y="70.2" text-anchor="start">Q (1.43 V, 1.42 mA)</text>
+<text class="lab c1t" x="68" y="47" text-anchor="start">1.66 mA</text>
+<text class="lab c1t" x="564" y="207" text-anchor="start">10 V</text>
+</svg>
+<figcaption><b>Figure 5.2</b> Load line and Q-point of worked example 5.1.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.2:</b> The line runs from 10 V (the total supply) to 1.66 mA. Substituting the Q-point into \(V_{CE} = 10 - 6.02 I_C\) gives the same 1.43 V as the KVL loop, which is a quick check that the two methods agree.</p>
+
+<h3 id="cb-design">Designing a common-base bias</h3>
+<p>Design reverses the analysis: the Q-point is given and the resistors are unknown. Write the base-emitter loop to find the emitter resistor, then the output loop to find the collector resistor.</p>
+<figure>
+<svg viewBox="0 0 440 280" class="fig small" role="img" aria-label="pnp common-base circuit: emitter through RE to V plus, base through RB to ground, collector through RC to V minus">
+<polyline class="ln c4" points="268,24 292,24"/>
+<text class="lab" x="280" y="17" text-anchor="middle">V⁺ = 5 V</text>
+<polyline class="ln c4" points="280,24 280,42 287,44 273,48 287,52 273,56 287,60 273,64 280,66 280,84"/>
+<text class="lab" x="292" y="58" text-anchor="start">R<tspan dy="3" font-size="75%">E</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="280,84 280,94"/>
+<polyline class="ln c4" points="240,120 260,120"/>
+<polyline class="ln c4" points="260,106 260,134"/>
+<polyline class="ln c4" points="260,126 280,138 280,146"/>
+<polyline class="ln c4" points="260,114 280,102 280,94"/>
+<polygon class="c4f" points="262,112.8 266.4,106.5 269.6,111.9"/>
+<polyline class="ln c4" points="280,146 280,170"/>
+<polyline class="ln c4" points="280,170 280,192.2 287,194.7 273,199.6 287,204.5 273,209.5 287,214.4 273,219.3 280,221.8 280,244"/>
+<text class="lab" x="292" y="211" text-anchor="start">R<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="268,244 292,244"/>
+<text class="lab" x="280" y="262" text-anchor="middle">V⁻ = −5 V</text>
+<polyline class="ln c4" points="120,120 150,120 153.3,113 160,127 166.7,113 173.3,127 180,113 186.7,127 190,120 220,120"/>
+<text class="lab" x="170" y="108" text-anchor="middle">R<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan> = 20 kΩ</text>
+<polyline class="ln c4" points="220,120 240,120"/>
+<polyline class="ln c4" points="120,120 90,120 90,140"/>
+<polyline class="ln c4" points="90,140 90,146"/>
+<polyline class="ln c4" points="81,146 99,146"/>
+<polyline class="ln c4" points="85,150 95,150"/>
+<polyline class="ln c4" points="88,154 92,154"/>
+<text class="lab" x="330" y="98" text-anchor="middle">+</text>
+<text class="lab" x="330" y="122" text-anchor="middle">V<tspan dy="3" font-size="75%">EC</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab" x="330" y="146" text-anchor="middle">−</text>
+</svg>
+<figcaption><b>Figure 5.3</b> pnp common-base bias circuit with split supplies.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.3:</b> The base is held near ground through \(R_B\). \(R_E\) and \(R_C\) are to be chosen. In a common-base amplifier the signal would enter at the emitter and leave at the collector.</p>
+
+<div class="ex"><div class="hd">Worked example 5.2 <span>design for a given Q-point</span></div><div class="bd">
+<p>In Figure 5.3, choose \(R_E\) and \(R_C\) so that \(I_{EQ} = 1\ \text{mA}\) and \(V_{ECQ} = 3\ \text{V}\). \(\beta = 100\), \(V_{EB(on)} = 0.7\ \text{V}\).</p>
+<div class="step"><i>1</i><div>\(I_{BQ} = I_{EQ}/(1+\beta) = 1\ \text{mA}/101 = 9.90\ \mu\text{A}\).</div></div>
+<div class="step"><i>2</i><div>E-B loop: \(V^+ = I_{EQ}R_E + V_{EB(on)} + I_{BQ}R_B\), so \[ R_E = \dfrac{5 - 0.7 - (9.90\ \mu\text{A})(20\ \text{k}\Omega)}{1\ \text{mA}} = 4.10\ \text{k}\Omega \]</div></div>
+<div class="step"><i>3</i><div>\(I_{CQ} = \frac{\beta}{1+\beta}I_{EQ} = 0.990\ \text{mA}\).</div></div>
+<div class="step"><i>4</i><div>Output loop: \(V^+ - V^- = I_{EQ}R_E + V_{ECQ} + I_{CQ}R_C\), so \(R_C = \dfrac{10 - 4.10 - 3}{0.990\ \text{mA}} = 2.93\ \text{k}\Omega\).</div></div>
+<div class="ans">\(R_E = 4.10\ \text{k}\Omega\) and \(R_C = 2.93\ \text{k}\Omega\).</div>
+</div></div>
+
+<h3 id="tolerance">Resistor tolerances</h3>
+<p>A designed value such as 133.6 kΩ cannot be bought. You pick the nearest standard value, and that resistor is itself only within a tolerance (±10 % in the lecture's example). A good design checks the Q-point at the corners of the tolerance range.</p>
+
+<div class="ex"><div class="hd">Worked example 5.3 <span>pnp design with ±10 % resistors</span></div><div class="bd">
+<p>A pnp transistor has its emitter connected to \(V^+ = 6\ \text{V}\) through \(R_E = 1.5\ \text{k}\Omega\), its collector grounded, and its base returned through \(R_B\) to \(V_{BB} = -1\ \text{V}\). \(\beta = 80\), \(V_{EB(on)} = 0.7\ \text{V}\). Design \(R_B\) for \(V_{ECQ} = 3\ \text{V}\), choose a standard value and find the Q-point spread with ±10 % resistors.</p>
+<div class="step"><i>1</i><div>Output loop: \(V^+ = I_{EQ}R_E + V_{ECQ}\), so \(I_{EQ} = (6 - 3)/1.5\ \text{k}\Omega = 2.00\ \text{mA}\) and \(I_{BQ} = 2/81 = 24.7\ \mu\text{A}\).</div></div>
+<div class="step"><i>2</i><div>E-B loop: \(R_B = \dfrac{6 - (2)(1.5) - 0.7 - (-1)}{24.7\ \mu\text{A}} = 133.6\ \text{k}\Omega\). Choose 130 kΩ, which gives \(I_C = 2.00\ \text{mA}\) and \(V_{EC} = 2.96\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>For each corner use \(I_B = \dfrac{V^+ - V_{EB(on)} - V_{BB}}{R_B + (1+\beta)R_E}\), \(I_C = \beta I_B\) and \(V_{EC} = V^+ - (1+\beta)I_B R_E\):</div></div>
+<div class="tbl"><table><thead><tr><th>\(R_B\)</th><th>\(R_E\)</th><th>\(I_{CQ}\)</th><th>\(V_{ECQ}\)</th></tr></thead><tbody>
+<tr><td>117 kΩ</td><td>1.35 kΩ</td><td>2.23 mA</td><td>2.96 V</td></tr>
+<tr><td>117 kΩ</td><td>1.65 kΩ</td><td>2.01 mA</td><td>2.64 V</td></tr>
+<tr><td>143 kΩ</td><td>1.35 kΩ</td><td>2.00 mA</td><td>3.27 V</td></tr>
+<tr><td>143 kΩ</td><td>1.65 kΩ</td><td>1.82 mA</td><td>2.96 V</td></tr>
+</tbody></table></div>
+<div class="ans">\(R_B = 130\ \text{k}\Omega\). With ±10 % parts, \(V_{ECQ}\) stays between 2.64 V and 3.27 V and \(I_{CQ}\) between 1.82 mA and 2.23 mA: the transistor stays well inside forward-active mode at every corner.</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 280" class="fig" role="img" aria-label="Q-points for the four resistor tolerance corners in worked example 5.3">
+<line class="grid" x1="60" y1="20" x2="60" y2="235"/>
+<text class="tk" x="60" y="251" text-anchor="middle">2.4</text>
+<line class="grid" x1="151.7" y1="20" x2="151.7" y2="235"/>
+<text class="tk" x="151.7" y="251" text-anchor="middle">2.6</text>
+<line class="grid" x1="243.3" y1="20" x2="243.3" y2="235"/>
+<text class="tk" x="243.3" y="251" text-anchor="middle">2.8</text>
+<line class="grid" x1="335" y1="20" x2="335" y2="235"/>
+<text class="tk" x="335" y="251" text-anchor="middle">3.0</text>
+<line class="grid" x1="426.7" y1="20" x2="426.7" y2="235"/>
+<text class="tk" x="426.7" y="251" text-anchor="middle">3.2</text>
+<line class="grid" x1="518.3" y1="20" x2="518.3" y2="235"/>
+<text class="tk" x="518.3" y="251" text-anchor="middle">3.4</text>
+<line class="grid" x1="610" y1="20" x2="610" y2="235"/>
+<text class="tk" x="610" y="251" text-anchor="middle">3.6</text>
+<line class="grid" x1="60" y1="235" x2="610" y2="235"/>
+<text class="tk" x="54" y="239" text-anchor="end">1.7</text>
+<line class="grid" x1="60" y1="199.2" x2="610" y2="199.2"/>
+<text class="tk" x="54" y="203.2" text-anchor="end">1.8</text>
+<line class="grid" x1="60" y1="163.3" x2="610" y2="163.3"/>
+<text class="tk" x="54" y="167.3" text-anchor="end">1.9</text>
+<line class="grid" x1="60" y1="127.5" x2="610" y2="127.5"/>
+<text class="tk" x="54" y="131.5" text-anchor="end">2.0</text>
+<line class="grid" x1="60" y1="91.7" x2="610" y2="91.7"/>
+<text class="tk" x="54" y="95.7" text-anchor="end">2.1</text>
+<line class="grid" x1="60" y1="55.8" x2="610" y2="55.8"/>
+<text class="tk" x="54" y="59.8" text-anchor="end">2.2</text>
+<line class="grid" x1="60" y1="20" x2="610" y2="20"/>
+<text class="tk" x="54" y="24" text-anchor="end">2.3</text>
+<rect class="frame" x="60" y="20" width="550" height="215"/>
+<text class="lab" x="335" y="271" text-anchor="middle">V<tspan dy="3" font-size="75%">EC</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="16" y="127.5" text-anchor="middle" transform="rotate(-90 16 127.5)">I<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan> (mA)</text>
+<polyline class="ln c4 thin dash" points="269.1,20 610,215"/>
+<polyline class="ln c1" points="109,20 526.6,235"/>
+<polyline class="ln c4 thin dash" points="60,72 408.3,235"/>
+<circle class="c3f" cx="314.8" cy="46.2" r="4"/>
+<text class="tk" x="322.8" y="40.2" text-anchor="start">117 kΩ, 1.35 kΩ</text>
+<circle class="c3f" cx="170.5" cy="123.6" r="4"/>
+<text class="tk" x="178.5" y="117.6" text-anchor="start">117 kΩ, 1.65 kΩ</text>
+<circle class="c3f" cx="458.8" cy="128.6" r="4"/>
+<text class="tk" x="466.8" y="122.6" text-anchor="start">143 kΩ, 1.35 kΩ</text>
+<circle class="c3f" cx="314.8" cy="191.3" r="4"/>
+<text class="tk" x="322.8" y="185.3" text-anchor="start">143 kΩ, 1.65 kΩ</text>
+<circle class="c1f" cx="314.8" cy="126.1" r="4"/>
+<text class="tk" x="306.8" y="142.1" text-anchor="end">nominal</text>
+</svg>
+<figcaption><b>Figure 5.4</b> Q-points at the four tolerance corners of worked example 5.3.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.4:</b> The teal line is the nominal load line; the dashed lines are for \(R_E = 1.35\ \text{k}\Omega\) (upper) and \(1.65\ \text{k}\Omega\) (lower). \(R_E\) moves the load line; \(R_B\) moves the Q-point along it.</p>
+
+<h3 id="load-r">A load resistor and Thevenin's theorem</h3>
+<p>When a load \(R_L\) (for example the next stage) hangs off the collector, the collector current splits between \(R_C\) and \(R_L\). Two methods give the same answer: KCL at the collector node, or replacing \(V^+\), \(R_C\) and \(R_L\) with their Thevenin equivalent.</p>
+<div class="eq"><span class="tag">Thevenin equivalent at the collector</span>\[ R_{TH} = R_C \parallel R_L \qquad V_{TH} = \frac{R_L}{R_C + R_L}V^+ \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(R_{TH}\)</dt><dd>Thevenin resistance seen by the collector (\(\Omega\)).</dd>
+  <dt>\(R_C\)</dt><dd>Collector resistor (\(\Omega\)).</dd>
+  <dt>\(R_L\)</dt><dd>Load resistor from collector to ground (\(\Omega\)).</dd>
+  <dt>\(V_{TH}\)</dt><dd>Open-circuit voltage at the collector with the transistor removed (V).</dd>
+  <dt>\(V^+\)</dt><dd>Positive supply (V).</dd>
+</dl>
+</div>
+<figure>
+<svg viewBox="0 0 480 290" class="fig small" role="img" aria-label="npn with collector resistor RC and load RL from collector to ground, emitter resistor to V minus">
+<polyline class="ln c4" points="268,24 292,24"/>
+<text class="lab" x="280" y="17" text-anchor="middle">V⁺ = 10 V</text>
+<polyline class="ln c4" points="280,24 280,43.8 287,46 273,50.4 287,54.8 273,59.2 287,63.6 273,68 280,70.2 280,90"/>
+<text class="lab" x="268" y="61" text-anchor="end">R<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan> = 4 kΩ</text>
+<polyline class="ln c4" points="280,90 280,114"/>
+<circle class="c4f" cx="280" cy="100" r="2.6"/>
+<polyline class="ln c4" points="280,100 380,100"/>
+<polyline class="ln c4" points="380,100 380,121 387,123.3 373,128 387,132.7 373,137.3 387,142 373,146.7 380,149 380,170"/>
+<text class="lab" x="392" y="139" text-anchor="start">R<tspan dy="3" font-size="75%">L</tspan><tspan dy="-3"> </tspan> = 4 kΩ</text>
+<polyline class="ln c4" points="380,170 380,176"/>
+<polyline class="ln c4" points="371,176 389,176"/>
+<polyline class="ln c4" points="375,180 385,180"/>
+<polyline class="ln c4" points="378,184 382,184"/>
+<circle class="hollow ln c4" cx="330" cy="100" r="3.5"/>
+<text class="lab" x="330" y="90" text-anchor="middle">V<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="240,140 260,140"/>
+<polyline class="ln c4" points="260,126 260,154"/>
+<polyline class="ln c4" points="260,134 280,122 280,114"/>
+<polyline class="ln c4" points="260,146 280,158 280,166"/>
+<polygon class="c4f" points="280,158 272.4,157.1 275.6,151.7"/>
+<polyline class="ln c4" points="280,166 280,180"/>
+<polyline class="ln c4" points="280,180 280,202.2 287,204.7 273,209.6 287,214.5 273,219.5 287,224.4 273,229.3 280,231.8 280,254"/>
+<text class="lab" x="292" y="221" text-anchor="start">R<tspan dy="3" font-size="75%">E</tspan><tspan dy="-3"> </tspan> = 4 kΩ</text>
+<polyline class="ln c4" points="268,254 292,254"/>
+<text class="lab" x="280" y="272" text-anchor="middle">V⁻ = −5 V</text>
+<polyline class="ln c4" points="120,140 150,140 153.3,133 160,147 166.7,133 173.3,147 180,133 186.7,147 190,140 220,140"/>
+<text class="lab" x="170" y="128" text-anchor="middle">R<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan> = 20 kΩ</text>
+<polyline class="ln c4" points="220,140 240,140"/>
+<polyline class="ln c4" points="120,140 90,140 90,160"/>
+<polyline class="ln c4" points="90,160 90,166"/>
+<polyline class="ln c4" points="81,166 99,166"/>
+<polyline class="ln c4" points="85,170 95,170"/>
+<polyline class="ln c4" points="88,174 92,174"/>
+</svg>
+<figcaption><b>Figure 5.5</b> npn stage with a load resistor on the collector.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.5:</b> \(V_O\) is the collector voltage. \(R_L\) draws some of the current that flows through \(R_C\), so \(I_C\) is the difference between the current in \(R_C\) and the current in \(R_L\).</p>
+
+<div class="ex"><div class="hd">Worked example 5.4 <span>loaded collector</span></div><div class="bd">
+<p>Analyse Figure 5.5 with \(\beta = 120\) and \(V_{BE(on)} = 0.7\ \text{V}\).</p>
+<div class="step"><i>1</i><div>Base loop (unchanged by \(R_L\)): \[ I_B = \dfrac{0 - 0.7 + 5}{20\ \text{k} + (121)(4\ \text{k})} = \dfrac{4.3}{504\ \text{k}\Omega} = 8.53\ \mu\text{A} \]; \(I_C = 1.024\ \text{mA}\); \(I_E = 1.032\ \text{mA}\).</div></div>
+<div class="step"><i>2</i><div>KCL at the collector: \(I_C = \dfrac{10 - V_O}{4\ \text{k}} - \dfrac{V_O}{4\ \text{k}}\), so \(V_O = \dfrac{10 - (1.024)(4)}{2} = 2.95\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>Thevenin check: \(R_{TH} = 2\ \text{k}\Omega\), \(V_{TH} = 5\ \text{V}\), so \(V_O = 5 - (1.024)(2) = 2.95\ \text{V}\). The two methods agree.</div></div>
+<div class="step"><i>4</i><div>\(V_E = -5 + (1.032)(4) = -0.87\ \text{V}\), so \(V_{CE} = 2.95 - (-0.87) = 3.82\ \text{V}\): forward-active.</div></div>
+<div class="ans">\(I_C = 1.02\ \text{mA}\), \(V_O = 2.95\ \text{V}\), \(V_{CE} = 3.82\ \text{V}\). The load line is \(V_{CE} = 10 - I_C(2 + \tfrac{121}{120}\cdot 4)\ \text{k}\Omega\), from 10 V to 1.66 mA.</div>
+</div></div>
+</section>
+
+<section id="spice">
+<h2><span class="n">06</span>Checking with SPICE</h2>
+<p class="reading"><b>Reading</b> Lecture 15, slide on NgSpice; Lecture 16, PS 5.3</p>
+<p>The lectures check hand analysis with NgSpice. A netlist lists each element with its nodes; <code>.op</code> gives the DC operating point and <code>.dc</code> sweeps a source, which produces a VTC directly. The transistor line is <code>Qname C B E model</code>, in that order. To read a current, put a 0 V source in series with the branch, as PS 5.3 does with <code>Vmeas</code>.</p>
+<pre><code>* Worked example 5.1, emitter resistor with split supplies
+Vp 1 0 5
+Vm 4 0 -5
+Rc 1 2 4k
+Rb 0 3 100k
+Re 5 4 2k
+Q1 2 3 5 QN
+.model QN NPN(BF=100)
+.op
+.control
+run
+print v(2,5) i(Vp)
+.endc
+.end</code></pre>
+<div class="box watch"><span class="label">Watch out</span><p>A SPICE model computes \(V_{BE}\) from the saturation current rather than fixing it at 0.7 V, and includes the Early effect. Expect its answers to differ from hand analysis by a few per cent; the lecture's PS 5.3 run, for example, gives \(I_E = 1.14\ \text{mA}\) and \(V_{CE} = 6.05\ \text{V}\) against the hand values of 1.15 mA and 6.03 V.</p></div>
+</section>
+
+<section id="practice">
+<h2><span class="n">07</span>Practice problems</h2>
+
+<div class="ex"><div class="hd">Problem 7.1 <span>Thevenin input network</span></div><div class="bd">
+<p>An npn transistor has \(R_C = 2\ \text{k}\Omega\) to \(V_{CC} = 10\ \text{V}\) and a grounded emitter. Its base connects to \(V_I\) through \(R_1 = 20\ \text{k}\Omega\) and to \(-10\ \text{V}\) through \(R_2 = 80\ \text{k}\Omega\). \(\beta = 100\). (a) Find \(V_I\) for \(V_{CEQ} = 5\ \text{V}\). (b) Find the range of \(V_I\) that keeps \(2 \le V_{CEQ} \le 8\ \text{V}\).</p>
+<div class="step"><i>1</i><div>(a) \(I_{CQ} = (10 - 5)/2\ \text{k} = 2.5\ \text{mA}\), \(I_{BQ} = 25\ \mu\text{A}\).</div></div>
+<div class="step"><i>2</i><div>Thevenin of the input network: \(R_{TH} = 20 \parallel 80 = 16\ \text{k}\Omega\) and \(V_{TH} = \frac{80}{100}(V_I + 10) - 10 = 0.8V_I - 2\).</div></div>
+<div class="step"><i>3</i><div>Base loop: \(V_{TH} = I_{BQ}R_{TH} + 0.7 = (25\ \mu\text{A})(16\ \text{k}) + 0.7 = 1.10\ \text{V}\), so \(V_I = (1.10 + 2)/0.8 = 3.875\ \text{V}\).</div></div>
+<div class="step"><i>4</i><div>(b) \(V_{CEQ} = 2\ \text{V}\): \(I_C = 4\ \text{mA}\), \(I_B = 40\ \mu\text{A}\), \(V_{TH} = 1.34\ \text{V}\), \(V_I = 4.175\ \text{V}\). \(V_{CEQ} = 8\ \text{V}\): \(I_C = 1\ \text{mA}\), \(I_B = 10\ \mu\text{A}\), \(V_{TH} = 0.86\ \text{V}\), \(V_I = 3.575\ \text{V}\).</div></div>
+<div class="ans">(a) \(V_I = 3.88\ \text{V}\). (b) \(3.58\ \text{V} \le V_I \le 4.18\ \text{V}\); a larger \(V_I\) gives a smaller \(V_{CEQ}\).</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 7.2 <span>pnp with split supplies</span></div><div class="bd">
+<p>A pnp transistor has its emitter at \(V^+ = 6\ \text{V}\), its base to ground through \(R_B = 200\ \text{k}\Omega\), and its collector to \(V^- = -6\ \text{V}\) through \(R_C = 2\ \text{k}\Omega\). \(\beta = 100\). Find \(I_{CQ}\) and \(V_{ECQ}\), confirm the mode, and give the load line intercepts.</p>
+<div class="step"><i>1</i><div>E-B loop: \(I_{BQ} = (6 - 0.7)/200\ \text{k} = 26.5\ \mu\text{A}\); \(I_{CQ} = 2.65\ \text{mA}\).</div></div>
+<div class="step"><i>2</i><div>\(V_C = -6 + (2.65)(2) = -0.70\ \text{V}\), so \(V_{ECQ} = 6 - (-0.70) = 6.70\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>\(V_B = 5.3\ \text{V}\), so \(V_{CB} = -0.70 - 5.3 = -6.0\ \text{V}\): the C-B junction is reverse biased and \(V_{EB} \gt 0\), so forward-active.</div></div>
+<div class="step"><i>4</i><div>Load line \(V_{EC} = 12 - 2I_C\) (V, mA): intercepts 12 V and 6 mA.</div></div>
+<div class="ans">\(I_{CQ} = 2.65\ \text{mA}\), \(V_{ECQ} = 6.70\ \text{V}\), forward-active; load line from 6 mA to 12 V.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 7.3 <span>finding beta from a measurement</span></div><div class="bd">
+<p>A pnp transistor has its emitter connected to \(+6\ \text{V}\) through \(R_E = 2\ \text{k}\Omega\), its collector connected to \(-6\ \text{V}\) through \(R_C = 6\ \text{k}\Omega\), and \(R_B = 500\ \text{k}\Omega\) connected between base and collector. The emitter is measured at \(V_E = 5.0\ \text{V}\). Find \(I_{EQ}\), \(V_{ECQ}\), \(I_{BQ}\), \(I_{CQ}\) and \(\beta\).</p>
+<div class="step"><i>1</i><div>\(I_{EQ} = (6 - 5.0)/2\ \text{k} = 0.50\ \text{mA}\). Both \(I_B\) and \(I_C\) end up in \(R_C\), so \(I_{R_C} = I_{EQ}\) and \(V_C = -6 + (0.5)(6) = -3.0\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>\(V_{ECQ} = 5.0 - (-3.0) = 8.0\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>Loop from emitter through the junction and \(R_B\) to the collector: \(I_{BQ} = (5.0 - 0.7 - (-3.0))/500\ \text{k} = 14.6\ \mu\text{A}\).</div></div>
+<div class="step"><i>4</i><div>\(I_{CQ} = 0.500 - 0.0146 = 0.485\ \text{mA}\); \(\beta = 0.485/0.0146 = 33.2\).</div></div>
+<div class="ans">\(I_{EQ} = 0.50\ \text{mA}\), \(V_{ECQ} = 8.0\ \text{V}\), \(I_{BQ} = 14.6\ \mu\text{A}\), \(I_{CQ} = 0.485\ \text{mA}\), \(\beta = 33.2\). The load line is \(I_C = 1.46 - 0.121V_{EC}\) (mA, V).</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 7.4 <span>pnp VTC with an emitter resistor</span></div><div class="bd">
+<p>A pnp transistor has its emitter connected to \(V_{CC} = 5\ \text{V}\) through \(R_E = 1\ \text{k}\Omega\), its base driven from \(V_I\) through \(R_B = 200\ \text{k}\Omega\), and its collector connected to ground through \(R_C = 3\ \text{k}\Omega\); \(v_O\) is the collector voltage. \(\beta = 80\), \(V_{EC(sat)} = 0.2\ \text{V}\). Find the breakpoints of the VTC for \(0 \le V_I \le 5\ \text{V}\).</p>
+<div class="step"><i>1</i><div>At \(V_I = 0\), assume forward-active: \(I_B = 4.3/(200\ \text{k} + 81 \times 1\ \text{k}) = 15.30\ \mu\text{A}\), \(I_C = 1.224\ \text{mA}\), \(V_{EC} = 5 - (1.239)(1) - (1.224)(3) = 0.088\ \text{V} \lt 0.2\ \text{V}\). So it is saturated.</div></div>
+<div class="step"><i>2</i><div>Saturated at \(V_I = 0\): solve \(4.3 = 201\ \text{k}\, I_B + 1\ \text{k}\, I_C\) and \(4.8 = 1\ \text{k}\, I_B + 4\ \text{k}\, I_C\) to get \(I_B = 15.44\ \mu\text{A}\), \(I_C = 1.196\ \text{mA}\), \(v_O = 3.588\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>Edge of saturation (\(I_C = \beta I_B\) and \(V_{EC} = 0.2\)): \(I_B = 4.8/(81 \times 1\ \text{k} + 80 \times 3\ \text{k}) = 14.95\ \mu\text{A}\), and \(V_I = 4.3 - I_B(81\ \text{k} + 200\ \text{k}) = 0.098\ \text{V}\), with \(v_O = 3.589\ \text{V}\).</div></div>
+<div class="step"><i>4</i><div>The transistor turns off at \(V_I = 5 - 0.7 = 4.3\ \text{V}\); above that \(v_O = 0\). In between, \(v_O = \beta R_C(4.3 - V_I)/(R_B + 81\ \text{k}) = 0.854(4.3 - V_I)\).</div></div>
+<div class="ans">Saturated for \(0 \le V_I \le 0.098\ \text{V}\) (\(v_O \approx 3.59\ \text{V}\)); forward-active, falling with slope \(-0.854\), up to \(V_I = 4.3\ \text{V}\); off (\(v_O = 0\)) above 4.3 V. The emitter resistor makes \(I_{C(sat)}\) change slightly with \(V_I\), so the saturated level is not perfectly flat.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 7.5 <span>logic-level switch</span></div><div class="bd">
+<p>A 3.3 V logic output drives an npn transistor through \(R_B = 10\ \text{k}\Omega\). The collector has \(R_C = 1\ \text{k}\Omega\) to 5 V. \(\beta = 100\). Is the transistor saturated? Find \(I_C\), \(\beta_{forced}\) and \(P_T\).</p>
+<div class="step"><i>1</i><div>\(I_B = (3.3 - 0.7)/10\ \text{k} = 260\ \mu\text{A}\). Forward-active would need \(I_C = 26\ \text{mA}\) and give \(V_{CE} = 5 - 26 = -21\ \text{V}\): impossible, so saturated.</div></div>
+<div class="step"><i>2</i><div>\(I_C = (5 - 0.2)/1\ \text{k} = 4.8\ \text{mA}\); \(\beta_{forced} = 4.8/0.26 = 18.5\).</div></div>
+<div class="step"><i>3</i><div>\(P_T = (0.26)(0.7) + (4.8)(0.2) = 1.14\ \text{mW}\).</div></div>
+<div class="ans">Saturated, \(I_C = 4.80\ \text{mA}\), \(\beta_{forced} = 18.5\), \(P_T = 1.14\ \text{mW}\). A \(\beta_{forced}\) well below \(\beta\) means the switch stays saturated even for a low-gain transistor.</div>
+</div></div>
+</section>
+
+<section id="sheet">
+<h2><span class="n">08</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>Forward-active</h4>
+<p>\(V_{BE} = V_{BE(on)} = 0.7\ \text{V}\) (npn), \(V_{EB(on)} = 0.7\ \text{V}\) (pnp)</p>
+<p>\(I_C = \beta I_B\), \(I_E = (1+\beta)I_B\), \(I_C = \frac{\beta}{1+\beta}I_E\)</p>
+<p>Valid if \(I_B \gt 0\) and \(V_{CE} \gt V_{CE(sat)}\)</p>
+</div>
+<div><h4>Saturation</h4>
+<p>\(V_{CE} = V_{CE(sat)} = 0.2\ \text{V}\)</p>
+<p>\(I_C\) set by the collector loop; \(\beta_{forced} = I_C/I_B \lt \beta\)</p>
+<p>\(I_E = I_B + I_C\) always</p>
+</div>
+<div><h4>Bias loops</h4>
+<p>\(I_B = \dfrac{V_{BB} - V_{BE(on)} - V^-}{R_B + (1+\beta)R_E}\)</p>
+<p>\(V_{CE} = (V^+ - V^-) - I_C\left(R_C + \frac{1+\beta}{\beta}R_E\right)\)</p>
+</div>
+<div><h4>Load lines and power</h4>
+<p>Input: \(i_B = (V_{BB} - v_{BE})/R_B\)</p>
+<p>Output: \(i_C = (V_{CC} - v_{CE})/R_C\)</p>
+<p>\(P_T = I_B V_{BE} + I_C V_{CE}\)</p>
+</div>
+<div><h4>Transfer curve (npn, grounded emitter)</h4>
+<p>Off for \(V_I \le 0.7\ \text{V}\)</p>
+<p>\(V_O = V^+ - \frac{\beta R_C}{R_B}(V_I - 0.7)\)</p>
+<p>Saturates when \(V_O = 0.2\ \text{V}\)</p>
+</div>
+<div><h4>Thevenin at the collector</h4>
+<p>\(R_{TH} = R_C \parallel R_L\)</p>
+<p>\(V_{TH} = \frac{R_L}{R_C + R_L}V^+\)</p>
+</div>
+</div>
+</section>
+
+<footer>
+<p>Sources: Lecture_14_slides.pdf, Lecture_15_slides.pdf, Lecture_16_slides.pdf, tut7_eng.pdf, tut7_memo.pdf (Week 07 folder). All sources were readable. Slide examples follow Neamen, Microelectronics, Chapter 5.2; worked examples and problems on this page use new values.</p>
+</footer>
+</main>
+</div>
+
+<script src="../assets/ask-gemini.js" data-store="electronics-w7" data-course="EL245 Electronics"
+        data-topic="Week 7: BJT DC analysis, npn and pnp common-emitter circuits, load lines, modes, saturation, voltage transfer curves, emitter resistor, bias design, tolerances, load resistor"></script>
+</body>
+</html>
