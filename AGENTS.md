@@ -42,7 +42,7 @@ Modules (from `modules.json`):
 | id | folder | code |
 |---|---|---|
 | cs354 | `CS354-Control-Systems` | CS354 |
-| vibration | `Vibration-and-Noise` | (none) |
+| vibration | `Vibration-and-Noise` | VN354 |
 | da344 | `DA344-Data-Analytics` | DA344 |
 | cs245 | `CS245-Computer-Systems` | CS245 (tracks `theory/`, `programming/`) |
 | electronics | `Electronics` | EL245 |

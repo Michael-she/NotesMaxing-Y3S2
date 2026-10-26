@@ -1,6 +1,6 @@
 [
   {"id": "cs354", "folder": "CS354-Control-Systems",  "code": "CS354", "name": "Control Systems"},
-  {"id": "vibration", "folder": "Vibration-and-Noise", "code": "",     "name": "Vibration and Noise 354"},
+  {"id": "vibration", "folder": "Vibration-and-Noise", "code": "VN354", "name": "Vibration and Noise"},
   {"id": "da344", "folder": "DA344-Data-Analytics",   "code": "DA344", "name": "Data Analytics"},
   {"id": "cs245", "folder": "CS245-Computer-Systems", "code": "CS245", "name": "Computer Systems"},
   {"id": "electronics", "folder": "Electronics",      "code": "EL245", "name": "Electronics"}

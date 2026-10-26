@@ -123,8 +123,8 @@ window.NOTES_MANIFEST = {
   {
    "id": "vibration",
    "folder": "Vibration-and-Noise",
-   "code": "",
-   "name": "Vibration and Noise 354",
+   "code": "VN354",
+   "name": "Vibration and Noise",
    "notes": [
     {
      "title": "Free vibration of a single-degree-of-freedom system, and measuring it",
