@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 11: Noise fundamentals and standards · Vibration and Noise · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=vibration">&larr; Vibration and Noise</a>
+  <div class="k">Vibration and Noise · Week 11</div>
+  <ol>
+    <li><a href="#sound">1. What is sound?</a></li>
+    <li><a href="#db">2. Decibel scale</a></li>
+    <li class="sub"><a href="#adding">Adding levels</a></li>
+    <li><a href="#hearing">3. Hearing and weighting</a></li>
+    <li class="sub"><a href="#weighting">Weighting scales</a></li>
+    <li><a href="#sans10083">4. SANS 10083</a></li>
+    <li><a href="#sans10103">5. SANS 10103</a></li>
+    <li class="sub"><a href="#wc">Western Cape regulations</a></li>
+    <li><a href="#predict">6. Prediction and control</a></li>
+    <li class="sub"><a href="#reduction">Noise control</a></li>
+    <li><a href="#practice">7. Practice problems</a></li>
+    <li><a href="#sheet">8. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">VIBRATION AND NOISE 354 · NOISE LECTURES 1, 2 AND 4 · SANS 10083 · SANS 10103</div>
+  <h1>Noise: decibels, hearing, standards and control</h1>
+  <p class="lede">Sound pressure and the decibel scale, how levels add, how the ear hears and why we weight, the South African occupational and environmental noise standards with their rating calculations, and how noise falls with distance and is controlled.</p>
+</header>
+
+<section id="sound">
+<h2><span class="n">01</span>What is sound?</h2>
+
+<p><strong>Sound</strong> is any variation in air pressure that the human ear can detect: a disturbance propagated through an elastic medium, fluctuating about the ambient pressure. The pressure deviation is the <strong>sound pressure</strong> (Pa). Waves below the audible range are infrasonic, above it ultrasonic. <strong>Noise</strong> is sound that is unwanted or objectionable to a person.</p>
+<div class="eq"><span class="tag">Speed of sound and wavelength</span>\[ c = 20.05\sqrt{T}\ \text{m/s}, \qquad c = \lambda f \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(c\)</dt><dd>Speed of sound; 343 m/s in air at 20 °C (about 1500 m/s in water and 6000 m/s in steel).</dd>
+  <dt>\(T\)</dt><dd>Absolute air temperature (K).</dd>
+  <dt>\(\lambda\)</dt><dd>Wavelength (m).</dd>
+  <dt>\(f\)</dt><dd>Frequency (Hz).</dd>
+</dl>
+</div>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Wavelength of sound in air against frequency on log axes">
+<line class="grid" x1="66.0" y1="14" x2="66.0" y2="214"/>
+<text class="tk" x="66.0" y="229" text-anchor="middle">10</text>
+<line class="grid" x1="232.6" y1="14" x2="232.6" y2="214"/>
+<text class="tk" x="232.6" y="229" text-anchor="middle">100</text>
+<line class="grid" x1="399.2" y1="14" x2="399.2" y2="214"/>
+<text class="tk" x="399.2" y="229" text-anchor="middle">1000</text>
+<line class="grid" x1="565.8" y1="14" x2="565.8" y2="214"/>
+<text class="tk" x="565.8" y="229" text-anchor="middle">10000</text>
+<line class="grid" x1="66" y1="214.0" x2="616" y2="214.0"/>
+<text class="tk" x="60" y="218.0" text-anchor="end">0.01</text>
+<line class="grid" x1="66" y1="164.0" x2="616" y2="164.0"/>
+<text class="tk" x="60" y="168.0" text-anchor="end">0.1</text>
+<line class="grid" x1="66" y1="114.0" x2="616" y2="114.0"/>
+<text class="tk" x="60" y="118.0" text-anchor="end">1</text>
+<line class="grid" x1="66" y1="64.0" x2="616" y2="64.0"/>
+<text class="tk" x="60" y="68.0" text-anchor="end">10</text>
+<line class="grid" x1="66" y1="14.0" x2="616" y2="14.0"/>
+<text class="tk" x="60" y="18.0" text-anchor="end">100</text>
+<rect class="frame" x="66" y="14" width="550" height="200"/>
+<text class="lab" x="341.0" y="248" text-anchor="middle">frequency (Hz)</text>
+<text class="lab" transform="translate(14 114.0) rotate(-90)" text-anchor="middle">wavelength λ (m)</text>
+<polyline class="ln c1" points="66.0,37.2 68.8,38.1 71.5,38.9 74.3,39.7 77.1,40.6 79.8,41.4 82.6,42.2 85.3,43.0 88.1,43.9 90.9,44.7 93.6,45.5 96.4,46.4 99.2,47.2 101.9,48.0 104.7,48.8 107.4,49.7 110.2,50.5 113.0,51.3 115.7,52.2 118.5,53.0 121.3,53.8 124.0,54.6 126.8,55.5 129.5,56.3 132.3,57.1 135.1,58.0 137.8,58.8 140.6,59.6 143.4,60.5 146.1,61.3 148.9,62.1 151.7,62.9 154.4,63.8 157.2,64.6 159.9,65.4 162.7,66.3 165.5,67.1 168.2,67.9 171.0,68.7 173.8,69.6 176.5,70.4 179.3,71.2 182.0,72.1 184.8,72.9 187.6,73.7 190.3,74.5 193.1,75.4 195.9,76.2 198.6,77.0 201.4,77.9 204.1,78.7 206.9,79.5 209.7,80.4 212.4,81.2 215.2,82.0 218.0,82.8 220.7,83.7 223.5,84.5 226.3,85.3 229.0,86.2 231.8,87.0 234.5,87.8 237.3,88.6 240.1,89.5 242.8,90.3 245.6,91.1 248.4,92.0 251.1,92.8 253.9,93.6 256.6,94.4 259.4,95.3 262.2,96.1 264.9,96.9 267.7,97.8 270.5,98.6 273.2,99.4 276.0,100.3 278.7,101.1 281.5,101.9 284.3,102.7 287.0,103.6 289.8,104.4 292.6,105.2 295.3,106.1 298.1,106.9 300.9,107.7 303.6,108.5 306.4,109.4 309.1,110.2 311.9,111.0 314.7,111.9 317.4,112.7 320.2,113.5 323.0,114.3 325.7,115.2 328.5,116.0 331.2,116.8 334.0,117.7 336.8,118.5 339.5,119.3 342.3,120.1 345.1,121.0 347.8,121.8 350.6,122.6 353.3,123.5 356.1,124.3 358.9,125.1 361.6,126.0 364.4,126.8 367.2,127.6 369.9,128.4 372.7,129.3 375.5,130.1 378.2,130.9 381.0,131.8 383.7,132.6 386.5,133.4 389.3,134.2 392.0,135.1 394.8,135.9 397.6,136.7 400.3,137.6 403.1,138.4 405.8,139.2 408.6,140.0 411.4,140.9 414.1,141.7 416.9,142.5 419.7,143.4 422.4,144.2 425.2,145.0 427.9,145.9 430.7,146.7 433.5,147.5 436.2,148.3 439.0,149.2 441.8,150.0 444.5,150.8 447.3,151.7 450.1,152.5 452.8,153.3 455.6,154.1 458.3,155.0 461.1,155.8 463.9,156.6 466.6,157.5 469.4,158.3 472.2,159.1 474.9,159.9 477.7,160.8 480.4,161.6 483.2,162.4 486.0,163.3 488.7,164.1 491.5,164.9 494.3,165.8 497.0,166.6 499.8,167.4 502.5,168.2 505.3,169.1 508.1,169.9 510.8,170.7 513.6,171.6 516.4,172.4 519.1,173.2 521.9,174.0 524.7,174.9 527.4,175.7 530.2,176.5 532.9,177.4 535.7,178.2 538.5,179.0 541.2,179.8 544.0,180.7 546.8,181.5 549.5,182.3 552.3,183.2 555.0,184.0 557.8,184.8 560.6,185.7 563.3,186.5 566.1,187.3 568.9,188.1 571.6,189.0 574.4,189.8 577.1,190.6 579.9,191.5 582.7,192.3 585.4,193.1 588.2,193.9 591.0,194.8 593.7,195.6 596.5,196.4 599.3,197.3 602.0,198.1 604.8,198.9 607.5,199.7 610.3,200.6 613.1,201.4 615.8,202.2"/><circle class="c3f" cx="232.6" cy="87.2" r="4"/><text class="tk" x="240.6" y="79.2">100 Hz: 3.43 m</text><circle class="c3f" cx="399.2" cy="137.2" r="4"/><text class="tk" x="407.2" y="129.2">1000 Hz: 0.34 m</text>
+</svg>
+<figcaption><b>Figure 1.1</b> Wavelength of sound in air.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> 10 Hz has a 34 m wavelength, 100 Hz 3.4 m, 1 kHz 343 mm and 10 kHz 34 mm. An obstacle must be larger than about one wavelength to disturb the sound, which is why bass is hard to block and treble easy.</p>
+<p>A young, healthy ear hears from about 20 Hz to 20 kHz, and from the threshold of hearing (0 dB, 20 µPa) to the threshold of pain (about 130 dB, roughly 100 Pa).</p>
+<p class="reading"><b>Reading</b> Brüel &amp; Kjær, Environmental Noise and Measuring Sound booklets; Noise lecture notes 1 and 2</p>
+
+</section>
+
+<section id="db">
+<h2><span class="n">02</span>The decibel scale</h2>
+
+<p>The ear responds to pressures from 20 µPa to over 100 Pa, a ratio of more than a million. A logarithmic scale compresses this to 0 to 140 dB.</p>
+<div class="eq"><span class="tag">Sound pressure level</span>\[ L_p = 10\log\left(\frac{p_{rms}}{p_{ref}}\right)^2 = 20\log\frac{p_{rms}}{p_{ref}}, \qquad p_{ref} = 20\ \mu\text{Pa} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(L_p\)</dt><dd>Sound pressure level (dB).</dd>
+  <dt>\(p_{rms}\)</dt><dd>RMS sound pressure (Pa): square, average over the period, square root.</dd>
+  <dt>\(p_{ref}\)</dt><dd>Reference pressure, the threshold of hearing at 1 kHz.</dd>
+</dl>
+</div>
+<p>Decibels describe <strong>energy</strong>: the squared RMS pressure relative to a reference. A tenfold increase in pressure adds 20 dB. Other quantities use their own references: acceleration \(10^{-6}\) m/s², velocity \(10^{-9}\) m/s, force \(10^{-6}\) N, power \(10^{-12}\) W, energy \(10^{-12}\) J.</p>
+<div class="tbl"><table><thead><tr><th>Change</th><th>How it is perceived</th></tr></thead><tbody>
+<tr><td>1 dB</td><td>Barely perceptible</td></tr><tr><td>3 dB</td><td>Noticeable (double the energy)</td></tr>
+<tr><td>6 dB</td><td>Clearly noticeable (double the pressure)</td></tr><tr><td>10 dB</td><td>Perceived as a doubling of loudness</td></tr></tbody></table></div>
+<p>Typical levels: whisper 20 to 30 dB, normal speech about 60 dB, playground 80 dB, pneumatic drill about 110 dB, aircraft take-off nearby 130 to 150 dB. A pure tone can be heard even 10 dB below the ambient noise.</p>
+<h3 id="adding">Adding and subtracting levels</h3>
+<div class="eq"><span class="tag">Total level of several sources</span>\[ L_{p,tot} = 10\log\left(10^{L_{p1}/10} + 10^{L_{p2}/10} + \cdots + 10^{L_{pn}/10}\right) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(L_{pi}\)</dt><dd>Level of source \(i\) alone (dB).</dd>
+</dl>
+</div>
+<div class="eq"><span class="tag">Source level in the presence of background noise</span>\[ L_S = 10\log\left(10^{L_{S+N}/10} - 10^{L_N/10}\right) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(L_{S+N}\)</dt><dd>Measured with the source running (dB).</dd>
+  <dt>\(L_N\)</dt><dd>Background alone (dB).</dd>
+</dl>
+</div>
+<p>So 60 dB + 60 dB = 63 dB, not 120 dB. The source must be at least <strong>3 dB</strong> above the background to be measurable; between 3 and 10 dB a correction is needed; beyond 10 dB none. Background-sensitive measurements are often made at night.</p>
+<figure>
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="Charts for adding two sound levels and for removing background noise">
+<line class="grid" x1="60.0" y1="14" x2="60.0" y2="184"/>
+<text class="tk" x="60.0" y="199" text-anchor="middle">0</text>
+<line class="grid" x1="140.0" y1="14" x2="140.0" y2="184"/>
+<text class="tk" x="140.0" y="199" text-anchor="middle">5</text>
+<line class="grid" x1="220.0" y1="14" x2="220.0" y2="184"/>
+<text class="tk" x="220.0" y="199" text-anchor="middle">10</text>
+<line class="grid" x1="300.0" y1="14" x2="300.0" y2="184"/>
+<text class="tk" x="300.0" y="199" text-anchor="middle">15</text>
+<line class="grid" x1="60" y1="184.0" x2="300" y2="184.0"/>
+<text class="tk" x="54" y="188.0" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="127.3" x2="300" y2="127.3"/>
+<text class="tk" x="54" y="131.3" text-anchor="end">1</text>
+<line class="grid" x1="60" y1="70.7" x2="300" y2="70.7"/>
+<text class="tk" x="54" y="74.7" text-anchor="end">2</text>
+<line class="grid" x1="60" y1="14.0" x2="300" y2="14.0"/>
+<text class="tk" x="54" y="18.0" text-anchor="end">3</text>
+<rect class="frame" x="60" y="14" width="240" height="170"/>
+<text class="lab" x="180.0" y="218" text-anchor="middle">L₂ − L₁ (dB)</text>
+<text class="lab" transform="translate(14 99.0) rotate(-90)" text-anchor="middle">add to louder (dB)</text>
+<polyline class="ln c1" points="60.0,13.4 61.6,16.2 63.2,19.0 64.8,21.8 66.4,24.5 68.0,27.2 69.6,29.8 71.2,32.5 72.8,35.0 74.4,37.6 76.0,40.1 77.6,42.6 79.2,45.1 80.8,47.5 82.4,49.9 84.0,52.3 85.6,54.6 87.2,56.9 88.8,59.2 90.4,61.4 92.0,63.6 93.6,65.8 95.2,67.9 96.8,70.1 98.4,72.1 100.0,74.2 101.6,76.2 103.2,78.2 104.8,80.2 106.4,82.1 108.0,84.0 109.6,85.9 111.2,87.7 112.8,89.6 114.4,91.4 116.0,93.1 117.6,94.9 119.2,96.6 120.8,98.2 122.4,99.9 124.0,101.5 125.6,103.1 127.2,104.7 128.8,106.2 130.4,107.8 132.0,109.3 133.6,110.7 135.2,112.2 136.8,113.6 138.4,115.0 140.0,116.4 141.6,117.7 143.2,119.1 144.8,120.4 146.4,121.6 148.0,122.9 149.6,124.1 151.2,125.3 152.8,126.5 154.4,127.7 156.0,128.9 157.6,130.0 159.2,131.1 160.8,132.2 162.4,133.2 164.0,134.3 165.6,135.3 167.2,136.3 168.8,137.3 170.4,138.3 172.0,139.2 173.6,140.2 175.2,141.1 176.8,142.0 178.4,142.9 180.0,143.7 181.6,144.6 183.2,145.4 184.8,146.2 186.4,147.0 188.0,147.8 189.6,148.6 191.2,149.3 192.8,150.1 194.4,150.8 196.0,151.5 197.6,152.2 199.2,152.9 200.8,153.5 202.4,154.2 204.0,154.8 205.6,155.4 207.2,156.1 208.8,156.7 210.4,157.3 212.0,157.8 213.6,158.4 215.2,158.9 216.8,159.5 218.4,160.0 220.0,160.5 221.6,161.1 223.2,161.6 224.8,162.0 226.4,162.5 228.0,163.0 229.6,163.4 231.2,163.9 232.8,164.3 234.4,164.8 236.0,165.2 237.6,165.6 239.2,166.0 240.8,166.4 242.4,166.8 244.0,167.2 245.6,167.5 247.2,167.9 248.8,168.3 250.4,168.6 252.0,168.9 253.6,169.3 255.2,169.6 256.8,169.9 258.4,170.2 260.0,170.5 261.6,170.8 263.2,171.1 264.8,171.4 266.4,171.7 268.0,172.0 269.6,172.2 271.2,172.5 272.8,172.8 274.4,173.0 276.0,173.2 277.6,173.5 279.2,173.7 280.8,173.9 282.4,174.2 284.0,174.4 285.6,174.6 287.2,174.8 288.8,175.0 290.4,175.2 292.0,175.4 293.6,175.6 295.2,175.8 296.8,176.0 298.4,176.2 300.0,176.3"/><circle class="c3f" cx="124.0" cy="101.5" r="4"/><line class="grid" x1="380.0" y1="14" x2="380.0" y2="184"/>
+<text class="tk" x="380.0" y="199" text-anchor="middle">0</text>
+<line class="grid" x1="428.0" y1="14" x2="428.0" y2="184"/>
+<text class="tk" x="428.0" y="199" text-anchor="middle">3</text>
+<line class="grid" x1="460.0" y1="14" x2="460.0" y2="184"/>
+<text class="tk" x="460.0" y="199" text-anchor="middle">5</text>
+<line class="grid" x1="540.0" y1="14" x2="540.0" y2="184"/>
+<text class="tk" x="540.0" y="199" text-anchor="middle">10</text>
+<line class="grid" x1="620.0" y1="14" x2="620.0" y2="184"/>
+<text class="tk" x="620.0" y="199" text-anchor="middle">15</text>
+<line class="grid" x1="380" y1="184.0" x2="620" y2="184.0"/>
+<text class="tk" x="374" y="188.0" text-anchor="end">0</text>
+<line class="grid" x1="380" y1="127.3" x2="620" y2="127.3"/>
+<text class="tk" x="374" y="131.3" text-anchor="end">1</text>
+<line class="grid" x1="380" y1="70.7" x2="620" y2="70.7"/>
+<text class="tk" x="374" y="74.7" text-anchor="end">2</text>
+<line class="grid" x1="380" y1="14.0" x2="620" y2="14.0"/>
+<text class="tk" x="374" y="18.0" text-anchor="end">3</text>
+<rect class="frame" x="380" y="14" width="240" height="170"/>
+<text class="lab" x="500.0" y="218" text-anchor="middle">L(S+N) − L(N) (dB)</text>
+<text class="lab" transform="translate(334 99.0) rotate(-90)" text-anchor="middle">subtract from total (dB)</text>
+<polyline class="ln c1" points="428.0,12.8 429.6,18.4 431.2,23.7 432.8,28.8 434.4,33.7 436.0,38.4 437.6,42.8 439.2,47.1 440.8,51.3 442.4,55.2 444.0,59.1 445.6,62.7 447.2,66.3 448.8,69.7 450.4,73.0 452.0,76.2 453.6,79.2 455.2,82.2 456.8,85.0 458.4,87.8 460.0,90.4 461.6,93.0 463.2,95.5 464.8,97.9 466.4,100.3 468.0,102.5 469.6,104.7 471.2,106.8 472.8,108.9 474.4,110.9 476.0,112.8 477.6,114.7 479.2,116.5 480.8,118.3 482.4,120.0 484.0,121.6 485.6,123.2 487.2,124.8 488.8,126.3 490.4,127.8 492.0,129.2 493.6,130.6 495.2,132.0 496.8,133.3 498.4,134.6 500.0,135.8 501.6,137.0 503.2,138.2 504.8,139.3 506.4,140.5 508.0,141.5 509.6,142.6 511.2,143.6 512.8,144.6 514.4,145.6 516.0,146.5 517.6,147.4 519.2,148.3 520.8,149.2 522.4,150.1 524.0,150.9 525.6,151.7 527.2,152.5 528.8,153.2 530.4,154.0 532.0,154.7 533.6,155.4 535.2,156.1 536.8,156.8 538.4,157.4 540.0,158.1 541.6,158.7 543.2,159.3 544.8,159.9 546.4,160.5 548.0,161.0 549.6,161.6 551.2,162.1 552.8,162.6 554.4,163.1 556.0,163.6 557.6,164.1 559.2,164.6 560.8,165.0 562.4,165.5 564.0,165.9 565.6,166.4 567.2,166.8 568.8,167.2 570.4,167.6 572.0,168.0 573.6,168.3 575.2,168.7 576.8,169.1 578.4,169.4 580.0,169.8 581.6,170.1 583.2,170.4 584.8,170.7 586.4,171.0 588.0,171.3 589.6,171.6 591.2,171.9 592.8,172.2 594.4,172.5 596.0,172.8 597.6,173.0 599.2,173.3 600.8,173.5 602.4,173.8 604.0,174.0 605.6,174.2 607.2,174.5 608.8,174.7 610.4,174.9 612.0,175.1 613.6,175.3 615.2,175.5 616.8,175.7 618.4,175.9 620.0,176.1"/><circle class="c3f" cx="492.0" cy="129.2" r="4"/>
+</svg>
+<figcaption><b>Figure 2.1</b> Charts for adding levels and subtracting background noise.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> Left: add the read value to the louder level (example: 55 and 51 dB differ by 4 dB, add 1.4 dB, total 56.4 dB). Right: subtract the read value from the total (example: 60 dB total, 53 dB background, difference 7 dB, subtract 1 dB, machine 59 dB).</p>
+<figure id="fig22">
+<svg viewBox="0 0 640 200" class="fig" role="img" aria-label="Two sound levels and their energy sum"></svg>
+<div class="fig-ctl">
+<label><span>L₁</span><input type="range" data-k="a" min="40" max="100" step="1" value="80" aria-label="First level in dB"><output></output></label>
+<label><span>L₂</span><input type="range" data-k="b" min="40" max="100" step="1" value="80" aria-label="Second level in dB"><output></output></label>
+</div>
+<div class="fig-read" aria-live="polite"></div>
+<figcaption><b>Figure 2.2</b> Adding two levels on the energy scale.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.2:</b> Bars: the two levels and their total. Equal levels give +3 dB; a level 10 dB below the other adds only 0.4 dB.</p>
+<div class="box watch"><span class="label">Watch out</span><p>The perception slide labels 6 dB "actual doubling of sound level". Six decibels doubles the sound <em>pressure</em>; doubling the sound <em>energy</em> (two identical machines) adds 3 dB, and a perceived doubling of loudness needs about 10 dB.</p></div>
+
+</section>
+
+<section id="hearing">
+<h2><span class="n">03</span>Hearing and weighting</h2>
+
+<p>Sound passes through the ear canal to the eardrum; the ossicles (hammer, anvil, stirrup) carry it to the fluid of the <strong>cochlea</strong>, where hair cells convert the motion to nerve impulses. <strong>Damage to the hair cells is cumulative and irreversible</strong>, which is why exposure is regulated. Noise-induced loss is usually greatest around 4 kHz, and hearing in the 2 to 10 kHz range declines with age.</p>
+<p>The ear is most sensitive between 2 and 5 kHz (the ear canal resonance) and much less sensitive at low frequency: a 20 Hz tone needs about 80 dB to be heard. <strong>Phon lines</strong> (equal loudness contours) are found by asking listeners to match tones to a 1 kHz reference; a sound on the 40 phon line is as loud as a 40 dB tone at 1 kHz.</p>
+<h3 id="weighting">Weighting scales</h3>
+<p>Weighting filters correct a measured spectrum for the ear's sensitivity. The <strong>A-scale</strong> follows the 40 phon line and is used for annoyance, hearing conservation and subjective loudness; units dB(A) or dBA. The <strong>C-scale</strong> follows the 60 phon line and is used for very loud noise or when low-frequency noise is present. Both are 0 dB at 1 kHz, the frequency used for calibration.</p>
+<figure>
+<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="A and C frequency weighting curves with the tabulated octave values">
+<line class="grid" x1="66.0" y1="14" x2="66.0" y2="224"/>
+<text class="tk" x="66.0" y="239" text-anchor="middle">10</text>
+<line class="grid" x1="149.0" y1="14" x2="149.0" y2="224"/>
+<text class="tk" x="149.0" y="239" text-anchor="middle">31.5</text>
+<line class="grid" x1="232.6" y1="14" x2="232.6" y2="224"/>
+<text class="tk" x="232.6" y="239" text-anchor="middle">100</text>
+<line class="grid" x1="298.9" y1="14" x2="298.9" y2="224"/>
+<text class="tk" x="298.9" y="239" text-anchor="middle">250</text>
+<line class="grid" x1="399.2" y1="14" x2="399.2" y2="224"/>
+<text class="tk" x="399.2" y="239" text-anchor="middle">1000</text>
+<line class="grid" x1="499.5" y1="14" x2="499.5" y2="224"/>
+<text class="tk" x="499.5" y="239" text-anchor="middle">4000</text>
+<line class="grid" x1="599.9" y1="14" x2="599.9" y2="224"/>
+<text class="tk" x="599.9" y="239" text-anchor="middle">16000</text>
+<line class="grid" x1="66" y1="224.0" x2="616" y2="224.0"/>
+<text class="tk" x="60" y="228.0" text-anchor="end">−70</text>
+<line class="grid" x1="66" y1="197.8" x2="616" y2="197.8"/>
+<text class="tk" x="60" y="201.8" text-anchor="end">−60</text>
+<line class="grid" x1="66" y1="171.5" x2="616" y2="171.5"/>
+<text class="tk" x="60" y="175.5" text-anchor="end">−50</text>
+<line class="grid" x1="66" y1="145.2" x2="616" y2="145.2"/>
+<text class="tk" x="60" y="149.2" text-anchor="end">−40</text>
+<line class="grid" x1="66" y1="119.0" x2="616" y2="119.0"/>
+<text class="tk" x="60" y="123.0" text-anchor="end">−30</text>
+<line class="grid" x1="66" y1="92.8" x2="616" y2="92.8"/>
+<text class="tk" x="60" y="96.8" text-anchor="end">−20</text>
+<line class="grid" x1="66" y1="66.5" x2="616" y2="66.5"/>
+<text class="tk" x="60" y="70.5" text-anchor="end">−10</text>
+<line class="grid" x1="66" y1="40.2" x2="616" y2="40.2"/>
+<text class="tk" x="60" y="44.2" text-anchor="end">0</text>
+<line class="grid" x1="66" y1="14.0" x2="616" y2="14.0"/>
+<text class="tk" x="60" y="18.0" text-anchor="end">10</text>
+<line class="axis" x1="66" y1="40.2" x2="616" y2="40.2"/>
+<rect class="frame" x="66" y="14" width="550" height="210"/>
+<text class="lab" x="341.0" y="258" text-anchor="middle">frequency (Hz)</text>
+<text class="lab" transform="translate(14 119.0) rotate(-90)" text-anchor="middle">relative response (dB)</text>
+<polyline class="ln c1" points="66.0,225.1 67.8,223.1 69.7,221.0 71.5,218.9 73.4,216.9 75.2,214.8 77.0,212.8 78.9,210.7 80.7,208.7 82.6,206.7 84.4,204.7 86.2,202.8 88.1,200.8 89.9,198.8 91.8,196.9 93.6,195.0 95.4,193.1 97.3,191.2 99.1,189.3 100.9,187.4 102.8,185.6 104.6,183.7 106.5,181.9 108.3,180.1 110.1,178.3 112.0,176.5 113.8,174.7 115.7,173.0 117.5,171.3 119.3,169.6 121.2,167.8 123.0,166.2 124.9,164.5 126.7,162.8 128.5,161.2 130.4,159.6 132.2,158.0 134.1,156.4 135.9,154.8 137.7,153.2 139.6,151.7 141.4,150.2 143.3,148.7 145.1,147.2 146.9,145.7 148.8,144.2 150.6,142.8 152.5,141.3 154.3,139.9 156.1,138.5 158.0,137.1 159.8,135.7 161.7,134.3 163.5,133.0 165.3,131.6 167.2,130.3 169.0,129.0 170.8,127.7 172.7,126.4 174.5,125.1 176.4,123.8 178.2,122.6 180.0,121.3 181.9,120.1 183.7,118.9 185.6,117.7 187.4,116.5 189.2,115.3 191.1,114.1 192.9,113.0 194.8,111.8 196.6,110.7 198.4,109.5 200.3,108.4 202.1,107.3 204.0,106.2 205.8,105.1 207.6,104.1 209.5,103.0 211.3,101.9 213.2,100.9 215.0,99.9 216.8,98.8 218.7,97.8 220.5,96.8 222.4,95.8 224.2,94.9 226.0,93.9 227.9,92.9 229.7,92.0 231.6,91.0 233.4,90.1 235.2,89.2 237.1,88.3 238.9,87.4 240.7,86.5 242.6,85.6 244.4,84.8 246.3,83.9 248.1,83.0 249.9,82.2 251.8,81.4 253.6,80.6 255.5,79.7 257.3,78.9 259.1,78.2 261.0,77.4 262.8,76.6 264.7,75.8 266.5,75.1 268.3,74.3 270.2,73.6 272.0,72.8 273.9,72.1 275.7,71.4 277.5,70.7 279.4,70.0 281.2,69.3 283.1,68.6 284.9,67.9 286.7,67.3 288.6,66.6 290.4,66.0 292.3,65.3 294.1,64.7 295.9,64.0 297.8,63.4 299.6,62.8 301.5,62.2 303.3,61.6 305.1,61.0 307.0,60.4 308.8,59.8 310.6,59.2 312.5,58.7 314.3,58.1 316.2,57.5 318.0,57.0 319.8,56.4 321.7,55.9 323.5,55.4 325.4,54.9 327.2,54.3 329.0,53.8 330.9,53.3 332.7,52.8 334.6,52.3 336.4,51.9 338.2,51.4 340.1,50.9 341.9,50.5 343.8,50.0 345.6,49.6 347.4,49.2 349.3,48.7 351.1,48.3 353.0,47.9 354.8,47.5 356.6,47.1 358.5,46.7 360.3,46.3 362.2,46.0 364.0,45.6 365.8,45.3 367.7,44.9 369.5,44.6 371.4,44.2 373.2,43.9 375.0,43.6 376.9,43.3 378.7,43.0 380.5,42.7 382.4,42.4 384.2,42.2 386.1,41.9 387.9,41.6 389.7,41.4 391.6,41.2 393.4,40.9 395.3,40.7 397.1,40.5 398.9,40.3 400.8,40.1 402.6,39.9 404.5,39.7 406.3,39.5 408.1,39.3 410.0,39.2 411.8,39.0 413.7,38.9 415.5,38.7 417.3,38.6 419.2,38.5 421.0,38.3 422.9,38.2 424.7,38.1 426.5,38.0 428.4,37.9 430.2,37.8 432.1,37.7 433.9,37.6 435.7,37.5 437.6,37.5 439.4,37.4 441.3,37.3 443.1,37.3 444.9,37.2 446.8,37.2 448.6,37.1 450.4,37.1 452.3,37.0 454.1,37.0 456.0,37.0 457.8,37.0 459.6,36.9 461.5,36.9 463.3,36.9 465.2,36.9 467.0,36.9 468.8,36.9 470.7,36.9 472.5,36.9 474.4,37.0 476.2,37.0 478.0,37.0 479.9,37.0 481.7,37.1 483.6,37.1 485.4,37.2 487.2,37.2 489.1,37.3 490.9,37.3 492.8,37.4 494.6,37.5 496.4,37.6 498.3,37.7 500.1,37.7 502.0,37.8 503.8,38.0 505.6,38.1 507.5,38.2 509.3,38.3 511.2,38.4 513.0,38.6 514.8,38.7 516.7,38.9 518.5,39.0 520.3,39.2 522.2,39.4 524.0,39.6 525.9,39.8 527.7,40.0 529.5,40.2 531.4,40.4 533.2,40.7 535.1,40.9 536.9,41.2 538.7,41.4 540.6,41.7 542.4,42.0 544.3,42.3 546.1,42.6 547.9,42.9 549.8,43.3 551.6,43.6 553.5,44.0 555.3,44.4 557.1,44.8 559.0,45.2 560.8,45.6 562.7,46.0 564.5,46.5 566.3,46.9 568.2,47.4 570.0,47.9 571.9,48.4 573.7,48.9 575.5,49.4 577.4,50.0 579.2,50.5 581.1,51.1 582.9,51.7 584.7,52.3 586.6,52.9 588.4,53.6 590.2,54.2 592.1,54.9 593.9,55.6 595.8,56.3 597.6,57.0 599.4,57.7 601.3,58.4 603.1,59.2 605.0,59.9 606.8,60.7 608.6,61.5 610.5,62.3 612.3,63.1 614.2,63.9 616.0,64.8"/>
+<polyline class="ln c3" points="66.0,77.9 67.8,76.9 69.7,76.0 71.5,75.1 73.4,74.2 75.2,73.3 77.0,72.4 78.9,71.5 80.7,70.7 82.6,69.8 84.4,69.0 86.2,68.2 88.1,67.4 89.9,66.6 91.8,65.8 93.6,65.0 95.4,64.2 97.3,63.5 99.1,62.7 100.9,62.0 102.8,61.3 104.6,60.6 106.5,59.9 108.3,59.3 110.1,58.6 112.0,58.0 113.8,57.3 115.7,56.7 117.5,56.1 119.3,55.6 121.2,55.0 123.0,54.5 124.9,53.9 126.7,53.4 128.5,52.9 130.4,52.4 132.2,51.9 134.1,51.5 135.9,51.0 137.7,50.6 139.6,50.2 141.4,49.8 143.3,49.4 145.1,49.0 146.9,48.6 148.8,48.3 150.6,47.9 152.5,47.6 154.3,47.3 156.1,47.0 158.0,46.7 159.8,46.4 161.7,46.1 163.5,45.8 165.3,45.6 167.2,45.3 169.0,45.1 170.8,44.9 172.7,44.7 174.5,44.5 176.4,44.3 178.2,44.1 180.0,43.9 181.9,43.7 183.7,43.6 185.6,43.4 187.4,43.2 189.2,43.1 191.1,43.0 192.9,42.8 194.8,42.7 196.6,42.6 198.4,42.5 200.3,42.3 202.1,42.2 204.0,42.1 205.8,42.0 207.6,41.9 209.5,41.9 211.3,41.8 213.2,41.7 215.0,41.6 216.8,41.5 218.7,41.5 220.5,41.4 222.4,41.3 224.2,41.3 226.0,41.2 227.9,41.2 229.7,41.1 231.6,41.1 233.4,41.0 235.2,41.0 237.1,40.9 238.9,40.9 240.7,40.9 242.6,40.8 244.4,40.8 246.3,40.7 248.1,40.7 249.9,40.7 251.8,40.7 253.6,40.6 255.5,40.6 257.3,40.6 259.1,40.6 261.0,40.5 262.8,40.5 264.7,40.5 266.5,40.5 268.3,40.5 270.2,40.4 272.0,40.4 273.9,40.4 275.7,40.4 277.5,40.4 279.4,40.4 281.2,40.3 283.1,40.3 284.9,40.3 286.7,40.3 288.6,40.3 290.4,40.3 292.3,40.3 294.1,40.3 295.9,40.3 297.8,40.3 299.6,40.3 301.5,40.2 303.3,40.2 305.1,40.2 307.0,40.2 308.8,40.2 310.6,40.2 312.5,40.2 314.3,40.2 316.2,40.2 318.0,40.2 319.8,40.2 321.7,40.2 323.5,40.2 325.4,40.2 327.2,40.2 329.0,40.2 330.9,40.2 332.7,40.2 334.6,40.2 336.4,40.2 338.2,40.2 340.1,40.2 341.9,40.2 343.8,40.2 345.6,40.2 347.4,40.2 349.3,40.2 351.1,40.2 353.0,40.2 354.8,40.2 356.6,40.2 358.5,40.2 360.3,40.2 362.2,40.2 364.0,40.2 365.8,40.2 367.7,40.2 369.5,40.2 371.4,40.2 373.2,40.2 375.0,40.2 376.9,40.2 378.7,40.2 380.5,40.2 382.4,40.2 384.2,40.2 386.1,40.2 387.9,40.2 389.7,40.2 391.6,40.2 393.4,40.2 395.3,40.2 397.1,40.2 398.9,40.3 400.8,40.3 402.6,40.3 404.5,40.3 406.3,40.3 408.1,40.3 410.0,40.3 411.8,40.3 413.7,40.3 415.5,40.3 417.3,40.3 419.2,40.4 421.0,40.4 422.9,40.4 424.7,40.4 426.5,40.4 428.4,40.4 430.2,40.5 432.1,40.5 433.9,40.5 435.7,40.5 437.6,40.5 439.4,40.6 441.3,40.6 443.1,40.6 444.9,40.6 446.8,40.7 448.6,40.7 450.4,40.7 452.3,40.7 454.1,40.8 456.0,40.8 457.8,40.9 459.6,40.9 461.5,40.9 463.3,41.0 465.2,41.0 467.0,41.1 468.8,41.1 470.7,41.2 472.5,41.2 474.4,41.3 476.2,41.3 478.0,41.4 479.9,41.5 481.7,41.5 483.6,41.6 485.4,41.7 487.2,41.8 489.1,41.9 490.9,41.9 492.8,42.0 494.6,42.1 496.4,42.2 498.3,42.3 500.1,42.5 502.0,42.6 503.8,42.7 505.6,42.8 507.5,43.0 509.3,43.1 511.2,43.2 513.0,43.4 514.8,43.6 516.7,43.7 518.5,43.9 520.3,44.1 522.2,44.3 524.0,44.5 525.9,44.7 527.7,44.9 529.5,45.1 531.4,45.4 533.2,45.6 535.1,45.8 536.9,46.1 538.7,46.4 540.6,46.7 542.4,47.0 544.3,47.3 546.1,47.6 547.9,47.9 549.8,48.3 551.6,48.6 553.5,49.0 555.3,49.4 557.1,49.8 559.0,50.2 560.8,50.6 562.7,51.0 564.5,51.5 566.3,51.9 568.2,52.4 570.0,52.9 571.9,53.4 573.7,53.9 575.5,54.5 577.4,55.0 579.2,55.6 581.1,56.2 582.9,56.8 584.7,57.4 586.6,58.0 588.4,58.6 590.2,59.3 592.1,59.9 593.9,60.6 595.8,61.3 597.6,62.0 599.4,62.8 601.3,63.5 603.1,64.2 605.0,65.0 606.8,65.8 608.6,66.6 610.5,67.4 612.3,68.2 614.2,69.0 616.0,69.9"/><circle class="c1f" cx="100.0" cy="189.1" r="3.5"/><circle class="c1f" cx="149.0" cy="143.7" r="3.5"/><circle class="c1f" cx="199.2" cy="109.0" r="3.5"/><circle class="c1f" cx="248.8" cy="82.5" r="3.5"/><circle class="c1f" cx="298.9" cy="62.8" r="3.5"/><circle class="c1f" cx="349.1" cy="48.6" r="3.5"/><circle class="c1f" cx="399.2" cy="40.2" r="3.5"/><circle class="c1f" cx="449.4" cy="37.1" r="3.5"/><circle class="c1f" cx="499.5" cy="37.6" r="3.5"/><circle class="c1f" cx="549.7" cy="43.1" r="3.5"/><circle class="c1f" cx="599.9" cy="57.6" r="3.5"/><circle class="c3f" cx="100.0" cy="62.6" r="3.5"/><circle class="c3f" cx="149.0" cy="48.1" r="3.5"/><circle class="c3f" cx="199.2" cy="42.4" r="3.5"/><circle class="c3f" cx="248.8" cy="40.8" r="3.5"/><circle class="c3f" cx="298.9" cy="40.2" r="3.5"/><circle class="c3f" cx="349.1" cy="40.2" r="3.5"/><circle class="c3f" cx="399.2" cy="40.2" r="3.5"/><circle class="c3f" cx="449.4" cy="40.8" r="3.5"/><circle class="c3f" cx="499.5" cy="42.4" r="3.5"/><circle class="c3f" cx="549.7" cy="48.1" r="3.5"/><circle class="c3f" cx="599.9" cy="62.6" r="3.5"/><g class="leg">
+<rect class="legbg" x="440" y="150" width="150" height="50" rx="3"/>
+<line class="ln c1" x1="450" y1="162" x2="474" y2="162"/><text x="482" y="166">A-weighting</text>
+<line class="ln c3" x1="450" y1="181" x2="474" y2="181"/><text x="482" y="185">C-weighting</text>
+</g>
+</svg>
+<figcaption><b>Figure 3.1</b> A and C weighting curves.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> Curves from the IEC 61672 formulae; dots are the octave-band values tabulated in the notes. The A-curve removes 39 dB at 31.5 Hz but adds about 1 dB around 2 to 4 kHz.</p>
+<div class="tbl"><table><thead><tr><th>f (Hz)</th><th>16</th><th>31.5</th><th>63</th><th>125</th><th>250</th><th>500</th><th>1000</th><th>2000</th><th>4000</th><th>8000</th><th>16000</th></tr></thead><tbody><tr><td>A (dB)</td><td>-56.7</td><td>-39.4</td><td>-26.2</td><td>-16.1</td><td>-8.6</td><td>-3.2</td><td>0</td><td>+1.2</td><td>+1.0</td><td>-1.1</td><td>-6.6</td></tr><tr><td>C (dB)</td><td>-8.5</td><td>-3.0</td><td>-0.8</td><td>-0.2</td><td>0</td><td>0</td><td>0</td><td>-0.2</td><td>-0.8</td><td>-3.0</td><td>-8.5</td></tr></tbody></table></div>
+<div class="ex"><div class="hd">Worked example 3.1 <span>A-weighting an octave spectrum</span></div><div class="bd">
+<p>An octave-band measurement gives, from 31.5 Hz to 8 kHz: 80, 82, 85, 84, 83, 80, 75, 72, 70 dB. Find the A-weighted spectrum and the overall level in dB(A). (Notes problem 8, also Tutorial 5 problem 21.)</p>
+<div class="step"><i>1</i><div>Add the A-correction to each band: 40.6, 55.8, 68.9, 75.4, 79.8, 80.0, 76.2, 73.0, 68.9 dB(A).</div></div>
+<div class="step"><i>2</i><div>Add the bands on the energy scale: \(L_A = 10\log\sum 10^{L_i/10}\).</div></div>
+<div class="ans">84.9 dB(A), against 90.7 dB unweighted. Most of the low-frequency energy is discounted, and the 500 Hz to 2 kHz bands dominate.</div>
+</div></div>
+<p>Measured spectra come from octave or third-octave filter banks (centre frequencies 31.5, 63, 125 Hz and so on, each double the last). Each bar is the RMS level of the signal passed by that filter.</p>
+
+</section>
+
+<section id="sans10083">
+<h2><span class="n">04</span>SANS 10083: occupational noise</h2>
+
+<p>SANS 10083 deals with the measurement and assessment of <strong>occupational</strong> noise for <strong>hearing conservation</strong>.</p>
+<div class="eq"><span class="tag">Equivalent continuous A-weighted level</span>\[ L_{Aeq,T} = 10\log\left[\frac{1}{T}\int_0^T\frac{p_A^2(t)}{p_{ref}^2}dt\right] \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(L_{Aeq,T}\)</dt><dd>The steady level with the same energy as the fluctuating sound over \(T\) (dBA).</dd>
+  <dt>\(p_A(t)\)</dt><dd>A-weighted sound pressure (Pa).</dd>
+</dl>
+</div>
+<div class="eq"><span class="tag">Composite measurement</span>\[ L_{Aeq,T} = 10\log\sum_if_i10^{L_{Aeq,T_i}/10} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(f_i\)</dt><dd>Duration of interval \(i\) as a fraction of the total time.</dd>
+  <dt>\(L_{Aeq,T_i}\)</dt><dd>Level during interval \(i\) (dBA).</dd>
+</dl>
+</div>
+<div class="eq"><span class="tag">Rating level and 8-hour normalisation</span>\[ L_{Req,T} = L_{Aeq,T} + C_i, \qquad L_{Req,8h} = L_{Req,T} + 10\log\frac{T}{8} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(C_i\)</dt><dd>Impulse correction: 5 dB for regular impulsive sound (bouncing balls, church bells, tennis), 12 dB for highly impulsive sound (metal or pneumatic hammering, drop forging); specialist advice for high-energy impulses (blasting, gunfire).</dd>
+  <dt>\(T\)</dt><dd>Shift length (h).</dd>
+</dl>
+</div>
+<div class="key"><span class="tag">Limits</span><p>\(L_{Req,8h} \geq 85\) dBA: the area is a <strong>noise zone</strong> and a hearing conservation programme is required. \(L_{Req,8h} \geq 130\) dBA: hearing protection is no longer sufficient and expert advice must be obtained.</p></div>
+<p>Measurement: an integrating sound level meter of at least Type 2, calibrated; the microphone at the more exposed ear, 1.5 m above the floor for standing workers and 0.9 m for seated ones; at least three positions in larger areas; extraneous sound avoided, or the noise of interest at least 10 dB above it; intervals representative of the shift; for workers who move about, their personal dose.</p>
+<p>A hearing conservation programme: assessment by a competent person, demarcated noise zones, information and training (refreshed at least every two years), certified hearing protection with instruction in its use, baseline audiometry (within 30 days of starting) and periodic audiometry, review at least every two years or when work methods or equipment change. Employees must use the measures provided and report defective protection.</p>
+<div class="ex"><div class="hd">Worked example 4.1 <span>A ten-hour shift</span></div><div class="bd">
+<p>A worker spends 2 h at 75 dBA, 4 h at 80 dBA, 2 h at 85 dBA and 2 h at 95 dBA, with no impulsive noise. Is the limit met? (Lecture slide example.)</p>
+<div class="step"><i>1</i><div>\(L_{Aeq,10h} = 10\log\left[\frac{2}{10}10^{7.5} + \frac{4}{10}10^{8.0} + \frac{2}{10}10^{8.5} + \frac{2}{10}10^{9.5}\right] = 88.7\) dBA.</div></div>
+<div class="step"><i>2</i><div>\(C_i = 0\), so \(L_{Req,10h} = 88.7\) dBA.</div></div>
+<div class="step"><i>3</i><div>\(L_{Req,8h} = 88.7 + 10\log(10/8) = 89.7\) dBA.</div></div>
+<div class="ans">89.7 dBA exceeds 85 dBA: noise zone, hearing conservation needed. The two hours at 95 dBA carry almost all the energy.</div>
+</div></div>
+<div class="ex"><div class="hd">Worked example 4.2 <span>Effect of shift length</span></div><div class="bd">
+<p>From the SANS 10083 video: 2 h at 85, 2 h at 75, 1 h at 78 and 3 h at 92 dBA. Then the time at 78 dBA is increased to 2 h.</p>
+<div class="step"><i>1</i><div>8-hour shift: \(L_{Req,8h} = 88.38\) dBA (the normalisation term is zero).</div></div>
+<div class="step"><i>2</i><div>9-hour shift: \(L_{Req,9h} = 87.92\) dBA, lower because the quiet hour dilutes the average, but \(L_{Req,8h} = 87.92 + 10\log(9/8) = 88.43\) dBA.</div></div>
+<div class="ans">Extra time at a moderate level still adds dose: the 8-hour level rises from 88.38 to 88.43 dBA.</div>
+</div></div>
+
+</section>
+
+<section id="sans10103">
+<h2><span class="n">05</span>SANS 10103: environmental noise</h2>
+
+<p>SANS 10103 deals with the measurement and rating of <strong>environmental</strong> noise with respect to <strong>annoyance</strong> and <strong>speech communication</strong>.</p>
+<div class="eq"><span class="tag">Rating level for environmental noise</span>\[ L_{Req,T} = L_{Aeq,T} + C_i + C_t + k_n \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(C_i\)</dt><dd>Impulse correction, 5 or 12 dB as before.</dd>
+  <dt>\(C_t\)</dt><dd>Tonal correction, 5 dB for an audible tone (whine, hum, whistle, music).</dd>
+  <dt>\(k_n\)</dt><dd>10 dB added to night-time measurements.</dd>
+</dl>
+</div>
+<div class="eq"><span class="tag">Day/night rating level</span>\[ L_{R,dn} = 10\log\left[\frac{d}{24}10^{L_{Req,d}/10} + \frac{24 - d}{24}10^{L_{Req,n}/10}\right] \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(d\)</dt><dd>Daytime hours, 06:00 to 22:00 (16 h).</dd>
+  <dt>\(L_{Req,d}, L_{Req,n}\)</dt><dd>Day and night rating levels; the night level includes \(k_n\).</dd>
+</dl>
+</div>
+<figure>
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="A day of measured levels with the night-time adjustment added">
+<line class="grid" x1="60.0" y1="14" x2="60.0" y2="184"/>
+<text class="tk" x="60.0" y="199" text-anchor="middle">0</text>
+<line class="grid" x1="200.0" y1="14" x2="200.0" y2="184"/>
+<text class="tk" x="200.0" y="199" text-anchor="middle">6</text>
+<line class="grid" x1="340.0" y1="14" x2="340.0" y2="184"/>
+<text class="tk" x="340.0" y="199" text-anchor="middle">12</text>
+<line class="grid" x1="480.0" y1="14" x2="480.0" y2="184"/>
+<text class="tk" x="480.0" y="199" text-anchor="middle">18</text>
+<line class="grid" x1="573.3" y1="14" x2="573.3" y2="184"/>
+<text class="tk" x="573.3" y="199" text-anchor="middle">22</text>
+<line class="grid" x1="620.0" y1="14" x2="620.0" y2="184"/>
+<text class="tk" x="620.0" y="199" text-anchor="middle">24</text>
+<line class="grid" x1="60" y1="184.0" x2="620" y2="184.0"/>
+<text class="tk" x="54" y="188.0" text-anchor="end">30</text>
+<line class="grid" x1="60" y1="150.0" x2="620" y2="150.0"/>
+<text class="tk" x="54" y="154.0" text-anchor="end">40</text>
+<line class="grid" x1="60" y1="116.0" x2="620" y2="116.0"/>
+<text class="tk" x="54" y="120.0" text-anchor="end">50</text>
+<line class="grid" x1="60" y1="82.0" x2="620" y2="82.0"/>
+<text class="tk" x="54" y="86.0" text-anchor="end">60</text>
+<line class="grid" x1="60" y1="48.0" x2="620" y2="48.0"/>
+<text class="tk" x="54" y="52.0" text-anchor="end">70</text>
+<line class="grid" x1="60" y1="14.0" x2="620" y2="14.0"/>
+<text class="tk" x="54" y="18.0" text-anchor="end">80</text>
+<rect class="frame" x="60" y="14" width="560" height="170"/>
+<text class="lab" x="340.0" y="218" text-anchor="middle">time of day (h)</text>
+<text class="lab" transform="translate(14 99.0) rotate(-90)" text-anchor="middle">level (dBA)</text><rect class="area" x="60.0" y="116.0" width="140.0" height="68.0"/><line class="ln c1" x1="60.0" y1="116.0" x2="200.0" y2="116.0"/><line class="ln c3 dash" x1="60.0" y1="82.0" x2="200.0" y2="82.0"/><rect class="area" x="200.0" y="48.0" width="280.0" height="136.0"/><line class="ln c1" x1="200.0" y1="48.0" x2="480.0" y2="48.0"/><rect class="area" x="480.0" y="65.0" width="93.3" height="119.0"/><line class="ln c1" x1="480.0" y1="65.0" x2="573.3" y2="65.0"/><rect class="area" x="573.3" y="116.0" width="46.7" height="68.0"/><line class="ln c1" x1="573.3" y1="116.0" x2="620.0" y2="116.0"/><line class="ln c3 dash" x1="573.3" y1="82.0" x2="620.0" y2="82.0"/><text class="tk" x="130.0" y="71.8" text-anchor="middle">+10 dB at night</text><g class="leg">
+<rect class="legbg" x="400" y="130" width="150" height="50" rx="3"/>
+<line class="ln c1" x1="410" y1="142" x2="434" y2="142"/><text x="442" y="146">measured LAeq</text>
+<line class="ln c3 dash" x1="410" y1="161" x2="434" y2="161"/><text x="442" y="165">rating with kn</text>
+</g>
+</svg>
+<figcaption><b>Figure 5.1</b> A representative day for a day/night rating.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.1:</b> Notes problem 11: 70 dBA from 06:00 to 18:00, 65 dBA to 22:00 and 50 dBA overnight. Night hours (22:00 to 06:00) are penalised by 10 dB before averaging over 24 h.</p>
+<div class="ex"><div class="hd">Worked example 5.1 <span>Day/night rating</span></div><div class="bd">
+<p>Find \(L_{R,dn}\) for the day of Figure 5.1.</p>
+<div class="step"><i>1</i><div>\(L_{R,dn} = 10\log\left[\frac{12}{24}10^{7.0} + \frac{4}{24}10^{6.5} + \frac{8}{24}10^{(50 + 10)/10}\right]\).</div></div>
+<div class="ans">67.7 dBA (notes answer 67.7 dBA). For an urban district the guideline is 55 dBA, so this site is 13 dB over.</div>
+</div></div>
+<div class="ex"><div class="hd">Worked example 5.2 <span>Class example</span></div><div class="bd">
+<p>Measured: 60 dBA from 06:00 to 18:00, 45 dBA from 18:00 to 24:00, 40 dBA from 00:00 to 06:00.</p>
+<div class="step"><i>1</i><div>Split at 22:00: day 12 h at 60 and 4 h at 45; night 2 h at 45 + 10 and 6 h at 40 + 10.</div></div>
+<div class="step"><i>2</i><div>\(L_{R,dn} = 10\log\left[\frac{12}{24}10^{6.0} + \frac{4}{24}10^{4.5} + \frac{2}{24}10^{5.5} + \frac{6}{24}10^{5.0}\right]\).</div></div>
+<div class="ans">57.5 dBA: suburban or urban territory.</div>
+</div></div>
+<div class="tbl"><table><thead><tr><th>District</th><th>Outdoor \(L_{R,dn}\)</th><th>Day</th><th>Night</th><th>Indoor (windows open) \(L_{R,dn}\)</th></tr></thead><tbody>
+<tr><td>Rural</td><td>45</td><td>45</td><td>35</td><td>35</td></tr><tr><td>Suburban, little road traffic</td><td>50</td><td>50</td><td>40</td><td>40</td></tr>
+<tr><td>Urban</td><td>55</td><td>55</td><td>45</td><td>45</td></tr><tr><td>Urban with workshops, business or main roads</td><td>60</td><td>60</td><td>50</td><td>50</td></tr>
+<tr><td>Central business</td><td>65</td><td>65</td><td>55</td><td>55</td></tr><tr><td>Industrial</td><td>70</td><td>70</td><td>60</td><td>60</td></tr></tbody></table></div>
+<p>Indoor values are 10 dB below outdoor: a building with open windows is assumed to give 10 dB of isolation. The standard also gives design and maximum indoor levels by occupancy (for example 40 dBA for a classroom), the distance at which speech is intelligible for a given rating level (at 45 dBA a normal voice carries about 7 m), telephone quality, and expected community response (sporadic complaints for 0 to 10 dB above the guideline, rising to vigorous action for large excesses). Its annexes cover the report, tonal character and low-frequency noise.</p>
+<p><strong>Low-frequency noise</strong> (roughly 8 to 100 Hz) comes from large diesel engines, ships, power plants and wind turbines; it is hard to muffle because the wavelengths are long, is felt as pressure or pulsation, and is more annoying than its A-weighted level suggests. A large difference between C- and A-weighted levels signals it. <strong>Psychoacoustics</strong> studies the character of a sound beyond its loudness; car makers tune engine and door sounds this way.</p>
+<h3 id="wc">Western Cape noise control regulations</h3>
+<ul><li><strong>Ambient noise:</strong> the all-encompassing sound at a place and time, measured with an integrating impulse sound level meter for at least 10 minutes.</li>
+<li><strong>Residual noise:</strong> the same, excluding the noise alleged to be a nuisance.</li>
+<li><strong>Noise nuisance:</strong> any sound that impairs or may impair the convenience or peace of a reasonable person.</li>
+<li><strong>Disturbing noise</strong> (excluding the unamplified human voice): exceeds the rating level by 7 dBA; or exceeds the residual level where that is above the rating level; or exceeds the residual level by 3 dBA where that is below the rating level; or, for low-frequency noise, exceeds SANS 10103 Annex B.</li></ul>
+
+</section>
+
+<section id="predict">
+<h2><span class="n">06</span>Prediction and control</h2>
+
+<p>A <strong>point source</strong> is small compared with the distance to the listener (a fan, a speaker): sound spreads spherically and drops 6 dB per doubling of distance. A <strong>line source</strong> is long and narrow (a road, a railway, a pipe): sound spreads cylindrically and drops 3 dB per doubling.</p>
+<div class="eq"><span class="tag">Point source near the ground</span>\[ L_p = L_W - 20\log r - 8\ \text{dB} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(L_p\)</dt><dd>Sound pressure level at distance \(r\) (dB).</dd>
+  <dt>\(L_W\)</dt><dd>Sound power level of the source (dB re 1 pW).</dd>
+  <dt>\(r\)</dt><dd>Distance (m).</dd>
+</dl>
+</div>
+<div class="eq"><span class="tag">Line source near the ground</span>\[ L_p = L_W - 10\log r - 5\ \text{dB} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(L_W\)</dt><dd>Sound power level per metre of source (dB re 1 pW/m).</dd>
+</dl>
+</div>
+<figure id="fig61">
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="Sound pressure level against distance for a point and a line source"></svg>
+<div class="fig-ctl">
+<label><span>Lw</span><input type="range" data-k="lw" min="80" max="130" step="1" value="110" aria-label="Source sound power level in dB"><output></output></label>
+<label><span>r</span><input type="range" data-k="r" min="1" max="200" step="1" value="10" aria-label="Distance from the source in metres"><output></output></label>
+</div>
+<div class="fig-read" aria-live="polite"></div>
+<figcaption><b>Figure 6.1</b> Spreading from point and line sources.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 6.1:</b> Point source near the ground: \(L_p = L_W - 20\log r - 8\) (6 dB per doubling). Line source: \(L_p = L_W - 10\log r - 5\) with \(L_W\) per metre (3 dB per doubling). Ground and air absorption are ignored.</p>
+<div class="box watch"><span class="label">Watch out</span><p>The slides call \(L_W\) "the SPL at the source". It is the <strong>sound power level</strong>, \(10\log(W/10^{-12})\), a property of the source independent of the surroundings. The constants 8 and 5 dB assume a source on reflecting ground (hemispherical spreading); in a free field the point-source constant is 11 dB.</p></div>
+<h3 id="reduction">Noise control</h3>
+<p>When rating limits are exceeded, reduce noise at:</p>
+<ul><li><strong>the source:</strong> change the operation or the machine, or enclose it acoustically;</li>
+<li><strong>the path:</strong> barriers, absorption, isolation (including vibration isolators so sound does not travel through the floor);</li>
+<li><strong>the receiver:</strong> ear defenders, soundproof booths, work rotation. Hearing protection is not a permanent solution.</li></ul>
+<p><strong>Absorption</strong>: a surface treatment that dissipates sound energy instead of reflecting it (wool or foam against steel or hardwood). <strong>Isolation</strong>: a barrier between source and receiver; the ratio of transmitted to incident sound measures its effect. Products: rock wool (spun molten rock, non-combustible, resin bonded), glass wool (sheets and tiles, thermal and acoustic), dry-wall (gypsum board with a wool-filled cavity), and porous ceiling tiles for room absorption.</p>
+
+</section>
+
+<section id="practice">
+<h2><span class="n">07</span>Practice problems</h2>
+<details><summary>Problem 7.1. Wavelength of a 500 Hz sound?</summary><div class="sol"><p>\(\lambda = 343/500 = 0.69\) m.</p></div></details>
+<details><summary>Problem 7.2. SPL of a sound with an RMS pressure of 1 Pa?</summary><div class="sol"><p>\(20\log(1/2\times10^{-5}) = 94\) dB.</p></div></details>
+<details><summary>Problem 7.3. Add 70, 80 and 82 dB.</summary><div class="sol"><p>84.3 dB.</p></div></details>
+<details><summary>Problem 7.4. Add 70, 80 and 80 dB.</summary><div class="sol"><p>83.2 dB.</p></div></details>
+<details><summary>Problem 7.5. Background 83 dB; 85 dB with the machine running. Machine level?</summary><div class="sol"><p>\(10\log(10^{8.5} - 10^{8.3}) = 80.7\) dB.</p></div></details>
+<details><summary>Problem 7.6. LAeq for 2 h at 75, 4 h at 80, 1 h at 85, 1 h at 90 dB(A)?</summary><div class="sol"><p>83.5 dB(A).</p></div></details>
+<details><summary>Problem 7.7. LAeq for 2 h at 75, 4 h at 80, 2 h at 85, 2 h at 95 dB(A)?</summary><div class="sol"><p>88.7 dB(A) over the 10 h.</p></div></details>
+<details><summary>Problem 7.8. LAeq,8h for 2 h at 90, 5 h at 80, 1 h at 75 dB(A)?</summary><div class="sol"><p>85.0 dB(A): at the limit.</p></div></details>
+<details><summary>Problem 7.9. LAeq,8h for 3 h at 90, 5 h at 80, 2 h at 75 dB(A)?</summary><div class="sol"><p>10 h level 85.5 dB(A); normalised \(+10\log(10/8)\): 86.5 dB(A).</p></div></details>
+<details><summary>Problem 7.10. Two machines measured separately at 82 and 85 dB run together. Total?</summary><div class="sol"><p>86.8 dB (the booklet chart reads +1.7 dB).</p></div></details>
+</section>
+
+<section id="sheet">
+<h2><span class="n">08</span>Formula sheet</h2>
+
+<div class="sheet"><div><h4>Sound and decibels</h4>
+<p>\(c = 20.05\sqrt T\), \(c = \lambda f\), 343 m/s at 20 °C</p>
+<p>\(L_p = 20\log(p_{rms}/20\ \mu\text{Pa})\)</p>
+<p>\(L_{tot} = 10\log\sum10^{L_i/10}\); \(L_S = 10\log(10^{L_{S+N}/10} - 10^{L_N/10})\)</p>
+<p>+3 dB double energy, +6 dB double pressure, +10 dB twice as loud</p>
+</div><div><h4>Weighting</h4>
+<p>A ≈ 40 phon, C ≈ 60 phon, both 0 at 1 kHz</p>
+<p>A: 31.5 −39.4, 63 −26.2, 125 −16.1, 250 −8.6, 500 −3.2, 2k +1.2, 4k +1.0, 8k −1.1</p>
+</div><div><h4>SANS 10083</h4>
+<p>\(L_{Aeq,T} = 10\log\sum f_i10^{L_i/10}\)</p>
+<p>\(L_{Req,8h} = L_{Aeq,T} + C_i + 10\log(T/8)\); \(C_i\) = 5 or 12</p>
+<p>Limit 85 dBA; above 130 dBA expert advice</p>
+</div><div><h4>SANS 10103</h4>
+<p>\(L_{Req} = L_{Aeq} + C_i + C_t + k_n\); \(C_t = 5\), \(k_n = 10\)</p>
+<p>Day 06:00 to 22:00; \(L_{R,dn} = 10\log[\frac{d}{24}10^{L_d/10} + \frac{24 - d}{24}10^{L_n/10}]\)</p>
+<p>Point \(L_p = L_W - 20\log r - 8\); line \(L_p = L_W - 10\log r - 5\)</p>
+</div></div>
+
+</section>
+
+<footer>
+<p>Sources: Lecture1_notes_2020.pdf, Lecture2_notes_2020.pdf and Lecture4_notes_2020.pdf (noise notes), Noise lecture.pdf (slides), Environmental_Noise.pdf and Measuring_Sound.pdf (Brüel &amp; Kjær booklets), and the videos Noise Lecture 1 - Introduction, Noise Lecture 2 - Hearing, SANS 10083 and SANS 10103 - 2008, transcribed. Noise measurement (lecture 3) is covered in week 12. Practice answers were recomputed and agree with the notes.</p>
+</footer>
+</main>
+</div>
+<script>
+(function(){
+
+  const NS = 'http://www.w3.org/2000/svg';
+  function E(parent, tag, attrs, text){
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.append(e);
+    return e;
+  }
+  const neg = s => s.replace(/-/g, '−');
+  const num = v => neg((+v.toPrecision(6)).toString());
+  const fix = (v, d) => neg(v.toFixed(d));
+  const pts = a => a.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  // Axes, grid and labels; returns scales and a clipped group to draw in.
+  function plot(svg, o){
+    svg.textContent = '';
+    const lx = o.logx, ly = o.logy;
+    const X = v => o.l + (lx ? (Math.log10(v) - Math.log10(o.x0)) / (Math.log10(o.x1) - Math.log10(o.x0)) : (v - o.x0) / (o.x1 - o.x0)) * o.w;
+    const Y = v => o.t + (ly ? (Math.log10(o.y1) - Math.log10(v)) / (Math.log10(o.y1) - Math.log10(o.y0)) : (o.y1 - v) / (o.y1 - o.y0)) * o.h;
+    const defs = E(svg, 'defs', {});
+    E(E(defs, 'clipPath', {id: o.id}), 'rect', {x: o.l, y: o.t, width: o.w, height: o.h});
+    o.xt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: X(v), y1: o.t, x2: X(v), y2: o.t + o.h});
+      if (!o.noxt) E(svg, 'text', {class: 'tk', x: X(v), y: o.t + o.h + 15, 'text-anchor': 'middle'}, o.xf ? o.xf(v) : num(v));
+    });
+    o.yt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: o.l, y1: Y(v), x2: o.l + o.w, y2: Y(v)});
+      E(svg, 'text', {class: 'tk', x: o.l - 6, y: Y(v) + 4, 'text-anchor': 'end'}, o.yf ? o.yf(v) : num(v));
+    });
+    if (o.zero) E(svg, 'line', {class: 'axis', x1: o.l, y1: Y(0), x2: o.l + o.w, y2: Y(0)});
+    E(svg, 'rect', {class: 'frame', x: o.l, y: o.t, width: o.w, height: o.h});
+    E(svg, 'text', {class: 'lab', x: o.l + o.w / 2, y: o.t + o.h + 34, 'text-anchor': 'middle'}, o.xlab);
+    E(svg, 'text', {class: 'lab', transform: 'translate(' + (o.ylx === undefined ? 16 : o.ylx) + ' ' + (o.t + o.h / 2) + ') rotate(-90)', 'text-anchor': 'middle'}, o.ylab);
+    const g = E(svg, 'g', {'clip-path': 'url(#' + o.id + ')'}), top = E(svg, 'g', {});
+    return {X, Y, g, top};
+  }
+  function controls(fig, redraw){
+    const inputs = {};
+    fig.querySelectorAll('.fig-ctl input').forEach(i => { inputs[i.dataset.k] = i; i.addEventListener('input', redraw); });
+    const show = (k, text) => { inputs[k].parentNode.querySelector('output').textContent = text; };
+    return {show, val: k => +inputs[k].value};
+  }
+  function nice(v){ const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * p >= v * 0.999) return m * p; return 10 * p; }
+  function ticks(a, b, n){ const raw = (b - a) / n, p = Math.pow(10, Math.floor(Math.log10(raw))); let s = p; for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw){ s = m * p; break; } const out = []; for (let v = Math.ceil(a / s - 1e-9) * s; v <= b + 1e-9; v += s) out.push(+v.toFixed(10)); return out; }
+
+  const fig = document.getElementById('fig22'), svg = fig.querySelector('svg'), read = fig.querySelector('.fig-read');
+  const c = controls(fig, draw);
+  function draw(){
+    const a = c.val('a'), b = c.val('b'), t = 10 * Math.log10(Math.pow(10, a / 10) + Math.pow(10, b / 10));
+    c.show('a', a.toFixed(0) + ' dB'); c.show('b', b.toFixed(0) + ' dB');
+    const P = plot(svg, {id: 'cp22', l: 120, t: 10, w: 490, h: 150, x0: 40, x1: 110, y0: 0, y1: 3, xt: [40, 50, 60, 70, 80, 90, 100, 110], yt: [], xlab: 'level (dB)'});
+    [['L₁', a, 'c1f'], ['L₂', b, 'c1f'], ['total', t, 'c3f']].forEach((r, i) => {
+      const y = P.Y(2.6 - i);
+      E(P.g, 'rect', {class: r[2], x: P.X(40), y: y - 14, width: P.X(r[1]) - P.X(40), height: 28});
+      E(svg, 'text', {class: 'lab', x: 112, y: y + 5, 'text-anchor': 'end'}, r[0] + ' ' + fix(r[1], 1));
+    });
+    read.innerHTML = `L<sub>total</sub> = 10 log(10<sup>${a}/10</sup> + 10<sup>${b}/10</sup>) = ${fix(t, 1)} dB, which is ${fix(t - Math.max(a, b), 2)} dB above the louder source.`;
+  }
+  draw();
+})();
+</script><script>
+(function(){
+
+  const NS = 'http://www.w3.org/2000/svg';
+  function E(parent, tag, attrs, text){
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.append(e);
+    return e;
+  }
+  const neg = s => s.replace(/-/g, '−');
+  const num = v => neg((+v.toPrecision(6)).toString());
+  const fix = (v, d) => neg(v.toFixed(d));
+  const pts = a => a.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  // Axes, grid and labels; returns scales and a clipped group to draw in.
+  function plot(svg, o){
+    svg.textContent = '';
+    const lx = o.logx, ly = o.logy;
+    const X = v => o.l + (lx ? (Math.log10(v) - Math.log10(o.x0)) / (Math.log10(o.x1) - Math.log10(o.x0)) : (v - o.x0) / (o.x1 - o.x0)) * o.w;
+    const Y = v => o.t + (ly ? (Math.log10(o.y1) - Math.log10(v)) / (Math.log10(o.y1) - Math.log10(o.y0)) : (o.y1 - v) / (o.y1 - o.y0)) * o.h;
+    const defs = E(svg, 'defs', {});
+    E(E(defs, 'clipPath', {id: o.id}), 'rect', {x: o.l, y: o.t, width: o.w, height: o.h});
+    o.xt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: X(v), y1: o.t, x2: X(v), y2: o.t + o.h});
+      if (!o.noxt) E(svg, 'text', {class: 'tk', x: X(v), y: o.t + o.h + 15, 'text-anchor': 'middle'}, o.xf ? o.xf(v) : num(v));
+    });
+    o.yt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: o.l, y1: Y(v), x2: o.l + o.w, y2: Y(v)});
+      E(svg, 'text', {class: 'tk', x: o.l - 6, y: Y(v) + 4, 'text-anchor': 'end'}, o.yf ? o.yf(v) : num(v));
+    });
+    if (o.zero) E(svg, 'line', {class: 'axis', x1: o.l, y1: Y(0), x2: o.l + o.w, y2: Y(0)});
+    E(svg, 'rect', {class: 'frame', x: o.l, y: o.t, width: o.w, height: o.h});
+    E(svg, 'text', {class: 'lab', x: o.l + o.w / 2, y: o.t + o.h + 34, 'text-anchor': 'middle'}, o.xlab);
+    E(svg, 'text', {class: 'lab', transform: 'translate(' + (o.ylx === undefined ? 16 : o.ylx) + ' ' + (o.t + o.h / 2) + ') rotate(-90)', 'text-anchor': 'middle'}, o.ylab);
+    const g = E(svg, 'g', {'clip-path': 'url(#' + o.id + ')'}), top = E(svg, 'g', {});
+    return {X, Y, g, top};
+  }
+  function controls(fig, redraw){
+    const inputs = {};
+    fig.querySelectorAll('.fig-ctl input').forEach(i => { inputs[i.dataset.k] = i; i.addEventListener('input', redraw); });
+    const show = (k, text) => { inputs[k].parentNode.querySelector('output').textContent = text; };
+    return {show, val: k => +inputs[k].value};
+  }
+  function nice(v){ const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * p >= v * 0.999) return m * p; return 10 * p; }
+  function ticks(a, b, n){ const raw = (b - a) / n, p = Math.pow(10, Math.floor(Math.log10(raw))); let s = p; for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw){ s = m * p; break; } const out = []; for (let v = Math.ceil(a / s - 1e-9) * s; v <= b + 1e-9; v += s) out.push(+v.toFixed(10)); return out; }
+
+  const fig = document.getElementById('fig61'), svg = fig.querySelector('svg'), read = fig.querySelector('.fig-read');
+  const c = controls(fig, draw);
+  function draw(){
+    const lw = c.val('lw'), r = c.val('r');
+    c.show('lw', lw.toFixed(0) + ' dB'); c.show('r', r.toFixed(0) + ' m');
+    const P = plot(svg, {id: 'cp61', l: 66, t: 14, w: 550, h: 190, x0: 1, x1: 1000, logx: true, y0: 20, y1: 130, xt: [1, 10, 100, 1000], yt: [20, 40, 60, 80, 100, 120], xlab: 'distance r (m)', ylab: 'Lp (dB)'});
+    const pp = [], ll = [];
+    for (let i = 0; i <= 100; i++){ const x = Math.pow(10, 3 * i / 100); pp.push([P.X(x), P.Y(lw - 20 * Math.log10(x) - 8)]); ll.push([P.X(x), P.Y(lw - 10 * Math.log10(x) - 5)]); }
+    E(P.g, 'polyline', {class: 'ln c1', points: pts(pp)}); E(P.g, 'polyline', {class: 'ln c3', points: pts(ll)});
+    E(P.g, 'line', {class: 'ln c4 thin dash', x1: P.X(r), y1: P.Y(20), x2: P.X(r), y2: P.Y(130)});
+    const a = lw - 20 * Math.log10(r) - 8, b = lw - 10 * Math.log10(r) - 5;
+    E(P.g, 'circle', {class: 'c1f', cx: P.X(r), cy: P.Y(a), r: 4}); E(P.g, 'circle', {class: 'c3f', cx: P.X(r), cy: P.Y(b), r: 4});
+    read.innerHTML = `At r = ${r.toFixed(0)} m: point source ${fix(a, 1)} dB (teal), line source ${fix(b, 1)} dB (amber). Distance for a point source to fall to 85 dB: ${fix(Math.pow(10, (lw - 8 - 85) / 20), 1)} m.`;
+  }
+  draw();
+})();
+</script>
+<script src="../assets/ask-gemini.js" data-store="vibration-w11" data-course="Vibration and Noise 354"
+        data-topic="Week 11: sound, speed of sound, wavelength, sound pressure level, decibel addition, background noise, hearing, phon lines, A-weighting, C-weighting, LAeq, SANS 10083, rating level, hearing conservation, SANS 10103, day/night rating level, Western Cape noise regulations, point source, line source, absorption, isolation"></script>
+</body>
+</html>

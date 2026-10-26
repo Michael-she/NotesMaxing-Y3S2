@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 10: Beams and condition monitoring · Vibration and Noise · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=vibration">&larr; Vibration and Noise</a>
+  <div class="k">Vibration and Noise · Week 10</div>
+  <ol>
+    <li><a href="#rods">1. Rods and shafts</a></li>
+    <li><a href="#beams">2. Beam vibration</a></li>
+    <li><a href="#table">3. Table 6.6 procedure</a></li>
+    <li><a href="#example">4. Aluminium tube</a></li>
+    <li><a href="#tut4">5. Tutorial 4</a></li>
+    <li class="sub"><a href="#ap1">Pinned-sliding string</a></li>
+    <li class="sub"><a href="#ap2">FRF estimate</a></li>
+    <li class="sub"><a href="#ap3">Fan on an I-beam</a></li>
+    <li><a href="#cm">6. Condition monitoring</a></li>
+    <li class="sub"><a href="#philosophy">Maintenance philosophies</a></li>
+    <li class="sub"><a href="#monitoring">Vibration monitoring</a></li>
+    <li class="sub"><a href="#faults">Fault diagnosis</a></li>
+    <li class="sub"><a href="#bearings">Bearing wear</a></li>
+    <li><a href="#practice">7. Practice problems</a></li>
+    <li><a href="#sheet">8. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">VIBRATION AND NOISE 354 · INMAN 6.3 TO 6.5 · LECTURE 13 · TUTORIAL 4</div>
+  <h1>Beams in bending and vibration-based condition monitoring</h1>
+  <p class="lede">The rod and shaft equations derived, the Euler-Bernoulli beam with its boundary conditions and the Table 6.6 procedure, Tutorial 4 worked in full, and how vibration monitoring diagnoses faults in rotating machinery.</p>
+</header>
+
+<section id="rods">
+<h2><span class="n">01</span>Rods and shafts revisited</h2>
+
+<p>Week 9 stated that rods and shafts obey the wave equation. The Lecture 13 notes derive both with the same four steps used for the string: free-body diagram of an element, force (or moment) balance, a constitutive law from Strength of Materials, and the limit.</p>
+<figure>
+<svg viewBox="0 0 640 200" class="fig" role="img" aria-label="Free-body diagrams of a rod element under axial force and a shaft element under torque">
+<line class="ln c4" x1="30.0" y1="40.0" x2="30.0" y2="120.0"/><path class="ln c4 thin" d="M30.0 47.0 l9.0 -7.0 M30.0 61.0 l9.0 -7.0 M30.0 75.0 l9.0 -7.0 M30.0 89.0 l9.0 -7.0 M30.0 103.0 l9.0 -7.0 M30.0 117.0 l9.0 -7.0"/><rect class="blk" x="30" y="66" width="250" height="28"/><rect class="area" x="140" y="66" width="40" height="28"/><line class="ln c4" x1="140.0" y1="80.0" x2="115.0" y2="80.0"/><path class="c4f" d="M104.0 80.0 L115.0 85.5 L115.0 74.5 Z"/><text class="lab" x="98" y="60">F</text><line class="ln c4" x1="180.0" y1="80.0" x2="211.0" y2="80.0"/><path class="c4f" d="M222.0 80.0 L211.0 74.5 L211.0 85.5 Z"/><text class="lab" x="200" y="60">F + dF</text><text class="tk" x="140" y="114" text-anchor="middle">x</text><text class="tk" x="180" y="114" text-anchor="middle">x + dx</text><text class="lab" x="160" y="150" text-anchor="middle">rod: axial displacement w(x, t)</text><line class="ln c4" x1="360.0" y1="40.0" x2="360.0" y2="120.0"/><path class="ln c4 thin" d="M360.0 47.0 l9.0 -7.0 M360.0 61.0 l9.0 -7.0 M360.0 75.0 l9.0 -7.0 M360.0 89.0 l9.0 -7.0 M360.0 103.0 l9.0 -7.0 M360.0 117.0 l9.0 -7.0"/><rect class="blk" x="360" y="66" width="250" height="28"/><ellipse class="ln c1" cx="470" cy="80" rx="8" ry="14"/><ellipse class="ln c1" cx="510" cy="80" rx="8" ry="14"/><path class="ln c4" d="M462 58 A 12 22 0 0 0 462 102"/><text class="lab" x="430" y="56">τ</text><path class="ln c4" d="M518 58 A 12 22 0 0 1 518 102"/><text class="lab" x="524" y="56">τ + dτ</text><text class="lab" x="485" y="150" text-anchor="middle">shaft: twist θ(x, t)</text>
+</svg>
+<figcaption><b>Figure 2.1</b> Elements of a rod in axial vibration and a shaft in torsion.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> The rod element of length \(dx\) carries axial force \(F\) on one face and \(F + dF\) on the other; the shaft element carries torque \(\tau\) and \(\tau + d\tau\).</p>
+<h3 id="rod">Rod in longitudinal vibration</h3>
+<p>Newton's law on the element, with mass \(\rho A\,dx\) (\(\rho\) here is the <strong>volume</strong> density):</p>
+\[ (F + dF) - F = \rho A(x)\,dx\,\frac{\partial^2w}{\partial t^2}. \]
+<p>Hooke's law gives \(F = \sigma A = EA\,\partial w/\partial x\), and \(dF = (\partial F/\partial x)dx\), so</p>
+<div class="eq"><span class="tag">Rod equation of motion</span>\[ \frac{\partial}{\partial x}\left[EA(x)\frac{\partial w}{\partial x}\right] = \rho A(x)\frac{\partial^2w}{\partial t^2} \;\xrightarrow{A\text{ constant}}\; \frac{\partial^2w}{\partial x^2} = \frac{1}{c^2}\frac{\partial^2w}{\partial t^2}, \quad c = \sqrt{\frac{E}{\rho}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(w(x, t)\)</dt><dd>Axial displacement of the section at \(x\) (m).</dd>
+  <dt>\(E\)</dt><dd>Young's modulus (Pa).</dd>
+  <dt>\(A(x)\)</dt><dd>Cross-sectional area (m²).</dd>
+  <dt>\(\rho\)</dt><dd>Volume density (kg/m³).</dd>
+</dl>
+</div>
+<h3 id="shaft">Shaft in torsion</h3>
+<p>The moment balance on the element, with polar mass moment of inertia \(\rho J\,dx\), and the torsion law \(\tau = GJ\,\partial\theta/\partial x\) give</p>
+<div class="eq"><span class="tag">Shaft equation of motion</span>\[ \frac{\partial}{\partial x}\left[GJ(x)\frac{\partial\theta}{\partial x}\right] = \rho J(x)\frac{\partial^2\theta}{\partial t^2} \;\xrightarrow{\text{uniform}}\; \frac{G\gamma}{\rho J}\frac{\partial^2\theta}{\partial x^2} = \frac{\partial^2\theta}{\partial t^2} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\theta(x, t)\)</dt><dd>Angle of twist (rad).</dd>
+  <dt>\(G\)</dt><dd>Shear modulus (Pa).</dd>
+  <dt>\(J\)</dt><dd>Polar second moment of area (m⁴).</dd>
+  <dt>\(\gamma\)</dt><dd>Torsional constant (m⁴), Inman Table 6.3; equal to \(J\) for a circular section.</dd>
+</dl>
+</div>
+<p>Both are solved by separation of variables exactly as for the string. Inman Table 6.2 (rods) and Table 6.5 (shafts) list the frequencies and mode shapes for the common end conditions; the fixed-free and fixed-fixed cases are in the week 9 table.</p>
+<div class="box watch"><span class="label">Watch out</span><p>In the shaft equation the notes write \(GJ(x)\) in the derivation but \(G\gamma\) in the uniform form. They are the same thing for a circular shaft. For other sections the stiffness term is \(G\gamma\) while the inertia term stays \(\rho J\), so the general equation should read \(\partial_x[G\gamma\,\partial_x\theta] = \rho J\,\partial_t^2\theta\).</p></div>
+
+</section>
+
+<section id="beams">
+<h2><span class="n">02</span>Transverse vibration of beams</h2>
+
+<p>A <strong>rod</strong> carries axial load, a <strong>shaft</strong> torsion, and a <strong>beam</strong> transverse load. Bending of a beam gives a fourth-order equation:</p>
+<div class="eq"><span class="tag">Euler-Bernoulli beam, free vibration</span>\[ \frac{\partial^2w(x, t)}{\partial t^2} + c^2\frac{\partial^4w(x, t)}{\partial x^4} = 0, \qquad c = \sqrt{\frac{EI}{\rho A}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(w(x, t)\)</dt><dd>Transverse deflection (m).</dd>
+  <dt>\(E\)</dt><dd>Young's modulus (Pa).</dd>
+  <dt>\(I\)</dt><dd>Second moment of area about the bending axis (m⁴).</dd>
+  <dt>\(\rho A\)</dt><dd>Mass per unit length (kg/m).</dd>
+  <dt>\(c\)</dt><dd>Here a constant with units m²/s, not a wave speed.</dd>
+</dl>
+</div>
+<div class="key"><span class="tag">Slender beams only</span><p>Euler-Bernoulli theory assumes the beam is slender: length at least 10 times the width or height. Otherwise shear deformation and rotary inertia matter and Timoshenko theory is needed. This course uses slender beams only.</p></div>
+<p>Four spatial derivatives need <strong>four boundary conditions</strong>, two at each end, chosen from deflection \(w\), slope \(\partial w/\partial x\), bending moment \(EI\,\partial^2w/\partial x^2\) and shear force \(\partial_x(EI\,\partial^2w/\partial x^2)\). Two initial conditions are still needed for the time part.</p>
+<figure>
+<svg viewBox="0 0 640 126" class="fig" role="img" aria-label="The four beam end conditions and the two quantities that vanish at each">
+<rect class="legbg" x="8" y="14" width="146" height="100" rx="4"/><text class="lab" x="81" y="36" text-anchor="middle">Clamped (fixed)</text><text class="tk" x="81" y="62" text-anchor="middle">w = 0</text><text class="tk" x="81" y="84" text-anchor="middle">∂w/∂x = 0</text><rect class="legbg" x="166" y="14" width="146" height="100" rx="4"/><text class="lab" x="239" y="36" text-anchor="middle">Pinned (simply supp.)</text><text class="tk" x="239" y="62" text-anchor="middle">w = 0</text><text class="tk" x="239" y="84" text-anchor="middle">EI ∂²w/∂x² = 0</text><rect class="legbg" x="324" y="14" width="146" height="100" rx="4"/><text class="lab" x="397" y="36" text-anchor="middle">Free</text><text class="tk" x="397" y="62" text-anchor="middle">EI ∂²w/∂x² = 0</text><text class="tk" x="397" y="84" text-anchor="middle">∂/∂x(EI ∂²w/∂x²) = 0</text><rect class="legbg" x="482" y="14" width="146" height="100" rx="4"/><text class="lab" x="555" y="36" text-anchor="middle">Sliding</text><text class="tk" x="555" y="62" text-anchor="middle">∂w/∂x = 0</text><text class="tk" x="555" y="84" text-anchor="middle">∂/∂x(EI ∂²w/∂x²) = 0</text>
+</svg>
+<figcaption><b>Figure 3.1</b> Beam end conditions.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> Each end type fixes two of the four quantities to zero: what is prevented (deflection, slope) at a support, or what cannot be transmitted (moment, shear) at an unrestrained end.</p>
+
+</section>
+
+<section id="table">
+<h2><span class="n">03</span>Table 6.6 procedure</h2>
+
+<p>Solving the boundary value problem is heavy algebra (Inman 6.5). The course uses Inman <strong>Table 6.6</strong>, summarised below, with this procedure:</p>
+<ol><li>Identify the boundary configuration.</li><li>Look up \(\beta_nl\).</li><li>Divide by \(l\) to get \(\beta_n\), and compute the natural frequencies.</li><li>Look up the mode shape equation.</li><li>Read \(\sigma_n\) for each mode.</li><li>Plot the mode shapes (engineering judgement or MATLAB).</li></ol>
+<div class="eq"><span class="tag">Beam natural frequencies</span>\[ \omega_n = \beta_n^2\sqrt{\frac{EI}{\rho A}} = \frac{(\beta_nl)^2}{l^2}\sqrt{\frac{EI}{\rho A}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\beta_nl\)</dt><dd>Dimensionless weighted frequency from Table 6.6.</dd>
+  <dt>\(\omega_n\)</dt><dd>Natural frequency (rad/s); divide by \(2\pi\) for Hz.</dd>
+</dl>
+</div>
+<div class="tbl"><table><thead><tr><th>Ends</th><th>\(\beta_nl\), \(n = 1\) to 4</th><th>Characteristic equation</th><th>Mode shape \(X_n(x)\)</th><th>\(\sigma_n\)</th></tr></thead><tbody><tr><td>Free-free</td><td>0 (rigid), 4.7300, 7.8532, 10.9956</td><td>cos βl cosh βl = 1</td><td>cosh βx + cos βx − σ(sinh βx + sin βx)</td><td>0.9825, 1.0008, 0.9999</td></tr><tr><td>Clamped-free</td><td>1.8751, 4.6941, 7.8548, 10.9955</td><td>cos βl cosh βl = −1</td><td>cosh βx − cos βx − σ(sinh βx − sin βx)</td><td>0.7341, 1.0185, 0.9992</td></tr><tr><td>Clamped-pinned</td><td>3.9266, 7.0686, 10.2102, 13.3518</td><td>tan βl = tanh βl</td><td>same as clamped-free</td><td>1.0008, then 1</td></tr><tr><td>Clamped-sliding</td><td>2.3650, 5.4978, 8.6394, 11.7810</td><td>tan βl + tanh βl = 0</td><td>same as clamped-free</td><td>0.9825, then 1</td></tr><tr><td>Clamped-clamped</td><td>4.7300, 7.8532, 10.9956, 14.1372</td><td>cos βl cosh βl = 1</td><td>same as clamped-free</td><td>0.9825, 1.0008, 1.0000</td></tr><tr><td>Pinned-pinned</td><td>nπ</td><td>sin βl = 0</td><td>sin(nπx/l)</td><td>none</td></tr></tbody></table></div>
+<p>Unlike the string, the beam frequencies are <strong>not</strong> whole multiples of the first: they grow roughly as \(n^2\). For \(n > 5\) the table gives approximations such as \((2n - 1)\pi/2\) (clamped-free) and \((4n - 1)\pi/4\) (clamped-sliding).</p>
+<figure id="fig32">
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="Beam mode shape for a chosen boundary configuration and mode number"></svg>
+<div class="fig-ctl">
+<label><span>BC</span><input type="range" data-k="bc" min="1" max="6" step="1" value="4" aria-label="Boundary configuration number from 1 to 6"><output></output></label>
+<label><span>n</span><input type="range" data-k="n" min="1" max="4" step="1" value="1" aria-label="Mode number"><output></output></label>
+</div>
+<div class="fig-read" aria-live="polite"></div>
+<figcaption><b>Figure 3.2</b> Table 6.6 as a mode-shape viewer.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.2:</b> Pick a configuration (1 free-free, 2 clamped-free, 3 clamped-pinned, 4 clamped-sliding, 5 clamped-clamped, 6 pinned-pinned) and a mode. The curve is the tabulated mode shape scaled to a peak of 1; amber dots are nodes. The readout gives the tabulated \(\beta_nL\) and \(\sigma_n\).</p>
+
+</section>
+
+<section id="example">
+<h2><span class="n">04</span>Worked example: aluminium tube</h2>
+
+<div class="ex"><div class="hd">Worked example 4.1 <span>Clamped-sliding aluminium tube</span></div><div class="bd">
+<p>A clamped-sliding aluminium beam (\(E = 80\) GPa, \(\rho = 2100\) kg/m³) is a tube of span 10 m, outside diameter 120 mm and wall thickness 6 mm. Find the first five natural frequencies and the mode shapes. (Lecture 13 example and Tutorial 4, additional problem 2a.)</p>
+<div class="step"><i>1</i><div>Hollow circle: \(A = \frac{\pi}{4}(0.12^2 - 0.108^2) = 21.49\times10^{-4}\) m², \(I = \frac{\pi}{64}(0.12^4 - 0.108^4) = 3.5005\times10^{-6}\) m⁴.</div></div>
+<div class="step"><i>2</i><div>\(\sqrt{EI/\rho A} = \sqrt{80\times10^9 \times 3.5005\times10^{-6}/(2100 \times 2.1488\times10^{-3})} = 249.1\) m²/s.</div></div>
+<div class="step"><i>3</i><div>Clamped-sliding: \(\beta_nl\) = 2.3650, 5.4978, 8.6394, 11.7810, 14.9226; divide by 10 m.</div></div>
+<div class="step"><i>4</i><div>Frequencies: \(f_1 = 2.22\) Hz, \(f_2 = 11.98\) Hz, \(f_3 = 29.59\) Hz, \(f_4 = 55.03\) Hz, \(f_5 = 88.29\) Hz.</div></div>
+<div class="step"><i>5</i><div>Mode shapes: \(X_n(x) = \cosh\beta_nx - \cos\beta_nx - \sigma_n(\sinh\beta_nx - \sin\beta_nx)\), with \(\sigma_1 = 0.9825\) and \(\sigma_n = 1\) beyond.</div></div>
+<div class="ans">2.22, 11.98, 29.59, 55.03 and 88.29 Hz. Mode 1: \(X_1 = \cosh 0.2365x - \cos 0.2365x - 0.9825(\sinh 0.2365x - \sin 0.2365x)\). Slenderness: 10 m / 0.12 m ≈ 83, well above 10, so Euler-Bernoulli applies.</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 330" class="fig" role="img" aria-label="First four mode shapes of the clamped-sliding aluminium tube, with nodes and the accelerometer position marked">
+<line class="grid" x1="58.0" y1="12" x2="58.0" y2="62"/>
+<line class="grid" x1="170.0" y1="12" x2="170.0" y2="62"/>
+<line class="grid" x1="282.0" y1="12" x2="282.0" y2="62"/>
+<line class="grid" x1="394.0" y1="12" x2="394.0" y2="62"/>
+<line class="grid" x1="506.0" y1="12" x2="506.0" y2="62"/>
+<line class="grid" x1="618.0" y1="12" x2="618.0" y2="62"/>
+<line class="grid" x1="58" y1="57.8" x2="618" y2="57.8"/>
+<text class="tk" x="52" y="61.8" text-anchor="end">−1</text>
+<line class="grid" x1="58" y1="37.0" x2="618" y2="37.0"/>
+<text class="tk" x="52" y="41.0" text-anchor="end">0</text>
+<line class="grid" x1="58" y1="16.2" x2="618" y2="16.2"/>
+<text class="tk" x="52" y="20.2" text-anchor="end">1</text>
+<line class="axis" x1="58" y1="37.0" x2="618" y2="37.0"/>
+<rect class="frame" x="58" y="12" width="560" height="50"/>
+<text class="lab" transform="translate(16 37.0) rotate(-90)" text-anchor="middle">mode 1</text>
+<polyline class="ln c1" points="58.0,37.0 59.9,37.0 61.7,37.0 63.6,37.0 65.5,37.0 67.3,37.0 69.2,37.0 71.1,37.0 72.9,36.9 74.8,36.9 76.7,36.9 78.5,36.9 80.4,36.9 82.3,36.9 84.1,36.8 86.0,36.8 87.9,36.8 89.7,36.8 91.6,36.7 93.5,36.7 95.3,36.7 97.2,36.7 99.1,36.6 100.9,36.6 102.8,36.6 104.7,36.5 106.5,36.5 108.4,36.4 110.3,36.4 112.1,36.4 114.0,36.3 115.9,36.3 117.7,36.2 119.6,36.2 121.5,36.1 123.3,36.1 125.2,36.0 127.1,36.0 128.9,35.9 130.8,35.9 132.7,35.8 134.5,35.8 136.4,35.7 138.3,35.7 140.1,35.6 142.0,35.5 143.9,35.5 145.7,35.4 147.6,35.4 149.5,35.3 151.3,35.2 153.2,35.2 155.1,35.1 156.9,35.0 158.8,35.0 160.7,34.9 162.5,34.8 164.4,34.7 166.3,34.7 168.1,34.6 170.0,34.5 171.9,34.4 173.7,34.4 175.6,34.3 177.5,34.2 179.3,34.1 181.2,34.1 183.1,34.0 184.9,33.9 186.8,33.8 188.7,33.7 190.5,33.6 192.4,33.6 194.3,33.5 196.1,33.4 198.0,33.3 199.9,33.2 201.7,33.1 203.6,33.0 205.5,32.9 207.3,32.9 209.2,32.8 211.1,32.7 212.9,32.6 214.8,32.5 216.7,32.4 218.5,32.3 220.4,32.2 222.3,32.1 224.1,32.0 226.0,31.9 227.9,31.8 229.7,31.7 231.6,31.6 233.5,31.5 235.3,31.4 237.2,31.3 239.1,31.2 240.9,31.1 242.8,31.0 244.7,30.9 246.5,30.8 248.4,30.7 250.3,30.6 252.1,30.5 254.0,30.4 255.9,30.3 257.7,30.2 259.6,30.1 261.5,30.0 263.3,29.9 265.2,29.8 267.1,29.7 268.9,29.6 270.8,29.5 272.7,29.4 274.5,29.3 276.4,29.2 278.3,29.1 280.1,29.0 282.0,28.9 283.9,28.8 285.7,28.7 287.6,28.6 289.5,28.5 291.3,28.3 293.2,28.2 295.1,28.1 296.9,28.0 298.8,27.9 300.7,27.8 302.5,27.7 304.4,27.6 306.3,27.5 308.1,27.4 310.0,27.3 311.9,27.2 313.7,27.1 315.6,27.0 317.5,26.8 319.3,26.7 321.2,26.6 323.1,26.5 324.9,26.4 326.8,26.3 328.7,26.2 330.5,26.1 332.4,26.0 334.3,25.9 336.1,25.8 338.0,25.7 339.9,25.6 341.7,25.5 343.6,25.4 345.5,25.3 347.3,25.2 349.2,25.0 351.1,24.9 352.9,24.8 354.8,24.7 356.7,24.6 358.5,24.5 360.4,24.4 362.3,24.3 364.1,24.2 366.0,24.1 367.9,24.0 369.7,23.9 371.6,23.8 373.5,23.7 375.3,23.6 377.2,23.5 379.1,23.4 380.9,23.3 382.8,23.2 384.7,23.1 386.5,23.0 388.4,22.9 390.3,22.8 392.1,22.7 394.0,22.6 395.9,22.5 397.7,22.4 399.6,22.3 401.5,22.2 403.3,22.1 405.2,22.1 407.1,22.0 408.9,21.9 410.8,21.8 412.7,21.7 414.5,21.6 416.4,21.5 418.3,21.4 420.1,21.3 422.0,21.2 423.9,21.1 425.7,21.1 427.6,21.0 429.5,20.9 431.3,20.8 433.2,20.7 435.1,20.6 436.9,20.5 438.8,20.5 440.7,20.4 442.5,20.3 444.4,20.2 446.3,20.1 448.1,20.0 450.0,20.0 451.9,19.9 453.7,19.8 455.6,19.7 457.5,19.7 459.3,19.6 461.2,19.5 463.1,19.4 464.9,19.3 466.8,19.3 468.7,19.2 470.5,19.1 472.4,19.1 474.3,19.0 476.1,18.9 478.0,18.8 479.9,18.8 481.7,18.7 483.6,18.6 485.5,18.6 487.3,18.5 489.2,18.5 491.1,18.4 492.9,18.3 494.8,18.3 496.7,18.2 498.5,18.1 500.4,18.1 502.3,18.0 504.1,18.0 506.0,17.9 507.9,17.9 509.7,17.8 511.6,17.7 513.5,17.7 515.3,17.6 517.2,17.6 519.1,17.5 520.9,17.5 522.8,17.4 524.7,17.4 526.5,17.3 528.4,17.3 530.3,17.2 532.1,17.2 534.0,17.2 535.9,17.1 537.7,17.1 539.6,17.0 541.5,17.0 543.3,17.0 545.2,16.9 547.1,16.9 548.9,16.8 550.8,16.8 552.7,16.8 554.5,16.7 556.4,16.7 558.3,16.7 560.1,16.6 562.0,16.6 563.9,16.6 565.7,16.6 567.6,16.5 569.5,16.5 571.3,16.5 573.2,16.5 575.1,16.4 576.9,16.4 578.8,16.4 580.7,16.4 582.5,16.3 584.4,16.3 586.3,16.3 588.1,16.3 590.0,16.3 591.9,16.3 593.7,16.3 595.6,16.2 597.5,16.2 599.3,16.2 601.2,16.2 603.1,16.2 604.9,16.2 606.8,16.2 608.7,16.2 610.5,16.2 612.4,16.2 614.3,16.2 616.1,16.2 618.0,16.2"/><circle class="c4f" cx="244.7" cy="30.9" r="4"/>
+<line class="grid" x1="58.0" y1="82" x2="58.0" y2="132"/>
+<line class="grid" x1="170.0" y1="82" x2="170.0" y2="132"/>
+<line class="grid" x1="282.0" y1="82" x2="282.0" y2="132"/>
+<line class="grid" x1="394.0" y1="82" x2="394.0" y2="132"/>
+<line class="grid" x1="506.0" y1="82" x2="506.0" y2="132"/>
+<line class="grid" x1="618.0" y1="82" x2="618.0" y2="132"/>
+<line class="grid" x1="58" y1="127.8" x2="618" y2="127.8"/>
+<text class="tk" x="52" y="131.8" text-anchor="end">−1</text>
+<line class="grid" x1="58" y1="107.0" x2="618" y2="107.0"/>
+<text class="tk" x="52" y="111.0" text-anchor="end">0</text>
+<line class="grid" x1="58" y1="86.2" x2="618" y2="86.2"/>
+<text class="tk" x="52" y="90.2" text-anchor="end">1</text>
+<line class="axis" x1="58" y1="107.0" x2="618" y2="107.0"/>
+<rect class="frame" x="58" y="82" width="560" height="50"/>
+<text class="lab" transform="translate(16 107.0) rotate(-90)" text-anchor="middle">mode 2</text>
+<polyline class="ln c1" points="58.0,107.0 59.9,107.0 61.7,107.0 63.6,107.0 65.5,106.9 67.3,106.9 69.2,106.8 71.1,106.8 72.9,106.7 74.8,106.6 76.7,106.6 78.5,106.5 80.4,106.4 82.3,106.3 84.1,106.2 86.0,106.1 87.9,105.9 89.7,105.8 91.6,105.7 93.5,105.5 95.3,105.4 97.2,105.2 99.1,105.1 100.9,104.9 102.8,104.7 104.7,104.5 106.5,104.4 108.4,104.2 110.3,104.0 112.1,103.8 114.0,103.6 115.9,103.4 117.7,103.2 119.6,103.0 121.5,102.8 123.3,102.5 125.2,102.3 127.1,102.1 128.9,101.9 130.8,101.6 132.7,101.4 134.5,101.2 136.4,100.9 138.3,100.7 140.1,100.4 142.0,100.2 143.9,99.9 145.7,99.7 147.6,99.5 149.5,99.2 151.3,98.9 153.2,98.7 155.1,98.4 156.9,98.2 158.8,97.9 160.7,97.7 162.5,97.4 164.4,97.2 166.3,96.9 168.1,96.6 170.0,96.4 171.9,96.1 173.7,95.9 175.6,95.6 177.5,95.4 179.3,95.1 181.2,94.9 183.1,94.6 184.9,94.4 186.8,94.1 188.7,93.9 190.5,93.6 192.4,93.4 194.3,93.2 196.1,92.9 198.0,92.7 199.9,92.5 201.7,92.2 203.6,92.0 205.5,91.8 207.3,91.6 209.2,91.3 211.1,91.1 212.9,90.9 214.8,90.7 216.7,90.5 218.5,90.3 220.4,90.1 222.3,89.9 224.1,89.7 226.0,89.5 227.9,89.4 229.7,89.2 231.6,89.0 233.5,88.8 235.3,88.7 237.2,88.5 239.1,88.4 240.9,88.2 242.8,88.1 244.7,87.9 246.5,87.8 248.4,87.7 250.3,87.5 252.1,87.4 254.0,87.3 255.9,87.2 257.7,87.1 259.6,87.0 261.5,86.9 263.3,86.8 265.2,86.7 267.1,86.6 268.9,86.6 270.8,86.5 272.7,86.4 274.5,86.4 276.4,86.3 278.3,86.3 280.1,86.3 282.0,86.2 283.9,86.2 285.7,86.2 287.6,86.2 289.5,86.2 291.3,86.2 293.2,86.2 295.1,86.2 296.9,86.2 298.8,86.2 300.7,86.3 302.5,86.3 304.4,86.3 306.3,86.4 308.1,86.4 310.0,86.5 311.9,86.6 313.7,86.6 315.6,86.7 317.5,86.8 319.3,86.9 321.2,87.0 323.1,87.1 324.9,87.2 326.8,87.3 328.7,87.4 330.5,87.6 332.4,87.7 334.3,87.8 336.1,88.0 338.0,88.1 339.9,88.3 341.7,88.4 343.6,88.6 345.5,88.8 347.3,89.0 349.2,89.1 351.1,89.3 352.9,89.5 354.8,89.7 356.7,89.9 358.5,90.1 360.4,90.4 362.3,90.6 364.1,90.8 366.0,91.0 367.9,91.3 369.7,91.5 371.6,91.8 373.5,92.0 375.3,92.3 377.2,92.5 379.1,92.8 380.9,93.0 382.8,93.3 384.7,93.6 386.5,93.9 388.4,94.2 390.3,94.5 392.1,94.7 394.0,95.0 395.9,95.3 397.7,95.6 399.6,96.0 401.5,96.3 403.3,96.6 405.2,96.9 407.1,97.2 408.9,97.5 410.8,97.9 412.7,98.2 414.5,98.5 416.4,98.9 418.3,99.2 420.1,99.5 422.0,99.9 423.9,100.2 425.7,100.6 427.6,100.9 429.5,101.3 431.3,101.6 433.2,102.0 435.1,102.3 436.9,102.7 438.8,103.0 440.7,103.4 442.5,103.7 444.4,104.1 446.3,104.5 448.1,104.8 450.0,105.2 451.9,105.5 453.7,105.9 455.6,106.3 457.5,106.6 459.3,107.0 461.2,107.3 463.1,107.7 464.9,108.1 466.8,108.4 468.7,108.8 470.5,109.2 472.4,109.5 474.3,109.9 476.1,110.2 478.0,110.6 479.9,110.9 481.7,111.3 483.6,111.6 485.5,112.0 487.3,112.3 489.2,112.7 491.1,113.0 492.9,113.4 494.8,113.7 496.7,114.0 498.5,114.4 500.4,114.7 502.3,115.0 504.1,115.4 506.0,115.7 507.9,116.0 509.7,116.3 511.6,116.6 513.5,116.9 515.3,117.2 517.2,117.5 519.1,117.8 520.9,118.1 522.8,118.4 524.7,118.7 526.5,119.0 528.4,119.3 530.3,119.6 532.1,119.8 534.0,120.1 535.9,120.4 537.7,120.6 539.6,120.9 541.5,121.1 543.3,121.4 545.2,121.6 547.1,121.8 548.9,122.1 550.8,122.3 552.7,122.5 554.5,122.7 556.4,122.9 558.3,123.1 560.1,123.3 562.0,123.5 563.9,123.7 565.7,123.9 567.6,124.1 569.5,124.2 571.3,124.4 573.2,124.5 575.1,124.7 576.9,124.8 578.8,125.0 580.7,125.1 582.5,125.2 584.4,125.4 586.3,125.5 588.1,125.6 590.0,125.7 591.9,125.8 593.7,125.9 595.6,125.9 597.5,126.0 599.3,126.1 601.2,126.2 603.1,126.2 604.9,126.3 606.8,126.3 608.7,126.3 610.5,126.4 612.4,126.4 614.3,126.4 616.1,126.4 618.0,126.4"/><circle class="c3f" cx="459.3" cy="107.0" r="4"/><circle class="c4f" cx="244.7" cy="87.9" r="4"/>
+<line class="grid" x1="58.0" y1="152" x2="58.0" y2="202"/>
+<line class="grid" x1="170.0" y1="152" x2="170.0" y2="202"/>
+<line class="grid" x1="282.0" y1="152" x2="282.0" y2="202"/>
+<line class="grid" x1="394.0" y1="152" x2="394.0" y2="202"/>
+<line class="grid" x1="506.0" y1="152" x2="506.0" y2="202"/>
+<line class="grid" x1="618.0" y1="152" x2="618.0" y2="202"/>
+<line class="grid" x1="58" y1="197.8" x2="618" y2="197.8"/>
+<text class="tk" x="52" y="201.8" text-anchor="end">−1</text>
+<line class="grid" x1="58" y1="177.0" x2="618" y2="177.0"/>
+<text class="tk" x="52" y="181.0" text-anchor="end">0</text>
+<line class="grid" x1="58" y1="156.2" x2="618" y2="156.2"/>
+<text class="tk" x="52" y="160.2" text-anchor="end">1</text>
+<line class="axis" x1="58" y1="177.0" x2="618" y2="177.0"/>
+<rect class="frame" x="58" y="152" width="560" height="50"/>
+<text class="lab" transform="translate(16 177.0) rotate(-90)" text-anchor="middle">mode 3</text>
+<polyline class="ln c1" points="58.0,177.0 59.9,177.0 61.7,177.0 63.6,176.9 65.5,176.8 67.3,176.7 69.2,176.6 71.1,176.5 72.9,176.3 74.8,176.2 76.7,176.0 78.5,175.8 80.4,175.5 82.3,175.3 84.1,175.1 86.0,174.8 87.9,174.5 89.7,174.2 91.6,173.9 93.5,173.6 95.3,173.3 97.2,173.0 99.1,172.6 100.9,172.3 102.8,171.9 104.7,171.6 106.5,171.2 108.4,170.8 110.3,170.4 112.1,170.1 114.0,169.7 115.9,169.3 117.7,168.9 119.6,168.5 121.5,168.1 123.3,167.7 125.2,167.3 127.1,166.9 128.9,166.5 130.8,166.1 132.7,165.7 134.5,165.3 136.4,164.9 138.3,164.5 140.1,164.1 142.0,163.7 143.9,163.3 145.7,163.0 147.6,162.6 149.5,162.2 151.3,161.9 153.2,161.5 155.1,161.2 156.9,160.9 158.8,160.5 160.7,160.2 162.5,159.9 164.4,159.6 166.3,159.3 168.1,159.1 170.0,158.8 171.9,158.5 173.7,158.3 175.6,158.1 177.5,157.8 179.3,157.6 181.2,157.4 183.1,157.3 184.9,157.1 186.8,156.9 188.7,156.8 190.5,156.7 192.4,156.6 194.3,156.5 196.1,156.4 198.0,156.3 199.9,156.2 201.7,156.2 203.6,156.2 205.5,156.2 207.3,156.2 209.2,156.2 211.1,156.2 212.9,156.3 214.8,156.3 216.7,156.4 218.5,156.5 220.4,156.6 222.3,156.7 224.1,156.9 226.0,157.0 227.9,157.2 229.7,157.4 231.6,157.6 233.5,157.8 235.3,158.0 237.2,158.3 239.1,158.5 240.9,158.8 242.8,159.1 244.7,159.4 246.5,159.7 248.4,160.0 250.3,160.3 252.1,160.7 254.0,161.0 255.9,161.4 257.7,161.8 259.6,162.2 261.5,162.6 263.3,163.0 265.2,163.4 267.1,163.9 268.9,164.3 270.8,164.8 272.7,165.3 274.5,165.7 276.4,166.2 278.3,166.7 280.1,167.2 282.0,167.7 283.9,168.2 285.7,168.8 287.6,169.3 289.5,169.8 291.3,170.4 293.2,170.9 295.1,171.5 296.9,172.0 298.8,172.6 300.7,173.1 302.5,173.7 304.4,174.3 306.3,174.8 308.1,175.4 310.0,176.0 311.9,176.5 313.7,177.1 315.6,177.7 317.5,178.2 319.3,178.8 321.2,179.4 323.1,179.9 324.9,180.5 326.8,181.0 328.7,181.6 330.5,182.1 332.4,182.7 334.3,183.2 336.1,183.7 338.0,184.3 339.9,184.8 341.7,185.3 343.6,185.8 345.5,186.3 347.3,186.8 349.2,187.3 351.1,187.8 352.9,188.2 354.8,188.7 356.7,189.1 358.5,189.6 360.4,190.0 362.3,190.4 364.1,190.8 366.0,191.2 367.9,191.6 369.7,191.9 371.6,192.3 373.5,192.6 375.3,193.0 377.2,193.3 379.1,193.6 380.9,193.9 382.8,194.1 384.7,194.4 386.5,194.6 388.4,194.9 390.3,195.1 392.1,195.3 394.0,195.5 395.9,195.6 397.7,195.8 399.6,195.9 401.5,196.0 403.3,196.1 405.2,196.2 407.1,196.3 408.9,196.4 410.8,196.4 412.7,196.4 414.5,196.4 416.4,196.4 418.3,196.4 420.1,196.4 422.0,196.3 423.9,196.2 425.7,196.1 427.6,196.0 429.5,195.9 431.3,195.8 433.2,195.6 435.1,195.5 436.9,195.3 438.8,195.1 440.7,194.9 442.5,194.6 444.4,194.4 446.3,194.1 448.1,193.9 450.0,193.6 451.9,193.3 453.7,193.0 455.6,192.6 457.5,192.3 459.3,191.9 461.2,191.6 463.1,191.2 464.9,190.8 466.8,190.4 468.7,190.0 470.5,189.6 472.4,189.2 474.3,188.7 476.1,188.3 478.0,187.8 479.9,187.3 481.7,186.9 483.6,186.4 485.5,185.9 487.3,185.4 489.2,184.9 491.1,184.3 492.9,183.8 494.8,183.3 496.7,182.8 498.5,182.2 500.4,181.7 502.3,181.1 504.1,180.6 506.0,180.0 507.9,179.5 509.7,178.9 511.6,178.4 513.5,177.8 515.3,177.2 517.2,176.7 519.1,176.1 520.9,175.6 522.8,175.0 524.7,174.4 526.5,173.9 528.4,173.3 530.3,172.8 532.1,172.2 534.0,171.7 535.9,171.2 537.7,170.6 539.6,170.1 541.5,169.6 543.3,169.1 545.2,168.6 547.1,168.1 548.9,167.6 550.8,167.1 552.7,166.6 554.5,166.1 556.4,165.7 558.3,165.2 560.1,164.8 562.0,164.3 563.9,163.9 565.7,163.5 567.6,163.1 569.5,162.7 571.3,162.3 573.2,162.0 575.1,161.6 576.9,161.3 578.8,161.0 580.7,160.7 582.5,160.4 584.4,160.1 586.3,159.8 588.1,159.5 590.0,159.3 591.9,159.1 593.7,158.9 595.6,158.7 597.5,158.5 599.3,158.3 601.2,158.2 603.1,158.0 604.9,157.9 606.8,157.8 608.7,157.7 610.5,157.6 612.4,157.6 614.3,157.5 616.1,157.5 618.0,157.5"/><circle class="c3f" cx="311.9" cy="177.0" r="4"/><circle class="c3f" cx="515.3" cy="177.0" r="4"/><circle class="c4f" cx="244.7" cy="159.4" r="4"/>
+<line class="grid" x1="58.0" y1="222" x2="58.0" y2="272"/>
+<text class="tk" x="58.0" y="287" text-anchor="middle">0</text>
+<line class="grid" x1="170.0" y1="222" x2="170.0" y2="272"/>
+<text class="tk" x="170.0" y="287" text-anchor="middle">2</text>
+<line class="grid" x1="282.0" y1="222" x2="282.0" y2="272"/>
+<text class="tk" x="282.0" y="287" text-anchor="middle">4</text>
+<line class="grid" x1="394.0" y1="222" x2="394.0" y2="272"/>
+<text class="tk" x="394.0" y="287" text-anchor="middle">6</text>
+<line class="grid" x1="506.0" y1="222" x2="506.0" y2="272"/>
+<text class="tk" x="506.0" y="287" text-anchor="middle">8</text>
+<line class="grid" x1="618.0" y1="222" x2="618.0" y2="272"/>
+<text class="tk" x="618.0" y="287" text-anchor="middle">10</text>
+<line class="grid" x1="58" y1="267.8" x2="618" y2="267.8"/>
+<text class="tk" x="52" y="271.8" text-anchor="end">−1</text>
+<line class="grid" x1="58" y1="247.0" x2="618" y2="247.0"/>
+<text class="tk" x="52" y="251.0" text-anchor="end">0</text>
+<line class="grid" x1="58" y1="226.2" x2="618" y2="226.2"/>
+<text class="tk" x="52" y="230.2" text-anchor="end">1</text>
+<line class="axis" x1="58" y1="247.0" x2="618" y2="247.0"/>
+<rect class="frame" x="58" y="222" width="560" height="50"/>
+<text class="lab" x="338.0" y="306" text-anchor="middle">x (m)</text>
+<text class="lab" transform="translate(16 247.0) rotate(-90)" text-anchor="middle">mode 4</text>
+<polyline class="ln c1" points="58.0,247.0 59.9,247.0 61.7,246.9 63.6,246.8 65.5,246.7 67.3,246.5 69.2,246.3 71.1,246.1 72.9,245.8 74.8,245.5 76.7,245.2 78.5,244.8 80.4,244.4 82.3,244.0 84.1,243.6 86.0,243.2 87.9,242.7 89.7,242.2 91.6,241.7 93.5,241.2 95.3,240.7 97.2,240.2 99.1,239.7 100.9,239.1 102.8,238.6 104.7,238.0 106.5,237.5 108.4,236.9 110.3,236.4 112.1,235.8 114.0,235.3 115.9,234.8 117.7,234.2 119.6,233.7 121.5,233.2 123.3,232.7 125.2,232.2 127.1,231.7 128.9,231.3 130.8,230.8 132.7,230.4 134.5,229.9 136.4,229.5 138.3,229.2 140.1,228.8 142.0,228.4 143.9,228.1 145.7,227.8 147.6,227.6 149.5,227.3 151.3,227.1 153.2,226.9 155.1,226.7 156.9,226.5 158.8,226.4 160.7,226.3 162.5,226.2 164.4,226.2 166.3,226.2 168.1,226.2 170.0,226.2 171.9,226.3 173.7,226.4 175.6,226.5 177.5,226.6 179.3,226.8 181.2,227.0 183.1,227.3 184.9,227.5 186.8,227.8 188.7,228.1 190.5,228.5 192.4,228.8 194.3,229.2 196.1,229.6 198.0,230.1 199.9,230.5 201.7,231.0 203.6,231.5 205.5,232.1 207.3,232.6 209.2,233.2 211.1,233.8 212.9,234.4 214.8,235.0 216.7,235.7 218.5,236.4 220.4,237.0 222.3,237.7 224.1,238.4 226.0,239.1 227.9,239.9 229.7,240.6 231.6,241.4 233.5,242.1 235.3,242.9 237.2,243.6 239.1,244.4 240.9,245.2 242.8,246.0 244.7,246.7 246.5,247.5 248.4,248.3 250.3,249.0 252.1,249.8 254.0,250.6 255.9,251.3 257.7,252.1 259.6,252.8 261.5,253.6 263.3,254.3 265.2,255.0 267.1,255.7 268.9,256.4 270.8,257.0 272.7,257.7 274.5,258.3 276.4,258.9 278.3,259.5 280.1,260.1 282.0,260.7 283.9,261.2 285.7,261.7 287.6,262.2 289.5,262.7 291.3,263.1 293.2,263.5 295.1,263.9 296.9,264.3 298.8,264.6 300.7,264.9 302.5,265.2 304.4,265.5 306.3,265.7 308.1,265.9 310.0,266.0 311.9,266.2 313.7,266.3 315.6,266.4 317.5,266.4 319.3,266.4 321.2,266.4 323.1,266.4 324.9,266.3 326.8,266.2 328.7,266.1 330.5,265.9 332.4,265.7 334.3,265.5 336.1,265.2 338.0,265.0 339.9,264.7 341.7,264.3 343.6,264.0 345.5,263.6 347.3,263.2 349.2,262.7 351.1,262.3 352.9,261.8 354.8,261.3 356.7,260.7 358.5,260.2 360.4,259.6 362.3,259.0 364.1,258.4 366.0,257.8 367.9,257.2 369.7,256.5 371.6,255.8 373.5,255.1 375.3,254.4 377.2,253.7 379.1,253.0 380.9,252.3 382.8,251.5 384.7,250.8 386.5,250.0 388.4,249.3 390.3,248.5 392.1,247.8 394.0,247.0 395.9,246.2 397.7,245.5 399.6,244.7 401.5,243.9 403.3,243.2 405.2,242.4 407.1,241.7 408.9,241.0 410.8,240.2 412.7,239.5 414.5,238.8 416.4,238.1 418.3,237.5 420.1,236.8 422.0,236.2 423.9,235.5 425.7,234.9 427.6,234.3 429.5,233.8 431.3,233.2 433.2,232.7 435.1,232.2 436.9,231.7 438.8,231.2 440.7,230.8 442.5,230.4 444.4,230.0 446.3,229.6 448.1,229.3 450.0,229.0 451.9,228.7 453.7,228.5 455.6,228.2 457.5,228.1 459.3,227.9 461.2,227.8 463.1,227.7 464.9,227.6 466.8,227.5 468.7,227.5 470.5,227.5 472.4,227.6 474.3,227.7 476.1,227.8 478.0,227.9 479.9,228.1 481.7,228.2 483.6,228.5 485.5,228.7 487.3,229.0 489.2,229.3 491.1,229.6 492.9,230.0 494.8,230.4 496.7,230.8 498.5,231.2 500.4,231.7 502.3,232.2 504.1,232.7 506.0,233.2 507.9,233.8 509.7,234.3 511.6,234.9 513.5,235.5 515.3,236.2 517.2,236.8 519.1,237.5 520.9,238.2 522.8,238.8 524.7,239.5 526.5,240.3 528.4,241.0 530.3,241.7 532.1,242.5 534.0,243.2 535.9,244.0 537.7,244.7 539.6,245.5 541.5,246.2 543.3,247.0 545.2,247.8 547.1,248.5 548.9,249.3 550.8,250.0 552.7,250.8 554.5,251.5 556.4,252.3 558.3,253.0 560.1,253.7 562.0,254.5 563.9,255.2 565.7,255.8 567.6,256.5 569.5,257.2 571.3,257.8 573.2,258.5 575.1,259.1 576.9,259.7 578.8,260.2 580.7,260.8 582.5,261.3 584.4,261.8 586.3,262.3 588.1,262.8 590.0,263.2 591.9,263.6 593.7,264.0 595.6,264.4 597.5,264.7 599.3,265.0 601.2,265.3 603.1,265.5 604.9,265.7 606.8,265.9 608.7,266.1 610.5,266.2 612.4,266.3 614.3,266.4 616.1,266.5 618.0,266.5"/><circle class="c3f" cx="244.7" cy="247.0" r="4"/><circle class="c3f" cx="392.1" cy="247.0" r="4"/><circle class="c3f" cx="543.3" cy="247.0" r="4"/><circle class="c4f" cx="244.7" cy="246.7" r="4"/>
+</svg>
+<figcaption><b>Figure 4.1</b> First four mode shapes of the clamped-sliding tube.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> Clamped at \(x = 0\) (zero deflection and slope), sliding at \(x = 10\) m (zero slope, so each shape arrives flat). Amber dots: nodes. Dark dot: the accelerometer position \(L/3\) of additional problem 2b, which sits almost on a node of mode 4 (3.345 m).</p>
+<div class="box watch"><span class="label">Watch out</span><p>In the example video the area is read out as "\(\pi\) times the outside diameter squared minus the inside diameter squared"; the factor \(1/4\) is missing from the words, though the value used (\(2.149\times10^{-3}\) m²) is correct.</p></div>
+
+</section>
+
+<section id="tut4">
+<h2><span class="n">05</span>Tutorial 4</h2>
+
+<p>Homework from Inman (4th edition): 6.1, 6.6, 6.10, 6.14, 6.30, 6.40, 6.43. For 6.6, consider which mode shapes appear in \(w(x, t)\) and comment on how the initial displacement shapes the free response. Hints from the tutorial: \(\sin n\pi = 0\), and \(\int x\sin kx\,dx = -\frac{1}{k}x\cos kx + \frac{1}{k^2}\sin kx\).</p>
+<h3 id="ap1">Additional problem 1: pinned-sliding string</h3>
+<div class="ex"><div class="hd">Worked example 5.1 <span>String pinned at one end, sliding at the other</span></div><div class="bd">
+<p>A string of length \(l\) has \(w(0, t) = 0\) and \(\partial w(l, t)/\partial x = 0\). (a) Find its natural frequencies. (b) Sketch the first three mode shapes. (c) Describe the response to \(w(x, 0) = \sin(\pi x/2)\), released from rest.</p>
+<div class="step"><i>1</i><div>\(X = a_1\sin\sigma x + a_2\cos\sigma x\). \(X(0) = 0\) gives \(a_2 = 0\); \(X'(l) = a_1\sigma\cos\sigma l = 0\) gives \(\cos\sigma l = 0\).</div></div>
+<div class="step"><i>2</i><div>\(\sigma_n = \frac{(2n - 1)\pi}{2l}\), so \(\omega_n = \frac{(2n - 1)\pi}{2l}\sqrt{\tau/\rho}\): only odd multiples of the fundamental.</div></div>
+<div class="step"><i>3</i><div>Mode shapes \(\sin((2n - 1)\pi x/2l)\): a quarter sine, three quarters, five quarters, each reaching the sliding end with zero slope.</div></div>
+<div class="step"><i>4</i><div>Released from rest, so all \(c_n = 0\). \(d_n = \frac{2}{l}\int_0^l\sin\frac{\pi x}{2}\sin\sigma_nx\,dx\). With \(l = 1\) the initial shape is exactly mode 1, and orthogonality gives \(d_1 = 1\), \(d_n = 0\) for \(n > 1\).</div></div>
+<div class="ans">The string oscillates purely in its first mode, \(w = \sin(\pi x/2)\cos(\pi ct/2)\), with no other modes ever appearing. The length is not printed on the tutorial figure; the clean result relies on \(l = 1\). For any other length the shape is not a mode and several \(d_n\) are non-zero.</div>
+</div></div>
+<h3 id="ap2">Additional problem 2: FRF estimate</h3>
+<p>Part (a) is example 4.1. For part (b) the hammer strikes at \(x_f = L/10 = 1\) m and the accelerometer is at \(x_a = L/3\). The accelerance is a sum of modal terms (week 6), each scaled by the mode shape values at the two points:</p>
+\[ A(\omega) = \sum_r\frac{-\omega^2\,\phi_r(x_a)\phi_r(x_f)}{\omega_r^2 - \omega^2 + 2j\zeta_r\omega_r\omega}, \]
+<p>with \(\phi_r\) the mass-normalised mode shapes (\(\int_0^L\rho A\phi_r^2dx = 1\)).</p>
+<figure>
+<svg viewBox="0 -6 640 286" class="fig" role="img" aria-label="Estimated accelerance FRF of the tube between a hammer at L/10 and an accelerometer at L/3">
+<line class="grid" x1="66.0" y1="14" x2="66.0" y2="234"/>
+<text class="tk" x="66.0" y="249" text-anchor="middle">1</text>
+<line class="grid" x1="148.8" y1="14" x2="148.8" y2="234"/>
+<text class="tk" x="148.8" y="249" text-anchor="middle">2</text>
+<line class="grid" x1="258.2" y1="14" x2="258.2" y2="234"/>
+<text class="tk" x="258.2" y="249" text-anchor="middle">5</text>
+<line class="grid" x1="341.0" y1="14" x2="341.0" y2="234"/>
+<text class="tk" x="341.0" y="249" text-anchor="middle">10</text>
+<line class="grid" x1="423.8" y1="14" x2="423.8" y2="234"/>
+<text class="tk" x="423.8" y="249" text-anchor="middle">20</text>
+<line class="grid" x1="533.2" y1="14" x2="533.2" y2="234"/>
+<text class="tk" x="533.2" y="249" text-anchor="middle">50</text>
+<line class="grid" x1="616.0" y1="14" x2="616.0" y2="234"/>
+<text class="tk" x="616.0" y="249" text-anchor="middle">100</text>
+<line class="grid" x1="66" y1="234.0" x2="616" y2="234.0"/>
+<text class="tk" x="60" y="238.0" text-anchor="end">10⁻⁴</text>
+<line class="grid" x1="66" y1="190.0" x2="616" y2="190.0"/>
+<text class="tk" x="60" y="194.0" text-anchor="end">10⁻³</text>
+<line class="grid" x1="66" y1="146.0" x2="616" y2="146.0"/>
+<text class="tk" x="60" y="150.0" text-anchor="end">10⁻²</text>
+<line class="grid" x1="66" y1="102.0" x2="616" y2="102.0"/>
+<text class="tk" x="60" y="106.0" text-anchor="end">10⁻¹</text>
+<line class="grid" x1="66" y1="58.0" x2="616" y2="58.0"/>
+<text class="tk" x="60" y="62.0" text-anchor="end">1</text>
+<line class="grid" x1="66" y1="14.0" x2="616" y2="14.0"/>
+<text class="tk" x="60" y="18.0" text-anchor="end">10</text>
+<rect class="frame" x="66" y="14" width="550" height="220"/>
+<text class="lab" x="341.0" y="268" text-anchor="middle">frequency (Hz)</text>
+<text class="lab" transform="translate(14 124.0) rotate(-90)" text-anchor="middle">|A| (m/s² per N)</text>
+<defs><clipPath id="cp51"><rect x="66" y="14" width="550" height="220"/></clipPath></defs><g clip-path="url(#cp51)">
+<polyline class="ln c1" points="66.0,220.6 66.4,220.5 66.7,220.4 67.1,220.2 67.5,220.1 67.8,219.9 68.2,219.8 68.6,219.7 68.9,219.5 69.3,219.4 69.7,219.3 70.0,219.1 70.4,219.0 70.8,218.8 71.1,218.7 71.5,218.6 71.9,218.4 72.2,218.3 72.6,218.1 73.0,218.0 73.3,217.8 73.7,217.7 74.1,217.6 74.4,217.4 74.8,217.3 75.2,217.1 75.5,217.0 75.9,216.9 76.3,216.7 76.6,216.6 77.0,216.4 77.4,216.3 77.7,216.1 78.1,216.0 78.5,215.8 78.8,215.7 79.2,215.6 79.6,215.4 79.9,215.3 80.3,215.1 80.7,215.0 81.0,214.8 81.4,214.7 81.8,214.5 82.1,214.4 82.5,214.2 82.9,214.1 83.2,213.9 83.6,213.8 84.0,213.7 84.3,213.5 84.7,213.4 85.1,213.2 85.4,213.1 85.8,212.9 86.2,212.8 86.5,212.6 86.9,212.5 87.3,212.3 87.6,212.2 88.0,212.0 88.4,211.8 88.7,211.7 89.1,211.5 89.5,211.4 89.8,211.2 90.2,211.1 90.6,210.9 90.9,210.8 91.3,210.6 91.7,210.5 92.1,210.3 92.4,210.2 92.8,210.0 93.2,209.8 93.5,209.7 93.9,209.5 94.3,209.4 94.6,209.2 95.0,209.1 95.4,208.9 95.7,208.7 96.1,208.6 96.5,208.4 96.8,208.3 97.2,208.1 97.6,207.9 97.9,207.8 98.3,207.6 98.7,207.4 99.0,207.3 99.4,207.1 99.8,207.0 100.1,206.8 100.5,206.6 100.9,206.5 101.2,206.3 101.6,206.1 102.0,206.0 102.3,205.8 102.7,205.6 103.1,205.5 103.4,205.3 103.8,205.1 104.2,204.9 104.5,204.8 104.9,204.6 105.3,204.4 105.6,204.3 106.0,204.1 106.4,203.9 106.7,203.7 107.1,203.6 107.5,203.4 107.8,203.2 108.2,203.0 108.6,202.9 108.9,202.7 109.3,202.5 109.7,202.3 110.0,202.1 110.4,201.9 110.8,201.8 111.1,201.6 111.5,201.4 111.9,201.2 112.2,201.0 112.6,200.8 113.0,200.7 113.3,200.5 113.7,200.3 114.1,200.1 114.4,199.9 114.8,199.7 115.2,199.5 115.5,199.3 115.9,199.1 116.3,198.9 116.6,198.7 117.0,198.5 117.4,198.3 117.7,198.1 118.1,197.9 118.5,197.7 118.8,197.5 119.2,197.3 119.6,197.1 119.9,196.9 120.3,196.7 120.7,196.5 121.0,196.3 121.4,196.1 121.8,195.8 122.1,195.6 122.5,195.4 122.9,195.2 123.2,195.0 123.6,194.8 124.0,194.5 124.3,194.3 124.7,194.1 125.1,193.9 125.4,193.6 125.8,193.4 126.2,193.2 126.5,192.9 126.9,192.7 127.3,192.5 127.6,192.2 128.0,192.0 128.4,191.7 128.7,191.5 129.1,191.2 129.5,191.0 129.8,190.7 130.2,190.5 130.6,190.2 130.9,190.0 131.3,189.7 131.7,189.4 132.0,189.2 132.4,188.9 132.8,188.6 133.1,188.4 133.5,188.1 133.9,187.8 134.2,187.5 134.6,187.2 135.0,186.9 135.3,186.6 135.7,186.3 136.1,186.0 136.4,185.7 136.8,185.4 137.2,185.1 137.5,184.8 137.9,184.5 138.3,184.2 138.6,183.8 139.0,183.5 139.4,183.2 139.7,182.8 140.1,182.5 140.5,182.1 140.8,181.7 141.2,181.4 141.6,181.0 142.0,180.6 142.3,180.2 142.7,179.9 143.1,179.5 143.4,179.1 143.8,178.6 144.2,178.2 144.5,177.8 144.9,177.4 145.3,176.9 145.6,176.5 146.0,176.0 146.4,175.5 146.7,175.0 147.1,174.5 147.5,174.0 147.8,173.5 148.2,172.9 148.6,172.4 148.9,171.8 149.3,171.2 149.7,170.6 150.0,170.0 150.4,169.4 150.8,168.7 151.1,168.0 151.5,167.3 151.9,166.6 152.2,165.8 152.6,165.0 153.0,164.2 153.3,163.4 153.7,162.5 154.1,161.5 154.4,160.5 154.8,159.5 155.2,158.4 155.5,157.2 155.9,156.0 156.3,154.7 156.6,153.3 157.0,151.8 157.4,150.2 157.7,148.4 158.1,146.5 158.5,144.4 158.8,142.1 159.2,139.6 159.6,136.9 159.9,134.0 160.3,131.1 160.7,128.7 161.0,127.5 161.4,128.0 161.8,129.9 162.1,132.7 162.5,135.6 162.9,138.5 163.2,141.1 163.6,143.5 164.0,145.7 164.3,147.8 164.7,149.6 165.1,151.4 165.4,152.9 165.8,154.4 166.2,155.8 166.5,157.1 166.9,158.3 167.3,159.5 167.6,160.6 168.0,161.7 168.4,162.7 168.7,163.6 169.1,164.5 169.5,165.4 169.8,166.3 170.2,167.1 170.6,167.9 170.9,168.6 171.3,169.3 171.7,170.1 172.0,170.7 172.4,171.4 172.8,172.1 173.1,172.7 173.5,173.3 173.9,173.9 174.2,174.5 174.6,175.1 175.0,175.7 175.3,176.2 175.7,176.8 176.1,177.3 176.4,177.8 176.8,178.3 177.2,178.9 177.5,179.3 177.9,179.8 178.3,180.3 178.6,180.8 179.0,181.3 179.4,181.7 179.7,182.2 180.1,182.6 180.5,183.1 180.8,183.5 181.2,184.0 181.6,184.4 181.9,184.8 182.3,185.3 182.7,185.7 183.0,186.1 183.4,186.5 183.8,186.9 184.1,187.3 184.5,187.8 184.9,188.2 185.2,188.6 185.6,189.0 186.0,189.4 186.3,189.8 186.7,190.2 187.1,190.6 187.4,191.0 187.8,191.4 188.2,191.8 188.5,192.2 188.9,192.6 189.3,192.9 189.6,193.3 190.0,193.7 190.4,194.1 190.7,194.5 191.1,194.9 191.5,195.3 191.9,195.7 192.2,196.1 192.6,196.6 193.0,197.0 193.3,197.4 193.7,197.8 194.1,198.2 194.4,198.6 194.8,199.0 195.2,199.5 195.5,199.9 195.9,200.3 196.3,200.8 196.6,201.2 197.0,201.7 197.4,202.1 197.7,202.6 198.1,203.0 198.5,203.5 198.8,204.0 199.2,204.5 199.6,204.9 199.9,205.4 200.3,205.9 200.7,206.5 201.0,207.0 201.4,207.5 201.8,208.1 202.1,208.6 202.5,209.2 202.9,209.8 203.2,210.3 203.6,211.0 204.0,211.6 204.3,212.2 204.7,212.9 205.1,213.5 205.4,214.2 205.8,214.9 206.2,215.7 206.5,216.4 206.9,217.2 207.3,218.0 207.6,218.9 208.0,219.8 208.4,220.7 208.7,221.7 209.1,222.7 209.5,223.7 209.8,224.9 210.2,226.0 210.6,227.3 210.9,228.6 211.3,230.0 211.7,231.6 212.0,233.2 212.4,235.0 212.8,237.0 213.1,239.1 213.5,241.5 213.9,244.2 214.2,247.2 214.6,250.5 215.0,254.3 215.3,258.0 215.7,260.9 216.1,261.5 216.4,259.4 216.8,255.8 217.2,252.0 217.5,248.5 217.9,245.4 218.3,242.6 218.6,240.2 219.0,237.9 219.4,235.9 219.7,234.1 220.1,232.4 220.5,230.9 220.8,229.4 221.2,228.1 221.6,226.8 221.9,225.6 222.3,224.5 222.7,223.5 223.0,222.5 223.4,221.5 223.8,220.6 224.1,219.7 224.5,218.9 224.9,218.1 225.2,217.3 225.6,216.6 226.0,215.8 226.3,215.2 226.7,214.5 227.1,213.8 227.4,213.2 227.8,212.6 228.2,212.0 228.5,211.4 228.9,210.9 229.3,210.3 229.6,209.8 230.0,209.2 230.4,208.7 230.7,208.2 231.1,207.8 231.5,207.3 231.8,206.8 232.2,206.3 232.6,205.9 232.9,205.5 233.3,205.0 233.7,204.6 234.0,204.2 234.4,203.8 234.8,203.4 235.1,203.0 235.5,202.6 235.9,202.2 236.2,201.8 236.6,201.5 237.0,201.1 237.3,200.7 237.7,200.4 238.1,200.0 238.4,199.7 238.8,199.3 239.2,199.0 239.5,198.7 239.9,198.3 240.3,198.0 240.6,197.7 241.0,197.4 241.4,197.1 241.8,196.8 242.1,196.5 242.5,196.1 242.9,195.8 243.2,195.6 243.6,195.3 244.0,195.0 244.3,194.7 244.7,194.4 245.1,194.1 245.4,193.8 245.8,193.5 246.2,193.3 246.5,193.0 246.9,192.7 247.3,192.5 247.6,192.2 248.0,191.9 248.4,191.7 248.7,191.4 249.1,191.1 249.5,190.9 249.8,190.6 250.2,190.4 250.6,190.1 250.9,189.9 251.3,189.6 251.7,189.4 252.0,189.1 252.4,188.9 252.8,188.6 253.1,188.4 253.5,188.2 253.9,187.9 254.2,187.7 254.6,187.5 255.0,187.2 255.3,187.0 255.7,186.8 256.1,186.5 256.4,186.3 256.8,186.1 257.2,185.8 257.5,185.6 257.9,185.4 258.3,185.2 258.6,184.9 259.0,184.7 259.4,184.5 259.7,184.3 260.1,184.1 260.5,183.8 260.8,183.6 261.2,183.4 261.6,183.2 261.9,183.0 262.3,182.8 262.7,182.5 263.0,182.3 263.4,182.1 263.8,181.9 264.1,181.7 264.5,181.5 264.9,181.3 265.2,181.1 265.6,180.9 266.0,180.6 266.3,180.4 266.7,180.2 267.1,180.0 267.4,179.8 267.8,179.6 268.2,179.4 268.5,179.2 268.9,179.0 269.3,178.8 269.6,178.6 270.0,178.4 270.4,178.2 270.7,178.0 271.1,177.8 271.5,177.6 271.8,177.4 272.2,177.2 272.6,177.0 272.9,176.8 273.3,176.6 273.7,176.4 274.0,176.2 274.4,176.0 274.8,175.8 275.1,175.6 275.5,175.4 275.9,175.2 276.2,175.0 276.6,174.8 277.0,174.6 277.3,174.4 277.7,174.2 278.1,174.0 278.4,173.9 278.8,173.7 279.2,173.5 279.5,173.3 279.9,173.1 280.3,172.9 280.6,172.7 281.0,172.5 281.4,172.3 281.7,172.1 282.1,171.9 282.5,171.7 282.8,171.5 283.2,171.3 283.6,171.1 283.9,171.0 284.3,170.8 284.7,170.6 285.0,170.4 285.4,170.2 285.8,170.0 286.1,169.8 286.5,169.6 286.9,169.4 287.2,169.2 287.6,169.0 288.0,168.8 288.3,168.6 288.7,168.4 289.1,168.3 289.4,168.1 289.8,167.9 290.2,167.7 290.5,167.5 290.9,167.3 291.3,167.1 291.7,166.9 292.0,166.7 292.4,166.5 292.8,166.3 293.1,166.1 293.5,165.9 293.9,165.7 294.2,165.5 294.6,165.4 295.0,165.2 295.3,165.0 295.7,164.8 296.1,164.6 296.4,164.4 296.8,164.2 297.2,164.0 297.5,163.8 297.9,163.6 298.3,163.4 298.6,163.2 299.0,163.0 299.4,162.8 299.7,162.6 300.1,162.4 300.5,162.2 300.8,162.0 301.2,161.8 301.6,161.6 301.9,161.4 302.3,161.2 302.7,161.0 303.0,160.8 303.4,160.6 303.8,160.4 304.1,160.2 304.5,160.0 304.9,159.8 305.2,159.6 305.6,159.4 306.0,159.2 306.3,159.0 306.7,158.8 307.1,158.6 307.4,158.4 307.8,158.2 308.2,158.0 308.5,157.7 308.9,157.5 309.3,157.3 309.6,157.1 310.0,156.9 310.4,156.7 310.7,156.5 311.1,156.3 311.5,156.1 311.8,155.8 312.2,155.6 312.6,155.4 312.9,155.2 313.3,155.0 313.7,154.8 314.0,154.6 314.4,154.3 314.8,154.1 315.1,153.9 315.5,153.7 315.9,153.4 316.2,153.2 316.6,153.0 317.0,152.8 317.3,152.6 317.7,152.3 318.1,152.1 318.4,151.9 318.8,151.6 319.2,151.4 319.5,151.2 319.9,150.9 320.3,150.7 320.6,150.5 321.0,150.2 321.4,150.0 321.7,149.8 322.1,149.5 322.5,149.3 322.8,149.0 323.2,148.8 323.6,148.5 323.9,148.3 324.3,148.0 324.7,147.8 325.0,147.5 325.4,147.3 325.8,147.0 326.1,146.8 326.5,146.5 326.9,146.3 327.2,146.0 327.6,145.7 328.0,145.5 328.3,145.2 328.7,144.9 329.1,144.7 329.4,144.4 329.8,144.1 330.2,143.8 330.5,143.6 330.9,143.3 331.3,143.0 331.6,142.7 332.0,142.4 332.4,142.1 332.7,141.8 333.1,141.6 333.5,141.3 333.8,141.0 334.2,140.7 334.6,140.3 334.9,140.0 335.3,139.7 335.7,139.4 336.0,139.1 336.4,138.8 336.8,138.4 337.1,138.1 337.5,137.8 337.9,137.4 338.2,137.1 338.6,136.8 339.0,136.4 339.3,136.1 339.7,135.7 340.1,135.3 340.4,135.0 340.8,134.6 341.2,134.2 341.6,133.8 341.9,133.5 342.3,133.1 342.7,132.7 343.0,132.3 343.4,131.9 343.8,131.4 344.1,131.0 344.5,130.6 344.9,130.1 345.2,129.7 345.6,129.2 346.0,128.8 346.3,128.3 346.7,127.8 347.1,127.3 347.4,126.8 347.8,126.3 348.2,125.8 348.5,125.3 348.9,124.7 349.3,124.2 349.6,123.6 350.0,123.0 350.4,122.4 350.7,121.8 351.1,121.1 351.5,120.5 351.8,119.8 352.2,119.1 352.6,118.4 352.9,117.7 353.3,116.9 353.7,116.1 354.0,115.3 354.4,114.4 354.8,113.5 355.1,112.6 355.5,111.6 355.9,110.6 356.2,109.5 356.6,108.4 357.0,107.2 357.3,105.9 357.7,104.6 358.1,103.2 358.4,101.6 358.8,100.0 359.2,98.2 359.5,96.3 359.9,94.2 360.3,91.9 360.6,89.4 361.0,86.6 361.4,83.7 361.7,80.8 362.1,78.2 362.5,76.7 362.8,76.9 363.2,78.6 363.6,81.2 363.9,84.1 364.3,86.9 364.7,89.5 365.0,92.0 365.4,94.2 365.8,96.2 366.1,98.0 366.5,99.7 366.9,101.2 367.2,102.7 367.6,104.1 368.0,105.3 368.3,106.5 368.7,107.6 369.1,108.7 369.4,109.7 369.8,110.6 370.2,111.5 370.5,112.4 370.9,113.2 371.3,114.0 371.6,114.8 372.0,115.5 372.4,116.2 372.7,116.9 373.1,117.6 373.5,118.2 373.8,118.8 374.2,119.4 374.6,120.0 374.9,120.6 375.3,121.1 375.7,121.7 376.0,122.2 376.4,122.7 376.8,123.2 377.1,123.6 377.5,124.1 377.9,124.6 378.2,125.0 378.6,125.5 379.0,125.9 379.3,126.3 379.7,126.7 380.1,127.1 380.4,127.5 380.8,127.9 381.2,128.3 381.5,128.7 381.9,129.1 382.3,129.4 382.6,129.8 383.0,130.1 383.4,130.5 383.7,130.8 384.1,131.2 384.5,131.5 384.8,131.9 385.2,132.2 385.6,132.5 385.9,132.8 386.3,133.1 386.7,133.5 387.0,133.8 387.4,134.1 387.8,134.4 388.1,134.7 388.5,135.0 388.9,135.3 389.2,135.6 389.6,135.9 390.0,136.2 390.3,136.5 390.7,136.8 391.1,137.0 391.5,137.3 391.8,137.6 392.2,137.9 392.6,138.2 392.9,138.5 393.3,138.7 393.7,139.0 394.0,139.3 394.4,139.6 394.8,139.9 395.1,140.1 395.5,140.4 395.9,140.7 396.2,141.0 396.6,141.2 397.0,141.5 397.3,141.8 397.7,142.1 398.1,142.4 398.4,142.6 398.8,142.9 399.2,143.2 399.5,143.5 399.9,143.8 400.3,144.1 400.6,144.3 401.0,144.6 401.4,144.9 401.7,145.2 402.1,145.5 402.5,145.8 402.8,146.1 403.2,146.4 403.6,146.7 403.9,147.0 404.3,147.3 404.7,147.6 405.0,148.0 405.4,148.3 405.8,148.6 406.1,148.9 406.5,149.3 406.9,149.6 407.2,149.9 407.6,150.3 408.0,150.6 408.3,151.0 408.7,151.4 409.1,151.7 409.4,152.1 409.8,152.5 410.2,152.9 410.5,153.3 410.9,153.7 411.3,154.1 411.6,154.5 412.0,155.0 412.4,155.4 412.7,155.9 413.1,156.4 413.5,156.8 413.8,157.3 414.2,157.8 414.6,158.4 414.9,158.9 415.3,159.5 415.7,160.1 416.0,160.7 416.4,161.3 416.8,161.9 417.1,162.6 417.5,163.3 417.9,164.0 418.2,164.8 418.6,165.6 419.0,166.4 419.3,167.3 419.7,168.2 420.1,169.2 420.4,170.2 420.8,171.3 421.2,172.5 421.5,173.7 421.9,175.1 422.3,176.6 422.6,178.1 423.0,179.9 423.4,181.8 423.7,183.9 424.1,186.2 424.5,188.7 424.8,191.6 425.2,194.6 425.6,197.6 425.9,200.1 426.3,201.0 426.7,199.9 427.0,197.3 427.4,194.1 427.8,190.8 428.1,187.8 428.5,185.0 428.9,182.4 429.2,180.1 429.6,177.9 430.0,175.9 430.3,174.1 430.7,172.4 431.1,170.8 431.4,169.3 431.8,167.9 432.2,166.6 432.5,165.3 432.9,164.1 433.3,162.9 433.6,161.8 434.0,160.8 434.4,159.7 434.7,158.7 435.1,157.8 435.5,156.8 435.8,155.9 436.2,155.0 436.6,154.2 436.9,153.3 437.3,152.5 437.7,151.7 438.0,150.9 438.4,150.1 438.8,149.4 439.1,148.6 439.5,147.9 439.9,147.2 440.2,146.5 440.6,145.7 441.0,145.1 441.4,144.4 441.7,143.7 442.1,143.0 442.5,142.4 442.8,141.7 443.2,141.1 443.6,140.4 443.9,139.8 444.3,139.1 444.7,138.5 445.0,137.9 445.4,137.2 445.8,136.6 446.1,136.0 446.5,135.4 446.9,134.8 447.2,134.1 447.6,133.5 448.0,132.9 448.3,132.3 448.7,131.7 449.1,131.0 449.4,130.4 449.8,129.8 450.2,129.2 450.5,128.6 450.9,127.9 451.3,127.3 451.6,126.7 452.0,126.0 452.4,125.4 452.7,124.8 453.1,124.1 453.5,123.5 453.8,122.8 454.2,122.1 454.6,121.5 454.9,120.8 455.3,120.1 455.7,119.4 456.0,118.7 456.4,118.0 456.8,117.3 457.1,116.6 457.5,115.8 457.9,115.1 458.2,114.3 458.6,113.5 459.0,112.7 459.3,111.9 459.7,111.1 460.1,110.2 460.4,109.3 460.8,108.4 461.2,107.5 461.5,106.6 461.9,105.6 462.3,104.6 462.6,103.6 463.0,102.5 463.4,101.4 463.7,100.2 464.1,99.0 464.5,97.8 464.8,96.4 465.2,95.1 465.6,93.6 465.9,92.0 466.3,90.4 466.7,88.6 467.0,86.8 467.4,84.7 467.8,82.5 468.1,80.2 468.5,77.6 468.9,74.7 469.2,71.7 469.6,68.6 470.0,65.8 470.3,63.8 470.7,63.4 471.1,64.6 471.4,67.0 471.8,69.7 472.2,72.4 472.5,75.0 472.9,77.3 473.3,79.5 473.6,81.4 474.0,83.1 474.4,84.7 474.7,86.2 475.1,87.5 475.5,88.8 475.8,89.9 476.2,91.0 476.6,92.0 476.9,93.0 477.3,93.9 477.7,94.7 478.0,95.5 478.4,96.2 478.8,97.0 479.1,97.6 479.5,98.3 479.9,98.9 480.2,99.5 480.6,100.0 481.0,100.6 481.3,101.1 481.7,101.6 482.1,102.1 482.4,102.5 482.8,103.0 483.2,103.4 483.5,103.8 483.9,104.2 484.3,104.6 484.6,104.9 485.0,105.3 485.4,105.6 485.7,105.9 486.1,106.3 486.5,106.6 486.8,106.9 487.2,107.2 487.6,107.5 487.9,107.7 488.3,108.0 488.7,108.3 489.0,108.5 489.4,108.8 489.8,109.0 490.1,109.2 490.5,109.4 490.9,109.7 491.3,109.9 491.6,110.1 492.0,110.3 492.4,110.5 492.7,110.7 493.1,110.9 493.5,111.0 493.8,111.2 494.2,111.4 494.6,111.6 494.9,111.7 495.3,111.9 495.7,112.1 496.0,112.2 496.4,112.4 496.8,112.5 497.1,112.6 497.5,112.8 497.9,112.9 498.2,113.0 498.6,113.2 499.0,113.3 499.3,113.4 499.7,113.5 500.1,113.7 500.4,113.8 500.8,113.9 501.2,114.0 501.5,114.1 501.9,114.2 502.3,114.3 502.6,114.4 503.0,114.5 503.4,114.6 503.7,114.7 504.1,114.8 504.5,114.9 504.8,115.0 505.2,115.0 505.6,115.1 505.9,115.2 506.3,115.3 506.7,115.4 507.0,115.4 507.4,115.5 507.8,115.6 508.1,115.6 508.5,115.7 508.9,115.8 509.2,115.8 509.6,115.9 510.0,116.0 510.3,116.0 510.7,116.1 511.1,116.1 511.4,116.2 511.8,116.2 512.2,116.3 512.5,116.3 512.9,116.4 513.3,116.4 513.6,116.5 514.0,116.5 514.4,116.6 514.7,116.6 515.1,116.6 515.5,116.7 515.8,116.7 516.2,116.8 516.6,116.8 516.9,116.8 517.3,116.9 517.7,116.9 518.0,116.9 518.4,116.9 518.8,117.0 519.1,117.0 519.5,117.0 519.9,117.1 520.2,117.1 520.6,117.1 521.0,117.1 521.3,117.1 521.7,117.2 522.1,117.2 522.4,117.2 522.8,117.2 523.2,117.2 523.5,117.2 523.9,117.3 524.3,117.3 524.6,117.3 525.0,117.3 525.4,117.3 525.7,117.3 526.1,117.3 526.5,117.3 526.8,117.3 527.2,117.3 527.6,117.4 527.9,117.4 528.3,117.4 528.7,117.4 529.0,117.4 529.4,117.4 529.8,117.4 530.1,117.4 530.5,117.4 530.9,117.4 531.2,117.4 531.6,117.4 532.0,117.4 532.3,117.4 532.7,117.4 533.1,117.4 533.4,117.4 533.8,117.4 534.2,117.4 534.5,117.4 534.9,117.4 535.3,117.4 535.6,117.5 536.0,117.5 536.4,117.5 536.7,117.5 537.1,117.5 537.5,117.5 537.8,117.6 538.2,117.6 538.6,117.6 538.9,117.7 539.3,117.8 539.7,117.8 540.0,117.9 540.4,118.0 540.8,118.1 541.2,118.3 541.5,118.4 541.9,118.6 542.3,118.9 542.6,119.1 543.0,119.3 543.4,119.2 543.7,118.8 544.1,117.5 544.5,115.4 544.8,113.4 545.2,112.2 545.6,111.8 545.9,111.8 546.3,112.0 546.7,112.2 547.0,112.4 547.4,112.6 547.8,112.7 548.1,112.8 548.5,112.9 548.9,113.0 549.2,113.1 549.6,113.1 550.0,113.1 550.3,113.1 550.7,113.1 551.1,113.1 551.4,113.1 551.8,113.1 552.2,113.1 552.5,113.0 552.9,113.0 553.3,112.9 553.6,112.9 554.0,112.9 554.4,112.8 554.7,112.7 555.1,112.7 555.5,112.6 555.8,112.5 556.2,112.5 556.6,112.4 556.9,112.3 557.3,112.2 557.7,112.2 558.0,112.1 558.4,112.0 558.8,111.9 559.1,111.8 559.5,111.7 559.9,111.6 560.2,111.5 560.6,111.4 561.0,111.3 561.3,111.2 561.7,111.1 562.1,111.0 562.4,110.9 562.8,110.8 563.2,110.6 563.5,110.5 563.9,110.4 564.3,110.3 564.6,110.1 565.0,110.0 565.4,109.9 565.7,109.7 566.1,109.6 566.5,109.5 566.8,109.3 567.2,109.2 567.6,109.0 567.9,108.9 568.3,108.7 568.7,108.6 569.0,108.4 569.4,108.3 569.8,108.1 570.1,107.9 570.5,107.8 570.9,107.6 571.2,107.4 571.6,107.2 572.0,107.0 572.3,106.9 572.7,106.7 573.1,106.5 573.4,106.3 573.8,106.1 574.2,105.9 574.5,105.7 574.9,105.5 575.3,105.2 575.6,105.0 576.0,104.8 576.4,104.6 576.7,104.3 577.1,104.1 577.5,103.9 577.8,103.6 578.2,103.4 578.6,103.1 578.9,102.8 579.3,102.6 579.7,102.3 580.0,102.0 580.4,101.7 580.8,101.5 581.1,101.2 581.5,100.9 581.9,100.5 582.2,100.2 582.6,99.9 583.0,99.6 583.3,99.2 583.7,98.9 584.1,98.5 584.4,98.2 584.8,97.8 585.2,97.4 585.5,97.0 585.9,96.6 586.3,96.2 586.6,95.8 587.0,95.3 587.4,94.9 587.7,94.4 588.1,93.9 588.5,93.4 588.8,92.9 589.2,92.4 589.6,91.8 589.9,91.3 590.3,90.7 590.7,90.1 591.1,89.4 591.4,88.8 591.8,88.1 592.2,87.4 592.5,86.7 592.9,85.9 593.3,85.1 593.6,84.2 594.0,83.3 594.4,82.4 594.7,81.4 595.1,80.4 595.5,79.3 595.8,78.1 596.2,76.8 596.6,75.5 596.9,74.0 597.3,72.5 597.7,70.8 598.0,68.9 598.4,66.9 598.8,64.7 599.1,62.3 599.5,59.6 599.9,56.8 600.2,53.9 600.6,51.4 601.0,49.9 601.3,50.0 601.7,51.7 602.1,54.4 602.4,57.3 602.8,60.2 603.2,62.9 603.5,65.4 603.9,67.7 604.3,69.8 604.6,71.7 605.0,73.5 605.4,75.1 605.7,76.6 606.1,78.0 606.5,79.3 606.8,80.6 607.2,81.8 607.6,82.9 607.9,84.0 608.3,85.0 608.7,85.9 609.0,86.9 609.4,87.7 609.8,88.6 610.1,89.4 610.5,90.2 610.9,91.0 611.2,91.7 611.6,92.4 612.0,93.1 612.3,93.7 612.7,94.4 613.1,95.0 613.4,95.6 613.8,96.2 614.2,96.8 614.5,97.3 614.9,97.9 615.3,98.4 615.6,98.9 616.0,99.5"/>
+</g><text class="tk" x="161.1" y="10" text-anchor="middle">2.2</text><text class="tk" x="362.6" y="10" text-anchor="middle">12.0</text><text class="tk" x="470.6" y="10" text-anchor="middle">29.6</text><text class="tk" x="544.7" y="10" text-anchor="middle">55.0</text><text class="tk" x="601.1" y="10" text-anchor="middle">88.3</text>
+</svg>
+<figcaption><b>Figure 5.1</b> Estimated accelerance between L/10 and L/3, five modes, 1% damping assumed.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.1:</b> Peaks appear at 2.2, 12.0 and 29.6 Hz. The mode 4 peak near 55 Hz is almost absent because \(x_a = 3.33\) m is only 0.012 m from a node of mode 4 (at 3.345 m) (mass-normalised \(\phi_4(x_a)\) is 1.4% of \(\phi_2(x_a)\)). Hammer close to the clamp: all modes are weakly excited.</p>
+<h3 id="ap3">Additional problem 3: fan on an I-beam</h3>
+<div class="ex"><div class="hd">Worked example 5.2 <span>Locating an unbalanced fan</span></div><div class="bd">
+<p>A fan running at 900 rpm (15 Hz) is to be mounted between \(x = 1.5\) m and 8.5 m on a 10 m steel I-beam (\(A = 85.5\) cm², \(I_{yy} = 25\,000\) cm⁴, \(I_{zz} = 200\) cm⁴, \(E = 200\) GPa, \(\rho = 7850\) kg/m³). The fan rotates in the YZ plane, so its unbalance force acts in both y and z. (a), (b) First three clamped-clamped frequencies about each axis. (c) Choose a location. (d) What changes if the ends are pinned?</p>
+<div class="step"><i>1</i><div>\(\rho A = 67.12\) kg/m. About yy: \(\sqrt{EI/\rho A} = 863.1\) m²/s; about zz: 77.20 m²/s.</div></div>
+<div class="step"><i>2</i><div>Clamped-clamped (\(\beta_nl\) = 4.7300, 7.8532, 10.9956): yy 30.7, 84.7, 166.1 Hz; zz 2.75, 7.58, 14.85 Hz.</div></div>
+<div class="step"><i>3</i><div>The fan at 15 Hz sits almost exactly on the third zz mode (14.85 Hz). It cannot be moved off resonance, so place it where that mode does not respond: at a node. Nodes of clamped-clamped mode 3 are at \(x/L = 0.358\) and 0.642, that is 3.58 m and 6.42 m, both in the allowed range.</div></div>
+<div class="step"><i>4</i><div>Pinned-pinned (\(\beta_nl = n\pi\)): yy 13.6, 54.2 Hz; zz 1.21, 4.85, 10.91, 19.4 Hz. All frequencies drop (softer supports).</div></div>
+<div class="ans">Mount at about 3.6 m (or 6.4 m) from an end. With pinned ends the first yy mode falls to 13.6 Hz, within 10% of 15 Hz, and mode 1 has no interior node: the beam would vibrate strongly in that direction wherever the fan is placed, so pinned ends would need a stiffer beam or a speed change.</div>
+</div></div>
+<div class="box note"><span class="label">Beyond the tutorial</span><p>No solutions were supplied for Tutorial 4; all answers on this page were computed for these notes. The node positions come from the clamped-clamped mode shape with \(\sigma_3 = 0.999966\). Also note that during run-up the fan passes through the zz modes at 2.75 and 7.58 Hz, and runs only 1% above the third.</p></div>
+
+</section>
+
+<section id="cm">
+<h2><span class="n">06</span>Vibration-based condition monitoring</h2>
+
+<h3 id="philosophy">Maintenance philosophies</h3>
+<div class="tbl"><table><thead><tr><th>Philosophy</th><th>Basis</th></tr></thead><tbody>
+<tr><td>Breakdown (on-line failure)</td><td>Fix it when it fails.</td></tr>
+<tr><td>Preventive (fixed time)</td><td>Maintenance on calendar or running hours.</td></tr>
+<tr><td>Predictive (condition based)</td><td>Maintenance based on the known, measured condition.</td></tr>
+<tr><td>Proactive (design out)</td><td>Find the root cause and design it out.</td></tr>
+</tbody></table></div>
+<p>Plotted against the number of failure events, preventive maintenance costs a lot to prevent few failures, corrective maintenance costs a lot in failures; total cost is lowest in the condition-based middle. Machines are classed as <strong>critical</strong> (high safety risk, repair cost or efficiency impact: proactive or predictive, possibly preventive), <strong>essential</strong> (moderate: preventive or predictive) and <strong>general purpose</strong> (low risk, little effect on production: breakdown or predictive).</p>
+<h3 id="predictive">Predictive maintenance</h3>
+<p>It works like medical diagnosis: faults are diagnosed from monitored symptoms and corrective action is prescribed. Advantages: no unnecessary disassembly (which can itself cause poor assembly), less unscheduled downtime, fewer wrecks, lower insurance cost, longer machine life. Disadvantages: needs very knowledgeable staff or contractors, and specialised equipment and training.</p>
+<p>Monitor machines with a problem history daily, most machines monthly, proven machines quarterly, and more often once problems appear. Always measure under repeatable conditions: full load if possible and the same speed (about 10% speed difference is acceptable for fans and pumps). Techniques: vibration analysis (best for rotating and turbo machinery), acoustic emission (cracks in pipelines), oil and wear particle analysis, infrared thermography, ultrasound, and performance evaluation.</p>
+<h3 id="monitoring">Vibration monitoring</h3>
+<p>Vibration monitoring is the regular measurement of machine vibration as part of a predictive maintenance programme. Readings are compared with past levels; a significant change indicates a developing fault. The objective is <strong>lead time for maintenance planning</strong>. It can be continuous (permanent transducers, costly), periodic (more cost-effective) or trended against a baseline.</p>
+<ul><li><strong>Where:</strong> usually axial and radial on each bearing housing; mark the positions so they are repeatable; the transducer must be perpendicular to the surface; a triaxial sensor helps in tight spots.</li>
+<li><strong>Mounting, in order of preference:</strong> stud, adhesive, magnetic base, hand-held probe or stinger. Stud mounting gives the highest mounted resonance and so the widest usable frequency range; avoid uneven or rough surfaces and flexible couplings between sensor and bearing.</li>
+<li><strong>Time domain:</strong> single metrics such as RMS and peak, trended over time; they summarise a wide band of frequencies.</li>
+<li><strong>Frequency domain:</strong> FFT or PSD; individual peaks can be traced to particular components. Waterfall plots and spectrograms show how the spectrum changes with time or speed. Octave and 1/3-octave filters give band levels for stationary signals.</li>
+<li><strong>Instruments:</strong> permanently installed sensors give guiding metrics; handheld vibrometers and analysers are then used to diagnose a flagged fault; a laser vibrometer measures without contact (hot, moving or hazardous surfaces, or delicate finishes).</li>
+<li><strong>Linking the two domains:</strong> the area under the power spectral density equals the mean square, \(\int S(f)\,df = x_{rms}^2\), so the spectrum shows both which frequencies are present and how much each contributes. On a fan, the blade pass frequency (number of blades × shaft speed) is a typical peak to trend.</li>
+<li><strong>Acceptable levels:</strong> ISO 2372 machine classes, API 610/11/12/16/17, AGMA 6000-B96, IRD severity charts.</li></ul>
+<h3 id="faults">Diagnosing rotating machinery faults</h3>
+<figure>
+<svg viewBox="0 0 640 200" class="fig" role="img" aria-label="Typical spectra of unbalance, angular misalignment and parallel misalignment">
+<text class="lab" x="95" y="18" text-anchor="middle">Unbalance</text><line class="axis" x1="10" y1="150" x2="190" y2="150"/><line class="ln c1" x1="50.0" y1="150" x2="50.0" y2="40.0"/><text class="tk" x="50.0" y="166" text-anchor="middle">1×</text><text class="tk" x="95" y="186" text-anchor="middle">radial, amplitude ∝ speed²</text><text class="lab" x="310" y="18" text-anchor="middle">Angular misalignment</text><line class="axis" x1="225" y1="150" x2="405" y2="150"/><line class="ln c1" x1="265.0" y1="150" x2="265.0" y2="40.0"/><text class="tk" x="265.0" y="166" text-anchor="middle">1×</text><line class="ln c1" x1="305.0" y1="150" x2="305.0" y2="95.0"/><text class="tk" x="305.0" y="166" text-anchor="middle">2×</text><line class="ln c1" x1="345.0" y1="150" x2="345.0" y2="125.0"/><text class="tk" x="345.0" y="166" text-anchor="middle">3×</text><text class="tk" x="310" y="186" text-anchor="middle">high axial, 180° across coupling</text><text class="lab" x="525" y="18" text-anchor="middle">Parallel misalignment</text><line class="axis" x1="440" y1="150" x2="620" y2="150"/><line class="ln c1" x1="480.0" y1="150" x2="480.0" y2="100.0"/><text class="tk" x="480.0" y="166" text-anchor="middle">1×</text><line class="ln c1" x1="520.0" y1="150" x2="520.0" y2="40.0"/><text class="tk" x="520.0" y="166" text-anchor="middle">2×</text><line class="ln c1" x1="560.0" y1="150" x2="560.0" y2="120.0"/><text class="tk" x="560.0" y="166" text-anchor="middle">3×</text><text class="tk" x="525" y="186" text-anchor="middle">high radial, 180° across coupling</text>
+</svg>
+<figcaption><b>Figure 6.1</b> Spectral signatures of unbalance and misalignment.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 6.1:</b> Orders of running speed: 1× is the shaft rotation frequency. Unbalance gives a dominant, clean 1× peak; angular misalignment a 1× peak with harmonics, mainly axial; parallel misalignment a dominant 2× peak, mainly radial.</p>
+<div class="tbl"><table><thead><tr><th>Fault</th><th>Spectrum</th><th>Direction and phase</th></tr></thead><tbody>
+<tr><td>Unbalance (rotation and geometric centrelines not coincident)</td><td>Dominant 1×; amplitude grows with speed squared; clean waveform</td><td>Radial. Vertical readings at the two bearings in phase, horizontal out of phase (static unbalance)</td></tr>
+<tr><td>Bent shaft</td><td>1× if bent near the centre, 2× if bent near the ends</td><td>High axial (dominant) and radial; 180° axial phase difference; no radial phase difference between ends</td></tr>
+<tr><td>Angular misalignment</td><td>1× dominant, 2× and 3× may appear</td><td>High axial at 1× and 2×; 180° axial phase across the coupling</td></tr>
+<tr><td>Parallel misalignment</td><td>2× dominant (two hits per revolution)</td><td>Radial higher than axial; 180° radial phase across the coupling</td></tr>
+<tr><td>Gear defects</td><td>Gear mesh frequency \(GMF = N_{teeth} \times\) rpm with running-speed sidebands; 1× and 2×</td><td>Distributed faults (eccentricity, misalignment) give sidebands close to GMF; a cracked tooth gives sidebands spread widely; a rising GMF peak indicates uniform wear</td></tr>
+</tbody></table></div>
+<p>The unbalance force is \(F = m_0e\omega^2\) (week 4, rotating unbalance), which is why its 1× amplitude grows with the square of speed. Gear sidebands come from <strong>amplitude modulation</strong>: a damaged tooth meshes less smoothly once per revolution, modulating the mesh vibration and creating components at the sum and difference frequencies around the GMF.</p>
+<p>Other faults that vibration can detect: eccentricity, looseness, belt drive problems, electrical faults, oil whip and whirl, cavitation, shaft cracks, rotor rubs, resonance, hydraulic and aerodynamic forces. Remedies for the two most common: <strong>balancing</strong> (adding small masses until the measured vibration is minimised, as in wheel balancing) and <strong>alignment</strong>. Thermography complements vibration: it shows a motor winding fault or a loose busbar as a local hot spot, ineffective cooling fins (possibly low oil), and the fill level of a tank, all without contact.</p>
+<h3 id="bearings">Rolling element bearing wear</h3>
+<p>The spectrum is split into zones: A, running speed and harmonics; B, bearing defect frequencies; C, bearing component natural frequencies (30 to 120 kHz); D, high frequency detection (above 120 kHz). Defect frequencies: BPFO and BPFI (ball pass, outer and inner race), FTF (cage) and BSF (ball spin).</p>
+<ol><li><strong>Stage 1:</strong> ultrasonic energy (above 20 kHz) only, hard to see with accelerometers; raceways look dull but undamaged.</li>
+<li><strong>Stage 2:</strong> minute pits; rolling elements passing them ring the bearing natural frequencies (zone C); sidebands at defect frequency ± rpm appear late in the stage; zone D may double.</li>
+<li><strong>Stage 3:</strong> defect frequencies and harmonics with many sidebands; wear visible; zone D may double again.</li>
+<li><strong>Stage 4:</strong> pits merge into spalling; 1× rises; discrete peaks merge into a broadband noise floor; just before failure energy grows to extreme levels and the bearing is hot and noisy.</li></ol>
+<div class="box watch"><span class="label">Watch out</span><p>The stage 3 slide says "1% to 1 hour of remaining life left". In the usual four-stage description (Technical Associates, Berry) that range belongs to stage 4; stage 3 is commonly put at roughly 1% to 5% of life remaining. Check with the lecturer which is meant.</p></div>
+<div class="ex"><div class="hd">Worked example 6.1 <span>Gear mesh frequency</span></div><div class="bd">
+<p>A pinion with 20 teeth runs at 1480 rpm, and the accelerometer is on the pinion bearing. Where are the gear mesh peak and its first sidebands?</p>
+<div class="step"><i>1</i><div>Shaft speed \(1480/60 = 24.67\) Hz.</div></div>
+<div class="step"><i>2</i><div>\(GMF = 20 \times 24.67 = 493\) Hz.</div></div>
+<div class="step"><i>3</i><div>Sidebands at \(GMF \pm\) pinion speed: 469 Hz and 518 Hz.</div></div>
+<div class="ans">Peak at 493 Hz with sidebands 24.7 Hz either side. Growing sidebands point to a fault on the gear whose shaft speed sets their spacing.</div>
+</div></div>
+
+</section>
+
+<section id="practice">
+<h2><span class="n">07</span>Practice problems</h2>
+<details><summary>Problem 7.1. A steel cantilever (clamped-free) is a 20 mm × 20 mm square bar, 0.5 m long. Find its first two bending natural frequencies (\(E = 200\) GPa, \(\rho = 7850\) kg/m³).</summary><div class="sol"><p>\(I = b^4/12 = 1.333\times10^{-8}\) m⁴, \(\rho A = 3.14\) kg/m, \(\sqrt{EI/\rho A} = 29.14\) m²/s. \(f_1 = 1.8751^2/0.25 \times 29.14/(2\pi) = 65.2\) Hz, \(f_2 = 409\) Hz. Slenderness 25, so Euler-Bernoulli is fine.</p></div></details>
+<details><summary>Problem 7.2. By what factor do the beam natural frequencies change if the length is doubled? If the section depth is doubled (bending about the width)?</summary><div class="sol"><p>Length: \(\omega \propto 1/l^2\), so they fall to a quarter. Depth: \(I \propto h^3\) and \(A \propto h\), so \(\sqrt{I/A} \propto h\) and the frequencies double.</p></div></details>
+<details><summary>Problem 7.3. Why are the clamped-clamped beam frequency ratios 1 : 2.76 : 5.40 (pinned-pinned 1 : 4 : 9) rather than 1 : 2 : 3 as for a string?</summary><div class="sol"><p>Beam frequencies scale with \(\beta_n^2\), and \(\beta_n\) grows roughly linearly with \(n\): a fourth-order equation in space against second order in time. The string's \(\omega_n\) is linear in \(\sigma_n\).</p></div></details>
+<details><summary>Problem 7.4. A pump shows a dominant 2× radial peak with 180° radial phase across the coupling. Diagnosis?</summary><div class="sol"><p>Parallel misalignment.</p></div></details>
+<details><summary>Problem 7.5. A fan shows a dominant 1× peak that quadruples when the speed doubles, with horizontal readings at the two bearings out of phase. Diagnosis and remedy?</summary><div class="sol"><p>Unbalance (force grows with speed squared). Balance the rotor.</p></div></details>
+<details><summary>Problem 7.6. Why is stud mounting preferred to a magnetic base for bearing monitoring?</summary><div class="sol"><p>The stud gives the stiffest connection and the highest mounted resonance, so the usable frequency range reaches the high frequencies where early bearing damage shows. A magnetic base lowers the resonance and the upper useful frequency.</p></div></details>
+</section>
+
+<section id="sheet">
+<h2><span class="n">08</span>Formula sheet</h2>
+
+<div class="sheet"><div><h4>Rods and shafts</h4>
+<p>Rod: \(c = \sqrt{E/\rho}\) (\(\rho\) in kg/m³)</p>
+<p>Shaft: \(c = \sqrt{G\gamma/\rho J}\); circular \(\gamma = J\)</p>
+</div><div><h4>Beams</h4>
+<p>\(\ddot w + \frac{EI}{\rho A}\partial_x^4w = 0\); slender: \(l \geq 10h\)</p>
+<p>\(\omega_n = (\beta_nl)^2\sqrt{EI/\rho A}/l^2\)</p>
+<p>Clamped: \(w = w' = 0\); pinned: \(w = w'' = 0\); free: \(w'' = w^{(3)} = 0\); sliding: \(w' = w^{(3)} = 0\)</p>
+<p>\(\beta_1l\): CF 1.8751, CS 2.3650, CP 3.9266, CC 4.7300, PP \(\pi\)</p>
+</div><div><h4>Condition monitoring</h4>
+<p>Unbalance 1×; angular misalignment 1× axial; parallel 2× radial; bent shaft 1× or 2×, axial</p>
+<p>\(GMF = N_{teeth}\times\) shaft speed, sidebands \(\pm\) shaft speed</p>
+<p>Bearing zones A (rpm), B (defects), C (30 to 120 kHz), D (&gt; 120 kHz)</p>
+</div></div>
+
+</section>
+
+<footer>
+<p>Sources: Lecture13.pdf (Lecture 13 notes with Inman Table 6.6), VN354_Lecture13.pdf (slides; the embedded videos could not be viewed), Vibration_and_Noise 354 Tutorial 4.pdf, VN354_VibrationConditionMonitoring.pdf, and the videos VN-vid-beam-example.mp4 (worked example), VN-vid-beam-1.mp4 (beam mode animation, no speech) and VN-AB-vib_monitor.mp4 (condition monitoring lecture), transcribed. No tutorial solutions were supplied, so all answers were computed for these notes; the Inman homework problems are listed only, as the textbook was not available.</p>
+</footer>
+</main>
+</div>
+<script>
+(function(){
+
+  const NS = 'http://www.w3.org/2000/svg';
+  function E(parent, tag, attrs, text){
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.append(e);
+    return e;
+  }
+  const neg = s => s.replace(/-/g, '−');
+  const num = v => neg((+v.toPrecision(6)).toString());
+  const fix = (v, d) => neg(v.toFixed(d));
+  const pts = a => a.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  // Axes, grid and labels; returns scales and a clipped group to draw in.
+  function plot(svg, o){
+    svg.textContent = '';
+    const lx = o.logx, ly = o.logy;
+    const X = v => o.l + (lx ? (Math.log10(v) - Math.log10(o.x0)) / (Math.log10(o.x1) - Math.log10(o.x0)) : (v - o.x0) / (o.x1 - o.x0)) * o.w;
+    const Y = v => o.t + (ly ? (Math.log10(o.y1) - Math.log10(v)) / (Math.log10(o.y1) - Math.log10(o.y0)) : (o.y1 - v) / (o.y1 - o.y0)) * o.h;
+    const defs = E(svg, 'defs', {});
+    E(E(defs, 'clipPath', {id: o.id}), 'rect', {x: o.l, y: o.t, width: o.w, height: o.h});
+    o.xt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: X(v), y1: o.t, x2: X(v), y2: o.t + o.h});
+      if (!o.noxt) E(svg, 'text', {class: 'tk', x: X(v), y: o.t + o.h + 15, 'text-anchor': 'middle'}, o.xf ? o.xf(v) : num(v));
+    });
+    o.yt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: o.l, y1: Y(v), x2: o.l + o.w, y2: Y(v)});
+      E(svg, 'text', {class: 'tk', x: o.l - 6, y: Y(v) + 4, 'text-anchor': 'end'}, o.yf ? o.yf(v) : num(v));
+    });
+    if (o.zero) E(svg, 'line', {class: 'axis', x1: o.l, y1: Y(0), x2: o.l + o.w, y2: Y(0)});
+    E(svg, 'rect', {class: 'frame', x: o.l, y: o.t, width: o.w, height: o.h});
+    E(svg, 'text', {class: 'lab', x: o.l + o.w / 2, y: o.t + o.h + 34, 'text-anchor': 'middle'}, o.xlab);
+    E(svg, 'text', {class: 'lab', transform: 'translate(' + (o.ylx === undefined ? 16 : o.ylx) + ' ' + (o.t + o.h / 2) + ') rotate(-90)', 'text-anchor': 'middle'}, o.ylab);
+    const g = E(svg, 'g', {'clip-path': 'url(#' + o.id + ')'}), top = E(svg, 'g', {});
+    return {X, Y, g, top};
+  }
+  function controls(fig, redraw){
+    const inputs = {};
+    fig.querySelectorAll('.fig-ctl input').forEach(i => { inputs[i.dataset.k] = i; i.addEventListener('input', redraw); });
+    const show = (k, text) => { inputs[k].parentNode.querySelector('output').textContent = text; };
+    return {show, val: k => +inputs[k].value};
+  }
+  function nice(v){ const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * p >= v * 0.999) return m * p; return 10 * p; }
+  function ticks(a, b, n){ const raw = (b - a) / n, p = Math.pow(10, Math.floor(Math.log10(raw))); let s = p; for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw){ s = m * p; break; } const out = []; for (let v = Math.ceil(a / s - 1e-9) * s; v <= b + 1e-9; v += s) out.push(+v.toFixed(10)); return out; }
+
+  const fig = document.getElementById('fig32'), svg = fig.querySelector('svg'), read = fig.querySelector('.fig-read');
+  const c = controls(fig, draw);
+  const T = [
+    {name: 'free-free', bl: [4.73004074, 7.85320462, 10.9956078, 14.1371655], s: [0.9825, 1.0008, 0.9999, 1.0000], k: 'ff'},
+    {name: 'clamped-free', bl: [1.87510407, 4.69409113, 7.85475744, 10.99554073], s: [0.7341, 1.0185, 0.9992, 1.0000], k: 'cx'},
+    {name: 'clamped-pinned', bl: [3.92660231, 7.06858275, 10.21017612, 13.35176878], s: [1.0008, 1, 1, 1], k: 'cx'},
+    {name: 'clamped-sliding', bl: [2.36502037, 5.49780392, 8.63937983, 11.78097245], s: [0.9825, 1, 1, 1], k: 'cx'},
+    {name: 'clamped-clamped', bl: [4.73004074, 7.85320462, 10.9956079, 14.1371655], s: [0.982502, 1.00078, 0.999966, 1.0000], k: 'cx'},
+    {name: 'pinned-pinned', bl: [Math.PI, 2 * Math.PI, 3 * Math.PI, 4 * Math.PI], s: [0, 0, 0, 0], k: 'pp'}];
+  function draw(){
+    const bc = Math.round(c.val('bc')), n = Math.round(c.val('n')), t = T[bc - 1], b = t.bl[n - 1], s = t.s[n - 1];
+    c.show('bc', String(bc)); c.show('n', String(n));
+    const X = u => t.k === 'pp' ? Math.sin(b * u) : t.k === 'ff' ? Math.cosh(b * u) + Math.cos(b * u) - s * (Math.sinh(b * u) + Math.sin(b * u)) : Math.cosh(b * u) - Math.cos(b * u) - s * (Math.sinh(b * u) - Math.sin(b * u));
+    const ys = []; let m = 0;
+    for (let i = 0; i <= 400; i++){ const v = X(i / 400); ys.push(v); m = Math.max(m, Math.abs(v)); }
+    const P = plot(svg, {id: 'cp32', l: 58, t: 14, w: 560, h: 170, x0: 0, x1: 1, y0: -1.2, y1: 1.2, xt: [0, .25, .5, .75, 1], yt: [-1, 0, 1], xlab: 'x/l', ylab: 'X(x)', zero: true});
+    E(P.g, 'polyline', {class: 'ln c1', points: pts(ys.map((v, i) => [P.X(i / 400), P.Y(v / m)]))});
+    for (let i = 2; i < 399; i++) if (ys[i] * ys[i + 1] < 0) E(P.g, 'circle', {class: 'c3f', cx: P.X((i + .5) / 400), cy: P.Y(0), r: 4});
+    read.innerHTML = `${t.name}, mode ${n}: β<sub>n</sub>l = ${fix(b, 4)}${t.k === 'pp' ? ' (nπ)' : `, σ<sub>n</sub> = ${s}`}. ω<sub>n</sub> = (β<sub>n</sub>l)<sup>2</sup>√(EI/ρA)/l<sup>2</sup>.`;
+  }
+  draw();
+})();
+</script>
+<script src="../assets/ask-gemini.js" data-store="vibration-w10" data-course="Vibration and Noise 354"
+        data-topic="Week 10: rods, shafts, Euler-Bernoulli beam, beam boundary conditions, Table 6.6, clamped-sliding beam, beam mode shapes, FRF from modes, predictive maintenance, vibration monitoring, unbalance, misalignment, bearing wear, gear mesh frequency, Tutorial 4"></script>
+</body>
+</html>

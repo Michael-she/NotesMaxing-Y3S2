@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 9: Distributed parameter systems · Vibration and Noise · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=vibration">&larr; Vibration and Noise</a>
+  <div class="k">Vibration and Noise · Week 9</div>
+  <ol>
+    <li><a href="#lumped">1. Lumped and distributed</a></li>
+    <li><a href="#wave">2. Wave equation</a></li>
+    <li><a href="#modes">3. Modes and frequencies</a></li>
+    <li class="sub"><a href="#spatial">Mode shapes</a></li>
+    <li class="sub"><a href="#temporal">Natural frequencies</a></li>
+    <li><a href="#ic">4. Initial conditions</a></li>
+    <li><a href="#rods">5. Rods and shafts</a></li>
+    <li><a href="#practice">6. Practice problems</a></li>
+    <li><a href="#sheet">7. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">VIBRATION AND NOISE 354 · INMAN 6.1 TO 6.4 · LECTURE 12</div>
+  <h1>Distributed parameter systems: strings, rods and shafts</h1>
+  <p class="lede">The wave equation for a taut string, its mode shapes and natural frequencies by separation of variables, the response to initial conditions through orthogonality, and the same equation for rods and shafts.</p>
+</header>
+
+<section id="lumped">
+<h2><span class="n">01</span>From lumped to distributed systems</h2>
+
+<p>Until now systems were <strong>lumped</strong>: mass concentrated at discrete points, joined by massless springs, with a finite number of degrees of freedom (SDOF or MDOF). Real structures are <strong>continuous</strong>: mass and stiffness are spread over the body. In a <strong>distributed parameter system</strong> the motion is a continuous function of position, \(w(x, t)\), so there are infinitely many degrees of freedom and infinitely many natural frequencies.</p>
+<div class="key"><span class="tag">Key idea</span><p>Lumped models are simplifications of continuous systems. The continuous models of this week (strings, rods, shafts, and beams next week) show where lumped models come from and when they stop being accurate.</p></div>
+<p class="reading"><b>Reading</b> Inman 6.1 and 6.2; Lecture 12 notes and slides</p>
+
+</section>
+
+<section id="wave">
+<h2><span class="n">02</span>The wave equation for a string</h2>
+
+<p>The simplest continuous system is a string or cable stretched with tension \(\tau\) between two supports, carrying a distributed transverse load \(f(x, t)\) (force per unit length). Its transverse displacement is \(w(x, t)\).</p>
+<figure>
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="A string under tension between two supports with a distributed load, and the free-body diagram of a short element">
+<line class="ln c4" x1="30.0" y1="60.0" x2="30.0" y2="140.0"/><path class="ln c4 thin" d="M30.0 67.0 l9.0 -7.0 M30.0 81.0 l9.0 -7.0 M30.0 95.0 l9.0 -7.0 M30.0 109.0 l9.0 -7.0 M30.0 123.0 l9.0 -7.0 M30.0 137.0 l9.0 -7.0"/><line class="ln c4" x1="330.0" y1="60.0" x2="330.0" y2="140.0"/><path class="ln c4 thin" d="M330.0 67.0 l-9.0 -7.0 M330.0 81.0 l-9.0 -7.0 M330.0 95.0 l-9.0 -7.0 M330.0 109.0 l-9.0 -7.0 M330.0 123.0 l-9.0 -7.0 M330.0 137.0 l-9.0 -7.0"/><path class="ln c1" d="M30 100 Q 180 40 330 100"/><line class="ln c3" x1="60.0" y1="150.0" x2="60.0" y2="129.0"/><path class="c3f" d="M60.0 118.0 L54.5 129.0 L65.5 129.0 Z"/><line class="ln c3" x1="90.0" y1="150.0" x2="90.0" y2="129.0"/><path class="c3f" d="M90.0 118.0 L84.5 129.0 L95.5 129.0 Z"/><line class="ln c3" x1="120.0" y1="150.0" x2="120.0" y2="129.0"/><path class="c3f" d="M120.0 118.0 L114.5 129.0 L125.5 129.0 Z"/><line class="ln c3" x1="150.0" y1="150.0" x2="150.0" y2="129.0"/><path class="c3f" d="M150.0 118.0 L144.5 129.0 L155.5 129.0 Z"/><line class="ln c3" x1="180.0" y1="150.0" x2="180.0" y2="129.0"/><path class="c3f" d="M180.0 118.0 L174.5 129.0 L185.5 129.0 Z"/><line class="ln c3" x1="210.0" y1="150.0" x2="210.0" y2="129.0"/><path class="c3f" d="M210.0 118.0 L204.5 129.0 L215.5 129.0 Z"/><line class="ln c3" x1="240.0" y1="150.0" x2="240.0" y2="129.0"/><path class="c3f" d="M240.0 118.0 L234.5 129.0 L245.5 129.0 Z"/><line class="ln c3" x1="270.0" y1="150.0" x2="270.0" y2="129.0"/><path class="c3f" d="M270.0 118.0 L264.5 129.0 L275.5 129.0 Z"/><line class="ln c3" x1="300.0" y1="150.0" x2="300.0" y2="129.0"/><path class="c3f" d="M300.0 118.0 L294.5 129.0 L305.5 129.0 Z"/><text class="lab c3t" x="180" y="170" text-anchor="middle">f(x, t) per unit length</text><text class="lab" x="180" y="40" text-anchor="middle">w(x, t)</text><text class="tk" x="30" y="156" text-anchor="middle">0</text><text class="tk" x="330" y="156" text-anchor="middle">l</text><line class="ln c4" x1="40.0" y1="200.0" x2="309.0" y2="200.0"/><path class="c4f" d="M320.0 200.0 L309.0 194.5 L309.0 205.5 Z"/><text class="lab" x="180" y="220" text-anchor="middle">x</text><path class="ln c1" d="M420 140 L560 100"/><line class="ln c4" x1="420.0" y1="140.0" x2="390.0" y2="153.5"/><path class="c4f" d="M380.0 158.0 L392.3 158.5 L387.8 148.5 Z"/><text class="lab" x="374" y="176">τ₁</text><line class="ln c4" x1="560.0" y1="100.0" x2="599.9" y2="82.4"/><path class="c4f" d="M610.0 78.0 L597.7 77.4 L602.1 87.5 Z"/><text class="lab" x="612" y="72">τ₂</text><line class="ln c4 thin dash" x1="420" y1="140" x2="470" y2="140"/><text class="tk" x="452" y="136">θ₁</text><line class="ln c4 thin dash" x1="560" y1="100" x2="610" y2="100"/><text class="tk" x="590" y="96">θ₂</text><line class="ln c3" x1="490.0" y1="160.0" x2="490.0" y2="139.0"/><path class="c3f" d="M490.0 128.0 L484.5 139.0 L495.5 139.0 Z"/><text class="lab c3t" x="498" y="168">f Δx</text><line class="ln c4 thin" x1="420" y1="190" x2="560" y2="190"/><text class="tk" x="420" y="206" text-anchor="middle">x</text><text class="tk" x="560" y="206" text-anchor="middle">x + Δx</text><text class="lab" x="490" y="60" text-anchor="middle">mass ρΔx</text>
+</svg>
+<figcaption><b>Figure 2.1</b> A taut string and the free-body diagram of an element.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> The element between \(x\) and \(x + \Delta x\) has mass \(\rho\Delta x\). The tension acts along the string at each end, at angles \(\theta_1\) and \(\theta_2\) to the horizontal; the load \(f\Delta x\) acts transversely.</p>
+<p>The derivation follows four steps: free-body diagram, sum of forces, limit, rearrange. Summing transverse forces on the element:</p>
+<div class="eq"><span class="tag">Transverse force balance</span>\[ -\tau_1\sin\theta_1 + \tau_2\sin\theta_2 + f(x, t)\Delta x = \rho\Delta x\frac{\partial^2w(x, t)}{\partial t^2} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\tau_1, \tau_2\)</dt><dd>Tension at the two ends of the element (N).</dd>
+  <dt>\(\theta_1, \theta_2\)</dt><dd>Slope angles of the string at the two ends (rad).</dd>
+  <dt>\(f(x, t)\)</dt><dd>Distributed transverse force per unit length (N/m).</dd>
+  <dt>\(\rho\)</dt><dd>Linear density, mass per unit length (kg/m).</dd>
+  <dt>\(w(x, t)\)</dt><dd>Transverse displacement (m).</dd>
+</dl>
+</div>
+<p>For small angles \(\cos\theta \approx 1\), so the horizontal balance gives \(\tau_1 = \tau_2 = \tau\), and \(\sin\theta \approx \tan\theta = \partial w/\partial x\). Dividing by \(\Delta x\):</p>
+\[ \frac{\tau}{\Delta x}\left[\frac{\partial w(x + \Delta x, t)}{\partial x} - \frac{\partial w(x, t)}{\partial x}\right] + f(x, t) = \rho\frac{\partial^2w}{\partial t^2}. \]
+<p>As \(\Delta x \to 0\) the bracket divided by \(\Delta x\) becomes \(\partial^2w/\partial x^2\) (definition of the derivative). With no external load:</p>
+<div class="eq"><span class="tag">One-dimensional wave equation</span>\[ \frac{\partial^2w(x, t)}{\partial x^2} = \frac{1}{c^2}\frac{\partial^2w(x, t)}{\partial t^2}, \qquad c = \sqrt{\frac{\tau}{\rho}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(c\)</dt><dd>Wave speed along the string (m/s).</dd>
+  <dt>\(\tau\)</dt><dd>Tension (N).</dd>
+  <dt>\(\rho\)</dt><dd>Mass per unit length (kg/m).</dd>
+</dl>
+</div>
+<p>It is a partial differential equation, second order in space and in time. Its solution needs <strong>two boundary conditions</strong> (one at each end) and <strong>two initial conditions</strong> (initial displacement and velocity everywhere).</p>
+<div class="box watch"><span class="label">Watch out</span><p>The notes say Inman's equation 6.1 "uses a volume density with units [kg/m]". A volume density has units kg/m³; Inman multiplies it by the cross-sectional area \(A\) to get the linear density in kg/m. On this page \(\rho\) is the linear density for strings, and the volume density for rods and shafts (section 5).</p></div>
+
+</section>
+
+<section id="modes">
+<h2><span class="n">03</span>Modes and natural frequencies</h2>
+
+<p>Solve by <strong>separation of variables</strong>: assume the shape and the time behaviour factor, \(w(x, t) = X(x)T(t)\). Substituting and dividing by \(XT\):</p>
+\[ \frac{X''(x)}{X(x)} = \frac{1}{c^2}\frac{\ddot T(t)}{T(t)} = -\sigma^2. \]
+<p>The left side depends only on \(x\) and the right only on \(t\), so both equal the same constant, written \(-\sigma^2\). A positive or zero constant is also possible in principle, but with fixed ends it only gives the trivial solution \(w = 0\) (Inman example 6.2.1), so the negative choice, which gives oscillation, is the useful one.</p>
+<h3 id="spatial">Spatial solution: mode shapes</h3>
+<p>\(X'' + \sigma^2X = 0\) is the SDOF equation again, in \(x\): \(X = a_1\sin\sigma x + a_2\cos\sigma x\). A string <strong>fixed at both ends</strong> has \(X(0) = 0\) and \(X(l) = 0\). The first gives \(a_2 = 0\); the second gives the characteristic equation \(a_1\sin\sigma l = 0\), with infinitely many roots:</p>
+<div class="eq"><span class="tag">Mode shapes of a fixed-fixed string</span>\[ \sigma_n = \frac{n\pi}{l}, \qquad X_n(x) = a_n\sin\frac{n\pi x}{l}, \qquad n = 1, 2, 3, \ldots \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\sigma_n\)</dt><dd>Spatial frequency (wavenumber) of mode \(n\) (rad/m).</dd>
+  <dt>\(X_n\)</dt><dd>Mode shape \(n\): \(n\) half-sine waves along the string.</dd>
+  <dt>\(l\)</dt><dd>Length between supports (m).</dd>
+</dl>
+</div>
+<h3 id="temporal">Temporal solution: natural frequencies</h3>
+<p>For each \(\sigma_n\), the time equation is \(\ddot T_n + \sigma_n^2c^2T_n = 0\), an undamped oscillator with \(T_n = A_n\sin\omega_nt + B_n\cos\omega_nt\) and</p>
+<div class="eq"><span class="tag">Natural frequencies of a fixed-fixed string</span>\[ \omega_n = c\sigma_n = \frac{n\pi}{l}\sqrt{\frac{\tau}{\rho}}, \qquad f_n = \frac{n}{2l}\sqrt{\frac{\tau}{\rho}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\omega_n\)</dt><dd>Natural frequency of mode \(n\) (rad/s).</dd>
+  <dt>\(f_n\)</dt><dd>In hertz: every frequency is a whole multiple of the fundamental \(f_1\).</dd>
+</dl>
+</div>
+<div class="eq"><span class="tag">General free response</span>\[ w(x, t) = \sum_{n=1}^{\infty}\left[c_n\sin\sigma_nx\,\sin\sigma_nct + d_n\sin\sigma_nx\,\cos\sigma_nct\right] \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(c_n, d_n\)</dt><dd>Constants (m), combining \(a_n\), \(A_n\), \(B_n\); set by the initial velocity and displacement.</dd>
+</dl>
+</div>
+<figure>
+<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="First three mode shapes of a string fixed at both ends, with nodes marked">
+<line class="grid" x1="58.0" y1="14" x2="58.0" y2="74"/>
+<line class="grid" x1="198.0" y1="14" x2="198.0" y2="74"/>
+<line class="grid" x1="338.0" y1="14" x2="338.0" y2="74"/>
+<line class="grid" x1="478.0" y1="14" x2="478.0" y2="74"/>
+<line class="grid" x1="618.0" y1="14" x2="618.0" y2="74"/>
+<line class="grid" x1="58" y1="69.0" x2="618" y2="69.0"/>
+<text class="tk" x="52" y="73.0" text-anchor="end">−1</text>
+<line class="grid" x1="58" y1="44.0" x2="618" y2="44.0"/>
+<text class="tk" x="52" y="48.0" text-anchor="end">0</text>
+<line class="grid" x1="58" y1="19.0" x2="618" y2="19.0"/>
+<text class="tk" x="52" y="23.0" text-anchor="end">1</text>
+<line class="axis" x1="58" y1="44.0" x2="618" y2="44.0"/>
+<rect class="frame" x="58" y="14" width="560" height="60"/>
+<text class="lab" transform="translate(16 44.0) rotate(-90)" text-anchor="middle">mode 1</text>
+<polyline class="ln c1" points="58.0,44.0 59.4,43.8 60.8,43.6 62.2,43.4 63.6,43.2 65.0,43.0 66.4,42.8 67.8,42.6 69.2,42.4 70.6,42.2 72.0,42.0 73.4,41.8 74.8,41.6 76.2,41.5 77.6,41.3 79.0,41.1 80.4,40.9 81.8,40.7 83.2,40.5 84.6,40.3 86.0,40.1 87.4,39.9 88.8,39.7 90.2,39.5 91.6,39.3 93.0,39.1 94.4,38.9 95.8,38.7 97.2,38.5 98.6,38.4 100.0,38.2 101.4,38.0 102.8,37.8 104.2,37.6 105.6,37.4 107.0,37.2 108.4,37.0 109.8,36.8 111.2,36.6 112.6,36.5 114.0,36.3 115.4,36.1 116.8,35.9 118.2,35.7 119.6,35.5 121.0,35.3 122.4,35.2 123.8,35.0 125.2,34.8 126.6,34.6 128.0,34.4 129.4,34.3 130.8,34.1 132.2,33.9 133.6,33.7 135.0,33.5 136.4,33.4 137.8,33.2 139.2,33.0 140.6,32.8 142.0,32.7 143.4,32.5 144.8,32.3 146.2,32.1 147.6,32.0 149.0,31.8 150.4,31.6 151.8,31.4 153.2,31.3 154.6,31.1 156.0,30.9 157.4,30.8 158.8,30.6 160.2,30.4 161.6,30.3 163.0,30.1 164.4,29.9 165.8,29.8 167.2,29.6 168.6,29.5 170.0,29.3 171.4,29.1 172.8,29.0 174.2,28.8 175.6,28.7 177.0,28.5 178.4,28.4 179.8,28.2 181.2,28.1 182.6,27.9 184.0,27.8 185.4,27.6 186.8,27.5 188.2,27.3 189.6,27.2 191.0,27.0 192.4,26.9 193.8,26.7 195.2,26.6 196.6,26.5 198.0,26.3 199.4,26.2 200.8,26.0 202.2,25.9 203.6,25.8 205.0,25.6 206.4,25.5 207.8,25.4 209.2,25.2 210.6,25.1 212.0,25.0 213.4,24.9 214.8,24.7 216.2,24.6 217.6,24.5 219.0,24.4 220.4,24.2 221.8,24.1 223.2,24.0 224.6,23.9 226.0,23.8 227.4,23.7 228.8,23.5 230.2,23.4 231.6,23.3 233.0,23.2 234.4,23.1 235.8,23.0 237.2,22.9 238.6,22.8 240.0,22.7 241.4,22.6 242.8,22.5 244.2,22.4 245.6,22.3 247.0,22.2 248.4,22.1 249.8,22.0 251.2,21.9 252.6,21.8 254.0,21.7 255.4,21.6 256.8,21.5 258.2,21.5 259.6,21.4 261.0,21.3 262.4,21.2 263.8,21.1 265.2,21.1 266.6,21.0 268.0,20.9 269.4,20.8 270.8,20.8 272.2,20.7 273.6,20.6 275.0,20.5 276.4,20.5 277.8,20.4 279.2,20.3 280.6,20.3 282.0,20.2 283.4,20.2 284.8,20.1 286.2,20.0 287.6,20.0 289.0,19.9 290.4,19.9 291.8,19.8 293.2,19.8 294.6,19.7 296.0,19.7 297.4,19.6 298.8,19.6 300.2,19.6 301.6,19.5 303.0,19.5 304.4,19.4 305.8,19.4 307.2,19.4 308.6,19.3 310.0,19.3 311.4,19.3 312.8,19.2 314.2,19.2 315.6,19.2 317.0,19.2 318.4,19.2 319.8,19.1 321.2,19.1 322.6,19.1 324.0,19.1 325.4,19.1 326.8,19.0 328.2,19.0 329.6,19.0 331.0,19.0 332.4,19.0 333.8,19.0 335.2,19.0 336.6,19.0 338.0,19.0 339.4,19.0 340.8,19.0 342.2,19.0 343.6,19.0 345.0,19.0 346.4,19.0 347.8,19.0 349.2,19.0 350.6,19.1 352.0,19.1 353.4,19.1 354.8,19.1 356.2,19.1 357.6,19.2 359.0,19.2 360.4,19.2 361.8,19.2 363.2,19.2 364.6,19.3 366.0,19.3 367.4,19.3 368.8,19.4 370.2,19.4 371.6,19.4 373.0,19.5 374.4,19.5 375.8,19.6 377.2,19.6 378.6,19.6 380.0,19.7 381.4,19.7 382.8,19.8 384.2,19.8 385.6,19.9 387.0,19.9 388.4,20.0 389.8,20.0 391.2,20.1 392.6,20.2 394.0,20.2 395.4,20.3 396.8,20.3 398.2,20.4 399.6,20.5 401.0,20.5 402.4,20.6 403.8,20.7 405.2,20.8 406.6,20.8 408.0,20.9 409.4,21.0 410.8,21.1 412.2,21.1 413.6,21.2 415.0,21.3 416.4,21.4 417.8,21.5 419.2,21.5 420.6,21.6 422.0,21.7 423.4,21.8 424.8,21.9 426.2,22.0 427.6,22.1 429.0,22.2 430.4,22.3 431.8,22.4 433.2,22.5 434.6,22.6 436.0,22.7 437.4,22.8 438.8,22.9 440.2,23.0 441.6,23.1 443.0,23.2 444.4,23.3 445.8,23.4 447.2,23.5 448.6,23.7 450.0,23.8 451.4,23.9 452.8,24.0 454.2,24.1 455.6,24.2 457.0,24.4 458.4,24.5 459.8,24.6 461.2,24.7 462.6,24.9 464.0,25.0 465.4,25.1 466.8,25.2 468.2,25.4 469.6,25.5 471.0,25.6 472.4,25.8 473.8,25.9 475.2,26.0 476.6,26.2 478.0,26.3 479.4,26.5 480.8,26.6 482.2,26.7 483.6,26.9 485.0,27.0 486.4,27.2 487.8,27.3 489.2,27.5 490.6,27.6 492.0,27.8 493.4,27.9 494.8,28.1 496.2,28.2 497.6,28.4 499.0,28.5 500.4,28.7 501.8,28.8 503.2,29.0 504.6,29.1 506.0,29.3 507.4,29.5 508.8,29.6 510.2,29.8 511.6,29.9 513.0,30.1 514.4,30.3 515.8,30.4 517.2,30.6 518.6,30.8 520.0,30.9 521.4,31.1 522.8,31.3 524.2,31.4 525.6,31.6 527.0,31.8 528.4,32.0 529.8,32.1 531.2,32.3 532.6,32.5 534.0,32.7 535.4,32.8 536.8,33.0 538.2,33.2 539.6,33.4 541.0,33.5 542.4,33.7 543.8,33.9 545.2,34.1 546.6,34.3 548.0,34.4 549.4,34.6 550.8,34.8 552.2,35.0 553.6,35.2 555.0,35.3 556.4,35.5 557.8,35.7 559.2,35.9 560.6,36.1 562.0,36.3 563.4,36.5 564.8,36.6 566.2,36.8 567.6,37.0 569.0,37.2 570.4,37.4 571.8,37.6 573.2,37.8 574.6,38.0 576.0,38.2 577.4,38.4 578.8,38.5 580.2,38.7 581.6,38.9 583.0,39.1 584.4,39.3 585.8,39.5 587.2,39.7 588.6,39.9 590.0,40.1 591.4,40.3 592.8,40.5 594.2,40.7 595.6,40.9 597.0,41.1 598.4,41.3 599.8,41.5 601.2,41.6 602.6,41.8 604.0,42.0 605.4,42.2 606.8,42.4 608.2,42.6 609.6,42.8 611.0,43.0 612.4,43.2 613.8,43.4 615.2,43.6 616.6,43.8 618.0,44.0"/>
+<line class="grid" x1="58.0" y1="98" x2="58.0" y2="158"/>
+<line class="grid" x1="198.0" y1="98" x2="198.0" y2="158"/>
+<line class="grid" x1="338.0" y1="98" x2="338.0" y2="158"/>
+<line class="grid" x1="478.0" y1="98" x2="478.0" y2="158"/>
+<line class="grid" x1="618.0" y1="98" x2="618.0" y2="158"/>
+<line class="grid" x1="58" y1="153.0" x2="618" y2="153.0"/>
+<text class="tk" x="52" y="157.0" text-anchor="end">−1</text>
+<line class="grid" x1="58" y1="128.0" x2="618" y2="128.0"/>
+<text class="tk" x="52" y="132.0" text-anchor="end">0</text>
+<line class="grid" x1="58" y1="103.0" x2="618" y2="103.0"/>
+<text class="tk" x="52" y="107.0" text-anchor="end">1</text>
+<line class="axis" x1="58" y1="128.0" x2="618" y2="128.0"/>
+<rect class="frame" x="58" y="98" width="560" height="60"/>
+<text class="lab" transform="translate(16 128.0) rotate(-90)" text-anchor="middle">mode 2</text>
+<polyline class="ln c1" points="58.0,128.0 59.4,127.6 60.8,127.2 62.2,126.8 63.6,126.4 65.0,126.0 66.4,125.6 67.8,125.3 69.2,124.9 70.6,124.5 72.0,124.1 73.4,123.7 74.8,123.3 76.2,122.9 77.6,122.5 79.0,122.2 80.4,121.8 81.8,121.4 83.2,121.0 84.6,120.6 86.0,120.3 87.4,119.9 88.8,119.5 90.2,119.2 91.6,118.8 93.0,118.4 94.4,118.1 95.8,117.7 97.2,117.4 98.6,117.0 100.0,116.7 101.4,116.3 102.8,116.0 104.2,115.6 105.6,115.3 107.0,114.9 108.4,114.6 109.8,114.3 111.2,113.9 112.6,113.6 114.0,113.3 115.4,113.0 116.8,112.7 118.2,112.4 119.6,112.1 121.0,111.8 122.4,111.5 123.8,111.2 125.2,110.9 126.6,110.6 128.0,110.3 129.4,110.0 130.8,109.8 132.2,109.5 133.6,109.2 135.0,109.0 136.4,108.7 137.8,108.5 139.2,108.2 140.6,108.0 142.0,107.8 143.4,107.5 144.8,107.3 146.2,107.1 147.6,106.9 149.0,106.7 150.4,106.5 151.8,106.3 153.2,106.1 154.6,105.9 156.0,105.7 157.4,105.5 158.8,105.4 160.2,105.2 161.6,105.1 163.0,104.9 164.4,104.8 165.8,104.6 167.2,104.5 168.6,104.3 170.0,104.2 171.4,104.1 172.8,104.0 174.2,103.9 175.6,103.8 177.0,103.7 178.4,103.6 179.8,103.5 181.2,103.4 182.6,103.4 184.0,103.3 185.4,103.2 186.8,103.2 188.2,103.2 189.6,103.1 191.0,103.1 192.4,103.0 193.8,103.0 195.2,103.0 196.6,103.0 198.0,103.0 199.4,103.0 200.8,103.0 202.2,103.0 203.6,103.0 205.0,103.1 206.4,103.1 207.8,103.2 209.2,103.2 210.6,103.2 212.0,103.3 213.4,103.4 214.8,103.4 216.2,103.5 217.6,103.6 219.0,103.7 220.4,103.8 221.8,103.9 223.2,104.0 224.6,104.1 226.0,104.2 227.4,104.3 228.8,104.5 230.2,104.6 231.6,104.8 233.0,104.9 234.4,105.1 235.8,105.2 237.2,105.4 238.6,105.5 240.0,105.7 241.4,105.9 242.8,106.1 244.2,106.3 245.6,106.5 247.0,106.7 248.4,106.9 249.8,107.1 251.2,107.3 252.6,107.5 254.0,107.8 255.4,108.0 256.8,108.2 258.2,108.5 259.6,108.7 261.0,109.0 262.4,109.2 263.8,109.5 265.2,109.8 266.6,110.0 268.0,110.3 269.4,110.6 270.8,110.9 272.2,111.2 273.6,111.5 275.0,111.8 276.4,112.1 277.8,112.4 279.2,112.7 280.6,113.0 282.0,113.3 283.4,113.6 284.8,113.9 286.2,114.3 287.6,114.6 289.0,114.9 290.4,115.3 291.8,115.6 293.2,116.0 294.6,116.3 296.0,116.7 297.4,117.0 298.8,117.4 300.2,117.7 301.6,118.1 303.0,118.4 304.4,118.8 305.8,119.2 307.2,119.5 308.6,119.9 310.0,120.3 311.4,120.6 312.8,121.0 314.2,121.4 315.6,121.8 317.0,122.2 318.4,122.5 319.8,122.9 321.2,123.3 322.6,123.7 324.0,124.1 325.4,124.5 326.8,124.9 328.2,125.3 329.6,125.6 331.0,126.0 332.4,126.4 333.8,126.8 335.2,127.2 336.6,127.6 338.0,128.0 339.4,128.4 340.8,128.8 342.2,129.2 343.6,129.6 345.0,130.0 346.4,130.4 347.8,130.7 349.2,131.1 350.6,131.5 352.0,131.9 353.4,132.3 354.8,132.7 356.2,133.1 357.6,133.5 359.0,133.8 360.4,134.2 361.8,134.6 363.2,135.0 364.6,135.4 366.0,135.7 367.4,136.1 368.8,136.5 370.2,136.8 371.6,137.2 373.0,137.6 374.4,137.9 375.8,138.3 377.2,138.6 378.6,139.0 380.0,139.3 381.4,139.7 382.8,140.0 384.2,140.4 385.6,140.7 387.0,141.1 388.4,141.4 389.8,141.7 391.2,142.1 392.6,142.4 394.0,142.7 395.4,143.0 396.8,143.3 398.2,143.6 399.6,143.9 401.0,144.2 402.4,144.5 403.8,144.8 405.2,145.1 406.6,145.4 408.0,145.7 409.4,146.0 410.8,146.2 412.2,146.5 413.6,146.8 415.0,147.0 416.4,147.3 417.8,147.5 419.2,147.8 420.6,148.0 422.0,148.2 423.4,148.5 424.8,148.7 426.2,148.9 427.6,149.1 429.0,149.3 430.4,149.5 431.8,149.7 433.2,149.9 434.6,150.1 436.0,150.3 437.4,150.5 438.8,150.6 440.2,150.8 441.6,150.9 443.0,151.1 444.4,151.2 445.8,151.4 447.2,151.5 448.6,151.7 450.0,151.8 451.4,151.9 452.8,152.0 454.2,152.1 455.6,152.2 457.0,152.3 458.4,152.4 459.8,152.5 461.2,152.6 462.6,152.6 464.0,152.7 465.4,152.8 466.8,152.8 468.2,152.8 469.6,152.9 471.0,152.9 472.4,153.0 473.8,153.0 475.2,153.0 476.6,153.0 478.0,153.0 479.4,153.0 480.8,153.0 482.2,153.0 483.6,153.0 485.0,152.9 486.4,152.9 487.8,152.8 489.2,152.8 490.6,152.8 492.0,152.7 493.4,152.6 494.8,152.6 496.2,152.5 497.6,152.4 499.0,152.3 500.4,152.2 501.8,152.1 503.2,152.0 504.6,151.9 506.0,151.8 507.4,151.7 508.8,151.5 510.2,151.4 511.6,151.2 513.0,151.1 514.4,150.9 515.8,150.8 517.2,150.6 518.6,150.5 520.0,150.3 521.4,150.1 522.8,149.9 524.2,149.7 525.6,149.5 527.0,149.3 528.4,149.1 529.8,148.9 531.2,148.7 532.6,148.5 534.0,148.2 535.4,148.0 536.8,147.8 538.2,147.5 539.6,147.3 541.0,147.0 542.4,146.8 543.8,146.5 545.2,146.2 546.6,146.0 548.0,145.7 549.4,145.4 550.8,145.1 552.2,144.8 553.6,144.5 555.0,144.2 556.4,143.9 557.8,143.6 559.2,143.3 560.6,143.0 562.0,142.7 563.4,142.4 564.8,142.1 566.2,141.7 567.6,141.4 569.0,141.1 570.4,140.7 571.8,140.4 573.2,140.0 574.6,139.7 576.0,139.3 577.4,139.0 578.8,138.6 580.2,138.3 581.6,137.9 583.0,137.6 584.4,137.2 585.8,136.8 587.2,136.5 588.6,136.1 590.0,135.7 591.4,135.4 592.8,135.0 594.2,134.6 595.6,134.2 597.0,133.8 598.4,133.5 599.8,133.1 601.2,132.7 602.6,132.3 604.0,131.9 605.4,131.5 606.8,131.1 608.2,130.7 609.6,130.4 611.0,130.0 612.4,129.6 613.8,129.2 615.2,128.8 616.6,128.4 618.0,128.0"/><circle class="c3f" cx="338.0" cy="128.0" r="4"/>
+<line class="grid" x1="58.0" y1="182" x2="58.0" y2="242"/>
+<text class="tk" x="58.0" y="257" text-anchor="middle">0</text>
+<line class="grid" x1="198.0" y1="182" x2="198.0" y2="242"/>
+<text class="tk" x="198.0" y="257" text-anchor="middle">0.25</text>
+<line class="grid" x1="338.0" y1="182" x2="338.0" y2="242"/>
+<text class="tk" x="338.0" y="257" text-anchor="middle">0.5</text>
+<line class="grid" x1="478.0" y1="182" x2="478.0" y2="242"/>
+<text class="tk" x="478.0" y="257" text-anchor="middle">0.75</text>
+<line class="grid" x1="618.0" y1="182" x2="618.0" y2="242"/>
+<text class="tk" x="618.0" y="257" text-anchor="middle">1</text>
+<line class="grid" x1="58" y1="237.0" x2="618" y2="237.0"/>
+<text class="tk" x="52" y="241.0" text-anchor="end">−1</text>
+<line class="grid" x1="58" y1="212.0" x2="618" y2="212.0"/>
+<text class="tk" x="52" y="216.0" text-anchor="end">0</text>
+<line class="grid" x1="58" y1="187.0" x2="618" y2="187.0"/>
+<text class="tk" x="52" y="191.0" text-anchor="end">1</text>
+<line class="axis" x1="58" y1="212.0" x2="618" y2="212.0"/>
+<rect class="frame" x="58" y="182" width="560" height="60"/>
+<text class="lab" x="338.0" y="276" text-anchor="middle">x/l</text>
+<text class="lab" transform="translate(16 212.0) rotate(-90)" text-anchor="middle">mode 3</text>
+<polyline class="ln c1" points="58.0,212.0 59.4,211.4 60.8,210.8 62.2,210.2 63.6,209.6 65.0,209.1 66.4,208.5 67.8,207.9 69.2,207.3 70.6,206.7 72.0,206.2 73.4,205.6 74.8,205.0 76.2,204.5 77.6,203.9 79.0,203.3 80.4,202.8 81.8,202.3 83.2,201.7 84.6,201.2 86.0,200.7 87.4,200.1 88.8,199.6 90.2,199.1 91.6,198.6 93.0,198.1 94.4,197.6 95.8,197.1 97.2,196.7 98.6,196.2 100.0,195.8 101.4,195.3 102.8,194.9 104.2,194.5 105.6,194.0 107.0,193.6 108.4,193.2 109.8,192.9 111.2,192.5 112.6,192.1 114.0,191.8 115.4,191.4 116.8,191.1 118.2,190.8 119.6,190.5 121.0,190.2 122.4,189.9 123.8,189.6 125.2,189.4 126.6,189.1 128.0,188.9 129.4,188.7 130.8,188.5 132.2,188.3 133.6,188.1 135.0,187.9 136.4,187.8 137.8,187.6 139.2,187.5 140.6,187.4 142.0,187.3 143.4,187.2 144.8,187.2 146.2,187.1 147.6,187.0 149.0,187.0 150.4,187.0 151.8,187.0 153.2,187.0 154.6,187.0 156.0,187.1 157.4,187.1 158.8,187.2 160.2,187.3 161.6,187.4 163.0,187.5 164.4,187.6 165.8,187.7 167.2,187.9 168.6,188.0 170.0,188.2 171.4,188.4 172.8,188.6 174.2,188.8 175.6,189.1 177.0,189.3 178.4,189.5 179.8,189.8 181.2,190.1 182.6,190.4 184.0,190.7 185.4,191.0 186.8,191.3 188.2,191.7 189.6,192.0 191.0,192.4 192.4,192.7 193.8,193.1 195.2,193.5 196.6,193.9 198.0,194.3 199.4,194.7 200.8,195.2 202.2,195.6 203.6,196.1 205.0,196.5 206.4,197.0 207.8,197.5 209.2,197.9 210.6,198.4 212.0,198.9 213.4,199.4 214.8,200.0 216.2,200.5 217.6,201.0 219.0,201.5 220.4,202.1 221.8,202.6 223.2,203.2 224.6,203.7 226.0,204.3 227.4,204.8 228.8,205.4 230.2,206.0 231.6,206.5 233.0,207.1 234.4,207.7 235.8,208.3 237.2,208.9 238.6,209.5 240.0,210.0 241.4,210.6 242.8,211.2 244.2,211.8 245.6,212.4 247.0,213.0 248.4,213.6 249.8,214.2 251.2,214.7 252.6,215.3 254.0,215.9 255.4,216.5 256.8,217.1 258.2,217.6 259.6,218.2 261.0,218.8 262.4,219.4 263.8,219.9 265.2,220.5 266.6,221.0 268.0,221.6 269.4,222.1 270.8,222.6 272.2,223.2 273.6,223.7 275.0,224.2 276.4,224.7 277.8,225.2 279.2,225.7 280.6,226.2 282.0,226.7 283.4,227.2 284.8,227.6 286.2,228.1 287.6,228.5 289.0,229.0 290.4,229.4 291.8,229.8 293.2,230.2 294.6,230.6 296.0,231.0 297.4,231.4 298.8,231.8 300.2,232.1 301.6,232.5 303.0,232.8 304.4,233.1 305.8,233.4 307.2,233.7 308.6,234.0 310.0,234.3 311.4,234.5 312.8,234.8 314.2,235.0 315.6,235.2 317.0,235.5 318.4,235.7 319.8,235.8 321.2,236.0 322.6,236.2 324.0,236.3 325.4,236.4 326.8,236.6 328.2,236.7 329.6,236.8 331.0,236.8 332.4,236.9 333.8,236.9 335.2,237.0 336.6,237.0 338.0,237.0 339.4,237.0 340.8,237.0 342.2,236.9 343.6,236.9 345.0,236.8 346.4,236.8 347.8,236.7 349.2,236.6 350.6,236.4 352.0,236.3 353.4,236.2 354.8,236.0 356.2,235.8 357.6,235.7 359.0,235.5 360.4,235.2 361.8,235.0 363.2,234.8 364.6,234.5 366.0,234.3 367.4,234.0 368.8,233.7 370.2,233.4 371.6,233.1 373.0,232.8 374.4,232.5 375.8,232.1 377.2,231.8 378.6,231.4 380.0,231.0 381.4,230.6 382.8,230.2 384.2,229.8 385.6,229.4 387.0,229.0 388.4,228.5 389.8,228.1 391.2,227.6 392.6,227.2 394.0,226.7 395.4,226.2 396.8,225.7 398.2,225.2 399.6,224.7 401.0,224.2 402.4,223.7 403.8,223.2 405.2,222.6 406.6,222.1 408.0,221.6 409.4,221.0 410.8,220.5 412.2,219.9 413.6,219.4 415.0,218.8 416.4,218.2 417.8,217.6 419.2,217.1 420.6,216.5 422.0,215.9 423.4,215.3 424.8,214.7 426.2,214.2 427.6,213.6 429.0,213.0 430.4,212.4 431.8,211.8 433.2,211.2 434.6,210.6 436.0,210.0 437.4,209.5 438.8,208.9 440.2,208.3 441.6,207.7 443.0,207.1 444.4,206.5 445.8,206.0 447.2,205.4 448.6,204.8 450.0,204.3 451.4,203.7 452.8,203.2 454.2,202.6 455.6,202.1 457.0,201.5 458.4,201.0 459.8,200.5 461.2,200.0 462.6,199.4 464.0,198.9 465.4,198.4 466.8,197.9 468.2,197.5 469.6,197.0 471.0,196.5 472.4,196.1 473.8,195.6 475.2,195.2 476.6,194.7 478.0,194.3 479.4,193.9 480.8,193.5 482.2,193.1 483.6,192.7 485.0,192.4 486.4,192.0 487.8,191.7 489.2,191.3 490.6,191.0 492.0,190.7 493.4,190.4 494.8,190.1 496.2,189.8 497.6,189.5 499.0,189.3 500.4,189.1 501.8,188.8 503.2,188.6 504.6,188.4 506.0,188.2 507.4,188.0 508.8,187.9 510.2,187.7 511.6,187.6 513.0,187.5 514.4,187.4 515.8,187.3 517.2,187.2 518.6,187.1 520.0,187.1 521.4,187.0 522.8,187.0 524.2,187.0 525.6,187.0 527.0,187.0 528.4,187.0 529.8,187.1 531.2,187.2 532.6,187.2 534.0,187.3 535.4,187.4 536.8,187.5 538.2,187.6 539.6,187.8 541.0,187.9 542.4,188.1 543.8,188.3 545.2,188.5 546.6,188.7 548.0,188.9 549.4,189.1 550.8,189.4 552.2,189.6 553.6,189.9 555.0,190.2 556.4,190.5 557.8,190.8 559.2,191.1 560.6,191.4 562.0,191.8 563.4,192.1 564.8,192.5 566.2,192.9 567.6,193.2 569.0,193.6 570.4,194.0 571.8,194.5 573.2,194.9 574.6,195.3 576.0,195.8 577.4,196.2 578.8,196.7 580.2,197.1 581.6,197.6 583.0,198.1 584.4,198.6 585.8,199.1 587.2,199.6 588.6,200.1 590.0,200.7 591.4,201.2 592.8,201.7 594.2,202.3 595.6,202.8 597.0,203.3 598.4,203.9 599.8,204.5 601.2,205.0 602.6,205.6 604.0,206.2 605.4,206.7 606.8,207.3 608.2,207.9 609.6,208.5 611.0,209.1 612.4,209.6 613.8,210.2 615.2,210.8 616.6,211.4 618.0,212.0"/><circle class="c3f" cx="244.7" cy="212.0" r="4"/><circle class="c3f" cx="431.3" cy="212.0" r="4"/>
+</svg>
+<figcaption><b>Figure 3.1</b> First three mode shapes of a string fixed at both ends.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> Mode \(n\) has \(n\) half-waves and \(n - 1\) <strong>nodes</strong> (amber): interior points that do not move in that mode.</p>
+<figure class="anim" id="anim32">
+<svg viewBox="0 0 640 190" class="fig" role="img" aria-label="Animation: the first three modes of a string vibrating as standing waves"></svg>
+<div class="anim-controls">
+  <button class="btn" type="button">Play</button>
+  <input type="range" min="0" max="1" step="0.002" value="0" aria-label="Progress of the animation">
+</div>
+<script>
+(function(){
+  const root = document.getElementById('anim32'), svg = root.querySelector('svg');
+  const slider = root.querySelector('input'), btn = root.querySelector('button');
+
+  const NS = 'http://www.w3.org/2000/svg';
+  function E(parent, tag, attrs, text){
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.append(e);
+    return e;
+  }
+  const neg = s => s.replace(/-/g, '−');
+  const num = v => neg((+v.toPrecision(6)).toString());
+  const fix = (v, d) => neg(v.toFixed(d));
+  const pts = a => a.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  // Axes, grid and labels; returns scales and a clipped group to draw in.
+  function plot(svg, o){
+    svg.textContent = '';
+    const lx = o.logx, ly = o.logy;
+    const X = v => o.l + (lx ? (Math.log10(v) - Math.log10(o.x0)) / (Math.log10(o.x1) - Math.log10(o.x0)) : (v - o.x0) / (o.x1 - o.x0)) * o.w;
+    const Y = v => o.t + (ly ? (Math.log10(o.y1) - Math.log10(v)) / (Math.log10(o.y1) - Math.log10(o.y0)) : (o.y1 - v) / (o.y1 - o.y0)) * o.h;
+    const defs = E(svg, 'defs', {});
+    E(E(defs, 'clipPath', {id: o.id}), 'rect', {x: o.l, y: o.t, width: o.w, height: o.h});
+    o.xt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: X(v), y1: o.t, x2: X(v), y2: o.t + o.h});
+      if (!o.noxt) E(svg, 'text', {class: 'tk', x: X(v), y: o.t + o.h + 15, 'text-anchor': 'middle'}, o.xf ? o.xf(v) : num(v));
+    });
+    o.yt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: o.l, y1: Y(v), x2: o.l + o.w, y2: Y(v)});
+      E(svg, 'text', {class: 'tk', x: o.l - 6, y: Y(v) + 4, 'text-anchor': 'end'}, o.yf ? o.yf(v) : num(v));
+    });
+    if (o.zero) E(svg, 'line', {class: 'axis', x1: o.l, y1: Y(0), x2: o.l + o.w, y2: Y(0)});
+    E(svg, 'rect', {class: 'frame', x: o.l, y: o.t, width: o.w, height: o.h});
+    E(svg, 'text', {class: 'lab', x: o.l + o.w / 2, y: o.t + o.h + 34, 'text-anchor': 'middle'}, o.xlab);
+    E(svg, 'text', {class: 'lab', transform: 'translate(' + (o.ylx === undefined ? 16 : o.ylx) + ' ' + (o.t + o.h / 2) + ') rotate(-90)', 'text-anchor': 'middle'}, o.ylab);
+    const g = E(svg, 'g', {'clip-path': 'url(#' + o.id + ')'}), top = E(svg, 'g', {});
+    return {X, Y, g, top};
+  }
+  function controls(fig, redraw){
+    const inputs = {};
+    fig.querySelectorAll('.fig-ctl input').forEach(i => { inputs[i.dataset.k] = i; i.addEventListener('input', redraw); });
+    const show = (k, text) => { inputs[k].parentNode.querySelector('output').textContent = text; };
+    return {show, val: k => +inputs[k].value};
+  }
+  function nice(v){ const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * p >= v * 0.999) return m * p; return 10 * p; }
+  function ticks(a, b, n){ const raw = (b - a) / n, p = Math.pow(10, Math.floor(Math.log10(raw))); let s = p; for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw){ s = m * p; break; } const out = []; for (let v = Math.ceil(a / s - 1e-9) * s; v <= b + 1e-9; v += s) out.push(+v.toFixed(10)); return out; }
+
+
+  const rows = [1, 2, 3].map(n => {
+    const y = 40 + (n - 1) * 62;
+    E(svg, 'line', {class: 'ln c4 thin dash', x1: 60, y1: y, x2: 540, y2: y});
+    E(svg, 'circle', {class: 'c4f', cx: 60, cy: y, r: 3}); E(svg, 'circle', {class: 'c4f', cx: 540, cy: y, r: 3});
+    E(svg, 'text', {class: 'tk', x: 556, y: y + 4}, 'mode ' + n + ', ω = ' + (n > 1 ? n : '') + 'ω₁');
+    return {n, y, p: E(svg, 'polyline', {class: 'ln c1'})};
+  });
+  function draw(p){
+    const t = p * 2 * Math.PI * 2;
+    rows.forEach(r => {
+      const a = []; for (let i = 0; i <= 200; i++){ const s = i / 200; a.push([60 + 480 * s, r.y - 22 * Math.sin(r.n * Math.PI * s) * Math.cos(r.n * t)]); }
+      r.p.setAttribute('points', pts(a));
+    });
+  }
+
+
+  let raf = 0, t0 = 0, start = 0; const RUN = 6000;
+  function frame(now){ const t = ((now - t0) / RUN + start) % 1; slider.value = t; draw(t); raf = requestAnimationFrame(frame); }
+  function play(){ if (raf) return; start = +slider.value; t0 = performance.now(); btn.textContent = 'Pause'; raf = requestAnimationFrame(frame); }
+  function stop(){ cancelAnimationFrame(raf); raf = 0; btn.textContent = 'Play'; }
+  let auto = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  btn.onclick = () => { auto = false; raf ? stop() : play(); };
+  slider.addEventListener('input', () => { auto = false; stop(); draw(+slider.value); });
+  if (auto && 'IntersectionObserver' in window)
+    new IntersectionObserver(e => { if (auto) e[0].isIntersecting ? play() : stop(); }, {threshold: 0.35}).observe(svg);
+  draw(0);
+
+})();
+</script>
+<figcaption><b>Figure 3.2, animated.</b> Standing waves: every point of a mode moves in phase, at a frequency proportional to the mode number.</figcaption>
+</figure>
+<div class="ex"><div class="hd">Worked example 3.1 <span>Tuning a guitar string</span></div><div class="bd">
+<p>A guitar string of vibrating length 0.65 m and linear density 5.5 g/m must sound at 110 Hz (the A string). Find the wave speed, the tension, and the first four natural frequencies.</p>
+<div class="step"><i>1</i><div>\(f_1 = c/(2l)\), so \(c = 2lf_1 = 2(0.65)(110) = 143\) m/s.</div></div>
+<div class="step"><i>2</i><div>\(\tau = \rho c^2 = 0.0055(143)^2 = 112.5\) N.</div></div>
+<div class="step"><i>3</i><div>\(f_n = nf_1\): 110, 220, 330 and 440 Hz.</div></div>
+<div class="ans">Tension about 112 N. Doubling the tension raises the pitch by \(\sqrt2\) (about six semitones); halving the length doubles it.</div>
+</div></div>
+<div class="ex"><div class="hd">Worked example 3.2 <span>Power line</span></div><div class="bd">
+<p>A 300 m span of power line weighs 1.6 kg/m and is under 20 kN tension. Find its first three natural frequencies.</p>
+<div class="step"><i>1</i><div>\(c = \sqrt{20000/1.6} = 111.8\) m/s.</div></div>
+<div class="step"><i>2</i><div>\(f_n = nc/(2l) = n(111.8)/600\): 0.186, 0.373, 0.559 Hz.</div></div>
+<div class="ans">Well below 1 Hz: long cables are easily excited by wind, which is why Stockbridge dampers (week 8) are hung on them.</div>
+</div></div>
+
+</section>
+
+<section id="ic">
+<h2><span class="n">04</span>Response from initial conditions</h2>
+
+<p>The mode shapes are <strong>orthogonal</strong> over the length:</p>
+<div class="eq"><span class="tag">Orthogonality of the string modes</span>\[ \int_0^l\sin\frac{n\pi x}{l}\sin\frac{m\pi x}{l}\,dx = \begin{cases} 0, & n \neq m \\ l/2, & n = m \end{cases} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(n, m\)</dt><dd>Mode numbers.</dd>
+</dl>
+</div>
+<p>At \(t = 0\), \(w(x, 0) = \sum d_n\sin\sigma_nx\). Multiply both sides by \(\sin(m\pi x/l)\) and integrate: every term but \(n = m\) vanishes. The same works for the initial velocity \(\dot w(x, 0) = \sum c_n\sigma_nc\sin\sigma_nx\):</p>
+<div class="eq"><span class="tag">Coefficients from the initial conditions</span>\[ d_n = \frac{2}{l}\int_0^lw(x, 0)\sin\frac{n\pi x}{l}\,dx, \qquad c_n = \frac{2}{n\pi c}\int_0^l\dot w(x, 0)\sin\frac{n\pi x}{l}\,dx \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(w(x, 0)\)</dt><dd>Initial displacement shape (m).</dd>
+  <dt>\(\dot w(x, 0)\)</dt><dd>Initial velocity distribution (m/s).</dd>
+  <dt>\(d_n, c_n\)</dt><dd>Amount of mode \(n\) in the displacement and velocity starts (m).</dd>
+</dl>
+</div>
+<div class="ex"><div class="hd">Worked example 4.1 <span>String plucked at the centre</span></div><div class="bd">
+<p>A string of length \(l\) is pulled up by \(h = 5\) mm at its midpoint and released from rest. Find the modal coefficients.</p>
+<div class="step"><i>1</i><div>Released from rest: \(\dot w(x, 0) = 0\), so all \(c_n = 0\).</div></div>
+<div class="step"><i>2</i><div>The triangle \(w(x, 0) = 2hx/l\) for \(x \le l/2\) (mirror image beyond) gives, after integrating by parts, \(d_n = \dfrac{8h}{n^2\pi^2}\sin\dfrac{n\pi}{2}\).</div></div>
+<div class="step"><i>3</i><div>\(d_1 = 4.053\) mm, \(d_2 = 0\), \(d_3 = -0.450\) mm, \(d_4 = 0\), \(d_5 = 0.162\) mm, \(d_7 = -0.0827\) mm (checked by numerical integration).</div></div>
+<div class="ans">\(w(x, t) = \sum d_n\sin(n\pi x/l)\cos(n\pi ct/l)\) with only odd modes: the even modes have a node at the centre, where the string was plucked, so they are not excited. The amplitudes fall as \(1/n^2\), so a few modes give a good approximation.</div>
+</div></div>
+<figure id="fig41">
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Plucked string: the shape at a chosen time built from a chosen number of modes"></svg>
+<div class="fig-ctl">
+<label><span>a/l</span><input type="range" data-k="a" min="0.05" max="0.95" step="0.01" value="0.5" aria-label="Pluck position as a fraction of the length"><output></output></label>
+<label><span>N</span><input type="range" data-k="N" min="1" max="40" step="1" value="3" aria-label="Number of modes used"><output></output></label>
+<label><span>t/T₁</span><input type="range" data-k="t" min="0" max="1" step="0.005" value="0" aria-label="Time as a fraction of the fundamental period"><output></output></label>
+</div>
+<div class="fig-read" aria-live="polite"></div>
+<figcaption><b>Figure 4.1</b> A plucked string as a sum of its modes.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> The string is pulled up 5 mm at x = a and released from rest. Teal: the sum of the first N modes; grey: the same with 400 modes, effectively exact. At t = 0 the triangle needs many modes for its sharp corner, but three already give the overall shape. Slide t to watch the corner split into two that travel and reflect. Pluck at a node of a mode (for example a/l = 0.5 for the even modes) and that mode is absent.</p>
+<div class="key"><span class="tag">Important points</span><p>The free response of a string (or any structure) is a weighted sum, a <strong>superposition</strong>, of its mode shapes, with the weights set by the initial conditions. A finite number of modes approximates the response. A point that does not move in a mode is a node; a structure can be driven at a frequency where a chosen point does not move, either because it is a node of the mode at that frequency or because the frequency is an anti-resonance for that point.</p></div>
+
+</section>
+
+<section id="rods">
+<h2><span class="n">05</span>Rods and shafts</h2>
+
+<p>Longitudinal vibration of a rod (bar) and torsional vibration of a shaft obey the same wave equation; only the wave speed changes:</p>
+<div class="eq"><span class="tag">Longitudinal vibration of a rod</span>\[ \frac{E}{\rho}\frac{\partial^2w(x, t)}{\partial x^2} = \frac{\partial^2w(x, t)}{\partial t^2}, \qquad c = \sqrt{\frac{E}{\rho}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(w(x, t)\)</dt><dd>Axial displacement of the cross-section at \(x\) (m).</dd>
+  <dt>\(E\)</dt><dd>Young's modulus (Pa).</dd>
+  <dt>\(\rho\)</dt><dd>Volume density (kg/m³).</dd>
+</dl>
+</div>
+<div class="eq"><span class="tag">Torsional vibration of a shaft</span>\[ \frac{G\gamma}{\rho J}\frac{\partial^2\theta(x, t)}{\partial x^2} = \frac{\partial^2\theta(x, t)}{\partial t^2}, \qquad c = \sqrt{\frac{G\gamma}{\rho J}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\theta(x, t)\)</dt><dd>Angle of twist of the cross-section at \(x\) (rad).</dd>
+  <dt>\(G\)</dt><dd>Shear modulus (Pa).</dd>
+  <dt>\(\gamma\)</dt><dd>Torsional constant of the cross-section (m⁴); \(\gamma = J\) for a circular section, so \(c = \sqrt{G/\rho}\).</dd>
+  <dt>\(J\)</dt><dd>Polar second moment of area (m⁴).</dd>
+</dl>
+</div>
+<p>The mode shapes and frequencies come from the boundary conditions, exactly as for the string. A <strong>fixed</strong> end has zero displacement, \(X = 0\). A <strong>free</strong> end carries no force, so the strain is zero: \(X' = 0\).</p>
+<div class="tbl"><table><thead><tr><th>Ends</th><th>Characteristic equation</th><th>Mode shapes</th><th>\(\omega_n\)</th></tr></thead><tbody>
+<tr><td>Fixed-fixed</td><td>\(\sin\sigma l = 0\)</td><td>\(\sin(n\pi x/l)\)</td><td>\(n\pi c/l\)</td></tr>
+<tr><td>Fixed-free</td><td>\(\cos\sigma l = 0\)</td><td>\(\sin((2n - 1)\pi x/2l)\)</td><td>\((2n - 1)\pi c/(2l)\)</td></tr>
+<tr><td>Free-free</td><td>\(\sin\sigma l = 0\)</td><td>\(\cos(n\pi x/l)\), plus a rigid body mode</td><td>\(n\pi c/l\), and \(\omega_0 = 0\)</td></tr>
+</tbody></table></div>
+<div class="note"><span class="tag">Beyond the lecture notes</span><p>The notes give only the two wave equations; the boundary conditions and the table follow Inman 6.3 and are included so that the equations can be used.</p></div>
+<div class="ex"><div class="hd">Worked example 5.1 <span>Steel rod and shaft</span></div><div class="bd">
+<p>A 1 m steel rod (\(E = 200\) GPa, \(\rho = 7850\) kg/m³) is clamped at one end and free at the other. Find its first two longitudinal natural frequencies. Repeat for torsion of a 0.5 m circular steel shaft (\(G = 80\) GPa), fixed-free.</p>
+<div class="step"><i>1</i><div>Rod: \(c = \sqrt{200\times10^9/7850} = 5048\) m/s.</div></div>
+<div class="step"><i>2</i><div>Fixed-free: \(f_n = (2n - 1)c/(4l)\): \(f_1 = 1262\) Hz, \(f_2 = 3786\) Hz.</div></div>
+<div class="step"><i>3</i><div>Shaft: \(c = \sqrt{G/\rho} = 3192\) m/s; \(f_1 = c/(4 \times 0.5) = 1596\) Hz.</div></div>
+<div class="ans">About 1262 Hz and 3786 Hz axially, 1596 Hz in torsion. Waves in solid steel travel some 35 times faster than on the guitar string of example 3.1, so the frequencies of short metal parts are high.</div>
+</div></div>
+<p class="reading"><b>Reading</b> Inman 6.3 and 6.4; Lecture 12 notes</p>
+
+</section>
+
+<section id="practice">
+<h2><span class="n">06</span>Practice problems</h2>
+<details><summary>Problem 6.1. A 1.2 m cable with \(\rho = 0.02\) kg/m must have its fundamental at 50 Hz. What tension is needed?</summary><div class="sol"><p>\(c = 2lf_1 = 120\) m/s; \(\tau = \rho c^2 = 0.02(120)^2 = 288\) N.</p></div></details>
+<details><summary>Problem 6.2. Where are the nodes of mode 4 of a fixed-fixed string?</summary><div class="sol"><p>At \(x = l/4\), \(l/2\) and \(3l/4\) (and the fixed ends).</p></div></details>
+<details><summary>Problem 6.3. A string is plucked at \(x = l/4\). Which modes are missing from its response?</summary><div class="sol"><p>Those with a node at \(l/4\): \(\sin(n\pi/4) = 0\) for \(n = 4, 8, 12, \ldots\). (Try it in Figure 4.1.)</p></div></details>
+<details><summary>Problem 6.4. A string at rest is struck so that \(\dot w(x, 0) = v_0\sin(\pi x/l)\). Find \(w(x, t)\).</summary><div class="sol"><p>Only \(c_1\) is non-zero: \(c_1 = \frac{2}{\pi c}\int_0^lv_0\sin^2(\pi x/l)\,dx = \frac{2}{\pi c}\cdot\frac{v_0l}{2} = \frac{v_0l}{\pi c}\). So \(w = \frac{v_0l}{\pi c}\sin\frac{\pi x}{l}\sin\frac{\pi ct}{l}\). For the guitar string with \(v_0 = 0.5\) m/s: amplitude 0.723 mm.</p></div></details>
+<details><summary>Problem 6.5. How do the natural frequencies of a fixed-free rod compare with those of the same rod fixed at both ends?</summary><div class="sol"><p>Fixed-free: \(f_n = (2n - 1)c/(4l)\), that is \(c/4l\), \(3c/4l\), \(5c/4l\). Fixed-fixed: \(c/2l\), \(c/l\), \(3c/2l\). The fundamental of the fixed-free rod is half that of the fixed-fixed rod, and only odd multiples of it appear.</p></div></details>
+<details><summary>Problem 6.6. Why does a continuous system have infinitely many natural frequencies, while a lumped model of it has only as many as its degrees of freedom?</summary><div class="sol"><p>Its displacement is a function \(w(x, t)\): infinitely many independent coordinates. A lumped model with \(N\) masses captures only the \(N\) lowest modes approximately, which is often enough because higher modes are harder to excite and decay faster.</p></div></details>
+</section>
+
+<section id="sheet">
+<h2><span class="n">07</span>Formula sheet</h2>
+
+<div class="sheet"><div><h4>String</h4>
+<p>\(w'' = \ddot w/c^2\), \(c = \sqrt{\tau/\rho}\)</p>
+<p>Fixed-fixed: \(X_n = \sin(n\pi x/l)\), \(\omega_n = n\pi c/l\), \(f_n = nc/2l\)</p>
+<p>\(w = \sum[c_n\sin\sigma_nx\sin\sigma_nct + d_n\sin\sigma_nx\cos\sigma_nct]\)</p>
+</div><div><h4>Initial conditions</h4>
+<p>\(\int_0^l\sin\frac{n\pi x}{l}\sin\frac{m\pi x}{l}dx = \frac l2\delta_{nm}\)</p>
+<p>\(d_n = \frac2l\int_0^lw(x, 0)\sin\frac{n\pi x}{l}dx\)</p>
+<p>\(c_n = \frac{2}{n\pi c}\int_0^l\dot w(x, 0)\sin\frac{n\pi x}{l}dx\)</p>
+<p>Centre pluck: \(d_n = \frac{8h}{n^2\pi^2}\sin\frac{n\pi}{2}\)</p>
+</div><div><h4>Rods and shafts</h4>
+<p>Rod: \(c = \sqrt{E/\rho}\); shaft: \(c = \sqrt{G\gamma/\rho J}\) (\(\sqrt{G/\rho}\) circular)</p>
+<p>Fixed end \(X = 0\); free end \(X' = 0\)</p>
+<p>Fixed-free: \(\omega_n = (2n - 1)\pi c/2l\)</p>
+</div></div>
+
+</section>
+
+<footer>
+<p>Sources: Lecture12.pdf (Lecture 12 notes), VN354_Lecture12.pdf (slides; the plucked-string video could not be viewed) and Lecture12.mp4 (lecture video), transcribed. Boundary conditions for rods and shafts follow Inman 6.3. All numbers were recomputed.</p>
+</footer>
+</main>
+</div>
+<script>
+(function(){
+
+  const NS = 'http://www.w3.org/2000/svg';
+  function E(parent, tag, attrs, text){
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.append(e);
+    return e;
+  }
+  const neg = s => s.replace(/-/g, '−');
+  const num = v => neg((+v.toPrecision(6)).toString());
+  const fix = (v, d) => neg(v.toFixed(d));
+  const pts = a => a.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  // Axes, grid and labels; returns scales and a clipped group to draw in.
+  function plot(svg, o){
+    svg.textContent = '';
+    const lx = o.logx, ly = o.logy;
+    const X = v => o.l + (lx ? (Math.log10(v) - Math.log10(o.x0)) / (Math.log10(o.x1) - Math.log10(o.x0)) : (v - o.x0) / (o.x1 - o.x0)) * o.w;
+    const Y = v => o.t + (ly ? (Math.log10(o.y1) - Math.log10(v)) / (Math.log10(o.y1) - Math.log10(o.y0)) : (o.y1 - v) / (o.y1 - o.y0)) * o.h;
+    const defs = E(svg, 'defs', {});
+    E(E(defs, 'clipPath', {id: o.id}), 'rect', {x: o.l, y: o.t, width: o.w, height: o.h});
+    o.xt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: X(v), y1: o.t, x2: X(v), y2: o.t + o.h});
+      if (!o.noxt) E(svg, 'text', {class: 'tk', x: X(v), y: o.t + o.h + 15, 'text-anchor': 'middle'}, o.xf ? o.xf(v) : num(v));
+    });
+    o.yt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: o.l, y1: Y(v), x2: o.l + o.w, y2: Y(v)});
+      E(svg, 'text', {class: 'tk', x: o.l - 6, y: Y(v) + 4, 'text-anchor': 'end'}, o.yf ? o.yf(v) : num(v));
+    });
+    if (o.zero) E(svg, 'line', {class: 'axis', x1: o.l, y1: Y(0), x2: o.l + o.w, y2: Y(0)});
+    E(svg, 'rect', {class: 'frame', x: o.l, y: o.t, width: o.w, height: o.h});
+    E(svg, 'text', {class: 'lab', x: o.l + o.w / 2, y: o.t + o.h + 34, 'text-anchor': 'middle'}, o.xlab);
+    E(svg, 'text', {class: 'lab', transform: 'translate(' + (o.ylx === undefined ? 16 : o.ylx) + ' ' + (o.t + o.h / 2) + ') rotate(-90)', 'text-anchor': 'middle'}, o.ylab);
+    const g = E(svg, 'g', {'clip-path': 'url(#' + o.id + ')'}), top = E(svg, 'g', {});
+    return {X, Y, g, top};
+  }
+  function controls(fig, redraw){
+    const inputs = {};
+    fig.querySelectorAll('.fig-ctl input').forEach(i => { inputs[i.dataset.k] = i; i.addEventListener('input', redraw); });
+    const show = (k, text) => { inputs[k].parentNode.querySelector('output').textContent = text; };
+    return {show, val: k => +inputs[k].value};
+  }
+  function nice(v){ const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * p >= v * 0.999) return m * p; return 10 * p; }
+  function ticks(a, b, n){ const raw = (b - a) / n, p = Math.pow(10, Math.floor(Math.log10(raw))); let s = p; for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw){ s = m * p; break; } const out = []; for (let v = Math.ceil(a / s - 1e-9) * s; v <= b + 1e-9; v += s) out.push(+v.toFixed(10)); return out; }
+
+  const fig = document.getElementById('fig41'), svg = fig.querySelector('svg'), read = fig.querySelector('.fig-read');
+  const c = controls(fig, draw), h = 5;
+  const d = (n, a) => 2 * h / (n * n * Math.PI * Math.PI * a * (1 - a)) * Math.sin(n * Math.PI * a);
+  function draw(){
+    const a = c.val('a'), N = Math.round(c.val('N')), t = c.val('t');
+    c.show('a', a.toFixed(2)); c.show('N', String(N)); c.show('t', t.toFixed(3));
+    const P = plot(svg, {id: 'cp41', l: 58, t: 14, w: 560, h: 196, x0: 0, x1: 1, y0: -6, y1: 6, xt: [0, .25, .5, .75, 1], yt: [-6, -3, 0, 3, 6], xlab: 'x/l', ylab: 'w (mm)', zero: true});
+    const W = (s, M) => { let w = 0; for (let n = 1; n <= M; n++) w += d(n, a) * Math.sin(n * Math.PI * s) * Math.cos(n * 2 * Math.PI * t); return w; };
+    const r = [], q = [];
+    for (let i = 0; i <= 400; i++){ const s = i / 400; r.push([P.X(s), P.Y(W(s, 400))]); q.push([P.X(s), P.Y(W(s, N))]); }
+    E(P.g, 'polyline', {class: 'ln c4 thin ref', points: pts(r)});
+    E(P.g, 'polyline', {class: 'ln c1', points: pts(q)});
+    let txt = 'd<sub>n</sub> (mm): ';
+    for (let n = 1; n <= 6; n++) txt += `${n}: ${Math.abs(d(n, a)) < 5e-4 ? '0' : fix(d(n, a), 3)}${n < 6 ? ', ' : ''}`;
+    read.innerHTML = txt + `. Mode n is absent when sin(nπa/l) = 0, that is when the pluck point is one of its nodes.`;
+  }
+  draw();
+})();
+</script>
+<script src="../assets/ask-gemini.js" data-store="vibration-w9" data-course="Vibration and Noise 354"
+        data-topic="Week 9: distributed parameter systems, string or cable, wave equation, separation of variables, mode shapes, nodes, natural frequencies, orthogonality, plucked string, longitudinal vibration of rods, torsional vibration of shafts"></script>
+</body>
+</html>

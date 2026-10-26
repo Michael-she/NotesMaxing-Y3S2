@@ -68,7 +68,7 @@
 </svg>
 <figcaption><b>Figure 2.1</b> The two coordinate changes of modal analysis.</figcaption>
 </figure>
-<p class="fignote"><b>Figure 2.1:</b> Mass-weighting (\(M^{{1/2}}\)) turns the mass matrix into the identity. Rotating with the orthonormal eigenvector matrix \(P\) then makes the stiffness matrix diagonal. The combined matrix \(S = M^{{-1/2}}P\) goes straight from modal back to physical coordinates.</p>
+<p class="fignote"><b>Figure 2.1:</b> Mass-weighting (\(M^{{1/2}}\)) turns the mass matrix into the identity. Rotating with the orthonormal eigenvector matrix \(P\) then makes the stiffness matrix diagonal. The combined matrix \(S = M^{-1/2}P\) goes straight from modal back to physical coordinates.</p>
 <h3 id="step1">Steps 1 and 2: mass-normalise</h3>
 <p>For a diagonal mass matrix, \(M^{-1/2}\) just takes \(1/\sqrt{m_i}\) on the diagonal. (If \(M\) is not diagonal, Cholesky factorisation \(M = LL^T\) does the same job.) Substitute \(\mathbf x = M^{-1/2}\mathbf q\) and pre-multiply by \(M^{-1/2}\):</p>
 <div class="eq"><span class="tag">Mass-normalised stiffness</span>\[ M^{-1/2}MM^{-1/2}\ddot{\mathbf q} + M^{-1/2}KM^{-1/2}\mathbf q = \mathbf 0 \;\Rightarrow\; I\ddot{\mathbf q} + \tilde K\mathbf q = \mathbf 0, \qquad \tilde K = M^{-1/2}KM^{-1/2} \]

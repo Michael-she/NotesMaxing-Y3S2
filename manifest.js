@@ -173,6 +173,30 @@ window.NOTES_MANIFEST = {
      "week": 8,
      "track": "",
      "href": "Vibration-and-Noise/vibration_Week08_Notes_Design-for-Vibration-Suppression.html"
+    },
+    {
+     "title": "Distributed parameter systems: strings, rods and shafts",
+     "week": 9,
+     "track": "",
+     "href": "Vibration-and-Noise/vibration_Week09_Notes_Distributed-Parameter-Systems.html"
+    },
+    {
+     "title": "Beams in bending and vibration-based condition monitoring",
+     "week": 10,
+     "track": "",
+     "href": "Vibration-and-Noise/vibration_Week10_Notes_Beams-and-Condition-Monitoring.html"
+    },
+    {
+     "title": "Noise: decibels, hearing, standards and control",
+     "week": 11,
+     "track": "",
+     "href": "Vibration-and-Noise/vibration_Week11_Notes_Noise-Fundamentals-and-Standards.html"
+    },
+    {
+     "title": "Sound measurement, with Tutorial 5 worked",
+     "week": 12,
+     "track": "",
+     "href": "Vibration-and-Noise/vibration_Week12_Notes_Sound-Measurement.html"
     }
    ],
    "exams": [],
