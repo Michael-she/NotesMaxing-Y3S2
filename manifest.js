@@ -430,22 +430,10 @@ window.NOTES_MANIFEST = {
      "href": "Electronics/EL245_Week09_Notes_BJT-Biasing-and-Multistage-Circuits.html"
     },
     {
-     "title": "BJT Biasing and Multistage Circuits",
-     "week": 9,
-     "track": "",
-     "href": "Electronics/Week9_BJT_Biasing_and_Multistage_Circuits.html"
-    },
-    {
      "title": "MOSFETs and common-source DC analysis",
      "week": 10,
      "track": "",
      "href": "Electronics/EL245_Week10_Notes_MOSFETs-and-Common-Source-DC-Analysis.html"
-    },
-    {
-     "title": "MOSFETs and Common-Source DC Analysis",
-     "week": 10,
-     "track": "",
-     "href": "Electronics/Week10_MOSFETs_and_Common_Source_DC_Analysis.html"
     },
     {
      "title": "Tutorial Solutions: MOSFET Questions",

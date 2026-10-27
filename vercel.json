@@ -1,7 +1,25 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/:path*/api/chat", "destination": "/api/chat" },
-    { "source": "/:path*/api/health", "destination": "/api/health" }
+    {
+      "source": "/:path*/api/chat",
+      "destination": "/api/chat"
+    },
+    {
+      "source": "/:path*/api/health",
+      "destination": "/api/health"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/Electronics/Week9_BJT_Biasing_and_Multistage_Circuits.html",
+      "destination": "/Electronics/EL245_Week09_Notes_BJT-Biasing-and-Multistage-Circuits.html",
+      "permanent": true
+    },
+    {
+      "source": "/Electronics/Week10_MOSFETs_and_Common_Source_DC_Analysis.html",
+      "destination": "/Electronics/EL245_Week10_Notes_MOSFETs-and-Common-Source-DC-Analysis.html",
+      "permanent": true
+    }
   ]
 }

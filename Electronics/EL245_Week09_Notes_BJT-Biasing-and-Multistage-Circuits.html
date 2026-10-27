@@ -19,6 +19,8 @@
   <div class="k">EL245 · Week 9</div>
   <ol>
     <li><a href="#single">1. Single-resistor biasing</a></li>
+    <li class="sub"><a href="#q-point">The Q-point and the load line</a></li>
+    <li class="sub"><a href="#single-r">One base resistor</a></li>
     <li><a href="#divider">2. Voltage-divider biasing</a></li>
     <li><a href="#stability">3. Bias stability</a></li>
     <li class="sub"><a href="#stable-centre">Design for the centre of the load line</a></li>
@@ -29,21 +31,41 @@
     <li class="sub"><a href="#two-stage">Analysing a two-stage circuit</a></li>
     <li class="sub"><a href="#two-stage-design">Designing a two-stage circuit</a></li>
     <li class="sub"><a href="#cascode">The cascode</a></li>
-    <li><a href="#practice">7. Practice problems</a></li>
-    <li><a href="#sheet">8. Formula sheet</a></li>
+    <li class="sub"><a href="#other-pairs">Other direct-coupled pairs</a></li>
+    <li><a href="#switch">7. BJT as an LED switch</a></li>
+    <li class="sub"><a href="#marker">What the marker's comments add</a></li>
+    <li><a href="#tut9">8. Tutorial 9 map</a></li>
+    <li><a href="#practice">9. Practice problems</a></li>
+    <li><a href="#sheet">10. Formula sheet</a></li>
   </ol>
 </nav>
 
 <main>
 <header class="top">
-  <div class="kicker">ELECTRONICS 245 · NEAMEN 5.4 AND 5.5 · LECTURES 18 TO 20</div>
+  <div class="kicker">ELECTRONICS 245 · NEAMEN 5.4 AND 5.5 · LECTURES 18 TO 20 · TUTORIAL 9 · PRACTICAL TEST 3</div>
   <h1>Biasing, bias stability and multistage circuits</h1>
-  <p class="lede">Why a single base resistor gives a Q-point that depends on \(\beta\), how a voltage divider and an emitter resistor fix that, how to design bias-stable circuits with one or two supplies or a current mirror, and how to analyse and design circuits with two transistors.</p>
+  <p class="lede">Why a single base resistor gives a Q-point that depends on \(\beta\), how a voltage divider and an emitter resistor fix that, how to design bias-stable circuits with one or two supplies or a current mirror, how to analyse and design circuits with two transistors, and how to design the LED switch of the practical test.</p>
 </header>
 
 <section id="single">
 <h2><span class="n">01</span>Single-resistor biasing</h2>
 <p class="reading"><b>Reading</b> Neamen 5.4.1; Lecture 18, slides 2 to 5</p>
+<h3 id="q-point">The Q-point and the load line</h3>
+<p>A transistor amplifier only works while its DC operating point sits in the forward-active region and stays there. <strong>Biasing</strong> means choosing resistors and supplies so that the quiescent values \(I_{CQ}\), \(I_{BQ}\) and \(V_{CEQ}\) land where you want them, whichever transistor of that type is fitted.</p>
+<div class="box def"><span class="label">Definition</span><p><strong>Q-point</strong> (quiescent point): the DC currents and voltages in the transistor with no signal applied. On the output characteristic it is the point \((V_{CEQ}, I_{CQ})\) where the DC load line meets the transistor curve for the base current that flows.</p></div>
+<p>Every calculation this week uses the same ground rules for a forward-active transistor: \(V_{BE(on)} = 0.7\ \text{V}\) (a pnp uses \(V_{EB(on)} = 0.7\ \text{V}\)), the collector current is \(\beta\) times the base current, and the emitter current is the sum of the two. A coupling capacitor is an open circuit for DC, so the signal source drops out of every bias calculation.</p>
+<div class="eq"><span class="tag">Forward-active current relations</span>\[ I_{CQ} = \beta\, I_{BQ} \qquad I_{EQ} = (1+\beta)\, I_{BQ} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(I_{CQ}\)</dt><dd>Quiescent collector current, in A.</dd><dt>\(\beta\)</dt><dd>Current gain of the transistor. It is a ratio, so it has no unit.</dd><dt>\(I_{BQ}\)</dt><dd>Quiescent base current, in A.</dd><dt>\(I_{EQ}\)</dt><dd>Quiescent emitter current. It is slightly larger than \(I_{CQ}\) because it also carries the base current.</dd></dl>
+</div>
+<p>The collector loop gives the DC load line. With an emitter resistor, \(I_{EQ} \approx I_{CQ}\) when \(\beta\) is large, so \(R_C\) and \(R_E\) act together.</p>
+<div class="eq"><span class="tag">DC load line</span>\[ V_{CEQ} = V_{CC} - I_{CQ}R_C - I_{EQ}R_E \;\approx\; V_{CC} - I_{CQ}(R_C + R_E) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(V_{CEQ}\)</dt><dd>Quiescent collector-emitter voltage, in V.</dd><dt>\(V_{CC}\)</dt><dd>Positive supply voltage, in V.</dd><dt>\(I_{CQ}\)</dt><dd>Quiescent collector current, in A.</dd><dt>\(R_C\)</dt><dd>Collector resistor, in \(\Omega\).</dd><dt>\(I_{EQ}\)</dt><dd>Quiescent emitter current, in A.</dd><dt>\(R_E\)</dt><dd>Emitter resistor, in \(\Omega\). It is zero for the single-resistor circuit.</dd></dl>
+</div>
+<div class="key"><span class="tag">Key idea</span><p>The load line is fixed by the circuit, but the Q-point also depends on \(\beta\), and the same part number can have a \(\beta\) anywhere from 50 to 150 (the range the lecture uses). A good bias circuit is one whose Q-point hardly moves when \(\beta\) changes. The next three sections compare how well each circuit does that.</p></div>
+
+<h3 id="single-r">One base resistor</h3>
 <p>The simplest bias circuit needs one supply and one base resistor \(R_B\) from \(V_{CC}\) to the base. A coupling capacitor \(C_C\) passes the signal from the source but blocks DC, so the source does not disturb the bias.</p>
 <figure>
 <svg viewBox="0 0 440 250" class="fig small" role="img" aria-label="Common-emitter stage biased by one resistor RB from VCC, with a coupling capacitor from the source">
@@ -91,6 +113,11 @@
 </figure>
 <p class="fignote"><b>Figure 1.1:</b> For DC analysis the capacitor is an open circuit, so only \(V_{CC}\), \(R_B\), the transistor and \(R_C\) matter.</p>
 
+<div class="eq"><span class="tag">Single-resistor analysis</span>\[ I_{BQ} = \frac{V_{CC} - V_{BE(on)}}{R_B} \qquad I_{CQ} = \beta I_{BQ} \qquad V_{CEQ} = V_{CC} - I_{CQ}R_C \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(I_{BQ}\)</dt><dd>Quiescent base current, in A.</dd><dt>\(V_{CC}\)</dt><dd>Supply voltage, in V.</dd><dt>\(V_{BE(on)}\)</dt><dd>Base-emitter turn-on voltage, 0.7 V.</dd><dt>\(R_B\)</dt><dd>Base resistor, in \(\Omega\). Typically in the megohm range.</dd><dt>\(I_{CQ}\)</dt><dd>Quiescent collector current, in A.</dd><dt>\(\beta\)</dt><dd>Current gain.</dd><dt>\(V_{CEQ}\)</dt><dd>Quiescent collector-emitter voltage, in V.</dd><dt>\(R_C\)</dt><dd>Collector resistor, in \(\Omega\).</dd></dl>
+</div>
+<p>To design the circuit you are given \(I_{CQ}\), \(V_{CEQ}\) and a nominal \(\beta\). Work from the collector side first, because the load line gives \(R_C\) directly, then find the base current and the base resistor.</p>
 <div class="eq"><span class="tag">Single-resistor design</span>\[ R_C = \frac{V_{CC} - V_{CEQ}}{I_{CQ}} \qquad I_{BQ} = \frac{I_{CQ}}{\beta} \qquad R_B = \frac{V_{CC} - V_{BE(on)}}{I_{BQ}} \]
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms">
@@ -169,6 +196,14 @@
 <figcaption><b>Figure 1.2</b> Q-points of worked example 1.1 for three values of β.</figcaption>
 </figure>
 <p class="fignote"><b>Figure 1.2:</b> The load line does not move; the Q-point slides almost from one end of it to the other as \(\beta\) changes. That is unacceptable when transistors are only specified as "\(\beta\) between 60 and 180".</p>
+<p>The lecture's design example 5.14 (\(V_{CC} = 12\ \text{V}\), \(I_{CQ} = 1\ \text{mA}\), \(V_{CEQ} = 6\ \text{V}\), \(\beta = 100\)) gives \(R_C = 6\ \text{k}\Omega\), \(I_{BQ} = 10\ \mu\text{A}\) and \(R_B = 1.13\ \text{M}\Omega\). With \(R_B\) fixed, the Q-point then moves with \(\beta\):</p>
+<div class="tbl"><table><thead><tr><th>\(\beta\)</th><th>\(I_{CQ}\)</th><th>\(V_{CEQ}\)</th></tr></thead><tbody>
+<tr><td>50</td><td>0.50 mA</td><td>9.0 V</td></tr>
+<tr><td>100</td><td>1.00 mA</td><td>6.0 V</td></tr>
+<tr><td>150</td><td>1.50 mA</td><td>3.0 V</td></tr>
+</tbody></table></div>
+<div class="box watch"><span class="label">Watch out</span><p>The base resistor sets \(I_{BQ}\), not \(I_{CQ}\). Do not compute \(R_B\) from the collector current directly, and do not forget the 0.7 V drop when you compute it from \(I_{BQ}\).</p></div>
+<div class="box exam"><span class="label">Exam</span><p>Example 5.14 changes \(\beta\) from 50 to 150 and follows the Q-point. Be ready to do the same: recompute with the new \(\beta\), then check \(V_{CEQ}\) against \(V_{CE(sat)}\). If the formula gives \(V_{CEQ} \le 0\), the transistor is saturated and \(I_{CQ} = \beta I_{BQ}\) no longer holds.</p></div>
 </section>
 
 <section id="divider">
@@ -267,6 +302,8 @@
 </dl>
 </div>
 
+<div class="box intuition"><span class="label">Intuition</span><p>The term \((1+\beta)R_E\) is the emitter resistor as the base sees it: any base current is multiplied by \((1+\beta)\) on its way through \(R_E\). A large \((1+\beta)R_E\) makes the base current depend more on \(R_E\) and less on \(\beta\), which is what a stable circuit needs.</p></div>
+
 <div class="ex"><div class="hd">Worked example 2.1 <span>divider bias and a change in β</span></div><div class="bd">
 <p>In Figure 2.1, \(V_{CC} = 12\ \text{V}\), \(R_1 = 47\ \text{k}\Omega\), \(R_2 = 10\ \text{k}\Omega\), \(R_C = 3\ \text{k}\Omega\), \(R_E = 0.5\ \text{k}\Omega\). Find the Q-point for \(\beta = 50\), 100 and 150.</p>
 <div class="step"><i>1</i><div>\(R_{TH} = 47 \parallel 10 = 8.25\ \text{k}\Omega\); \(V_{TH} = \frac{10}{57}(12) = 2.105\ \text{V}\).</div></div>
@@ -280,6 +317,14 @@
 <div class="ans">A 3:1 range in \(\beta\) now moves \(I_{CQ}\) only from 2.08 mA to 2.52 mA (about ±10 %), against 3:1 for the single resistor.</div>
 </div></div>
 <div class="box intuition"><span class="label">Intuition</span><p>The emitter resistor is negative feedback. If \(\beta\) rises and \(I_C\) tries to rise, the voltage across \(R_E\) rises, which leaves less of \(V_{TH}\) for the base loop and pushes \(I_B\) down again.</p></div>
+<p>The lecture's example 5.15 uses \(V_{CC} = 10\ \text{V}\), \(R_1 = 56\ \text{k}\Omega\), \(R_2 = 12.2\ \text{k}\Omega\), \(R_C = 2\ \text{k}\Omega\) and \(R_E = 0.4\ \text{k}\Omega\), so \(R_{TH} = 10.0\ \text{k}\Omega\) and \(V_{TH} = 1.79\ \text{V}\). The table follows from the formulas above.</p>
+<div class="tbl"><table><thead><tr><th>\(\beta\)</th><th>\(I_{BQ}\)</th><th>\(I_{CQ}\)</th><th>\(V_{CEQ}\)</th></tr></thead><tbody>
+<tr><td>50</td><td>35.8 µA</td><td>1.79 mA</td><td>5.69 V</td></tr>
+<tr><td>100</td><td>21.6 µA</td><td>2.16 mA</td><td>4.81 V</td></tr>
+<tr><td>150</td><td>15.5 µA</td><td>2.32 mA</td><td>4.43 V</td></tr>
+</tbody></table></div>
+<div class="note"><span class="tag">Rounding</span><p>The slides round \(R_{TH}\) to 10 kΩ and \(V_{TH}\) to 1.79 V before continuing, so their last digits can differ slightly from the table. Either is acceptable if the method is shown.</p></div>
+<div class="box watch"><span class="label">Watch out</span><p>The formulas assume the forward-active region. Finish every analysis by checking that \(V_{CEQ}\) is above the saturation value; the assumption is only confirmed once that check passes.</p></div>
 </section>
 
 <section id="stability">
@@ -309,6 +354,48 @@
 </dl>
 </div>
 <p>Making \(R_{TH}\) smaller still would improve stability further, but a small \(R_{TH}\) means small divider resistors, which waste supply current and load the signal source. The factor 0.1 is the compromise.</p>
+<figure>
+<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="Spread of collector current between beta 50 and 150 against the ratio RTH over (1+beta)RE">
+<rect class="frame" x="64" y="16" width="556" height="240"/>
+<line class="grid" x1="64.0" y1="16" x2="64.0" y2="256"/>
+<text class="tk" x="64.0" y="272.0" text-anchor="middle">0</text>
+<line class="grid" x1="156.7" y1="16" x2="156.7" y2="256"/>
+<text class="tk" x="156.7" y="272.0" text-anchor="middle">0.5</text>
+<line class="grid" x1="249.3" y1="16" x2="249.3" y2="256"/>
+<text class="tk" x="249.3" y="272.0" text-anchor="middle">1</text>
+<line class="grid" x1="342.0" y1="16" x2="342.0" y2="256"/>
+<text class="tk" x="342.0" y="272.0" text-anchor="middle">1.5</text>
+<line class="grid" x1="434.7" y1="16" x2="434.7" y2="256"/>
+<text class="tk" x="434.7" y="272.0" text-anchor="middle">2</text>
+<line class="grid" x1="527.3" y1="16" x2="527.3" y2="256"/>
+<text class="tk" x="527.3" y="272.0" text-anchor="middle">2.5</text>
+<line class="grid" x1="620.0" y1="16" x2="620.0" y2="256"/>
+<text class="tk" x="620.0" y="272.0" text-anchor="middle">3</text>
+<line class="grid" x1="64" y1="256.0" x2="620" y2="256.0"/>
+<text class="tk" x="57.0" y="260.0" text-anchor="end">1.0</text>
+<line class="grid" x1="64" y1="196.0" x2="620" y2="196.0"/>
+<text class="tk" x="57.0" y="200.0" text-anchor="end">1.5</text>
+<line class="grid" x1="64" y1="136.0" x2="620" y2="136.0"/>
+<text class="tk" x="57.0" y="140.0" text-anchor="end">2.0</text>
+<line class="grid" x1="64" y1="76.0" x2="620" y2="76.0"/>
+<text class="tk" x="57.0" y="80.0" text-anchor="end">2.5</text>
+<line class="grid" x1="64" y1="16.0" x2="620" y2="16.0"/>
+<text class="tk" x="57.0" y="20.0" text-anchor="end">3.0</text>
+<line class="axis" x1="64" y1="256" x2="620" y2="256"/>
+<line class="axis" x1="64" y1="16" x2="64" y2="256"/>
+<polyline class="ln c1" points="64.0,254.4 68.6,250.5 73.3,246.7 77.9,243.0 82.5,239.5 87.2,236.0 91.8,232.7 96.4,229.4 101.1,226.3 105.7,223.2 110.3,220.3 115.0,217.4 119.6,214.6 124.2,211.8 128.9,209.2 133.5,206.6 138.1,204.1 142.8,201.6 147.4,199.3 152.0,196.9 156.7,194.7 161.3,192.4 165.9,190.3 170.6,188.2 175.2,186.1 179.8,184.1 184.5,182.2 189.1,180.3 193.7,178.4 198.4,176.6 203.0,174.8 207.6,173.0 212.3,171.3 216.9,169.6 221.5,168.0 226.2,166.4 230.8,164.8 235.4,163.3 240.1,161.8 244.7,160.3 249.3,158.9 254.0,157.4 258.6,156.1 263.2,154.7 267.9,153.4 272.5,152.0 277.1,150.8 281.8,149.5 286.4,148.3 291.0,147.0 295.7,145.8 300.3,144.7 304.9,143.5 309.6,142.4 314.2,141.3 318.8,140.2 323.5,139.1 328.1,138.1 332.7,137.0 337.4,136.0 342.0,135.0 346.6,134.0 351.3,133.1 355.9,132.1 360.5,131.2 365.2,130.2 369.8,129.3 374.4,128.4 379.1,127.6 383.7,126.7 388.3,125.8 393.0,125.0 397.6,124.2 402.2,123.4 406.9,122.6 411.5,121.8 416.1,121.0 420.8,120.2 425.4,119.5 430.0,118.7 434.7,118.0 439.3,117.3 443.9,116.5 448.6,115.8 453.2,115.1 457.8,114.5 462.5,113.8 467.1,113.1 471.7,112.5 476.4,111.8 481.0,111.2 485.6,110.5 490.3,109.9 494.9,109.3 499.5,108.7 504.2,108.1 508.8,107.5 513.4,106.9 518.1,106.4 522.7,105.8 527.3,105.2 532.0,104.7 536.6,104.1 541.2,103.6 545.9,103.0 550.5,102.5 555.1,102.0 559.8,101.5 564.4,101.0 569.0,100.5 573.7,100.0 578.3,99.5 582.9,99.0 587.6,98.5 592.2,98.0 596.8,97.6 601.5,97.1 606.1,96.6 610.7,96.2 615.4,95.7 620.0,95.3"/>
+<line class="ln c3 dash" x1="82.5" y1="256.0" x2="82.5" y2="239.5"/>
+<line class="ln c3 dash" x1="64.0" y1="239.5" x2="82.5" y2="239.5"/>
+<circle class="c3f" cx="82.5" cy="239.5" r="5"/>
+<text class="lab" x="99.7" y="243.5" text-anchor="start">10 % rule: spread 1.14</text>
+<line class="ln c4 thin dash" x1="64.0" y1="16.0" x2="620.0" y2="16.0"/>
+<text class="lab" x="610.7" y="31.0" text-anchor="end">single resistor: 3.00</text>
+<text class="lab" x="342.0" y="292.0" text-anchor="middle">R<tspan dy="3" font-size="75%">TH</tspan><tspan dy="-3"> </tspan>/ ((1+β)R<tspan dy="3" font-size="75%">E</tspan><tspan dy="-3"> </tspan>)</text>
+<text class="lab" x="14" y="136.0" text-anchor="middle" transform="rotate(-90 14 136.0)">i<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan>(β = 150) / i<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan>(β = 50)</text>
+</svg>
+<figcaption><b>Figure 3.1</b> Ratio of the collector currents at β = 150 and β = 50 as \(R_{TH}\) grows.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> Computed from \(i_C = \beta(V_{TH} - V_{BE(on)})/(R_{TH} + (1+\beta)R_E)\) with a nominal \(\beta = 100\), so the horizontal axis is \(R_{TH}/(101R_E)\). The ratio does not depend on \(V_{TH}\) or \(R_E\). At the 0.1 rule the current changes by about 14 % across a threefold change in \(\beta\); with a single base resistor it would change threefold.</p>
 <div class="box watch"><span class="label">Watch out</span><p>The Tutorial 8 memo applies the rule as \(R_{TH} = 0.1\beta R_E\) (for example \(0.1 \times 125 \times 200 = 2.5\ \text{k}\Omega\) in Question 4), while the lecture slides use \(0.1(1+\beta)R_E\). For \(\beta \ge 100\) the two differ by 1 % or less, so the final resistor values hardly change. This page follows the slides; state which form you use in a test.</p></div>
 
 <h3 id="stable-centre">Design for the centre of the load line</h3>
@@ -371,9 +458,16 @@
 <text class="lab" x="591.7" y="126.1" text-anchor="end">divider, ex. 2.1</text>
 <text class="lab c1t" x="591.7" y="164.6" text-anchor="end">bias-stable, ex. 3.2</text>
 </svg>
-<figcaption><b>Figure 3.1</b> Collector current against β for three bias circuits, normalised to β = 100.</figcaption>
+<figcaption><b>Figure 3.2</b> Collector current against β for three bias circuits, normalised to β = 100.</figcaption>
 </figure>
-<p class="fignote"><b>Figure 3.1:</b> Computed from the exact equations. With a single base resistor (amber), \(I_C\) is proportional to \(\beta\). The divider of worked example 2.1 (dark), with \(R_{TH}\) about 0.16 of \((1+\beta)R_E\), is much flatter. The bias-stable design of worked example 3.2 (teal) is flattest of all.</p>
+<p class="fignote"><b>Figure 3.2:</b> Computed from the exact equations. With a single base resistor (amber), \(I_C\) is proportional to \(\beta\). The divider of worked example 2.1 (dark), with \(R_{TH}\) about 0.16 of \((1+\beta)R_E\), is much flatter. The bias-stable design of worked example 3.2 (teal) is flattest of all.</p>
+<p>The lecture applies the same recipe twice. Re-running it with unrounded intermediate values gives:</p>
+<div class="tbl"><table><thead><tr><th>Slide</th><th>Given</th><th>Result</th></tr></thead><tbody>
+<tr><td>Example 5.16</td><td>\(V_{CC} = 5\ \text{V}\), \(R_E = 0.2\ \text{k}\Omega\), \(R_C = 1\ \text{k}\Omega\), \(\beta = 150\); Q-point at the centre of the load line</td><td>\(I_{CQ} = 2.08\ \text{mA}\), \(R_{TH} = 3.02\ \text{k}\Omega\), \(R_1 = 13.0\ \text{k}\Omega\), \(R_2 = 3.93\ \text{k}\Omega\)</td></tr>
+<tr><td>TYU 5.18</td><td>\(V_{CC} = 5\ \text{V}\), \(R_E = 1\ \text{k}\Omega\), \(\beta = 150\); \(I_{CQ} = 0.40\ \text{mA}\), \(V_{CEQ} = 2.7\ \text{V}\)</td><td>\(R_C = 4.74\ \text{k}\Omega\), \(R_{TH} = 15.1\ \text{k}\Omega\), \(R_1 = 66.1\ \text{k}\Omega\), \(R_2 = 19.6\ \text{k}\Omega\)</td></tr>
+</tbody></table></div>
+<div class="note"><span class="tag">What it costs</span><p>A smaller \(R_{TH}\) means smaller \(R_1\) and \(R_2\). They draw more current from the supply, and the input resistance of the bias network, \(R_1 \parallel R_2\), is lower. That is why some problems give \(R_{in}\) as a design target as well.</p></div>
+<div class="box exam"><span class="label">Exam</span><p>The lecture designs use two shortcuts: \(I_{EQ} \approx I_{CQ}\) when finding \(I_{CQ}\) from the load line, and \(R_{TH} = 0.1(1+\beta)R_E\). They then use the exact \(I_{EQ} = (1+\beta)I_{BQ}\) when computing \(V_{TH}\). Follow the same order.</p></div>
 </section>
 
 <section id="split">
@@ -394,6 +488,10 @@
   <dt>\(I_{EQ}\)</dt><dd>Quiescent emitter current (A).</dd>
   <dt>\(R_E\)</dt><dd>Emitter resistor (\(\Omega\)).</dd>
 </dl>
+</div>
+<div class="eq"><span class="tag">Collector-emitter voltage with two supplies</span>\[ V_{CEQ} = (V^+ - V^-) - I_{CQ}R_C - I_{EQ}R_E \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(V_{CEQ}\)</dt><dd>Quiescent collector-emitter voltage, in V.</dd><dt>\(V^+ - V^-\)</dt><dd>Total span of the supplies, in V.</dd><dt>\(I_{CQ}R_C\)</dt><dd>Drop across the collector resistor, in V.</dd><dt>\(I_{EQ}R_E\)</dt><dd>Drop across the emitter resistor, in V.</dd></dl>
 </div>
 <p>A useful design target with split supplies is a quiescent output of 0 V, so that the next stage can be connected without a coupling capacitor.</p>
 <figure>
@@ -438,6 +536,8 @@
 <div class="step"><i>5</i><div>\(\frac{R_2}{R_1+R_2} = \frac{V_{TH} + 6}{12} = 0.1623\), and \(R_{TH} = R_1\frac{R_2}{R_1+R_2}\), so \(R_1 = 18.15/0.1623 = 111.8\ \text{k}\Omega\) and \(R_2 = 18.15/(1 - 0.1623) = 21.7\ \text{k}\Omega\).</div></div>
 <div class="ans">\(I_{CQ} = 0.75\ \text{mA}\), \(V_{CEQ} = 4.87\ \text{V}\), \(R_1 = 112\ \text{k}\Omega\), \(R_2 = 21.7\ \text{k}\Omega\).</div>
 </div></div>
+<p>The lecture's example P5.17 asks for the same zero output with \(V^\pm = \pm 5\ \text{V}\), \(R_C = 10\ \text{k}\Omega\), \(R_E = 2\ \text{k}\Omega\) and \(\beta = 150\). Then \(I_{CQ} = 0.50\ \text{mA}\) and \(V_{CEQ} = 3.99\ \text{V}\), and the bias-stable design (\(R_{TH} = 30.2\ \text{k}\Omega\), \(V_{TH} = -3.19\ \text{V}\)) gives \(R_1 = 167\ \text{k}\Omega\) and \(R_2 = 36.9\ \text{k}\Omega\).</p>
+<div class="box watch"><span class="label">Watch out</span><p>Keep the signs. \(V^-\) is negative, so \(V_{TH}\) usually comes out negative too, and the base-loop equation needs the \(+V^-\) term. Dropping it is the most common error on these problems.</p></div>
 </section>
 
 <section id="mirror">
@@ -510,6 +610,12 @@
 </dl>
 </div>
 <p>The second equation is KCL at the joined node: \(I_1 = I_{C1} + I_{B1} + I_{B2}\). Identical transistors at the same temperature with the same \(V_{BE}\) have \(I_{C1} = I_{C2}\) and \(I_{B1} = I_{B2}\), so \(I_1 = I_{C2} + 2I_{C2}/\beta\). Both mirror transistors must stay forward-active for this to hold.</p>
+<div class="box intuition"><span class="label">Intuition</span><p>\(Q_2\) cannot tell that its base-emitter voltage came from somewhere else. Whatever collector current the diode-connected \(Q_1\) carries at that voltage, \(Q_2\) carries as well. The load \(R_C\) can change and \(I_Q\) does not, as long as \(Q_2\) stays forward-active.</p></div>
+<p>The mirrored current \(I_Q\) is the emitter current of \(Q_O\), since the collector of \(Q_2\) connects to the emitter of \(Q_O\). The collector current of \(Q_O\) is therefore slightly smaller than \(I_Q\).</p>
+<div class="eq"><span class="tag">Current through the biased transistor</span>\[ I_Q = I_{E}(Q_O) = \frac{1+\beta}{\beta}\, I_C(Q_O) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(I_Q\)</dt><dd>Constant current drawn by the mirror, in A.</dd><dt>\(I_E(Q_O)\)</dt><dd>Emitter current of \(Q_O\), in A.</dd><dt>\(\beta\)</dt><dd>Current gain of \(Q_O\).</dd><dt>\(I_C(Q_O)\)</dt><dd>Collector current of \(Q_O\), the one you want to set, in A.</dd></dl>
+</div>
 
 <div class="ex"><div class="hd">Worked example 5.1 <span>designing with a mirror</span></div><div class="bd">
 <p>In Figure 5.1, \(V^+ = 5\ \text{V}\), \(V^- = -5\ \text{V}\), the base of \(Q_O\) is grounded (\(R_B = 0\)) and \(\beta = 80\) for every transistor. Design for \(I_C(Q_O) = 0.2\ \text{mA}\) and \(V_{CE}(Q_O) = 3\ \text{V}\). Find \(I_Q\) and \(I_1\).</p>
@@ -519,6 +625,7 @@
 <div class="step"><i>4</i><div>\(I_1 = (1 + 2/80)(0.2025) = 0.2076\ \text{mA}\); \(R_1 = (0 - 0.7 + 5)/0.2076\ \text{mA} = 20.7\ \text{k}\Omega\).</div></div>
 <div class="ans">\(R_C = 13.5\ \text{k}\Omega\), \(R_1 = 20.7\ \text{k}\Omega\), \(I_Q = 0.203\ \text{mA}\), \(I_1 = 0.208\ \text{mA}\).</div>
 </div></div>
+<p>The lecture's problem 5.18 uses \(V^\pm = \pm 3.3\ \text{V}\), \(R_B = 0\) and \(\beta = 60\), and wants \(I_C(Q_O) = 0.12\ \text{mA}\) with \(V_{CE}(Q_O) = 1.6\ \text{V}\). The collector must sit at 0.9 V, which gives \(R_C = 20\ \text{k}\Omega\), \(I_Q = 0.122\ \text{mA}\), \(I_1 = 0.126\ \text{mA}\) and \(R_1 = 20.6\ \text{k}\Omega\).</p>
 </section>
 
 <section id="multistage">
@@ -571,6 +678,11 @@
 </figure>
 <p class="fignote"><b>Figure 6.1:</b> The collector of \(Q_1\) drives the base of \(Q_2\). The current in \(R_{C1}\) plus the base current flowing out of \(Q_2\) equals \(I_{C1}\).</p>
 <div class="key"><span class="tag">Key idea</span><p>Work from the input stage outwards. Solve \(Q_1\)'s base loop first (its base current does not depend on \(Q_2\)), then write KCL at the node joining the two stages, using \(Q_2\)'s base-emitter loop to express \(I_{B2}\) in terms of that node voltage.</p></div>
+<p>For the npn-pnp pair of Figure 6.1 the KCL equation \((V^+ - V_{C1})/R_{C1} + (V^+ - V_{C1} - V_{EB(on)})/((1+\beta)R_{E2}) = I_{C1}\) is linear in \(V_{C1}\), so it can be solved once in general:</p>
+<div class="eq"><span class="tag">Collector-node voltage of Q1</span>\[ V_{C1} = \frac{\dfrac{V^+}{R_{C1}} + \dfrac{V^+ - V_{EB(on)}}{(1+\beta)R_{E2}} - I_{C1}}{\dfrac{1}{R_{C1}} + \dfrac{1}{(1+\beta)R_{E2}}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(V_{C1}\)</dt><dd>Voltage at the collector of Q1 and the base of Q2, in V.</dd><dt>\(V^+\)</dt><dd>Positive supply, in V.</dd><dt>\(R_{C1}\)</dt><dd>Collector resistor of Q1, in \(\Omega\).</dd><dt>\(V_{EB(on)}\)</dt><dd>Emitter-base turn-on voltage of the pnp transistor Q2, 0.7 V.</dd><dt>\(\beta\)</dt><dd>Current gain of Q2.</dd><dt>\(R_{E2}\)</dt><dd>Emitter resistor of Q2, in \(\Omega\).</dd><dt>\(I_{C1}\)</dt><dd>Collector current of Q1 from step 1, in A.</dd></dl>
+</div>
 
 <div class="ex"><div class="hd">Worked example 6.1 <span>DC analysis of Figure 6.1</span></div><div class="bd">
 <p>In Figure 6.1, \(R_1 = 120\ \text{k}\Omega\), \(R_2 = 60\ \text{k}\Omega\), \(R_{C1} = 4\ \text{k}\Omega\), \(R_{E1} = 2.5\ \text{k}\Omega\), \(R_{E2} = 1.5\ \text{k}\Omega\), \(R_{C2} = 2\ \text{k}\Omega\), \(\beta = 120\) for both. Find all node voltages and currents.</p>
@@ -582,6 +694,21 @@
 <div class="step"><i>6</i><div>\(V_{CE1} = 1.374 - (-2.674) = 4.05\ \text{V}\); \(V_{EC2} = 2.074 - (-1.131) = 3.20\ \text{V}\). Both transistors are forward-active.</div></div>
 <div class="ans">\(I_{C1} = 0.923\ \text{mA}\), \(V_{CE1} = 4.05\ \text{V}\); \(I_{C2} = 1.94\ \text{mA}\), \(V_{EC2} = 3.20\ \text{V}\); \(V_{C1} = 1.37\ \text{V}\).</div>
 </div></div>
+<p>The lecture's example 5.19 uses \(\pm 5\ \text{V}\) supplies, \(R_1 = 100\ \text{k}\Omega\), \(R_2 = 50\ \text{k}\Omega\), \(R_{C1} = 5\ \text{k}\Omega\), \(R_{E1} = R_{E2} = 2\ \text{k}\Omega\), \(R_{C2} = 1.5\ \text{k}\Omega\) and \(\beta = 100\), so \(V_{TH} = -1.67\ \text{V}\) behind \(R_{TH} = 33.3\ \text{k}\Omega\).</p>
+<div class="tbl"><table><thead><tr><th>Quantity</th><th>Slides</th><th>Full precision</th></tr></thead><tbody>
+<tr><td>\(I_{B1}\)</td><td>11.2 µA</td><td>11.19 µA</td></tr>
+<tr><td>\(I_{C1}\)</td><td>1.12 mA</td><td>1.119 mA</td></tr>
+<tr><td>\(V_{C1}\)</td><td>−0.482 V</td><td>−0.477 V</td></tr>
+<tr><td>\(I_{R_{C1}}\)</td><td>1.10 mA</td><td>1.095 mA</td></tr>
+<tr><td>\(V_{E2}\)</td><td>0.218 V</td><td>0.223 V</td></tr>
+<tr><td>\(I_{E2}\)</td><td>2.39 mA</td><td>2.388 mA</td></tr>
+<tr><td>\(I_{C2}\)</td><td>2.37 mA</td><td>2.365 mA</td></tr>
+<tr><td>\(V_{E1}\)</td><td>−2.74 V</td><td>−2.740 V</td></tr>
+<tr><td>\(V_{C2}\)</td><td>−1.45 V</td><td>−1.453 V</td></tr>
+<tr><td>\(V_{CE1}\)</td><td>2.26 V</td><td>2.263 V</td></tr>
+<tr><td>\(V_{EC2}\)</td><td>1.67 V</td><td>1.676 V</td></tr>
+</tbody></table></div>
+<div class="note"><span class="tag">Rounding</span><p>The slides carry rounded intermediate currents, so \(V_{C1}\) differs by about 5 mV and the last digit of a few other values moves. The method is identical.</p></div>
 
 <h3 id="two-stage-design">Designing a two-stage circuit</h3>
 <p>To design, fix the voltages you want and work along the chain: \(V_{E1}\) from the first stage's bias, then \(V_{C1}\) from the wanted \(V_{CE1}\), then \(V_{E2}\), \(I_{E2}\) and finally the resistors.</p>
@@ -656,13 +783,285 @@
 <div class="ans">\(R_1 = 68\ \text{k}\Omega\), \(R_2 = 35\ \text{k}\Omega\), \(R_3 = 17\ \text{k}\Omega\), \(R_E = 1\ \text{k}\Omega\), \(R_C = 4\ \text{k}\Omega\).</div>
 </div></div>
 <div class="box watch"><span class="label">Watch out</span><p>Neglecting base current is only reasonable because the divider current (0.1 mA) is ten times the base current at \(\beta = 100\) (0.01 mA). With a smaller divider current the base voltages would sag below the design values.</p></div>
+<p>The lecture's two cascode designs, with base currents neglected:</p>
+<div class="tbl"><table><thead><tr><th>Slide</th><th>Given</th><th>Result (kΩ)</th></tr></thead><tbody>
+<tr><td>Example 5.20</td><td>\(V^+ = 9\ \text{V}\), \(I_C = 1\ \text{mA}\), divider current 0.1 mA, \(V_{CE1} = V_{CE2} = 2.5\ \text{V}\), \(V_{R_E} = 0.7\ \text{V}\)</td><td>\(R_1 = 51\), \(R_2 = 25\), \(R_3 = 14\), \(R_E = 0.7\), \(R_C = 3.3\)</td></tr>
+<tr><td>Exercise P5.20</td><td>\(V^+ = 12\ \text{V}\), \(R_E = 2\ \text{k}\Omega\), \(I_C = 0.5\ \text{mA}\), divider current 0.05 mA, \(V_{CE1} = V_{CE2} = 4\ \text{V}\)</td><td>\(R_1 = 126\), \(R_2 = 80\), \(R_3 = 34\), \(R_C = 6\)</td></tr>
+</tbody></table></div>
+<div class="box watch"><span class="label">Watch out</span><p>The slide figure for exercise P5.20 still shows \(V^+ = +9\ \text{V}\) from the previous example. The text and every number in the solution use \(V^+ = 12\ \text{V}\) (a chain of 240 kΩ at 0.05 mA only works for 12 V), so design with 12 V.</p></div>
+
+<h3 id="other-pairs">Other direct-coupled pairs</h3>
+<p>Tutorial 9 uses pairs that the slides do not draw, but the method is the same: one node voltage, \(V_{C1}\), links the stages.</p>
+<p><b>npn followed by npn (an emitter follower as the second stage).</b> The collector of \(Q_2\) goes straight to \(V^+\) and its emitter returns to \(V^-\) through \(R_{E2}\). The base of \(Q_2\) is the collector node of \(Q_1\), so \(R_{C1}\) carries \(I_{CQ1} + I_{BQ2}\). Writing \(V_{C1}\) both from the top (through \(R_{C1}\)) and from the bottom (through the base-emitter junction and \(R_{E2}\)) gives one equation in \(I_{BQ2}\).</p>
+<div class="eq"><span class="tag">Base current of the second transistor (npn-npn pair)</span>\[ I_{BQ2} = \frac{V^+ - I_{CQ1}R_{C1} - V_{BE(on)} - V^-}{R_{C1} + (\beta+1)R_{E2}} \qquad V_{CEQ2} = V^+ - V_{E2}, \;\; V_{E2} = V_{C1} - V_{BE(on)} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(I_{BQ2}\)</dt><dd>Quiescent base current of Q2, in A.</dd><dt>\(V^+\)</dt><dd>Positive supply, in V.</dd><dt>\(I_{CQ1}\)</dt><dd>Quiescent collector current of Q1, found first from its own base loop, in A.</dd><dt>\(R_{C1}\)</dt><dd>Collector resistor of Q1, in \(\Omega\).</dd><dt>\(V_{BE(on)}\)</dt><dd>0.7 V.</dd><dt>\(V^-\)</dt><dd>Negative supply, in V (a negative number).</dd><dt>\(\beta\)</dt><dd>Current gain of Q2.</dd><dt>\(R_{E2}\)</dt><dd>Emitter resistor of Q2, in \(\Omega\).</dd><dt>\(V_{CEQ2}\)</dt><dd>Quiescent collector-emitter voltage of Q2, in V.</dd><dt>\(V_{E2}\)</dt><dd>Emitter voltage of Q2, in V.</dd><dt>\(V_{C1}\)</dt><dd>Collector voltage of Q1, which is also the base voltage of Q2, in V.</dd></dl>
+</div>
+<div class="ex"><div class="hd">Worked example 6.4 <span>an npn-npn direct-coupled pair</span></div><div class="bd">
+<p>\(Q_1\) has a base divider from \(V^+ = 9\ \text{V}\) to ground (\(R_1 = 82\ \text{k}\Omega\), \(R_2 = 33\ \text{k}\Omega\)), \(R_{C1} = 2.7\ \text{k}\Omega\) to \(V^+\) and \(R_{E1} = 0.82\ \text{k}\Omega\) to ground. The collector of \(Q_2\) is at \(V^+\), and \(R_{E2} = 4.7\ \text{k}\Omega\) goes to \(V^- = -9\ \text{V}\). \(\beta = 100\) for both. Find the quiescent currents and both \(V_{CE}\) values.</p>
+<div class="step"><i>1</i><div>Thevenin of the divider: \(V_{TH} = 2.583\ \text{V}\), \(R_{TH} = 23.53\ \text{k}\Omega\).</div></div>
+<div class="step"><i>2</i><div>\(Q_1\) base loop: \(I_{BQ1} = (2.583 - 0.7)/(23.53\ \text{k} + (101)(0.82\ \text{k})) = 17.70\ \mu\text{A}\), so \(I_{CQ1} = 1.770\ \text{mA}\) and \(I_{EQ1} = 1.788\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>\[ I_{BQ2} = \frac{9 - (1.770\ \text{mA})(2.7\ \text{k}) - 0.7 + 9}{2.7\ \text{k} + (101)(4.7\ \text{k})} = 26.23\ \mu\text{A} \]</div></div>
+<div class="step"><i>4</i><div>\(I_{CQ2} = 2.623\ \text{mA}\), \(I_{EQ2} = 2.649\ \text{mA}\).</div></div>
+<div class="step"><i>5</i><div>\(V_{C1} = 9 - (1.770 + 0.026)(2.7) = 4.150\ \text{V}\); \(V_{E2} = 3.450\ \text{V}\).</div></div>
+<div class="step"><i>6</i><div>\(V_{CEQ1} = 4.150 - (1.788)(0.82) = 2.68\ \text{V}\); \(V_{CEQ2} = 9 - 3.450 = 5.55\ \text{V}\).</div></div>
+<div class="ans">\(I_{CQ1} = 1.77\ \text{mA}\), \(I_{CQ2} = 2.62\ \text{mA}\), \(V_{CEQ1} = 2.68\ \text{V}\), \(V_{CEQ2} = 5.55\ \text{V}\). Both are forward-active.</div>
+</div></div>
+<p><b>pnp followed by npn, designed from given currents.</b> Tutorial 9 Question 2 gives \(I_{CQ1} = I_{CQ2}\) and the two \(V_{CE}\) values and asks for four resistors. Find each \(I_{BQ}\) from \(I_{CQ}/\beta\). The pnp emitter resistor comes from the base loop, which starts at \(V^+\): \(V^+ = (1+\beta)I_{BQ1}R_{E1} + V_{EB(on)} + I_{BQ1}R_{TH} + V_{TH}\). Then \(V_{C1} = V^+ - I_{EQ1}R_{E1} - V_{ECQ1}\), \(R_{C1}\) carries \(I_{CQ1} - I_{BQ2}\), and \(R_{C1} = (V_{C1} - V^-)/(I_{CQ1} - I_{BQ2})\). The emitter of \(Q_2\) is at \(V_{C1} - V_{BE(on)}\), which gives \(R_{E2}\) and then \(R_{C2}\). Problem 9.5 works one through.</p>
+</section>
+
+<section id="switch">
+<h2><span class="n">07</span>BJT as an LED switch</h2>
+<p class="reading"><b>Reading</b> Practical Test 3 memo; Week 8, section 1</p>
+<p>Week 8 designed the transistor switch for saturation. The practical test adds two limits: the base source can only supply so much current, and the design is judged on its efficiency. Driven hard enough, the transistor saturates, \(V_{CE}\) drops to \(V_{CE(sat)}\), and the LED current is set by the collector circuit alone, not by \(\beta\). So choose \(R_C\) for the LED current, then choose \(R_B\) so that the base current is big enough to saturate the transistor but no bigger than the source can supply.</p>
+<figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="BJT switch driving an LED">
+<polyline class="ln c4" points="200.0,24.0 330.0,24.0"/>
+<text class="lab" x="196.0" y="28.0" text-anchor="end">V<tspan dy="3" font-size="75%">CC</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="270.0,24.0 270.0,38.5 277.0,41.6 263.0,47.8 277.0,53.9 263.0,60.1 277.0,66.2 263.0,72.4 270.0,75.5 270.0,90.0"/>
+<text class="lab" x="281.0" y="61.0" text-anchor="start">R<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="270.0,90.0 270.0,100.0"/>
+<polygon class="ln c4" points="258,100 282,100 270,120"/>
+<polyline class="ln c4" points="258.0,122.0 282.0,122.0"/>
+<polyline class="ln c4" points="270.0,122.0 270.0,138.0"/>
+<text class="lab" x="292.0" y="114.0" text-anchor="start">LED</text>
+<polyline class="ln c4" points="270.0,138.0 270.0,150.0"/>
+<polyline class="ln c4" points="250.0,162.0 250.0,190.0"/>
+<polyline class="ln c4" points="250.0,170.0 270.0,158.0 270.0,150.0"/>
+<polyline class="ln c4" points="250.0,182.0 270.0,194.0 270.0,202.0"/>
+<polygon class="c4f" points="267.0,192.2 259.2,191.6 262.8,185.6"/>
+<polyline class="ln c4" points="270.0,150.0 270.0,150.0"/>
+<polyline class="ln c4" points="270.0,202.0 270.0,222.0"/>
+<polyline class="ln c4" points="270.0,222.0 270.0,228.0"/>
+<polyline class="ln c4" points="261.0,228.0 279.0,228.0"/>
+<polyline class="ln c4" points="265.0,232.0 275.0,232.0"/>
+<polyline class="ln c4" points="268.0,236.0 272.0,236.0"/>
+<polyline class="ln c4" points="140.0,176.0 155.4,176.0 158.7,183.0 165.2,169.0 171.7,183.0 178.3,169.0 184.8,183.0 191.3,169.0 194.6,176.0 210.0,176.0"/>
+<text class="lab" x="175.0" y="165.0" text-anchor="middle">R<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="210.0,176.0 250.0,176.0"/>
+<polyline class="ln c4" points="100.0,176.0 140.0,176.0"/>
+<text class="lab" x="96.0" y="180.0" text-anchor="end">V<tspan dy="3" font-size="75%">BB</tspan><tspan dy="-3"> </tspan></text>
+<line class="ln c3 thin" x1="214" y1="164" x2="244" y2="164"/>
+<polygon class="c3f" points="244.0,164.0 238.0,167.0 238.0,161.0"/>
+<text class="lab" x="225.0" y="158.0" text-anchor="start">I<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan></text>
+</svg>
+<figcaption><b>Figure 7.1</b> Common-emitter switch driving an LED from a separate base source \(V_{BB}\).</figcaption>
+</figure>
+<p class="fignote"><b>Figure 7.1:</b> \(R_C\) and the LED are in series in the collector. \(V_{BB}\) drives the base through \(R_B\) and supplies \(I_B\).</p>
+<div class="eq"><span class="tag">Collector resistor for the LED current</span>\[ R_C = \frac{V_{CC} - V_\gamma - V_{CE(sat)}}{I_C} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(R_C\)</dt><dd>Current-setting resistor in series with the LED, in \(\Omega\).</dd><dt>\(V_{CC}\)</dt><dd>Supply voltage, in V.</dd><dt>\(V_\gamma\)</dt><dd>LED forward voltage, in V.</dd><dt>\(V_{CE(sat)}\)</dt><dd>Collector-emitter voltage of the saturated transistor, 0.1 V in the test.</dd><dt>\(I_C\)</dt><dd>Wanted LED current, in A.</dd></dl>
+</div>
+<p>The base resistor has a lower and an upper limit. The lower limit comes from the base current the source can give. The upper limit comes from saturation: the base current must be at least \(I_C/\beta\). A larger resistor gives a smaller base current, so the two limits make a window for \(R_B\).</p>
+<div class="eq"><span class="tag">Window for the base resistor</span>\[ \frac{V_{BB} - V_{BE(on)}}{I_{B(max)}} \;\le\; R_B \;\le\; \frac{\beta\,(V_{BB} - V_{BE(on)})}{I_C} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(V_{BB}\)</dt><dd>Base source voltage, in V.</dd><dt>\(V_{BE(on)}\)</dt><dd>0.7 V.</dd><dt>\(I_{B(max)}\)</dt><dd>Largest base current the source may supply, in A.</dd><dt>\(R_B\)</dt><dd>Base resistor, in \(\Omega\). It must also be a value you can actually buy.</dd><dt>\(\beta\)</dt><dd>Current gain, used only to find the smallest base current that still saturates the transistor.</dd><dt>\(I_C\)</dt><dd>LED current, in A.</dd></dl>
+</div>
+<div class="eq"><span class="tag">Efficiency</span>\[ \eta = \frac{P_{LED}}{P_{total}} = \frac{V_\gamma I_C}{V_{CC}I_C + V_{BB}I_B} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(\eta\)</dt><dd>Fraction of the supplied power that reaches the LED.</dd><dt>\(P_{LED}\)</dt><dd>Power in the LED, in W.</dd><dt>\(P_{total}\)</dt><dd>Power drawn from both sources, in W.</dd><dt>\(V_\gamma\)</dt><dd>LED forward voltage, in V.</dd><dt>\(I_C\)</dt><dd>LED current, in A.</dd><dt>\(V_{CC}\)</dt><dd>Collector supply, in V.</dd><dt>\(V_{BB}\)</dt><dd>Base source, in V.</dd><dt>\(I_B\)</dt><dd>Base current actually used, \((V_{BB}-V_{BE(on)})/R_B\), in A.</dd></dl>
+</div>
+<figure>
+<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="LED current against base resistance with the usable window marked">
+<rect class="frame" x="60" y="16" width="560" height="240"/>
+<line class="grid" x1="60.0" y1="16" x2="60.0" y2="256"/>
+<text class="tk" x="60.0" y="272.0" text-anchor="middle">0</text>
+<line class="grid" x1="153.3" y1="16" x2="153.3" y2="256"/>
+<text class="tk" x="153.3" y="272.0" text-anchor="middle">10</text>
+<line class="grid" x1="246.7" y1="16" x2="246.7" y2="256"/>
+<text class="tk" x="246.7" y="272.0" text-anchor="middle">20</text>
+<line class="grid" x1="340.0" y1="16" x2="340.0" y2="256"/>
+<text class="tk" x="340.0" y="272.0" text-anchor="middle">30</text>
+<line class="grid" x1="433.3" y1="16" x2="433.3" y2="256"/>
+<text class="tk" x="433.3" y="272.0" text-anchor="middle">40</text>
+<line class="grid" x1="526.7" y1="16" x2="526.7" y2="256"/>
+<text class="tk" x="526.7" y="272.0" text-anchor="middle">50</text>
+<line class="grid" x1="620.0" y1="16" x2="620.0" y2="256"/>
+<text class="tk" x="620.0" y="272.0" text-anchor="middle">60</text>
+<line class="grid" x1="60" y1="256.0" x2="620" y2="256.0"/>
+<text class="tk" x="53.0" y="260.0" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="196.0" x2="620" y2="196.0"/>
+<text class="tk" x="53.0" y="200.0" text-anchor="end">5</text>
+<line class="grid" x1="60" y1="136.0" x2="620" y2="136.0"/>
+<text class="tk" x="53.0" y="140.0" text-anchor="end">10</text>
+<line class="grid" x1="60" y1="76.0" x2="620" y2="76.0"/>
+<text class="tk" x="53.0" y="80.0" text-anchor="end">15</text>
+<line class="grid" x1="60" y1="16.0" x2="620" y2="16.0"/>
+<text class="tk" x="53.0" y="20.0" text-anchor="end">20</text>
+<line class="axis" x1="60" y1="256" x2="620" y2="256"/>
+<line class="axis" x1="60" y1="16" x2="60" y2="256"/>
+<polyline class="ln c1" points="69.3,40.0 71.2,40.0 73.0,40.0 74.9,40.0 76.7,40.0 78.5,40.0 80.4,40.0 82.2,40.0 84.1,40.0 85.9,40.0 87.8,40.0 89.6,40.0 91.4,40.0 93.3,40.0 95.1,40.0 97.0,40.0 98.8,40.0 100.6,40.0 102.5,40.0 104.3,40.0 106.2,40.0 108.0,40.0 109.9,40.0 111.7,40.0 113.5,40.0 115.4,40.0 117.2,40.0 119.1,40.0 120.9,40.0 122.7,40.0 124.6,40.0 126.4,40.0 128.3,40.0 130.1,40.0 132.0,40.0 133.8,40.0 135.6,40.0 137.5,40.0 139.3,40.0 141.2,40.0 143.0,40.0 144.8,40.0 146.7,40.0 148.5,40.0 150.4,40.0 152.2,40.0 154.1,40.0 155.9,40.0 157.7,40.0 159.6,40.0 161.4,40.0 163.3,40.0 165.1,40.0 166.9,40.0 168.8,40.0 170.6,40.0 172.5,40.0 174.3,40.0 176.2,40.0 178.0,40.0 179.8,40.0 181.7,40.0 183.5,40.0 185.4,40.0 187.2,40.0 189.0,40.0 190.9,40.0 192.7,40.0 194.6,40.0 196.4,40.0 198.3,40.0 200.1,40.0 201.9,40.0 203.8,40.0 205.6,40.0 207.5,40.0 209.3,40.0 211.1,40.0 213.0,40.0 214.8,40.0 216.7,40.0 218.5,40.0 220.4,40.0 222.2,40.0 224.0,40.0 225.9,40.0 227.7,40.0 229.6,40.0 231.4,40.0 233.2,40.0 235.1,40.0 236.9,40.0 238.8,40.0 240.6,40.0 242.5,40.0 244.3,40.0 246.1,40.0 248.0,40.0 249.8,40.0 251.7,40.0 253.5,40.0 255.3,40.0 257.2,40.0 259.0,40.0 260.9,40.0 262.7,40.0 264.6,40.0 266.4,40.0 268.2,40.0 270.1,40.0 271.9,40.0 273.8,40.0 275.6,40.0 277.4,40.0 279.3,40.0 281.1,40.0 283.0,40.0 284.8,40.0 286.7,40.0 288.5,40.0 290.3,40.0 292.2,40.0 294.0,40.0 295.9,40.0 297.7,40.0 299.5,40.0 301.4,40.0 303.2,40.0 305.1,40.0 306.9,40.0 308.8,40.0 310.6,40.0 312.4,40.0 314.3,40.0 316.1,40.0 318.0,40.0 319.8,40.0 321.6,40.0 323.5,40.0 325.3,40.0 327.2,40.0 329.0,40.0 330.9,40.0 332.7,40.0 334.5,40.0 336.4,40.0 338.2,40.0 340.1,40.0 341.9,40.0 343.7,40.0 345.6,40.0 347.4,40.0 349.3,40.0 351.1,40.0 353.0,40.0 354.8,40.0 356.6,40.0 358.5,40.0 360.3,40.0 362.2,40.0 364.0,40.0 365.8,40.0 367.7,40.0 369.5,40.0 371.4,40.0 373.2,40.0 375.1,40.0 376.9,40.0 378.7,40.0 380.6,40.0 382.4,40.0 384.3,40.0 386.1,40.0 387.9,40.0 389.8,40.0 391.6,40.0 393.5,40.0 395.3,40.0 397.2,40.0 399.0,40.0 400.8,40.0 402.7,40.3 404.5,41.4 406.4,42.6 408.2,43.7 410.0,44.8 411.9,45.9 413.7,47.0 415.6,48.1 417.4,49.2 419.3,50.2 421.1,51.3 422.9,52.3 424.8,53.4 426.6,54.4 428.5,55.4 430.3,56.4 432.1,57.4 434.0,58.3 435.8,59.3 437.7,60.3 439.5,61.2 441.4,62.2 443.2,63.1 445.0,64.0 446.9,64.9 448.7,65.8 450.6,66.7 452.4,67.6 454.2,68.5 456.1,69.4 457.9,70.2 459.8,71.1 461.6,71.9 463.5,72.8 465.3,73.6 467.1,74.4 469.0,75.3 470.8,76.1 472.7,76.9 474.5,77.7 476.3,78.5 478.2,79.2 480.0,80.0 481.9,80.8 483.7,81.5 485.6,82.3 487.4,83.0 489.2,83.8 491.1,84.5 492.9,85.3 494.8,86.0 496.6,86.7 498.4,87.4 500.3,88.1 502.1,88.8 504.0,89.5 505.8,90.2 507.7,90.9 509.5,91.6 511.3,92.2 513.2,92.9 515.0,93.5 516.9,94.2 518.7,94.9 520.5,95.5 522.4,96.1 524.2,96.8 526.1,97.4 527.9,98.0 529.8,98.6 531.6,99.3 533.4,99.9 535.3,100.5 537.1,101.1 539.0,101.7 540.8,102.3 542.6,102.8 544.5,103.4 546.3,104.0 548.2,104.6 550.0,105.1 551.9,105.7 553.7,106.3 555.5,106.8 557.4,107.4 559.2,107.9 561.1,108.5 562.9,109.0 564.7,109.6 566.6,110.1 568.4,110.6 570.3,111.1 572.1,111.7 574.0,112.2 575.8,112.7 577.6,113.2 579.5,113.7 581.3,114.2 583.2,114.7 585.0,115.2 586.8,115.7 588.7,116.2 590.5,116.7 592.4,117.2 594.2,117.6 596.1,118.1 597.9,118.6 599.7,119.0 601.6,119.5 603.4,120.0 605.3,120.4 607.1,120.9 608.9,121.3 610.8,121.8 612.6,122.2 614.5,122.7 616.3,123.1 618.2,123.6 620.0,124.0"/>
+<line class="ln c4 thin dash" x1="75.4" y1="256.0" x2="75.4" y2="16.0"/>
+<line class="ln c4 thin dash" x1="402.2" y1="256.0" x2="402.2" y2="16.0"/>
+<text class="lab" x="81.4" y="160.0" text-anchor="start">supply limit 1.65 kΩ</text>
+<text class="lab" x="396.2" y="160.0" text-anchor="end">saturation limit 36.7 kΩ</text>
+<text class="lab" x="238.8" y="208.0" text-anchor="middle">usable window for R<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan></text>
+<circle class="c4f" cx="80.5" cy="40.0" r="4"/>
+<text class="lab" x="88.5" y="32.0" text-anchor="start">2.2 kΩ</text>
+<text class="lab" x="545.3" y="59.2" text-anchor="middle">i<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan> = βi<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan> (active)</text>
+<text class="lab" x="340.0" y="292.0" text-anchor="middle">R<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan> (kΩ)</text>
+<text class="lab" x="14" y="136.0" text-anchor="middle" transform="rotate(-90 14 136.0)">i<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"> </tspan> (mA)</text>
+</svg>
+<figcaption><b>Figure 7.2</b> LED current against \(R_B\), with the usable window between the dashed lines.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 7.2:</b> Uses the practical-test numbers, computed with \(i_C = \min(\beta i_B,\ 18\ \text{mA})\) and \(i_B = (V_{BB} - 0.7)/R_B\). Left of the window the source would have to supply more than 2 mA; right of it the transistor leaves saturation and the LED dims.</p>
+<p>The practical test (\(V_{CC} = 10\ \text{V}\), \(\beta = 200\), \(V_\gamma = 2.15\ \text{V}\), \(V_{CE(sat)} = 0.1\ \text{V}\), \(V_{BB} = 4\ \text{V}\), \(I_C = 18\ \text{mA}\), at most 2 mA from the base source) gives \(R_C = 430.6\ \Omega\). The window for \(R_B\) is 1.65 kΩ to 36.7 kΩ, and only one of the four listed resistors fits.</p>
+<div class="tbl"><table><thead><tr><th>\(R_B\)</th><th>Base current</th><th>Verdict</th></tr></thead><tbody>
+<tr><td>1.5 kΩ</td><td>2.200 mA</td><td>Too small: the base current exceeds the 2 mA limit</td></tr>
+<tr><td>1.6 kΩ</td><td>2.062 mA</td><td>Too small: the base current exceeds the 2 mA limit</td></tr>
+<tr><td>2.2 kΩ</td><td>1.500 mA</td><td>Works</td></tr>
+<tr><td>220 kΩ</td><td>0.015 mA</td><td>Too large: the LED gets only 3.0 mA</td></tr>
+</tbody></table></div>
+<p>With \(R_B = 2.2\ \text{k}\Omega\) the base current is 1.50 mA. The LED takes 38.7 mW of the 186 mW drawn in total, so \(\eta = 20.8\ \%\). Most of the rest is lost in \(R_C\) (139.5 mW).</p>
+
+<h3 id="marker">What the marker's comments add</h3>
+<ul>
+<li>The largest usable \(R_B\) sits at the change from forward-active to saturation. \(\beta\) and the resistor values both vary, so a design at that edge cannot be relied on.</li>
+<li>The smallest \(R_B\) is set by the base current available. A higher base current also means more power lost.</li>
+<li>Choosing \(I_C/I_B \approx 0.5\beta\), a base current about twice the minimum, keeps the base current below the limit so the transistor does not heat up, allows for the spread in \(\beta\), and leaves room to pick the best available \(R_B\).</li>
+<li>Cutoff needs \(I_B = 0\), which means a very large \(R_B\); the memo adds that the model's assumptions are stretched at that extreme.</li>
+</ul>
+<div class="ex"><div class="hd">Worked example 7.1 <span>a saturated switch driving an LED</span></div><div class="bd">
+<p>A switch has \(V_{CC} = 5\ \text{V}\), an LED with \(V_\gamma = 1.9\ \text{V}\) to carry 10 mA, \(V_{CE(sat)} = 0.1\ \text{V}\), \(\beta = 150\), and a base source \(V_{BB} = 3.3\ \text{V}\) that can supply at most 0.5 mA. Choose \(R_C\) and an \(R_B\) from 4.7, 6.8, 10 and 47 kΩ, and find the efficiency.</p>
+<div class="step"><i>1</i><div>\(R_C = (5 - 1.9 - 0.1)/10\ \text{mA} = 300\ \Omega\).</div></div>
+<div class="step"><i>2</i><div>Lower limit: \(R_B \ge (3.3 - 0.7)/0.5\ \text{mA} = 5.2\ \text{k}\Omega\).</div></div>
+<div class="step"><i>3</i><div>Upper limit: saturation needs \(I_B \ge 10/150 = 66.7\ \mu\text{A}\), so \(R_B \le 2.6/66.7\ \mu\text{A} = 39\ \text{k}\Omega\).</div></div>
+<div class="step"><i>4</i><div>6.8 kΩ and 10 kΩ fit. Take 10 kΩ: it wastes less base power and leaves more margin on the source limit. \(I_B = 260\ \mu\text{A}\), 3.9 times the minimum, so the transistor is firmly saturated.</div></div>
+<div class="step"><i>5</i><div>\(P_{LED} = (1.9)(10\ \text{mA}) = 19\ \text{mW}\); \(P_{total} = (5)(10\ \text{mA}) + (3.3)(0.26\ \text{mA}) = 50.86\ \text{mW}\).</div></div>
+<div class="ans">\(R_C = 300\ \Omega\), \(R_B = 10\ \text{k}\Omega\), \(\eta = 37.4\ \%\).</div>
+</div></div>
+<div class="box exam"><span class="label">Exam</span><p>The practical-test question asks for the design and the efficiency, and the efficiency counts the power from both sources, \(V_{CC}I_C + V_{BB}I_B\). State the window for \(R_B\) and say why each rejected resistor fails.</p></div>
+</section>
+
+<section id="tut9">
+<h2><span class="n">08</span>Tutorial 9 map</h2>
+<p>Tutorial 9 mixes this week's BJT circuits with MOSFET questions that Week 10 teaches. The table shows where the method for each question is. The answers are worked out unrounded; where the memo prints something different, the table says so.</p>
+<div class="tbl"><table><thead><tr><th>Question</th><th>Tests</th><th>Method is in</th><th>Answers</th></tr></thead><tbody>
+<tr><td>1 (P5.79)</td><td>npn-npn direct-coupled pair, analysis</td><td>Section 6, other direct-coupled pairs; worked example 6.4</td><td>\(I_{CQ1} = 1.731\ \text{mA}\), \(I_{CQ2} = 2.784\ \text{mA}\), \(V_{CEQ1} = 2.993\ \text{V}\), \(V_{CEQ2} = 5.96\ \text{V}\). The memo prints \(I_{CQ1} = 1.737\ \text{mA}\).</td></tr>
+<tr><td>2 (P5.83)</td><td>pnp-npn pair, design for \(I_{CQ} = 0.8\ \text{mA}\), \(V_{ECQ1} = 3.5\ \text{V}\), \(V_{CEQ2} = 4\ \text{V}\)</td><td>Section 6, designing a two-stage circuit; Problem 9.5</td><td>\(R_{E1} = 2.93\ \text{k}\Omega\), \(R_{C1} = 5.22\ \text{k}\Omega\), \(R_{E2} = 4.25\ \text{k}\Omega\), \(R_{C2} = 3.21\ \text{k}\Omega\)</td></tr>
+<tr><td>3 (P3.10)</td><td>NMOS: width from \(I_D\), triode current, \(V_{DS(sat)}\)</td><td><a href="EL245_Week10_Notes_MOSFETs-and-Common-Source-DC-Analysis.html#nmos-iv">Week 10, section 2</a>; <a href="Week10_Tutorial_Solutions_Tut9_Tut10.html#t9q3">worked solution</a></td><td>\(W = 22.2\ \mu\text{m}\), \(I_D = 0.533\ \text{mA}\), \(V_{DS(sat)} = 0.6\ \text{V}\). The memo prints 0.5 V, a slip.</td></tr>
+<tr><td>4 (P3.28)</td><td>NMOS divider bias with a given \(R_{in}\)</td><td><a href="EL245_Week10_Notes_MOSFETs-and-Common-Source-DC-Analysis.html#cs-rin">Week 10, section 5</a>; <a href="Week10_Tutorial_Solutions_Tut9_Tut10.html#t9q4">worked solution</a></td><td>\(R_1 = 445.4\ \text{k}\Omega\), \(R_2 = 363\ \text{k}\Omega\)</td></tr>
+<tr><td>5 (P3.30)</td><td>PMOS bias circuit with \(R_S\) and \(R_D\)</td><td><a href="EL245_Week10_Notes_MOSFETs-and-Common-Source-DC-Analysis.html#cs">Week 10, section 5</a>; <a href="Week10_Tutorial_Solutions_Tut9_Tut10.html#t9q5">worked solution</a></td><td>\(I_D = 233.4\ \mu\text{A}\), \(V_{SG} = 1.48\ \text{V}\), \(V_{SD} = 4.72\ \text{V}\). The memo's 231.2 µA and 4.73 V come from rounding \(V_{SG}\) first.</td></tr>
+</tbody></table></div>
+<figure>
+<svg viewBox="0 0 460 372" class="fig small" role="img" aria-label="Two direct-coupled npn transistors with a divider on the first base and a supply of plus and minus 10 volts">
+<circle class="ln c4" cx="260" cy="26" r="3.5"/>
+<polyline class="ln c4" points="260,29.5 260,48"/>
+<text class="lab" x="271" y="30" text-anchor="start">+10 V</text>
+<polyline class="ln c4" points="130,48 350,48"/>
+<circle class="c4f" cx="260" cy="48" r="2.6"/>
+<polyline class="ln c4" points="130,48 130,85 137,91.9 123,98.7 137,105.6 123,112.4 137,119.3 123,126.1 130,133 130,170"/>
+<circle class="c4f" cx="130" cy="170" r="2.6"/>
+<polyline class="ln c4" points="130,170 130,216 137,222.9 123,229.7 137,236.6 123,243.4 137,250.3 123,257.1 130,264 130,310"/>
+<polyline class="ln c4" points="50,310 260,310"/>
+<circle class="c4f" cx="130" cy="310" r="2.6"/>
+<polyline class="ln c4" points="130,310 130,316"/>
+<polyline class="ln c4" points="121,316 139,316"/>
+<polyline class="ln c4" points="125,320 135,320"/>
+<polyline class="ln c4" points="128,324 132,324"/>
+<text class="lab" x="119" y="100" text-anchor="end">R<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="119" y="116" text-anchor="end">100 kΩ</text>
+<text class="lab" x="119" y="238" text-anchor="end">R<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="119" y="254" text-anchor="end">40 kΩ</text>
+<circle class="ln c4" cx="50" cy="240" r="16"/>
+<text class="lab" x="50" y="237" text-anchor="middle">+</text>
+<text class="lab" x="50" y="255" text-anchor="middle">−</text>
+<polyline class="ln c4" points="50,224 50,170 86,170"/>
+<polyline class="ln c4" points="86,158 86,182"/>
+<polyline class="ln c4" points="94,158 94,182"/>
+<polyline class="ln c4" points="94,170 130,170"/>
+<polyline class="ln c4" points="50,256 50,310"/>
+<text class="lab" x="26" y="244" text-anchor="end">v<tspan dy="3" font-size="75%">s</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="90" y="204" text-anchor="middle">C<tspan dy="3" font-size="75%">C</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="130,170 240,170"/>
+<polyline class="ln c4" points="240,156 240,184"/>
+<polyline class="ln c4" points="240,164 260,152 260,144"/>
+<polyline class="ln c4" points="240,176 260,188 260,196"/>
+<polygon class="c4f" points="257,186.2 248.3,185.1 251.9,179.1"/>
+<polyline class="ln c4" points="260,48 260,63.8 267,69.2 253,74.8 267,80.2 253,85.8 267,91.2 253,96.8 260,102.2 260,118"/>
+<circle class="c4f" cx="260" cy="118" r="2.6"/>
+<polyline class="ln c4" points="260,118 260,144"/>
+<polyline class="ln c4" points="260,196 260,229 267,235.9 253,242.7 267,249.6 253,256.4 267,263.3 253,270.1 260,277 260,310"/>
+<text class="lab" x="249" y="80" text-anchor="end">R<tspan dy="3" font-size="75%">C1</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="249" y="96" text-anchor="end">3 kΩ</text>
+<text class="lab" x="249" y="245" text-anchor="end">R<tspan dy="3" font-size="75%">E1</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="249" y="261" text-anchor="end">1 kΩ</text>
+<text class="lab" x="272" y="174" text-anchor="start">Q<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="260,118 330,118"/>
+<polyline class="ln c4" points="330,104 330,132"/>
+<polyline class="ln c4" points="330,112 350,100 350,92"/>
+<polyline class="ln c4" points="330,124 350,136 350,144"/>
+<polygon class="c4f" points="347,134.2 338.3,133.1 341.9,127.1"/>
+<polyline class="ln c4" points="350,48 350,92"/>
+<polyline class="ln c4" points="350,144 350,230"/>
+<circle class="c4f" cx="350" cy="230" r="2.6"/>
+<polyline class="ln c4" points="350,230 406,230"/>
+<circle class="ln c4" cx="410" cy="230" r="3.5"/>
+<text class="lab" x="422" y="234" text-anchor="start">v<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="350,230 350,251 357,257.9 343,264.7 357,271.6 343,278.4 357,285.3 343,292.1 350,299 350,320"/>
+<polyline class="ln c4" points="350,320 350,346.5"/>
+<circle class="ln c4" cx="350" cy="350" r="3.5"/>
+<text class="lab" x="361" y="354" text-anchor="start">−10 V</text>
+<text class="lab" x="361" y="268" text-anchor="start">R<tspan dy="3" font-size="75%">E2</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="361" y="284" text-anchor="start">5 kΩ</text>
+<text class="lab" x="362" y="122" text-anchor="start">Q<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"></tspan></text>
+</svg>
+<figcaption><b>Figure 8.1</b> Circuit for Tutorial 9 Q1 (P5.79): two direct-coupled npn transistors.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 8.1:</b> \(Q_1\) is a common-emitter stage with a divider on its base and \(R_{E1}\) in the emitter. Its collector joins the base of \(Q_2\) directly, and \(Q_2\) is an emitter follower with \(R_{E2}\) to −10 V. Both transistors have \(\beta = 120\) and \(V_{BE(on)} = 0.7\ \text{V}\).</p>
+<figure>
+<svg viewBox="0 0 460 400" class="fig small" role="img" aria-label="A pnp transistor driving an npn transistor directly, between plus and minus 5 volts">
+<circle class="ln c4" cx="200" cy="26" r="3.5"/>
+<polyline class="ln c4" points="200,29.5 200,48"/>
+<text class="lab" x="211" y="30" text-anchor="start">+5 V</text>
+<polyline class="ln c4" points="60,48 360,48"/>
+<circle class="c4f" cx="200" cy="48" r="2.6"/>
+<polyline class="ln c4" points="60,48 60,85 67,91.9 53,98.7 67,105.6 53,112.4 67,119.3 53,126.1 60,133 60,170"/>
+<circle class="c4f" cx="60" cy="170" r="2.6"/>
+<polyline class="ln c4" points="60,170 60,236 67,242.9 53,249.7 67,256.6 53,263.4 67,270.3 53,277.1 60,284 60,350"/>
+<polyline class="ln c4" points="60,350 360,350"/>
+<circle class="c4f" cx="200" cy="350" r="2.6"/>
+<polyline class="ln c4" points="200,350 200,368.5"/>
+<circle class="ln c4" cx="200" cy="372" r="3.5"/>
+<text class="lab" x="211" y="376" text-anchor="start">−5 V</text>
+<text class="lab" x="71" y="105" text-anchor="start">R<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="71" y="121" text-anchor="start">50 kΩ</text>
+<text class="lab" x="71" y="262" text-anchor="start">R<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> =</tspan></text>
+<text class="lab" x="71" y="278" text-anchor="start">100 kΩ</text>
+<polyline class="ln c4" points="60,170 180,170"/>
+<polyline class="ln c4" points="180,156 180,184"/>
+<polyline class="ln c4" points="180,164 200,152 200,144"/>
+<polyline class="ln c4" points="180,176 200,188 200,196"/>
+<polygon class="c4f" points="184,161.6 189.1,154.5 192.7,160.5"/>
+<polyline class="ln c4" points="200,48 200,72 207,78.9 193,85.7 207,92.6 193,99.4 207,106.3 193,113.1 200,120 200,144"/>
+<polyline class="ln c4" points="200,196 200,215"/>
+<circle class="c4f" cx="200" cy="215" r="2.6"/>
+<polyline class="ln c4" points="200,215 200,258.5 207,265.4 193,272.2 207,279.1 193,285.9 207,292.8 193,299.6 200,306.5 200,350"/>
+<text class="lab" x="211" y="100" text-anchor="start">R<tspan dy="3" font-size="75%">E1</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="211" y="290" text-anchor="start">R<tspan dy="3" font-size="75%">C1</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="212" y="176" text-anchor="start">Q<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"></tspan></text>
+<polyline class="ln c4" points="200,215 340,215"/>
+<polyline class="ln c4" points="340,201 340,229"/>
+<polyline class="ln c4" points="340,209 360,197 360,189"/>
+<polyline class="ln c4" points="340,221 360,233 360,241"/>
+<polygon class="c4f" points="357,231.2 348.3,230.1 351.9,224.1"/>
+<polyline class="ln c4" points="360,48 360,94.5 367,101.4 353,108.2 367,115.1 353,121.9 367,128.8 353,135.6 360,142.5 360,189"/>
+<polyline class="ln c4" points="360,241 360,271.5 367,278.4 353,285.2 367,292.1 353,298.9 367,305.8 353,312.6 360,319.5 360,350"/>
+<text class="lab" x="371" y="120" text-anchor="start">R<tspan dy="3" font-size="75%">C2</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="371" y="300" text-anchor="start">R<tspan dy="3" font-size="75%">E2</tspan><tspan dy="-3"></tspan></text>
+<text class="lab" x="372" y="221" text-anchor="start">Q<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"></tspan></text>
+</svg>
+<figcaption><b>Figure 8.2</b> Circuit for Tutorial 9 Q2 (P5.83): a pnp transistor driving an npn transistor.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 8.2:</b> \(Q_1\) is pnp, with \(R_{E1}\) to +5 V and its base set by \(R_1 = 50\ \text{k}\Omega\) and \(R_2 = 100\ \text{k}\Omega\). Its collector node feeds the base of the npn \(Q_2\). Both transistors have \(\beta = 100\). The four resistors \(R_{C1}\), \(R_{E1}\), \(R_{C2}\) and \(R_{E2}\) are the unknowns.</p>
+<div class="box watch"><span class="label">Watch out</span><p>Question 3 prints the channel length as "\(L = 0.8\ \mu\text{A}\)". The unit has to be micrometres: \(W = 22.2\ \mu\text{m}\) only works for \(L = 0.8\ \mu\text{m}\).</p></div>
 </section>
 
 <section id="practice">
-<h2><span class="n">07</span>Practice problems</h2>
-<p>Problems 7.1 to 7.3 follow Tutorial 8 Questions 3 to 5, Problems 7.4 and 7.5 follow Tutorial 9 Questions 1 and 2, and Problem 7.6 follows Practical Test 3.</p>
+<h2><span class="n">09</span>Practice problems</h2>
+<p>Problems 9.1 to 9.3 follow Tutorial 8 Questions 3 to 5, Problems 9.4 and 9.5 follow Tutorial 9 Questions 1 and 2, and Problem 9.6 follows Practical Test 3. Problems 9.7 to 9.10 revise the other circuits. Check every answer by testing the region of operation at the end.</p>
 
-<div class="ex"><div class="hd">Problem 7.1 <span>pnp divider bias and a change in β</span></div><div class="bd">
+<div class="ex"><div class="hd">Problem 9.1 <span>pnp divider bias and a change in β</span></div><div class="bd">
 <p>A pnp transistor has its emitter connected to \(V^+ = 3.3\ \text{V}\) through \(R_E = 0.5\ \text{k}\Omega\), its collector connected to ground through \(R_C = 1.2\ \text{k}\Omega\), and its base biased by \(R_1 = 30\ \text{k}\Omega\) (to \(V^+\)) and \(R_2 = 30\ \text{k}\Omega\) (to ground). (a) Find \(R_{TH}\), \(V_{TH}\), \(I_{BQ}\), \(I_{CQ}\) and \(V_{ECQ}\) for \(\beta = 80\). (b) Find the percentage change in \(I_{CQ}\) and \(V_{ECQ}\) if \(\beta = 160\).</p>
 <div class="step"><i>1</i><div>\(V_{TH} = 1.65\ \text{V}\), \(R_{TH} = 15\ \text{k}\Omega\).</div></div>
 <div class="step"><i>2</i><div>Loop from \(V^+\): \(V^+ = I_{EQ}R_E + V_{EB(on)} + I_{BQ}R_{TH} + V_{TH}\), so \(I_{BQ} = \dfrac{3.3 - 0.7 - 1.65}{(81)(0.5\ \text{k}) + 15\ \text{k}} = 17.1\ \mu\text{A}\).</div></div>
@@ -671,7 +1070,7 @@
 <div class="ans">(a) \(I_{CQ} = 1.37\ \text{mA}\), \(V_{ECQ} = 0.96\ \text{V}\). (b) \(I_{CQ}\) rises 16.2 % and \(V_{ECQ}\) falls 38.8 %. \(R_{TH} = 15\ \text{k}\Omega\) is far above \(0.1(1+\beta)R_E = 4.05\ \text{k}\Omega\), so this circuit is not bias stable.</div>
 </div></div>
 
-<div class="ex"><div class="hd">Problem 7.2 <span>centre of the load line with split supplies</span></div><div class="bd">
+<div class="ex"><div class="hd">Problem 9.2 <span>centre of the load line with split supplies</span></div><div class="bd">
 <p>An npn stage has \(V^+ = 5\ \text{V}\), \(V^- = -5\ \text{V}\), \(R_C = 1.5\ \text{k}\Omega\) to \(V^+\), \(R_E = 250\ \Omega\) to \(V^-\), and a divider \(R_1\) (to \(V^+\)), \(R_2\) (to \(V^-\)). \(\beta = 100\), \(V_{CE(sat)} = 0\). Design a bias-stable circuit with the Q-point in the centre of the load line. Use \(I_C \approx I_E\) for the load line, as the tutorial memo does.</p>
 <div class="step"><i>1</i><div>Load line from \(V_{CE} = 10\ \text{V}\) to \(I_C = 10/1.75\ \text{k}\Omega\): centre at \(V_{CEQ} = 5\ \text{V}\), \(I_{CQ} = 2.857\ \text{mA}\). \(I_{BQ} = 28.6\ \mu\text{A}\).</div></div>
 <div class="step"><i>2</i><div>\(R_{TH} = 0.1(101)(250) = 2.525\ \text{k}\Omega\).</div></div>
@@ -680,7 +1079,7 @@
 <div class="ans">\(I_{CQ} = 2.86\ \text{mA}\), \(V_{CEQ} = 5\ \text{V}\), \(R_1 = 16.9\ \text{k}\Omega\), \(R_2 = 2.97\ \text{k}\Omega\).</div>
 </div></div>
 
-<div class="ex"><div class="hd">Problem 7.3 <span>pnp design for a set emitter voltage</span></div><div class="bd">
+<div class="ex"><div class="hd">Problem 9.3 <span>pnp design for a set emitter voltage</span></div><div class="bd">
 <p>A pnp transistor has \(R_E = 2.5\ \text{k}\Omega\) from +5 V to its emitter, and its base is biased by \(R_1\) to +3 V and \(R_2\) to −3 V; the collector goes to −5 V. \(\beta = 100\). Design a bias-stable circuit with \(V_{EQ} = 0\ \text{V}\).</p>
 <div class="step"><i>1</i><div>\(I_{EQ} = 5/2.5\ \text{k} = 2\ \text{mA}\); \(I_{BQ} = 2/101 = 19.8\ \mu\text{A}\).</div></div>
 <div class="step"><i>2</i><div>\(R_{TH} = 0.1(101)(2.5\ \text{k}) = 25.25\ \text{k}\Omega\).</div></div>
@@ -689,7 +1088,7 @@
 <div class="ans">\(R_1 = 84.2\ \text{k}\Omega\), \(R_2 = 36.1\ \text{k}\Omega\).</div>
 </div></div>
 
-<div class="ex"><div class="hd">Problem 7.4 <span>common emitter driving an emitter follower</span></div><div class="bd">
+<div class="ex"><div class="hd">Problem 9.4 <span>common emitter driving an emitter follower</span></div><div class="bd">
 <p>\(Q_1\) (npn) has a divider \(R_1 = 90\ \text{k}\Omega\), \(R_2 = 30\ \text{k}\Omega\) from +12 V, \(R_{C1} = 4\ \text{k}\Omega\) and \(R_{E1} = 1.5\ \text{k}\Omega\) to ground. Its collector drives the base of \(Q_2\) (npn), whose collector is at +12 V and whose emitter goes to −12 V through \(R_{E2} = 4\ \text{k}\Omega\). \(\beta = 100\). Find the currents and \(V_{CEQ}\) of both.</p>
 <div class="step"><i>1</i><div>\(V_{TH} = 3\ \text{V}\), \(R_{TH} = 22.5\ \text{k}\Omega\); \(I_{B1} = (3 - 0.7)/(22.5\ \text{k} + 151.5\ \text{k}) = 13.2\ \mu\text{A}\); \(I_{C1} = 1.322\ \text{mA}\); \(I_{E1} = 1.335\ \text{mA}\).</div></div>
 <div class="step"><i>2</i><div>\(R_{C1}\) carries \(I_{C1} + I_{B2}\): \(V_{C1} = 12 - (I_{C1} + I_{B2})(4\ \text{k})\). \(Q_2\)'s loop: \(V_{C1} = 0.7 + (101)I_{B2}(4\ \text{k}) - 12\).</div></div>
@@ -698,7 +1097,7 @@
 <div class="ans">\(I_{C1} = 1.32\ \text{mA}\), \(V_{CEQ1} = 4.53\ \text{V}\); \(I_{B2} = 44.1\ \mu\text{A}\), \(I_{C2} = 4.41\ \text{mA}\), \(V_{CEQ2} = 6.16\ \text{V}\).</div>
 </div></div>
 
-<div class="ex"><div class="hd">Problem 7.5 <span>designing a pnp-npn pair</span></div><div class="bd">
+<div class="ex"><div class="hd">Problem 9.5 <span>designing a pnp-npn pair</span></div><div class="bd">
 <p>\(Q_1\) (pnp) has \(R_{E1}\) from +6 V to its emitter, a base divider \(R_1 = 60\ \text{k}\Omega\) (to +6 V) and \(R_2 = 120\ \text{k}\Omega\) (to −6 V), and \(R_{C1}\) from its collector to −6 V. Its collector drives the base of \(Q_2\) (npn), with \(R_{C2}\) to +6 V and \(R_{E2}\) to −6 V. \(\beta = 120\). Find \(R_{E1}\), \(R_{C1}\), \(R_{E2}\) and \(R_{C2}\) for \(I_{C1} = I_{C2} = 1\ \text{mA}\), \(V_{ECQ1} = 4\ \text{V}\), \(V_{CEQ2} = 5\ \text{V}\).</p>
 <div class="step"><i>1</i><div>\(V_{TH} = \frac{120}{180}(12) - 6 = 2\ \text{V}\), \(R_{TH} = 40\ \text{k}\Omega\); \(I_{B1} = 8.33\ \mu\text{A}\).</div></div>
 <div class="step"><i>2</i><div>\[ R_{E1} = \dfrac{6 - 0.7 - (8.33\ \mu\text{A})(40\ \text{k}) - 2}{(121)(8.33\ \mu\text{A})} = 2.94\ \text{k}\Omega \]</div></div>
@@ -707,7 +1106,7 @@
 <div class="ans">\(R_{E1} = 2.94\ \text{k}\Omega\), \(R_{C1} = 5.08\ \text{k}\Omega\), \(R_{E2} = 4.30\ \text{k}\Omega\), \(R_{C2} = 2.67\ \text{k}\Omega\).</div>
 </div></div>
 
-<div class="ex"><div class="hd">Problem 7.6 <span>switch design window and efficiency</span></div><div class="bd">
+<div class="ex"><div class="hd">Problem 9.6 <span>switch design window and efficiency</span></div><div class="bd">
 <p>An npn switch drives an LED (\(V_\gamma = 2.0\ \text{V}\)) at 20 mA from \(V_{CC} = 12\ \text{V}\) through \(R_C\). \(\beta = 150\), \(V_{CE(sat)} = 0.1\ \text{V}\). The base is driven from \(V_{BB} = 5\ \text{V}\), which can supply at most 3 mA. Available base resistors: 1.2 kΩ, 1.5 kΩ, 2.2 kΩ and 100 kΩ. (a) Find \(R_C\) and the range of \(R_B\), and choose one. (b) Find the efficiency \(P_{LED}/P_{total}\).</p>
 <div class="step"><i>1</i><div>\(R_C = (12 - 2.0 - 0.1)/20\ \text{mA} = 495\ \Omega\).</div></div>
 <div class="step"><i>2</i><div>Current limit: \(R_B \ge (5 - 0.7)/3\ \text{mA} = 1.43\ \text{k}\Omega\). Saturation: \(I_B \gt 20/150 = 0.133\ \text{mA}\), so \(R_B \lt (5 - 0.7)/0.133\ \text{mA} = 32.3\ \text{k}\Omega\).</div></div>
@@ -715,14 +1114,53 @@
 <div class="step"><i>4</i><div>\(P_{LED} = (2.0)(20\ \text{mA}) = 40\ \text{mW}\); \(P_{total} = (12)(20\ \text{mA}) + (5)(1.95\ \text{mA}) = 250\ \text{mW}\).</div></div>
 <div class="ans">\(R_C = 495\ \Omega\), \(1.43\ \text{k}\Omega \le R_B \lt 32.3\ \text{k}\Omega\), choose 2.2 kΩ; efficiency 16.0 %. Most of the power is lost in \(R_C\).</div>
 </div></div>
+
+<div class="ex"><div class="hd">Problem 9.7 <span>single resistor with a doubled β</span></div><div class="bd">
+<p>Design a single-resistor bias circuit with \(V_{CC} = 10\ \text{V}\), \(I_{CQ} = 1\ \text{mA}\), \(V_{CEQ} = 5\ \text{V}\) and \(\beta = 100\). A replacement transistor has \(\beta = 200\). What happens to the Q-point?</p>
+<div class="step"><i>1</i><div>\(R_C = (10 - 5)/1\ \text{mA} = 5\ \text{k}\Omega\); \(I_{BQ} = 10\ \mu\text{A}\); \(R_B = (10 - 0.7)/10\ \mu\text{A} = 930\ \text{k}\Omega\).</div></div>
+<div class="step"><i>2</i><div>With \(\beta = 200\) the formula gives \(I_{CQ} = 2\ \text{mA}\) and \(V_{CEQ} = 10 - (2)(5) = 0\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>0 V is below \(V_{CE(sat)}\), so the transistor is saturated: \(I_C = \beta I_B\) no longer holds, and the real collector current is a little under \(V_{CC}/R_C = 2\ \text{mA}\).</div></div>
+<div class="ans">\(R_C = 5\ \text{k}\Omega\), \(R_B = 930\ \text{k}\Omega\). Doubling \(\beta\) drives the circuit into saturation.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 9.8 <span>is this divider bias stable?</span></div><div class="bd">
+<p>\(V_{CC} = 12\ \text{V}\), \(R_1 = 100\ \text{k}\Omega\), \(R_2 = 22\ \text{k}\Omega\), \(R_C = 3.3\ \text{k}\Omega\), \(R_E = 0.82\ \text{k}\Omega\). Find \(I_{CQ}\) and \(V_{CEQ}\) for \(\beta = 100\) and \(\beta = 200\), and say whether the circuit is bias stable.</p>
+<div class="step"><i>1</i><div>\(V_{TH} = 2.164\ \text{V}\), \(R_{TH} = 18.03\ \text{k}\Omega\).</div></div>
+<div class="step"><i>2</i><div>\(\beta = 100\): \(I_{BQ} = (2.164 - 0.7)/(18.03 + 101 \times 0.82)\ \text{k}\Omega = 14.52\ \mu\text{A}\), so \(I_{CQ} = 1.452\ \text{mA}\) and \(V_{CEQ} = 6.01\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>\(\beta = 200\): \(I_{BQ} = 8.01\ \mu\text{A}\), \(I_{CQ} = 1.601\ \text{mA}\), \(V_{CEQ} = 5.40\ \text{V}\).</div></div>
+<div class="step"><i>4</i><div>\(R_{TH}/((1+\beta)R_E) = 18.0/82.8 = 0.22\), about twice the 0.1 rule. The current changes by 10.3 % when \(\beta\) doubles.</div></div>
+<div class="ans">1.45 mA and 6.01 V at \(\beta = 100\); 1.60 mA and 5.40 V at \(\beta = 200\). Reasonably stable, and forward-active in both cases.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 9.9 <span>current-mirror bias</span></div><div class="bd">
+<p>A mirror-biased stage like Figure 5.1 has \(V^\pm = \pm 5\ \text{V}\), \(R_B = 0\) and \(\beta = 80\) for all transistors. Design it for \(I_C(Q_O) = 0.5\ \text{mA}\) and \(V_{CE}(Q_O) = 2.5\ \text{V}\). Find \(R_C\), \(I_Q\), \(I_1\) and \(R_1\).</p>
+<div class="step"><i>1</i><div>\(V_E = -0.7\ \text{V}\), so \(V_C = 1.8\ \text{V}\) and \(R_C = (5 - 1.8)/0.5\ \text{mA} = 6.4\ \text{k}\Omega\).</div></div>
+<div class="step"><i>2</i><div>\(I_Q = \frac{81}{80}(0.5) = 0.5063\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>\(I_1 = (1 + 2/80)(0.5063) = 0.5189\ \text{mA}\); \(R_1 = 4.3/0.5189\ \text{mA} = 8.29\ \text{k}\Omega\).</div></div>
+<div class="ans">\(R_C = 6.4\ \text{k}\Omega\), \(I_Q = 0.506\ \text{mA}\), \(I_1 = 0.519\ \text{mA}\), \(R_1 = 8.29\ \text{k}\Omega\).</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 9.10 <span>LED switch with a tight window</span></div><div class="bd">
+<p>A switch drives an LED (\(V_\gamma = 2.0\ \text{V}\)) at 20 mA from \(V_{CC} = 5\ \text{V}\). \(V_{CE(sat)} = 0.1\ \text{V}\), \(\beta = 100\), \(V_{BB} = 3.3\ \text{V}\), and the base source can give at most 0.4 mA. Pick \(R_B\) from 4.7, 8.2, 12 and 22 kΩ and find the efficiency.</p>
+<div class="step"><i>1</i><div>\(R_C = (5 - 2.0 - 0.1)/20\ \text{mA} = 145\ \Omega\).</div></div>
+<div class="step"><i>2</i><div>Window: \(R_B \ge 2.6/0.4\ \text{mA} = 6.5\ \text{k}\Omega\) and \(R_B \le (100)(2.6)/20\ \text{mA} = 13.0\ \text{k}\Omega\). 8.2 kΩ and 12 kΩ fit; 12 kΩ sits within 8 % of the saturation edge, so take 8.2 kΩ.</div></div>
+<div class="step"><i>3</i><div>\(I_B = 2.6/8.2\ \text{k} = 0.317\ \text{mA}\); \(P_{total} = (5)(20) + (3.3)(0.317) = 101.0\ \text{mW}\); \(P_{LED} = 40\ \text{mW}\).</div></div>
+<div class="ans">\(R_C = 145\ \Omega\), \(R_B = 8.2\ \text{k}\Omega\), \(\eta = 39.6\ \%\).</div>
+</div></div>
 </section>
 
 <section id="sheet">
-<h2><span class="n">08</span>Formula sheet</h2>
+<h2><span class="n">10</span>Formula sheet</h2>
 <div class="sheet">
+<div><h4>Ground rules</h4>
+<p>\(I_C = \beta I_B\), \(I_E = (1+\beta)I_B\)</p>
+<p>\(V_{CEQ} \approx V_{CC} - I_{CQ}(R_C + R_E)\)</p>
+<p>\(V_{BE(on)} = V_{EB(on)} = 0.7\ \text{V}\)</p>
+</div>
 <div><h4>Single resistor</h4>
 <p>\(R_C = (V_{CC} - V_{CEQ})/I_{CQ}\)</p>
 <p>\(R_B = (V_{CC} - 0.7)/I_{BQ}\)</p>
+<p>\(I_{BQ} = (V_{CC} - 0.7)/R_B\), \(I_{CQ} = \beta I_{BQ}\)</p>
 <p>\(I_{CQ} \propto \beta\): not stable</p>
 </div>
 <div><h4>Divider</h4>
@@ -737,23 +1175,34 @@
 <div><h4>Current mirror</h4>
 <p>\(I_1 = (-0.7 - V^-)/R_1\)</p>
 <p>\(I_1 = I_Q(1 + 2/\beta)\)</p>
+<p>\(I_Q = \frac{1+\beta}{\beta}I_C(Q_O)\)</p>
+</div>
+<div><h4>Two supplies</h4>
+<p>\(V_{TH} = I_{BQ}R_{TH} + 0.7 + I_{EQ}R_E + V^-\)</p>
+<p>\(V_{CEQ} = (V^+ - V^-) - I_{CQ}R_C - I_{EQ}R_E\)</p>
 </div>
 <div><h4>Multistage</h4>
 <p>Solve stage 1 base loop first</p>
 <p>KCL at the joining node includes \(I_{B2}\)</p>
+<p>npn-npn: \(I_{BQ2} = \dfrac{V^+ - I_{CQ1}R_{C1} - 0.7 - V^-}{R_{C1} + (1+\beta)R_{E2}}\)</p>
 <p>Cascode: \(V_{B1} = V_{R_E} + 0.7\), \(V_{B2} = V_{B1} + V_{CE1}\)</p>
+</div>
+<div><h4>LED switch</h4>
+<p>\(R_C = (V_{CC} - V_\gamma - V_{CE(sat)})/I_C\)</p>
+<p>\(\dfrac{V_{BB} - 0.7}{I_{B(max)}} \le R_B \le \dfrac{\beta(V_{BB} - 0.7)}{I_C}\)</p>
+<p>\(\eta = \dfrac{V_\gamma I_C}{V_{CC}I_C + V_{BB}I_B}\)</p>
 </div>
 </div>
 <p>In the divider entry, \(V^-_E\) is the voltage at the bottom of \(R_E\) (0 V for a single supply).</p>
 </section>
 
 <footer>
-<p>Sources: Lecture_18_slides.pdf, Lecture 19.pdf, Lecture_20_slides.pdf, tut9_eng.pdf, tut9_memo.pdf, prak3_eng_memo.pdf (Week 09 folder), and tut8_eng.pdf, tut8_memo.pdf (Week 08 folder) for Tutorial 8 Questions 3 to 5. The Afrikaans copy tut9_afr.pdf duplicates tut9_eng.pdf and was not used. The practical memo is handwritten and was read from the rendered pages. Tutorial 9 Questions 3 to 5 are on MOSFETs and are treated on the Week 10 page. Worked examples and problems use new values.</p>
+<p>Sources: Lecture_18_slides.pdf, Lecture 19.pdf, Lecture_20_slides.pdf, tut9_eng.pdf, tut9_memo.pdf, prak3_eng_memo.pdf (Week 09 folder), and tut8_eng.pdf, tut8_memo.pdf (Week 08 folder) for Tutorial 8 Questions 3 to 5. The Afrikaans copy tut9_afr.pdf duplicates tut9_eng.pdf and was not used. The practical memo is handwritten and was read from the rendered pages. Tutorial 9 Questions 3 to 5 are on MOSFETs and are treated on the Week 10 page. Worked examples and problems use new values; the slide examples appear only as results. The Lecture 19 file ends at slide 12 of 14, so nothing from slides 13 and 14 is covered. This page also holds everything from the earlier Week 9 page, which it replaces.</p>
 </footer>
 </main>
 </div>
 
-<script src="../assets/ask-gemini.js" data-store="electronics-w9-bjt-biasing-and-multistage-circuits" data-course="EL245 Electronics"
+<script src="../assets/ask-gemini.js" data-store="electronics-w9" data-course="EL245 Electronics"
         data-topic="Week 9: single-resistor and voltage-divider BJT biasing, bias stability rule, split-supply biasing, current mirror, multistage and cascode circuits"></script>
 </body>
 </html>
