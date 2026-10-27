@@ -418,10 +418,28 @@ window.NOTES_MANIFEST = {
      "href": "Electronics/EL245_Week07_Notes_BJT-DC-Analysis-and-Load-Lines.html"
     },
     {
+     "title": "The BJT as a switch, a logic gate and an amplifier",
+     "week": 8,
+     "track": "",
+     "href": "Electronics/EL245_Week08_Notes_BJT-Switch-Logic-and-Amplifier.html"
+    },
+    {
+     "title": "Biasing, bias stability and multistage circuits",
+     "week": 9,
+     "track": "",
+     "href": "Electronics/EL245_Week09_Notes_BJT-Biasing-and-Multistage-Circuits.html"
+    },
+    {
      "title": "BJT Biasing and Multistage Circuits",
      "week": 9,
      "track": "",
      "href": "Electronics/Week9_BJT_Biasing_and_Multistage_Circuits.html"
+    },
+    {
+     "title": "MOSFETs and common-source DC analysis",
+     "week": 10,
+     "track": "",
+     "href": "Electronics/EL245_Week10_Notes_MOSFETs-and-Common-Source-DC-Analysis.html"
     },
     {
      "title": "MOSFETs and Common-Source DC Analysis",
@@ -434,6 +452,12 @@ window.NOTES_MANIFEST = {
      "week": 10,
      "track": "",
      "href": "Electronics/Week10_Tutorial_Solutions_Tut9_Tut10.html"
+    },
+    {
+     "title": "MOSFET load lines, transistor loads and basic applications",
+     "week": 11,
+     "track": "",
+     "href": "Electronics/EL245_Week11_Notes_MOSFET-Loads-and-Applications.html"
     }
    ],
    "exams": [],
