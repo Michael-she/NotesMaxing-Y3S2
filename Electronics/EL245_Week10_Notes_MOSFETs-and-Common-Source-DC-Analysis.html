@@ -224,53 +224,17 @@
 </div>
 <p>The designer controls \(W/L\); the process fixes \(k_n'\). In the ideal model the saturation current does not depend on \(v_{DS}\) at all, so the output resistance \(r_o = \Delta v_{DS}/\Delta i_D\) is infinite.</p>
 <div class="box intuition"><span class="label">Intuition</span><p>A wider channel carries more current (\(W\) up), a longer one resists it (\(L\) up), a thinner oxide gives the gate a stronger grip on the channel (\(t_{ox}\) down), and more mobile carriers move faster. Only \(W/L\) is the designer's, so \(K_n\) is set by drawing a wider or narrower transistor.</p></div>
-<figure>
-<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="Drain current against vDS for vGS of 2, 2.5, 3 and 3.5 V with the vDS(sat) boundary, Kn = 0.5 mA/V2 and VTN = 1 V">
-<line class="grid" x1="60" y1="20" x2="60" y2="255"/>
-<text class="tk" x="60" y="271" text-anchor="middle">0</text>
-<line class="grid" x1="170" y1="20" x2="170" y2="255"/>
-<text class="tk" x="170" y="271" text-anchor="middle">1</text>
-<line class="grid" x1="280" y1="20" x2="280" y2="255"/>
-<text class="tk" x="280" y="271" text-anchor="middle">2</text>
-<line class="grid" x1="390" y1="20" x2="390" y2="255"/>
-<text class="tk" x="390" y="271" text-anchor="middle">3</text>
-<line class="grid" x1="500" y1="20" x2="500" y2="255"/>
-<text class="tk" x="500" y="271" text-anchor="middle">4</text>
-<line class="grid" x1="610" y1="20" x2="610" y2="255"/>
-<text class="tk" x="610" y="271" text-anchor="middle">5</text>
-<line class="grid" x1="60" y1="255" x2="610" y2="255"/>
-<text class="tk" x="54" y="259" text-anchor="end">0.0</text>
-<line class="grid" x1="60" y1="220.4" x2="610" y2="220.4"/>
-<text class="tk" x="54" y="224.4" text-anchor="end">0.5</text>
-<line class="grid" x1="60" y1="185.9" x2="610" y2="185.9"/>
-<text class="tk" x="54" y="189.9" text-anchor="end">1.0</text>
-<line class="grid" x1="60" y1="151.3" x2="610" y2="151.3"/>
-<text class="tk" x="54" y="155.3" text-anchor="end">1.5</text>
-<line class="grid" x1="60" y1="116.8" x2="610" y2="116.8"/>
-<text class="tk" x="54" y="120.8" text-anchor="end">2.0</text>
-<line class="grid" x1="60" y1="82.2" x2="610" y2="82.2"/>
-<text class="tk" x="54" y="86.2" text-anchor="end">2.5</text>
-<line class="grid" x1="60" y1="47.6" x2="610" y2="47.6"/>
-<text class="tk" x="54" y="51.6" text-anchor="end">3.0</text>
-<rect class="frame" x="60" y="20" width="550" height="235"/>
-<text class="lab" x="335" y="291" text-anchor="middle">v<tspan dy="3" font-size="75%">DS</tspan><tspan dy="-3"> </tspan> (V)</text>
-<text class="lab" x="16" y="137.5" text-anchor="middle" transform="rotate(-90 16 137.5)">i<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> (mA)</text>
-<polyline class="ln c1" points="60,255 65.5,251.6 71,248.4 76.5,245.4 82,242.6 87.5,239.9 93,237.4 98.5,235 104,232.9 109.5,230.9 115,229.1 120.5,227.4 126,226 131.5,224.7 137,223.6 142.5,222.6 148,221.8 153.5,221.2 159,220.8 164.5,220.5 170,220.4 175.5,220.4 181,220.4 186.5,220.4 192,220.4 197.5,220.4 203,220.4 208.5,220.4 214,220.4 219.5,220.4 225,220.4 230.5,220.4 236,220.4 241.5,220.4 247,220.4 252.5,220.4 258,220.4 263.5,220.4 269,220.4 274.5,220.4 280,220.4 285.5,220.4 291,220.4 296.5,220.4 302,220.4 307.5,220.4 313,220.4 318.5,220.4 324,220.4 329.5,220.4 335,220.4 340.5,220.4 346,220.4 351.5,220.4 357,220.4 362.5,220.4 368,220.4 373.5,220.4 379,220.4 384.5,220.4 390,220.4 395.5,220.4 401,220.4 406.5,220.4 412,220.4 417.5,220.4 423,220.4 428.5,220.4 434,220.4 439.5,220.4 445,220.4 450.5,220.4 456,220.4 461.5,220.4 467,220.4 472.5,220.4 478,220.4 483.5,220.4 489,220.4 494.5,220.4 500,220.4 505.5,220.4 511,220.4 516.5,220.4 522,220.4 527.5,220.4 533,220.4 538.5,220.4 544,220.4 549.5,220.4 555,220.4 560.5,220.4 566,220.4 571.5,220.4 577,220.4 582.5,220.4 588,220.4 593.5,220.4 599,220.4 604.5,220.4 610,220.4"/>
-<text class="tk" x="606" y="214.4" text-anchor="end">v<tspan dy="3" font-size="75%">GS</tspan><tspan dy="-3"> </tspan> = 2 V</text>
-<polyline class="ln c1" points="60,255 65.5,249.9 71,245 76.5,240.2 82,235.6 87.5,231.2 93,227 98.5,222.9 104,219.1 109.5,215.3 115,211.8 120.5,208.4 126,205.2 131.5,202.2 137,199.4 142.5,196.7 148,194.2 153.5,191.8 159,189.7 164.5,187.7 170,185.9 175.5,184.2 181,182.8 186.5,181.5 192,180.4 197.5,179.4 203,178.6 208.5,178 214,177.6 219.5,177.3 225,177.2 230.5,177.2 236,177.2 241.5,177.2 247,177.2 252.5,177.2 258,177.2 263.5,177.2 269,177.2 274.5,177.2 280,177.2 285.5,177.2 291,177.2 296.5,177.2 302,177.2 307.5,177.2 313,177.2 318.5,177.2 324,177.2 329.5,177.2 335,177.2 340.5,177.2 346,177.2 351.5,177.2 357,177.2 362.5,177.2 368,177.2 373.5,177.2 379,177.2 384.5,177.2 390,177.2 395.5,177.2 401,177.2 406.5,177.2 412,177.2 417.5,177.2 423,177.2 428.5,177.2 434,177.2 439.5,177.2 445,177.2 450.5,177.2 456,177.2 461.5,177.2 467,177.2 472.5,177.2 478,177.2 483.5,177.2 489,177.2 494.5,177.2 500,177.2 505.5,177.2 511,177.2 516.5,177.2 522,177.2 527.5,177.2 533,177.2 538.5,177.2 544,177.2 549.5,177.2 555,177.2 560.5,177.2 566,177.2 571.5,177.2 577,177.2 582.5,177.2 588,177.2 593.5,177.2 599,177.2 604.5,177.2 610,177.2"/>
-<text class="tk" x="606" y="171.2" text-anchor="end">v<tspan dy="3" font-size="75%">GS</tspan><tspan dy="-3"> </tspan> = 2.5 V</text>
-<polyline class="ln c1" points="60,255 65.5,248.2 71,241.5 76.5,235 82,228.7 87.5,222.6 93,216.6 98.5,210.9 104,205.2 109.5,199.8 115,194.5 120.5,189.4 126,184.5 131.5,179.7 137,175.2 142.5,170.8 148,166.5 153.5,162.5 159,158.6 164.5,154.9 170,151.3 175.5,148 181,144.8 186.5,141.7 192,138.9 197.5,136.2 203,133.7 208.5,131.4 214,129.2 219.5,127.2 225,125.4 230.5,123.8 236,122.3 241.5,121 247,119.9 252.5,118.9 258,118.1 263.5,117.5 269,117.1 274.5,116.9 280,116.8 285.5,116.8 291,116.8 296.5,116.8 302,116.8 307.5,116.8 313,116.8 318.5,116.8 324,116.8 329.5,116.8 335,116.8 340.5,116.8 346,116.8 351.5,116.8 357,116.8 362.5,116.8 368,116.8 373.5,116.8 379,116.8 384.5,116.8 390,116.8 395.5,116.8 401,116.8 406.5,116.8 412,116.8 417.5,116.8 423,116.8 428.5,116.8 434,116.8 439.5,116.8 445,116.8 450.5,116.8 456,116.8 461.5,116.8 467,116.8 472.5,116.8 478,116.8 483.5,116.8 489,116.8 494.5,116.8 500,116.8 505.5,116.8 511,116.8 516.5,116.8 522,116.8 527.5,116.8 533,116.8 538.5,116.8 544,116.8 549.5,116.8 555,116.8 560.5,116.8 566,116.8 571.5,116.8 577,116.8 582.5,116.8 588,116.8 593.5,116.8 599,116.8 604.5,116.8 610,116.8"/>
-<text class="tk" x="606" y="110.8" text-anchor="end">v<tspan dy="3" font-size="75%">GS</tspan><tspan dy="-3"> </tspan> = 3 V</text>
-<polyline class="ln c1" points="60,255 65.5,246.4 71,238.1 76.5,229.9 82,221.8 87.5,214 93,206.3 98.5,198.8 104,191.4 109.5,184.2 115,177.2 120.5,170.4 126,163.8 131.5,157.3 137,151 142.5,144.8 148,138.9 153.5,133.1 159,127.5 164.5,122 170,116.8 175.5,111.7 181,106.7 186.5,102 192,97.4 197.5,93 203,88.8 208.5,84.7 214,80.8 219.5,77.1 225,73.6 230.5,70.2 236,67 241.5,64 247,61.1 252.5,58.4 258,55.9 263.5,53.6 269,51.4 274.5,49.5 280,47.6 285.5,46 291,44.5 296.5,43.2 302,42.1 307.5,41.2 313,40.4 318.5,39.8 324,39.4 329.5,39.1 335,39 340.5,39 346,39 351.5,39 357,39 362.5,39 368,39 373.5,39 379,39 384.5,39 390,39 395.5,39 401,39 406.5,39 412,39 417.5,39 423,39 428.5,39 434,39 439.5,39 445,39 450.5,39 456,39 461.5,39 467,39 472.5,39 478,39 483.5,39 489,39 494.5,39 500,39 505.5,39 511,39 516.5,39 522,39 527.5,39 533,39 538.5,39 544,39 549.5,39 555,39 560.5,39 566,39 571.5,39 577,39 582.5,39 588,39 593.5,39 599,39 604.5,39 610,39"/>
-<text class="tk" x="606" y="33" text-anchor="end">v<tspan dy="3" font-size="75%">GS</tspan><tspan dy="-3"> </tspan> = 3.5 V</text>
-<polyline class="ln c3 dash" points="60,255 65.5,254.9 71,254.7 76.5,254.2 82,253.6 87.5,252.8 93,251.9 98.5,250.8 104,249.5 109.5,248 115,246.4 120.5,244.5 126,242.6 131.5,240.4 137,238.1 142.5,235.6 148,232.9 153.5,230 159,227 164.5,223.8 170,220.4 175.5,216.9 181,213.2 186.5,209.3 192,205.2 197.5,201 203,196.6 208.5,192 214,187.3 219.5,182.3 225,177.2 230.5,172 236,166.5 241.5,160.9 247,155.1 252.5,149.2 258,143 263.5,136.7 269,130.2 274.5,123.6 280,116.8 285.5,109.8 291,102.6 296.5,95.3 302,87.7 307.5,80 313,72.2 318.5,64.1 324,55.9 329.5,47.6 335,39 340.5,30.3 346,21.4"/>
-<text class="lab c3t" x="321" y="76.2" text-anchor="start">v<tspan dy="3" font-size="75%">DS</tspan><tspan dy="-3"> </tspan> = v<tspan dy="3" font-size="75%">DS(sat)</tspan><tspan dy="-3"> </tspan></text>
-<text class="lab" x="87.5" y="47.6" text-anchor="start">non-saturation</text>
-<text class="lab" x="434" y="241.2" text-anchor="start">saturation</text>
-</svg>
+<figure id="fig21">
+<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="NMOS output characteristics for vGS of 2, 2.5, 3 and 3.5 V with the saturation boundary. Sliders set Kn, VTN and lambda."></svg>
+<div class="fig-ctl">
+<label><span>K<sub>n</sub></span><input type="range" data-k="kn" min="0.1" max="1" step="0.01" value="0.5" aria-label="Conduction parameter K_n in milliamps per volt squared"><output></output></label>
+<label><span>V<sub>TN</sub></span><input type="range" data-k="vtn" min="0.2" max="2" step="0.05" value="1" aria-label="Threshold voltage V_TN in volts"><output></output></label>
+<label><span>λ</span><input type="range" data-k="lam" min="0" max="0.1" step="0.005" value="0" aria-label="Channel-length modulation lambda per volt"><output></output></label>
+</div>
+<div class="fig-read" aria-live="polite"></div>
 <figcaption><b>Figure 2.1</b> Ideal NMOS output characteristics with the saturation boundary.</figcaption>
 </figure>
-<p class="fignote"><b>Figure 2.1:</b> Computed for \(K_n = 0.5\ \text{mA/V}^2\) and \(V_{TN} = 1\ \text{V}\). Each teal curve rises as a parabola in the non-saturation region and goes flat at \(v_{DS(sat)} = v_{GS} - V_{TN}\). The dashed amber curve, \(i_D = K_n v_{DS}^2\), joins all those corners.</p>
+<p class="fignote"><b>Figure 2.1:</b> It starts at \(K_n = 0.5\ \text{mA/V}^2\), \(V_{TN} = 1\ \text{V}\) and \(\lambda = 0\). Each teal curve rises as a parabola in the non-saturation region and goes flat at \(v_{DS(sat)} = v_{GS} - V_{TN}\). The dashed amber curve, \(i_D = K_n v_{DS}^2\), joins all those corners. \(K_n\) scales every curve; raising \(V_{TN}\) lowers every curve and moves every corner left. \(\lambda\) tilts the saturated parts; the figure applies the factor \((1 + \lambda v_{DS})\) to both regions so the curves stay joined.</p>
 <div class="box watch"><span class="label">Watch out</span><p>A saturated MOSFET is the opposite of a saturated BJT. In a BJT, saturation means the collector junction is forward biased and the current gain is lost. In a MOSFET, saturation is the flat part of the output curve, the region you normally want for an amplifier.</p></div>
 
 <div class="ex"><div class="hd">Worked example 2.1 <span>conduction parameter from the device</span></div><div class="bd">
@@ -487,51 +451,18 @@
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>\(i_D\)</dt><dd>Drain current, in A.</dd><dt>\(K_n, K_p\)</dt><dd>Conduction parameters, in A/V\(^2\).</dd><dt>\(V_{TN}\)</dt><dd>Depletion NMOS threshold, which is negative, in V.</dd><dt>\(V_{TP}\)</dt><dd>Depletion PMOS threshold, which is positive, in V.</dd><dt>\(v_{DS}(\text{sat}),\ v_{SD}(\text{sat})\)</dt><dd>The output voltage above which the device is saturated at zero gate voltage, in V.</dd></dl>
 </div>
-<figure>
-<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="Saturation drain current against vGS for an enhancement NMOS with VTN = 1 V and a depletion NMOS with VTN = minus 2 V">
-<line class="grid" x1="60" y1="20" x2="60" y2="225"/>
-<text class="tk" x="60" y="241" text-anchor="middle">-3</text>
-<line class="grid" x1="138.6" y1="20" x2="138.6" y2="225"/>
-<text class="tk" x="138.6" y="241" text-anchor="middle">-2</text>
-<line class="grid" x1="217.1" y1="20" x2="217.1" y2="225"/>
-<text class="tk" x="217.1" y="241" text-anchor="middle">-1</text>
-<line class="grid" x1="295.7" y1="20" x2="295.7" y2="225"/>
-<text class="tk" x="295.7" y="241" text-anchor="middle">0</text>
-<line class="grid" x1="374.3" y1="20" x2="374.3" y2="225"/>
-<text class="tk" x="374.3" y="241" text-anchor="middle">1</text>
-<line class="grid" x1="452.9" y1="20" x2="452.9" y2="225"/>
-<text class="tk" x="452.9" y="241" text-anchor="middle">2</text>
-<line class="grid" x1="531.4" y1="20" x2="531.4" y2="225"/>
-<text class="tk" x="531.4" y="241" text-anchor="middle">3</text>
-<line class="grid" x1="610" y1="20" x2="610" y2="225"/>
-<text class="tk" x="610" y="241" text-anchor="middle">4</text>
-<line class="grid" x1="60" y1="225" x2="610" y2="225"/>
-<text class="tk" x="54" y="229" text-anchor="end">0</text>
-<line class="grid" x1="60" y1="184" x2="610" y2="184"/>
-<text class="tk" x="54" y="188" text-anchor="end">1</text>
-<line class="grid" x1="60" y1="143" x2="610" y2="143"/>
-<text class="tk" x="54" y="147" text-anchor="end">2</text>
-<line class="grid" x1="60" y1="102" x2="610" y2="102"/>
-<text class="tk" x="54" y="106" text-anchor="end">3</text>
-<line class="grid" x1="60" y1="61" x2="610" y2="61"/>
-<text class="tk" x="54" y="65" text-anchor="end">4</text>
-<line class="grid" x1="60" y1="20" x2="610" y2="20"/>
-<text class="tk" x="54" y="24" text-anchor="end">5</text>
-<rect class="frame" x="60" y="20" width="550" height="205"/>
-<text class="lab" x="335" y="261" text-anchor="middle">v<tspan dy="3" font-size="75%">GS</tspan><tspan dy="-3"> </tspan> (V)</text>
-<text class="lab" x="16" y="122.5" text-anchor="middle" transform="rotate(-90 16 122.5)">i<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> (mA)</text>
-<polyline class="ln c1" points="374.3,225 378.2,224.9 382.1,224.8 386.1,224.5 390,224.2 393.9,223.7 397.9,223.2 401.8,222.5 405.7,221.7 409.6,220.8 413.6,219.9 417.5,218.8 421.4,217.6 425.4,216.3 429.3,215 433.2,213.5 437.1,211.9 441.1,210.2 445,208.4 448.9,206.5 452.9,204.5 456.8,202.4 460.7,200.2 464.6,197.9 468.6,195.5 472.5,193 476.4,190.4 480.4,187.6 484.3,184.8 488.2,181.9 492.1,178.9 496.1,175.7 500,172.5 503.9,169.2 507.9,165.8 511.8,162.2 515.7,158.6 519.6,154.8 523.6,151 527.5,147 531.4,143 535.4,138.8 539.3,134.6 543.2,130.2 547.1,125.8 551.1,121.2 555,116.6 558.9,111.8 562.9,106.9 566.8,101.9 570.7,96.9 574.6,91.7 578.6,86.4 582.5,81 586.4,75.6 590.4,70 594.3,64.3 598.2,58.5 602.1,52.6 606.1,46.6 610,40.5"/>
-<polyline class="ln c3" points="138.6,225 142.5,224.9 146.4,224.7 150.4,224.3 154.3,223.7 158.2,222.9 162.1,222 166.1,221 170,219.8 173.9,218.4 177.9,216.8 181.8,215.1 185.7,213.2 189.6,211.1 193.6,208.9 197.5,206.6 201.4,204 205.4,201.3 209.3,198.4 213.2,195.4 217.1,192.2 221.1,188.8 225,185.3 228.9,181.6 232.9,177.8 236.8,173.8 240.7,169.6 244.6,165.2 248.6,160.7 252.5,156 256.4,151.2 260.4,146.2 264.3,141 268.2,135.7 272.1,130.2 276.1,124.5 280,118.7 283.9,112.7 287.9,106.6 291.8,100.3 295.7,93.8 299.6,87.2 303.6,80.4 307.5,73.4 311.4,66.2 315.4,59 319.3,51.5 323.2,43.9 327.1,36.1 331.1,28.1 335,20"/>
-<polyline class="ln c3" points="60,225 138.6,225"/>
-<polyline class="ln c1 thin" points="60,225 374.3,225"/>
-<polyline class="ln c4 thin dash" points="295.7,225 295.7,20"/>
-<text class="lab c1t" x="602.1" y="40.5" text-anchor="end">enhancement, V<tspan dy="3" font-size="75%">TN</tspan><tspan dy="-3"> </tspan> = 1 V</text>
-<text class="lab c3t" x="311.4" y="93.8" text-anchor="start">depletion, V<tspan dy="3" font-size="75%">TN</tspan><tspan dy="-3"> </tspan> = −2 V</text>
-<circle class="c3f" cx="295.7" cy="93.8" r="4"/>
-</svg>
+<figure id="fig41">
+<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="Saturation drain current against vGS for an enhancement and a depletion NMOS. Sliders set each threshold and conduction parameter."></svg>
+<div class="fig-ctl">
+<label><span>V<sub>TN</sub> enh.</span><input type="range" data-k="ve" min="0.2" max="3" step="0.05" value="1" aria-label="Threshold of the enhancement device in volts"><output></output></label>
+<label><span>K<sub>n</sub> enh.</span><input type="range" data-k="ke" min="0.1" max="1" step="0.05" value="0.5" aria-label="Conduction parameter of the enhancement device in milliamps per volt squared"><output></output></label>
+<label><span>V<sub>TN</sub> dep.</span><input type="range" data-k="vd" min="-4" max="-0.2" step="0.05" value="-2" aria-label="Threshold of the depletion device in volts"><output></output></label>
+<label><span>K<sub>n</sub> dep.</span><input type="range" data-k="kd" min="0.1" max="1" step="0.05" value="0.8" aria-label="Conduction parameter of the depletion device in milliamps per volt squared"><output></output></label>
+</div>
+<div class="fig-read" aria-live="polite"></div>
 <figcaption><b>Figure 4.1</b> Saturation current against \(v_{GS}\) for an enhancement and a depletion NMOS.</figcaption>
 </figure>
-<p class="fignote"><b>Figure 4.1:</b> Both curves are \(i_D = K_n(v_{GS} - V_{TN})^2\). The enhancement device (\(K_n = 0.5\ \text{mA/V}^2\)) starts conducting at +1 V. The depletion device (\(K_n = 0.8\ \text{mA/V}^2\)) already carries 3.2 mA at \(v_{GS} = 0\) (dot) and only turns off at −2 V.</p>
+<p class="fignote"><b>Figure 4.1:</b> Both curves are \(i_D = K_n(v_{GS} - V_{TN})^2\), starting at the values of the comparison in this section. The enhancement device (teal) starts conducting at its positive threshold. The depletion device (amber) already carries \(K_nV_{TN}^2\) at \(v_{GS} = 0\) (dot on the dashed line) and only turns off at its negative threshold. Moving a threshold shifts its curve sideways without changing its shape; only the sign of the threshold decides the mode.</p>
 <p><strong>CMOS</strong> (complementary MOS) puts n-channel and p-channel devices on the same chip, the PMOS in an n-type well.</p>
 <p>The lecture ends the device theory with one summary slide, worth learning as a single table:</p>
 <div class="tbl"><table><thead><tr><th></th><th>NMOS</th><th>PMOS</th></tr></thead><tbody>
@@ -725,54 +656,19 @@
 <div class="step"><i>4</i><div>2.0 V is above the edge, so reject it. Keep 1.0 V: \(I_D = (5 - 1.0)/10\ \text{k} = 0.40\ \text{mA}\), and the device equation agrees: \(0.25[2(1.30)(1.0) - 1.0^2] = 0.40\ \text{mA}\).</div></div>
 <div class="ans">\(I_D = 0.40\ \text{mA}\), \(V_{SD} = 1.0\ \text{V}\), non-saturation. The saturation formula overestimated the current by 6 %.</div>
 </div></div>
-<figure>
-<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="Graphical solution for a PMOS common-source circuit where the saturation assumption fails">
-<rect class="frame" x="60" y="16" width="560" height="240"/>
-<line class="grid" x1="60.0" y1="16" x2="60.0" y2="256"/>
-<text class="tk" x="60.0" y="272.0" text-anchor="middle">0</text>
-<line class="grid" x1="172.0" y1="16" x2="172.0" y2="256"/>
-<text class="tk" x="172.0" y="272.0" text-anchor="middle">1</text>
-<line class="grid" x1="284.0" y1="16" x2="284.0" y2="256"/>
-<text class="tk" x="284.0" y="272.0" text-anchor="middle">2</text>
-<line class="grid" x1="396.0" y1="16" x2="396.0" y2="256"/>
-<text class="tk" x="396.0" y="272.0" text-anchor="middle">3</text>
-<line class="grid" x1="508.0" y1="16" x2="508.0" y2="256"/>
-<text class="tk" x="508.0" y="272.0" text-anchor="middle">4</text>
-<line class="grid" x1="620.0" y1="16" x2="620.0" y2="256"/>
-<text class="tk" x="620.0" y="272.0" text-anchor="middle">5</text>
-<line class="grid" x1="60" y1="256.0" x2="620" y2="256.0"/>
-<text class="tk" x="53.0" y="260.0" text-anchor="end">0.0</text>
-<line class="grid" x1="60" y1="216.0" x2="620" y2="216.0"/>
-<text class="tk" x="53.0" y="220.0" text-anchor="end">0.1</text>
-<line class="grid" x1="60" y1="176.0" x2="620" y2="176.0"/>
-<text class="tk" x="53.0" y="180.0" text-anchor="end">0.2</text>
-<line class="grid" x1="60" y1="136.0" x2="620" y2="136.0"/>
-<text class="tk" x="53.0" y="140.0" text-anchor="end">0.3</text>
-<line class="grid" x1="60" y1="96.0" x2="620" y2="96.0"/>
-<text class="tk" x="53.0" y="100.0" text-anchor="end">0.4</text>
-<line class="grid" x1="60" y1="56.0" x2="620" y2="56.0"/>
-<text class="tk" x="53.0" y="60.0" text-anchor="end">0.5</text>
-<line class="grid" x1="60" y1="16.0" x2="620" y2="16.0"/>
-<text class="tk" x="53.0" y="20.0" text-anchor="end">0.6</text>
-<line class="axis" x1="60" y1="256" x2="620" y2="256"/>
-<line class="axis" x1="60" y1="16" x2="60" y2="256"/>
-<polyline class="ln c1" points="60.0,256.0 61.8,251.7 63.7,247.6 65.5,243.4 67.4,239.3 69.2,235.3 71.1,231.3 72.9,227.4 74.7,223.5 76.6,219.7 78.4,215.9 80.3,212.2 82.1,208.6 84.0,205.0 85.8,201.4 87.6,197.9 89.5,194.5 91.3,191.1 93.2,187.8 95.0,184.5 96.9,181.3 98.7,178.1 100.5,175.0 102.4,171.9 104.2,168.9 106.1,166.0 107.9,163.1 109.8,160.2 111.6,157.4 113.4,154.7 115.3,152.0 117.1,149.4 119.0,146.8 120.8,144.3 122.7,141.8 124.5,139.4 126.3,137.1 128.2,134.8 130.0,132.5 131.9,130.3 133.7,128.2 135.6,126.1 137.4,124.1 139.3,122.1 141.1,120.2 142.9,118.3 144.8,116.5 146.6,114.7 148.5,113.0 150.3,111.4 152.2,109.8 154.0,108.2 155.8,106.7 157.7,105.3 159.5,103.9 161.4,102.6 163.2,101.3 165.1,100.1 166.9,98.9 168.7,97.8 170.6,96.8 172.4,95.8 174.3,94.8 176.1,93.9 178.0,93.1 179.8,92.3 181.6,91.6 183.5,90.9 185.3,90.3 187.2,89.7 189.0,89.2 190.9,88.7 192.7,88.3 194.5,88.0 196.4,87.7 198.2,87.4 200.1,87.2 201.9,87.1 203.8,87.0 205.6,87.0"/>
-<line class="ln c1" x1="205.6" y1="87.0" x2="620.0" y2="87.0"/>
-<polyline class="ln c1 thin dash" points="205.6,87.0 208.1,87.0 210.5,87.2 213.0,87.4 215.5,87.8 217.9,88.2 220.4,88.7 222.9,89.4 225.3,90.1 227.8,90.9 230.3,91.9 232.7,92.9 235.2,94.0 237.7,95.2 240.1,96.5 242.6,97.9 245.1,99.4 247.6,101.0 250.0,102.7 252.5,104.5 255.0,106.4 257.4,108.4 259.9,110.5 262.4,112.7 264.8,115.0 267.3,117.3 269.8,119.8 272.2,122.4 274.7,125.1 277.2,127.8 279.6,130.7 282.1,133.7 284.6,136.7 287.0,139.9 289.5,143.1 292.0,146.5 294.4,149.9 296.9,153.5 299.4,157.1 301.8,160.8 304.3,164.7 306.8,168.6 309.2,172.6 311.7,176.8 314.2,181.0 316.7,185.3 319.1,189.7 321.6,194.2 324.1,198.9 326.5,203.6 329.0,208.4 331.5,213.3 333.9,218.3 336.4,223.4 338.9,228.6 341.3,233.9 343.8,239.3 346.3,244.7 348.7,250.3 351.2,256.0"/>
-<line class="ln c1 thin dash" x1="60.0" y1="87.0" x2="205.6" y2="87.0"/>
-<line class="ln c3" x1="60.0" y1="56.0" x2="620.0" y2="256.0"/>
-<circle class="c4f" cx="172.0" cy="96.0" r="5"/>
-<circle class="c1f" cx="146.8" cy="87.0" r="4"/>
-<circle class="c3f" cx="284.0" cy="136.0" r="4"/>
-<text class="lab" x="200.0" y="56.0" text-anchor="start">answer: 1.0 V, 0.40 mA</text>
-<text class="lab" x="608.8" y="190.0" text-anchor="end">load line</text>
-<text class="lab" x="71.2" y="26.0" text-anchor="start">transistor curve at the given v<tspan dy="3" font-size="75%">SG</tspan><tspan dy="-3"> </tspan></text>
-<text class="lab" x="340.0" y="292.0" text-anchor="middle">v<tspan dy="3" font-size="75%">SD</tspan><tspan dy="-3"> </tspan> (V)</text>
-<text class="lab" x="14" y="136.0" text-anchor="middle" transform="rotate(-90 14 136.0)">i<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> (mA)</text>
-</svg>
+<figure id="fig53">
+<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="Graphical solution of a PMOS common-source stage: load line against the transistor curve. Sliders set VDD, RD, Kp, VSG and VTP."></svg>
+<div class="fig-ctl">
+<label><span>V<sub>DD</sub></span><input type="range" data-k="vdd" min="3" max="6" step="0.1" value="5" aria-label="Supply V_DD in volts"><output></output></label>
+<label><span>R<sub>D</sub></span><input type="range" data-k="rd" min="2" max="20" step="0.5" value="10" aria-label="Drain resistor R_D in kilohms"><output></output></label>
+<label><span>K<sub>p</sub></span><input type="range" data-k="kp" min="0.05" max="0.6" step="0.01" value="0.25" aria-label="Conduction parameter K_p in milliamps per volt squared"><output></output></label>
+<label><span>V<sub>SG</sub></span><input type="range" data-k="vsg" min="0.5" max="4" step="0.05" value="2" aria-label="Source-gate voltage V_SG in volts"><output></output></label>
+<label><span>V<sub>TP</sub></span><input type="range" data-k="vtp" min="-2" max="-0.2" step="0.05" value="-0.7" aria-label="Threshold voltage V_TP in volts"><output></output></label>
+</div>
+<div class="fig-read" aria-live="polite"></div>
 <figcaption><b>Figure 5.3</b> The load line of worked example 5.4 against the transistor curve.</figcaption>
 </figure>
-<p class="fignote"><b>Figure 5.3:</b> The load line meets the transistor curve at the operating point and at a root outside the non-saturation region. The black dot is the answer, 1.0 V and 0.40 mA. The amber dot lies on the dashed continuation of the parabola, past the 1.3 V edge, so it is rejected. The teal dot is the failed saturation guess: it sits on the flat saturation line left of the edge, where the real curve is lower.</p>
+<p class="fignote"><b>Figure 5.3:</b> It starts at worked example 5.4. The amber load line meets the teal transistor curve at the operating point (black dot). When the saturation guess fails, the teal dot shows it: on the dashed saturation line left of the edge, where the real curve is lower. The amber dot is the second root of the quadratic, on the dashed continuation of the parabola past the edge, so it is rejected. Lower \(R_D\) or \(V_{SG}\) and the black dot moves right of the edge: then the saturation guess holds and there is no quadratic to solve.</p>
 <div class="box watch"><span class="label">Watch out</span><p>Do not stop after the saturation calculation. An output voltage that is negative, or below the edge of saturation, always means the saturation current was too big.</p></div>
 
 <h3 id="cs-design">Designing a bias</h3>
@@ -1005,6 +901,172 @@
 </footer>
 </main>
 </div>
+
+<script>
+/* Interactive figures 2.1, 4.1 and 5.3. Each figure is redrawn from its sliders; every line is computed here from the equations on the page. */
+(function(){
+  const NS = 'http://www.w3.org/2000/svg';
+  function E(parent, tag, attrs, text){
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.append(e);
+    return e;
+  }
+  const neg = s => s.replace(/-/g, '−');
+  const num = (v, d) => neg((+v.toFixed(d == null ? 2 : d)).toString());
+  const fix = (v, d) => neg(v.toFixed(d == null ? 2 : d));
+  const pts = a => a.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  // SVG text where "_{..}" becomes a subscript: T(parent, 'v_{CE} (V)', attrs)
+  function T(parent, s, attrs){
+    const t = E(parent, 'text', Object.assign({class: 'lab'}, attrs || {}));
+    s.split(/(_\{[^}]*\})/).forEach(p => {
+      if (!p) return;
+      if (p[0] === '_'){ E(t, 'tspan', {dy: 3, 'font-size': '75%'}, p.slice(2, -1)); E(t, 'tspan', {dy: -3}, ' '); }
+      else E(t, 'tspan', {}, p);
+    });
+    return t;
+  }
+
+  // Axes, grid and labels. Returns the scales, a clipped group to draw in and a group on top.
+  function plot(svg, o){
+    svg.textContent = '';
+    const X = v => o.l + (v - o.x0) / (o.x1 - o.x0) * o.w, Y = v => o.t + (o.y1 - v) / (o.y1 - o.y0) * o.h;
+    E(E(E(svg, 'defs', {}), 'clipPath', {id: o.id}), 'rect', {x: o.l, y: o.t, width: o.w, height: o.h});
+    o.xt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: X(v), y1: o.t, x2: X(v), y2: o.t + o.h});
+      E(svg, 'text', {class: 'tk', x: X(v), y: o.t + o.h + 16, 'text-anchor': 'middle'}, num(v));
+    });
+    o.yt.forEach(v => {
+      E(svg, 'line', {class: 'grid', x1: o.l, y1: Y(v), x2: o.l + o.w, y2: Y(v)});
+      E(svg, 'text', {class: 'tk', x: o.l - 6, y: Y(v) + 4, 'text-anchor': 'end'}, o.yd == null ? num(v) : fix(v, o.yd));
+    });
+    E(svg, 'rect', {class: 'frame', x: o.l, y: o.t, width: o.w, height: o.h});
+    T(svg, o.xlab, {x: o.l + o.w / 2, y: o.t + o.h + 36, 'text-anchor': 'middle'});
+    T(svg, o.ylab, {x: 16, y: o.t + o.h / 2, 'text-anchor': 'middle', transform: `rotate(-90 16 ${o.t + o.h / 2})`});
+    const g = E(svg, 'g', {'clip-path': 'url(#' + o.id + ')'}), top = E(svg, 'g', {});
+    const inX = x => x >= o.x0 && x <= o.x1, inY = y => y >= o.y0 && y <= o.y1;
+    return {X, Y, g, top, inX, inY, o};
+  }
+  // A curve y = f(x) sampled at n points from a to b, in screen coordinates.
+  const curve = (P, f, a, b, n) => { const r = []; for (let i = 0; i <= n; i++){ const x = a + (b - a) * i / n; r.push([P.X(x), P.Y(f(x))]); } return r; };
+  const line = (P, cls, a) => E(P.g, 'polyline', {class: cls, points: pts(a.map(p => [P.X(p[0]), P.Y(p[1])]))});
+  const dot = (P, cls, x, y, r) => { if (P.inX(x) && P.inY(y)) E(P.top, 'circle', {class: cls, cx: P.X(x), cy: P.Y(y), r: r || 4}); };
+
+  // Sliders: c.val(key) reads <input data-k="key">; c.show(key, text) writes the value beside it.
+  function controls(fig, redraw){
+    const inputs = {};
+    fig.querySelectorAll('.fig-ctl input').forEach(i => { inputs[i.dataset.k] = i; i.addEventListener('input', redraw); });
+    const show = (k, text) => { inputs[k].parentNode.querySelector('output').textContent = text; };
+    return {inputs, show, val: k => +inputs[k].value};
+  }
+  // Set up one figure: draw(c, svg, read) runs now and on every slider move.
+  function figure(id, draw){
+    const fig = document.getElementById(id);
+    if (!fig) return;
+    const svg = fig.querySelector('svg'), read = fig.querySelector('.fig-read');
+    const c = controls(fig, () => draw(c, svg, read));
+    draw(c, svg, read);
+  }
+
+  // Ideal MOSFET current in units of K: overdrive ov, output voltage v (v_DS for NMOS, v_SD for PMOS)
+  const iK = (ov, v) => ov <= 0 ? 0 : v < ov ? 2 * ov * v - v * v : ov * ov;
+
+  // ---------- Figure 2.1: NMOS output characteristics ----------
+  figure('fig21', (c, svg, read) => {
+    const kn = c.val('kn'), vtn = c.val('vtn'), lam = c.val('lam');
+    c.show('kn', kn.toFixed(2) + ' mA/V²'); c.show('vtn', vtn.toFixed(2) + ' V'); c.show('lam', lam.toFixed(3) + ' V⁻¹');
+    const P = plot(svg, {id: 'cp21', l: 60, t: 20, w: 550, h: 235, x0: 0, x1: 5, y0: 0, y1: 4,
+      xt: [0, 1, 2, 3, 4, 5], yt: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4], yd: 1, xlab: 'v_{DS} (V)', ylab: 'i_{D} (mA)'});
+    const {X, Y, top} = P;
+    const cl = v => 1 + lam * v;
+    const rows = [];
+    [2, 2.5, 3, 3.5].forEach(vgs => {
+      const ov = vgs - vtn;
+      E(P.g, 'polyline', {class: 'ln c1', points: pts(curve(P, v => kn * iK(ov, v) * cl(v), 0, 5, 100))});
+      const end = kn * iK(ov, 5) * cl(5);
+      if (end > 0.12 && end < 3.9) T(top, `v_{GS} = ${num(vgs, 1)} V`, {class: 'tk halo', x: X(5) - 4, y: Y(end) - 5, 'text-anchor': 'end'});
+      rows.push(ov > 0 ? `<tr><td>${num(vgs, 1)} V</td><td>${fix(ov)} V</td><td>${fix(kn * ov * ov * cl(ov), 3)} mA</td></tr>`
+                       : `<tr><td>${num(vgs, 1)} V</td><td colspan="2">off: v<sub>GS</sub> ≤ V<sub>TN</sub></td></tr>`);
+    });
+    E(P.g, 'polyline', {class: 'ln c3 dash', points: pts(curve(P, v => kn * v * v * cl(v), 0, 5, 100))});
+    const vb = Math.min(4.6, Math.sqrt(2.6 / kn));
+    T(top, 'v_{DS} = v_{DS(sat)}', {class: 'lab c3t halo', x: X(vb) + 8, y: Y(kn * vb * vb * cl(vb)) + 4, 'text-anchor': 'start'});
+    E(top, 'text', {class: 'lab halo', x: X(0.3), y: Y(3.75), 'text-anchor': 'start'}, 'non-saturation');
+    E(top, 'text', {class: 'lab halo', x: X(3.9), y: Y(0.3), 'text-anchor': 'start'}, 'saturation');
+    read.innerHTML = `Corner of each curve at v<sub>DS(sat)</sub> = v<sub>GS</sub> − V<sub>TN</sub>.` +
+      (lam > 0 ? ` With λ = ${lam.toFixed(3)} V⁻¹ the saturated curves rise with slope λi<sub>D</sub>.` : '') +
+      `<div class="tbl"><table><thead><tr><th>v<sub>GS</sub></th><th>v<sub>DS(sat)</sub></th><th>i<sub>D</sub> at the corner</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
+  });
+
+  // ---------- Figure 4.1: saturation current against v_GS, enhancement and depletion ----------
+  figure('fig41', (c, svg, read) => {
+    const ve = c.val('ve'), ke = c.val('ke'), vd = c.val('vd'), kd = c.val('kd');
+    c.show('ve', fix(ve) + ' V'); c.show('ke', ke.toFixed(2) + ' mA/V²'); c.show('vd', fix(vd) + ' V'); c.show('kd', kd.toFixed(2) + ' mA/V²');
+    const P = plot(svg, {id: 'cp41', l: 60, t: 20, w: 550, h: 205, x0: -4, x1: 4, y0: 0, y1: 5,
+      xt: [-4, -3, -2, -1, 0, 1, 2, 3, 4], yt: [0, 1, 2, 3, 4, 5], xlab: 'v_{GS} (V)', ylab: 'i_{D} (mA)'});
+    const {X, Y, top} = P;
+    const sat = (k, vt) => v => v <= vt ? 0 : k * (v - vt) * (v - vt);
+    E(P.g, 'line', {class: 'ln c4 thin dash', x1: X(0), y1: Y(0), x2: X(0), y2: Y(5)});
+    E(P.g, 'polyline', {class: 'ln c1', points: pts(curve(P, sat(ke, ve), -4, 4, 320))});
+    E(P.g, 'polyline', {class: 'ln c3', points: pts(curve(P, sat(kd, vd), -4, 4, 320))});
+    const idss = kd * vd * vd;
+    dot(P, 'c3f', 0, idss);
+    dot(P, 'c1f', ve, 0, 3.5); dot(P, 'c3f', vd, 0, 3.5);
+    // Labels sit where each curve reaches 3 mA (or at the right edge if it never does)
+    const lx = (k, vt) => Math.min(3.9, vt + Math.sqrt(3 / k));
+    T(top, `enhancement, V_{TN} = ${num(ve)} V`, {class: 'lab c1t halo', x: X(lx(ke, ve)) - 8, y: Y(Math.min(4.8, sat(ke, ve)(lx(ke, ve)))) + 16, 'text-anchor': 'end'});
+    T(top, `depletion, V_{TN} = ${num(vd)} V`, {class: 'lab c3t halo', x: X(lx(kd, vd)) - 8, y: Y(Math.min(4.8, sat(kd, vd)(lx(kd, vd)))), 'text-anchor': 'end'});
+    read.innerHTML = `At v<sub>GS</sub> = 0 the enhancement device carries nothing (it needs v<sub>GS</sub> &gt; ${num(ve)} V), ` +
+      `while the depletion device already carries K<sub>n</sub>V<sub>TN</sub><sup>2</sup> = ${fix(idss, 2)} mA and only turns off below ${num(vd)} V.`;
+  });
+
+  // ---------- Figure 5.3: graphical solution of the PMOS common-source stage ----------
+  figure('fig53', (c, svg, read) => {
+    const vdd = c.val('vdd'), rd = c.val('rd'), kp = c.val('kp'), vsg = c.val('vsg'), vtp = c.val('vtp');
+    c.show('vdd', vdd.toFixed(1) + ' V'); c.show('rd', rd.toFixed(1) + ' kΩ'); c.show('kp', kp.toFixed(2) + ' mA/V²');
+    c.show('vsg', vsg.toFixed(2) + ' V'); c.show('vtp', fix(vtp) + ' V');
+    const P = plot(svg, {id: 'cp53', l: 60, t: 16, w: 560, h: 240, x0: 0, x1: 6, y0: 0, y1: 0.8,
+      xt: [0, 1, 2, 3, 4, 5, 6], yt: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8], yd: 1, xlab: 'v_{SD} (V)', ylab: 'i_{D} (mA)'});
+    const {X, Y, top} = P;
+    const ov = vsg + vtp, isat = kp * Math.max(0, ov) ** 2;
+    const loadI = v => (vdd - v) / rd;
+    E(P.g, 'polyline', {class: 'ln c3', points: pts(curve(P, loadI, 0, vdd, 2))});
+    let s;
+    if (ov <= 0){
+      E(P.g, 'line', {class: 'ln c1', x1: X(0), y1: Y(0), x2: X(6), y2: Y(0)});
+      dot(P, 'c4f', vdd, 0, 5);
+      s = `Cutoff: V<sub>SG</sub> = ${fix(vsg)} V is below |V<sub>TP</sub>| = ${fix(-vtp)} V, so I<sub>D</sub> = 0 and V<sub>SD</sub> = V<sub>DD</sub> = ${fix(vdd, 1)} V.`;
+    } else {
+      // Device curve: parabola to the edge, flat beyond; dashed: the parabola's continuation and the saturation line to the left
+      E(P.g, 'polyline', {class: 'ln c1', points: pts(curve(P, v => kp * iK(ov, v), 0, 6, 240))});
+      E(P.g, 'polyline', {class: 'ln c1 thin dash', points: pts(curve(P, v => kp * (2 * ov * v - v * v), ov, Math.min(2 * ov, 6), 80))});
+      E(P.g, 'line', {class: 'ln c1 thin dash', x1: X(0), y1: Y(isat), x2: X(ov), y2: Y(isat)});
+      E(P.g, 'line', {class: 'ln c4 thin dash', x1: X(ov), y1: Y(0), x2: X(ov), y2: Y(isat)});
+      E(top, 'text', {class: 'tk halo', x: X(ov) + 4, y: Y(0) - 6, 'text-anchor': 'start'}, 'edge ' + fix(ov) + ' V');
+      const vguess = vdd - isat * rd;
+      if (vguess >= ov){
+        dot(P, 'c4f', vguess, isat, 5);
+        T(top, `answer: ${fix(vguess)} V, ${fix(isat, 3)} mA`, {class: 'lab halo', x: X(vguess) + 8, y: Y(isat) - 10, 'text-anchor': 'start'});
+        s = `Saturation: I<sub>D</sub> = K<sub>p</sub>(V<sub>SG</sub> + V<sub>TP</sub>)<sup>2</sup> = ${fix(isat, 3)} mA and V<sub>SD</sub> = ${fix(vguess)} V, which is above the ${fix(ov)} V edge, so the guess holds.`;
+      } else {
+        // K_p R_D v² − (1 + 2K_pR_D·ov) v + V_DD = 0
+        const a = kp * rd, bq = 1 + 2 * a * ov, d = Math.sqrt(bq * bq - 4 * a * vdd);
+        const v1 = (bq - d) / (2 * a), v2 = (bq + d) / (2 * a);
+        dot(P, 'c1f', vguess, isat);
+        dot(P, 'c3f', v2, loadI(v2));
+        dot(P, 'c4f', v1, loadI(v1), 5);
+        T(top, `answer: ${fix(v1)} V, ${fix(loadI(v1), 3)} mA`, {class: 'lab halo', x: X(v1) + 8, y: Y(loadI(v1)) - 12, 'text-anchor': 'start'});
+        s = `The saturation guess gives ${fix(isat, 3)} mA at V<sub>SD</sub> = ${fix(vguess, 3)} V (teal dot), left of the ${fix(ov)} V edge, so it fails. ` +
+            `The non-saturation quadratic has roots ${fix(v1, 3)} V and ${fix(v2, 3)} V. Keep ${fix(v1, 3)} V (I<sub>D</sub> = ${fix(loadI(v1), 3)} mA, black dot); ` +
+            `reject ${fix(v2, 3)} V (amber dot), which is past the edge.`;
+      }
+    }
+    T(top, 'load line', {class: 'lab c3t halo', x: X(Math.min(vdd, 6)) - 30, y: Y(loadI(Math.min(vdd, 6) - 0.5)) + 16, 'text-anchor': 'end'});
+    read.innerHTML = s;
+  });
+})();
+</script>
 
 <script src="../assets/ask-gemini.js" data-store="electronics-w10" data-course="EL245 Electronics"
         data-topic="Week 10: MOS capacitor, NMOS and PMOS enhancement and depletion MOSFETs, current-voltage equations, symbols, common-source DC analysis and design"></script>
