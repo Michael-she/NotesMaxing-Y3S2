@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Random tut problem · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js"></script>
+<script src="assets/ledger.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="assets/gen-render.js"></script>
+</head>
+<body>
+<!-- Random tutorial question for one module: tuts.html?m=<id>, with ids from modules.json.
+     The questions are pictures cut from the tutorial sheets by build_tuts.py, listed in <module>/tuts/tuts.json.
+     The worked solution is written by The Lovely Lady (Google Gemini) from the question, the lecturer's memo
+     and the sheet's answer list, through api/chat, and kept in this browser.
+     localStorage: "notes-tut-done" (questions marked done), "notes-tut-solutions" (worked solutions),
+     "notes-tut-pick" (the weeks last ticked). Keys inside them are "<module>/<question id>". -->
+<div class="wrap solo">
+<main>
+<header class="top">
+  <a class="home" id="back" href="index.html">&larr; Modules</a>
+  <div class="kicker" id="code"></div>
+  <h1>Throw a random tut problem at me</h1>
+  <p id="intro">Tick the weeks to draw from. You get one tutorial question at random, with a worked solution when you want it. Questions you mark as done leave the pool until you put them back.</p>
+</header>
+
+<ul class="rows" id="modules" hidden></ul>
+
+<form class="gen" id="pickForm" hidden>
+  <fieldset>
+    <legend>Weeks</legend>
+    <div class="pick" id="weeks"></div>
+  </fieldset>
+  <div class="pick">
+    <label><input id="self" type="checkbox" autocomplete="off"><span>Include self-study questions</span></label>
+  </div>
+  <div class="go">
+    <button class="btn primary" id="throw" type="submit" title="Throw a question (Ctrl+Enter)">Throw one at me</button>
+    <span class="gen-status" id="pool" role="status"></span>
+  </div>
+</form>
+
+<article class="prob" id="out" hidden>
+  <h2 id="qTitle"></h2>
+  <p class="meta" id="qMeta"></p>
+  <div class="tut-sheet" id="qBody"></div>
+  <div class="acts">
+    <button class="btn" id="showSol" type="button" aria-expanded="false">Show worked solution</button>
+    <button class="btn" id="showMemo" type="button" aria-expanded="false">Show the memo</button>
+    <button class="btn" id="done" type="button">Mark as done</button>
+    <button class="btn" id="next" type="button">Throw another</button>
+  </div>
+  <span class="gen-status" id="status" role="status"></span>
+  <div class="sol" id="sol" hidden></div>
+  <div class="acts" id="solActs" hidden>
+    <button class="btn" id="redo" type="button" title="Write the worked solution again">Write it again</button>
+  </div>
+  <div class="tut-sheet tut-memo" id="memo" hidden></div>
+</article>
+
+<section class="mod" id="doneSec" hidden>
+  <h2>Done</h2>
+  <ul class="rows tut-done" id="doneList"></ul>
+  <p class="none" id="noDone">Nothing marked as done yet.</p>
+  <div class="acts" id="doneActs">
+    <button class="btn" id="allBack" type="button">Put them all back</button>
+  </div>
+  <p class="hint">Done questions are not thrown at you. Put one back to have it in the pool again. This list lives in this browser.</p>
+</section>
+<noscript><p class="none">This page needs JavaScript.</p></noscript>
+</main>
+</div>
+
+<script src="manifest.js"></script>
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const {render, typeset, DIAGRAMS} = window.notesRender;
+  const modules = (window.NOTES_MANIFEST && window.NOTES_MANIFEST.modules) || [];
+  const id = new URLSearchParams(location.search).get('m');
+  const mod = modules.find(m => m.id === id && m.tuts);
+
+  function el(tag, cls, text){
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  const url = href => href.split('/').map(encodeURIComponent).join('/');
+  const day = t => new Date(t).toLocaleDateString(undefined, {day: 'numeric', month: 'short'});
+
+  // Without a module that has tutorials, offer the ones that do.
+  if (!mod){
+    const list = $('#modules'); list.hidden = false;
+    const withTuts = modules.filter(m => m.tuts);
+    $('#intro').textContent = withTuts.length ? 'Pick a module.' : 'No module has tutorials yet.';
+    withTuts.forEach(m => {
+      const a = el('a', 'row'); a.href = 'tuts.html?m=' + encodeURIComponent(m.id);
+      a.append(el('span', 'w', m.code || ''), el('span', 't', m.name), el('span', 'm', m.tuts.questions + ' questions'));
+      const li = el('li'); li.append(a); list.append(li);
+    });
+    return;
+  }
+  const course = (mod.code ? mod.code + ' ' : '') + mod.name;
+  document.title = 'Random tut problem · ' + mod.name + ' · notesmaxing';
+  $('#back').href = 'module.html?m=' + encodeURIComponent(mod.id) + '#practice';
+  $('#back').textContent = '← ' + mod.name;
+  $('#code').textContent = mod.code || ''; $('#code').hidden = !mod.code;
+  const base = mod.tuts.href.replace(/[^/]*$/, '');   // the tuts/ folder, for the pictures
+
+  // ---------- browser storage ----------
+  const load = k => { try{ const v = JSON.parse(localStorage.getItem(k) || '{}'); return v && typeof v === 'object' ? v : {}; }catch(e){ return {}; } };
+  const store = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } };
+  const DONE = 'notes-tut-done', SOLS = 'notes-tut-solutions', PICK = 'notes-tut-pick';
+  const key = q => mod.id + '/' + q.id;
+  const doneAt = q => load(DONE)[key(q)];
+  function setDone(q, on){
+    const d = load(DONE);
+    if (on) d[key(q)] = Date.now(); else delete d[key(q)];
+    store(DONE, d);
+  }
+
+  let tuts = [], all = [], current = null;
+  const titleOf = q => 'Tutorial ' + q.tut.tut + ', Question ' + q.num;
+
+  // ---------- choosing ----------
+  const weeksEl = $('#weeks'), selfEl = $('#self'), poolEl = $('#pool');
+  function picked(){
+    return {weeks: [...weeksEl.querySelectorAll('input:checked')].map(c => +c.value), self: selfEl.checked};
+  }
+  function pool(){
+    const p = picked(), done = load(DONE);
+    return all.filter(q => p.weeks.includes(q.tut.week) && (p.self || !q.self) && !done[key(q)]);
+  }
+  function showPool(){
+    const p = picked(), done = load(DONE);
+    const inWeeks = all.filter(q => p.weeks.includes(q.tut.week) && (p.self || !q.self));
+    const left = inWeeks.filter(q => !done[key(q)]).length;
+    poolEl.classList.remove('err');
+    poolEl.textContent = !p.weeks.length ? 'Tick at least one week.'
+      : left + ' of ' + inWeeks.length + ' question' + (inWeeks.length === 1 ? '' : 's') + ' in the pool' + (left < inWeeks.length ? ' (' + (inWeeks.length - left) + ' done)' : '') + '.';
+    const s = load(PICK); s[mod.id] = p; store(PICK, s);
+    // the count of done questions beside each week
+    weeksEl.querySelectorAll('label').forEach(l => {
+      const w = +l.querySelector('input').value, qs = all.filter(q => q.tut.week === w && (p.self || !q.self));
+      l.querySelector('.m').textContent = qs.filter(q => done[key(q)]).length + ' / ' + qs.length + ' done';
+    });
+  }
+  function throwOne(){
+    const p = pool();
+    if (!picked().weeks.length){ showPool(); return; }
+    if (!p.length){
+      poolEl.textContent = 'Nothing left in the pool: every question from these weeks is done. Put some back below, or tick more weeks.';
+      poolEl.classList.add('err');
+      return;
+    }
+    // never the same question twice in a row while there is a choice
+    const choice = p.length > 1 && current ? p.filter(q => q !== current) : p;
+    show(choice[Math.floor(Math.random() * choice.length)]);
+  }
+
+  // ---------- showing a question ----------
+  const out = $('#out'), solEl = $('#sol'), memoEl = $('#memo'), statusEl = $('#status');
+  const showSol = $('#showSol'), showMemo = $('#showMemo'), doneBtn = $('#done');
+  function pics(box, list, alt){
+    list.forEach((p, i) => {
+      const img = el('img'); img.src = url(base + p.src); img.width = p.w; img.height = p.h;
+      img.alt = alt + (list.length > 1 ? ' (part ' + (i + 1) + ')' : ''); img.loading = 'lazy';
+      box.append(img);
+    });
+  }
+  function status(text, bad){ statusEl.textContent = text; statusEl.classList.toggle('err', !!bad); }
+  function show(q){
+    if (busy) return;
+    current = q;
+    $('#qTitle').textContent = titleOf(q);
+    paintMeta();
+    const body = $('#qBody'); body.innerHTML = '';
+    if (q.tut.note) pics(body, [q.tut.note], 'The tutorial sheet\'s note of assumed values');
+    pics(body, q.img, titleOf(q) + ' as set on the tutorial sheet');
+    memoEl.innerHTML = ''; memoEl.hidden = true;
+    showMemo.hidden = !q.memo.length; showMemo.textContent = 'Show the memo'; showMemo.setAttribute('aria-expanded', 'false');
+    const saved = load(SOLS)[key(q)];
+    setSolution(false, saved);
+    status('');
+    out.hidden = false;
+    out.scrollIntoView({block: 'start'});
+  }
+  function paintMeta(){
+    const q = current, d = doneAt(q);
+    $('#qMeta').textContent = ['Week ' + q.tut.week, q.tut.date, q.ref ? 'Textbook ' + q.ref : '', q.self ? 'Self study' : '',
+      q.memo.length ? '' : 'No memo', d ? 'Done ' + day(d) : ''].filter(Boolean).join(' · ');
+    doneBtn.textContent = d ? 'Put back in the pool' : 'Mark as done';
+  }
+  function setSolution(open, saved){
+    solEl.hidden = !open; $('#solActs').hidden = !open || !saved;
+    showSol.textContent = open ? 'Hide worked solution' : saved ? 'Show worked solution' : 'Write the worked solution';
+    showSol.setAttribute('aria-expanded', String(open));
+  }
+  async function openSolution(){
+    const saved = load(SOLS)[key(current)];
+    if (!saved) return write(current);
+    solEl.innerHTML = render(saved.text);
+    setSolution(true, saved);
+    status(saved.tokens ? 'Written ' + day(saved.created) + ' for ' + notesLedger.fmt(saved.tokens) + '.' : '');
+    await typeset(solEl);
+  }
+  showSol.onclick = () => solEl.hidden ? openSolution() : setSolution(false, load(SOLS)[key(current)]);
+  showMemo.onclick = () => {
+    const open = memoEl.hidden;
+    if (open && !memoEl.childElementCount) pics(memoEl, current.memo, 'The lecturer\'s memo for ' + titleOf(current));
+    memoEl.hidden = !open;
+    showMemo.textContent = open ? 'Hide the memo' : 'Show the memo';
+    showMemo.setAttribute('aria-expanded', String(open));
+  };
+  doneBtn.onclick = () => { setDone(current, !doneAt(current)); paintMeta(); showPool(); renderDone(); };
+  $('#next').onclick = () => throwOne();
+  $('#redo').onclick = () => write(current);
+
+  // ---------- the worked solution ----------
+  const b64 = blob => new Promise((ok, bad) => {
+    const r = new FileReader();
+    r.onload = () => ok(String(r.result).split(',', 2)[1] || '');
+    r.onerror = () => bad(new Error('Could not read a picture.'));
+    r.readAsDataURL(blob);
+  });
+  async function picture(p){
+    const r = await fetch(url(base + p.src));
+    if (!r.ok) throw new Error('Could not load ' + p.src + ' (' + r.status + ').');
+    return {inline_data: {mime_type: 'image/png', data: await b64(await r.blob())}};
+  }
+  // The text of a notes page, for a question without a memo: its <main> without scripts and drawings.
+  async function noteText(n){
+    const r = await fetch(url(n.href));
+    if (!r.ok) return '';
+    const main = new DOMParser().parseFromString(await r.text(), 'text/html').querySelector('main');
+    if (!main) return '';
+    main.querySelectorAll('script,style,svg,nav,noscript,.annot,.fig-toggles,.anim-controls,.fig-ctl').forEach(x => x.remove());
+    main.querySelectorAll('p,li,h1,h2,h3,h4,tr,dt,dd,div,figcaption,pre').forEach(x => x.append('\n'));
+    return main.textContent.replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n').trim();
+  }
+  async function buildParts(q){
+    const parts = [{text: 'TUTORIAL QUESTION — ' + titleOf(q) + (q.ref ? ' (textbook ' + q.ref + ')' : '') + '. Its picture' + (q.tut.note ? 's follow: first the sheet\'s note of assumed values, then the question.' : ' follows.')}];
+    if (q.tut.note) parts.push(await picture(q.tut.note));
+    for (const p of q.img) parts.push(await picture(p));
+    if (q.memo.length){
+      parts.push({text: 'LECTURER\'S MEMO for this question (next attachment' + (q.memo.length > 1 ? 's' : '') + ')'});
+      for (const p of q.memo) parts.push(await picture(p));
+    }
+    if (q.tut.answers.length){
+      parts.push({text: 'ANSWER LIST from the tutorial sheet, for every question on it (next attachment' + (q.tut.answers.length > 1 ? 's' : '') + ')'});
+      for (const p of q.tut.answers) parts.push(await picture(p));
+    }
+    if (!q.memo.length){
+      for (const n of mod.notes.filter(n => n.week === q.tut.week)){
+        const t = await noteText(n);
+        if (t) parts.push({text: 'NOTES — Week ' + n.week + ': ' + n.title + '\n\n' + t});
+      }
+    }
+    return parts;
+  }
+  function systemPrompt(q){
+    return [
+      `You write worked solutions for a university engineering student taking ${course}.`,
+      `Write a fully worked solution to ${titleOf(q)}, attached as a picture of the tutorial sheet. Solve every part it asks.`,
+      q.memo.length
+        ? 'The lecturer\'s memo for the question is attached. Follow its method and reach its answers, but explain more than it does: show every step it skips, say which result or formula each step uses and why, and check each assumption (for example the region a transistor is in). If the memo has a mistake, say so plainly and show the correct working.'
+        : 'There is no memo for this question. Solve it carefully with the methods in the attached notes. If the answer list covers this question, your working must reach those answers, or say clearly why it does not. Check each assumption (for example the region a transistor is in) and check the arithmetic.',
+      'Start with one or two sentences on the approach. Then work each part under a bold label such as **(a)**, ending it with the final answer and its units in bold.',
+      'Where the question asks for a graph or a sketch (a load line, a transfer curve), draw it. ' + DIAGRAMS,
+      'Format: Markdown. Maths in LaTeX, \\( ... \\) inline and \\[ ... \\] for display. No headings and no title. Write only the solution.',
+    ].join('\n\n');
+  }
+  const MAX_BODY = 4200000;   // characters; the hosted site refuses request bodies over about 4.5 MB
+  let busy = false;
+  async function write(q){
+    if (busy) return;
+    const user = await notesLedger.ensureName();   // tokens are counted under a name, asked once per device
+    if (!user || busy) return;
+    busy = true; showSol.disabled = true; $('#redo').disabled = true; $('#next').disabled = true; $('#throw').disabled = true;
+    solEl.innerHTML = '<span class="typing"></span>'; setSolution(true, null);
+    status('Reading the question and its memo…');
+    try{
+      const body = JSON.stringify({system: systemPrompt(q), contents: [{role: 'user', parts: await buildParts(q)}], user});
+      if (body.length > MAX_BODY) throw new Error('This question\'s pictures are too large to send.');
+      status('The Lovely Lady is writing the worked solution…');
+      const r = await fetch('api/chat', {method: 'POST', headers: {'Content-Type': 'application/json'}, body});
+      if (!r.ok){
+        let msg = 'Request failed (' + r.status + ').';
+        try{ msg = (await r.json()).error || msg; }catch(e){}
+        throw new Error(msg);
+      }
+      const reader = r.body.getReader(), dec = new TextDecoder();
+      let buf = '', text = '', usage = null, streamErr = '', blocked = '', lastPaint = 0;
+      for(;;){
+        const {done, value} = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, {stream: true});
+        let i;
+        while ((i = buf.indexOf('\n')) >= 0){
+          const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+          if (!line.startsWith('data:')) continue;
+          try{
+            const j = JSON.parse(line.slice(5));
+            for (const p of j.candidates?.[0]?.content?.parts || []) if (p.text && !p.thought) text += p.text;
+            if (j.promptFeedback?.blockReason) blocked = j.promptFeedback.blockReason;
+            if (j.usageMetadata) usage = j.usageMetadata;   // the last one in the stream is the final count
+            if (j.error) streamErr = j.error.message || 'The request failed.';
+          }catch(e){}
+        }
+        // the solution as it arrives; the maths is typeset once it is complete
+        if (text && current === q && performance.now() - lastPaint > 250){
+          solEl.innerHTML = render(text) + '<span class="typing"></span>'; lastPaint = performance.now();
+        }
+      }
+      const tokens = usage ? notesLedger.add(usage) : 0;
+      if (streamErr) throw new Error(streamErr);
+      if (blocked) throw new Error('The Lovely Lady blocked the request: ' + blocked + '.');
+      if (!text.trim()) throw new Error('No solution came back. Try again.');
+      const sols = load(SOLS); sols[key(q)] = {text, tokens, created: Date.now()};
+      const stored = store(SOLS, sols);
+      if (current === q){
+        solEl.innerHTML = render(text); setSolution(true, sols[key(q)]);
+        await typeset(solEl);
+      }
+      status((stored ? 'Saved in this browser.' : 'Written, but this browser has no room left to save it.') + (tokens ? ' This solution: ' + notesLedger.fmt(tokens) + '.' : ''), !stored);
+    }catch(err){
+      const msg = String(err.message || err);
+      if (current === q){ const saved = load(SOLS)[key(q)]; if (saved){ solEl.innerHTML = render(saved.text); typeset(solEl); } setSolution(!!saved, saved); }
+      status(/Failed to fetch|NetworkError|Load failed/i.test(msg) ? 'Could not reach the server. Check your connection and try again.' : msg, true);
+    }finally{
+      busy = false; showSol.disabled = false; $('#redo').disabled = false; $('#next').disabled = false; $('#throw').disabled = false;
+    }
+  }
+
+  // ---------- done list ----------
+  function renderDone(){
+    const done = load(DONE);
+    const list = $('#doneList'); list.innerHTML = '';
+    const mine = all.filter(q => done[key(q)]).sort((a, b) => done[key(b)] - done[key(a)]);
+    mine.forEach(q => {
+      const a = el('button', 'row'); a.type = 'button';
+      a.append(el('span', 'w', 'Week ' + q.tut.week), el('span', 't', titleOf(q) + (q.ref ? ' (' + q.ref + ')' : '')), el('span', 'm', day(done[key(q)])));
+      a.onclick = () => show(q);
+      const back = el('button', 'btn', 'Put back'); back.type = 'button';
+      back.onclick = () => { setDone(q, false); renderDone(); showPool(); if (current === q) paintMeta(); };
+      const li = el('li'); li.append(a, back); list.append(li);
+    });
+    list.hidden = !mine.length; $('#noDone').hidden = !!mine.length; $('#doneActs').hidden = !mine.length;
+  }
+  $('#allBack').onclick = () => {
+    if (!confirm('Put every done question from ' + mod.name + ' back in the pool?')) return;
+    const d = load(DONE); all.forEach(q => delete d[key(q)]); store(DONE, d);
+    renderDone(); showPool(); if (current) paintMeta();
+  };
+
+  // ---------- start ----------
+  $('#pickForm').addEventListener('submit', e => { e.preventDefault(); throwOne(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !busy){ e.preventDefault(); throwOne(); }
+  });
+  fetch(url(mod.tuts.href)).then(r => { if (!r.ok) throw new Error(); return r.json(); }).then(data => {
+    tuts = data.tuts || [];
+    all = tuts.flatMap(t => t.questions.map(q => Object.assign(q, {tut: t})));
+    const last = load(PICK)[mod.id];
+    tuts.forEach(t => {
+      const lab = el('label');
+      const cb = el('input'); cb.type = 'checkbox'; cb.value = t.week; cb.autocomplete = 'off';
+      cb.checked = last ? last.weeks.includes(t.week) : true;
+      lab.append(cb, el('span', 'w', 'Week ' + t.week), el('span', '', 'Tutorial ' + t.tut + (t.memo ? '' : ' (no memo)')), el('span', 'm', ''));
+      weeksEl.append(lab);
+    });
+    selfEl.checked = last ? !!last.self : true;
+    weeksEl.addEventListener('change', showPool); selfEl.addEventListener('change', showPool);
+    $('#pickForm').hidden = false; $('#doneSec').hidden = false;
+    showPool(); renderDone();
+  }).catch(() => { $('#intro').textContent = 'The tutorial list could not be loaded.'; });
+})();
+</script>
+</body>
+</html>

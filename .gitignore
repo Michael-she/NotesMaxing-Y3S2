@@ -12,7 +12,7 @@ slprj/
 *.autosave
 *.asv
 
-# Course-issued material is not redistributed here
+# Course-issued material is not redistributed here, except past papers and tutorial pictures (Module/tuts/, PNG)
 *.pdf
 # ...except past papers, which the hub lists from each module's papers/ folder
 !*/papers/**/*.pdf

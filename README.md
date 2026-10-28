@@ -119,6 +119,17 @@ endpoint and key as the Ask Gemini panel.
 - Where a question or its solution needs a diagram, The Lovely Lady adds one. Graphs are drawn by the page
   from the formulas she gives; circuits and block diagrams come as SVG, cleaned and styled by the site.
 
+## Random tutorial question
+
+`tuts.html?m=<id>` (under Practice on a module page, for modules with tutorials) throws one tutorial
+question at you at random from the weeks you tick. The question is shown as cut from the tutorial sheet.
+The Lovely Lady writes a worked solution on request, from the question, the lecturer's memo and the
+sheet's answer list; it is kept in the browser, so it is only paid for once. The memo itself is a
+button away.
+
+Mark a question as done and it leaves the pool. The Done list puts questions back, one at a time or
+all at once. Tutorials are added with `build_tuts.py` (see AGENTS.md).
+
 ## Notes on sources
 
-The notes are my own write-up of the course content. Lecture slides, videos and textbook material are not included in this repository.
+The notes are my own write-up of the course content. Lecture slides, videos and textbook material are not included in this repository. Past papers and tutorial questions (with their memos) are, at the owner's choice.

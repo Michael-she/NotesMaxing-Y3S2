@@ -124,7 +124,16 @@
     try{ saved = JSON.parse(localStorage.getItem('notes-problems') || '[]').filter(p => p.module === mod.id).length; }catch(e){}
     a.append(el('span', 'w', ''), el('span', 't', 'Problem generator'), el('span', 'm', saved ? saved + ' saved' : ''));
     a.dataset.find = 'problem generator practice questions';
-    group('Practice', 'practice', list([a]));
+    const rows = [a];
+    if (mod.tuts){
+      const t = el('a', 'row'); t.href = 'tuts.html?m=' + encodeURIComponent(mod.id);
+      let done = 0;
+      try{ done = Object.keys(JSON.parse(localStorage.getItem('notes-tut-done') || '{}')).filter(k => k.startsWith(mod.id + '/')).length; }catch(e){}
+      t.append(el('span', 'w', ''), el('span', 't', 'Throw a random tut problem at me'), el('span', 'm', done + ' / ' + mod.tuts.questions + ' done'));
+      t.dataset.find = 'random tutorial tut problem question practice';
+      rows.push(t);
+    }
+    group('Practice', 'practice', list(rows));
   }
   if (location.hash === '#papers') document.getElementById('papers').scrollIntoView();
 

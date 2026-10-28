@@ -493,6 +493,16 @@ dl.terms dd{margin:0;color:var(--text)}
 .gen-fig{overflow-x:auto;margin:18px 0}
 :where(.gen-fig svg) :where(line,path,polyline,polygon,rect,circle,ellipse){fill:none;stroke:var(--ink);stroke-width:1.4}
 .gen-fig svg :is(.c1f,.c3f,.c4f){stroke:none}
+/* Random tutorial question (tuts.html): pictures cut from the tutorial sheet, shown as paper; dark theme inverts them */
+.tut-sheet{display:grid;gap:6px;margin:4px 0 0}
+.tut-sheet img{display:block;width:100%;max-width:760px;height:auto;border:1px solid var(--rule);border-radius:var(--r)}
+.tut-memo{margin-top:18px}
+:root[data-theme="dark"] .tut-sheet img{filter:invert(.9) hue-rotate(180deg);border-color:transparent}
+.prob>.gen-status{display:block;margin-top:10px}
+#solActs{margin-top:10px}
+.tut-done li{display:flex;align-items:center}
+.tut-done .row{flex:1;min-width:0;background:none;border:0;font:inherit;text-align:left;cursor:pointer}
+.tut-done li>.btn{flex:none;margin:0 14px 0 4px}
 .prob .sol{margin-top:18px;padding:6px 20px;background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);overflow-x:auto}
 .filter{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:14px;color:var(--ink-2)}
 .filter select{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:6px 10px;max-width:100%}
