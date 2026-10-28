@@ -22,10 +22,11 @@
     <li class="sub"><a href="#family">The transistor family</a></li>
     <li class="sub"><a href="#mos-cap">The MOS capacitor</a></li>
     <li class="sub"><a href="#nmos-structure">n-channel enhancement MOSFET</a></li>
-    <li><a href="#nmos-iv">2. NMOS current-voltage characteristics</a></li>
+    <li class="sub"><a href="#modes">Enhancement and depletion mode</a></li>
+    <li><a href="#nmos-iv">2. Enhancement NMOS characteristics</a></li>
     <li class="sub"><a href="#region-steps">Finding the region</a></li>
-    <li><a href="#pmos">3. PMOS and circuit symbols</a></li>
-    <li class="sub"><a href="#pmos-iv">PMOS characteristics</a></li>
+    <li><a href="#pmos">3. Enhancement PMOS and circuit symbols</a></li>
+    <li class="sub"><a href="#pmos-iv">Enhancement PMOS characteristics</a></li>
     <li class="sub"><a href="#symbols">Symbols and conventions</a></li>
     <li><a href="#depletion">4. Depletion mode, CMOS and the summary</a></li>
     <li><a href="#cs">5. Common-source DC analysis</a></li>
@@ -132,7 +133,8 @@
 <p class="fignote"><b>Figure 1.1:</b> Left to right: holes accumulate, a depletion region forms, and an electron layer appears under the oxide. The dashed outline marks the depletion region, which stays under the inversion layer.</p>
 <div class="box intuition"><span class="label">Intuition</span><p>The gate and the body are the two plates of a capacitor. Whatever charge the gate carries, the body has to show the opposite charge, and the sign of the gate voltage decides what the body uses to supply it: majority carriers, bare ions, or minority carriers drawn to the surface.</p></div>
 <p>An n-type substrate behaves the same way with all signs reversed: a positive gate accumulates electrons, and a large negative gate forms a <strong>hole inversion layer</strong>. The inversion charge grows with the applied voltage.</p>
-<div class="box def"><span class="label">Definition</span><p><strong>Enhancement mode</strong>: no channel exists at zero gate voltage; a gate voltage must be applied to create the inversion layer (positive for a p-type substrate, negative for an n-type substrate).</p></div>
+<div class="box def"><span class="label">Definition</span><p><strong>Enhancement mode</strong>: no channel exists at zero gate voltage; a gate voltage must be applied to create the inversion layer (positive for a p-type substrate, negative for an n-type substrate). The device is <em>normally off</em>.</p></div>
+<div class="box def"><span class="label">Definition</span><p><strong>Depletion mode</strong>: a channel is built into the device, so it already conducts at zero gate voltage. The gate is used to thin the channel until it switches off, or to thicken it so it carries more. The device is <em>normally on</em>.</p></div>
 <div class="box watch"><span class="label">Watch out</span><p>The inversion layer is made of <em>minority</em> carriers. An enhancement NMOS conducts through electrons even though its substrate is p-type, and the layer only exists while the gate voltage is above the threshold.</p></div>
 
 <h3 id="nmos-structure">The n-channel enhancement MOSFET</h3>
@@ -168,11 +170,25 @@
 <p>The drain current depends on the charge in the inversion layer, which depends on the gate voltage. No current flows through the substrate or through the gate.</p>
 <div class="key"><span class="tag">Key idea</span><p>Gate current is zero at DC, so \(i_D\) is also the source current, and the only thing the gate does is set the channel charge. In every DC circuit this week the gate sits at whatever voltage its resistor divider gives it, with no loading from the transistor.</p></div>
 <div class="note"><span class="tag">Units</span><p>Lengths appear in micrometres and ångströms, but the permittivity is given per centimetre, so convert to centimetres first: \(1\ \mu\text{m} = 10^{-4}\ \text{cm}\) and \(1\ \text{Å} = 10^{-8}\ \text{cm}\).</p></div>
+
+<h3 id="modes">Enhancement and depletion mode</h3>
+<p>Every MOSFET type comes in both modes. The difference is whether the channel exists before any gate voltage is applied, and that shows up in one place: the sign of the threshold voltage.</p>
+<div class="tbl"><table><thead><tr><th></th><th>Enhancement mode</th><th>Depletion mode</th></tr></thead><tbody>
+<tr><td>Channel at zero gate voltage</td><td>None: the device is off</td><td>Already there: the device conducts</td></tr>
+<tr><td>What the gate does</td><td>Creates the channel (inversion layer)</td><td>Narrows the channel (depletion) or widens it (accumulation)</td></tr>
+<tr><td>NMOS threshold</td><td>\(V_{TN} \gt 0\): on once \(v_{GS} \gt V_{TN}\)</td><td>\(V_{TN} \lt 0\): off only once \(v_{GS} \lt V_{TN}\), a negative voltage</td></tr>
+<tr><td>PMOS threshold</td><td>\(V_{TP} \lt 0\): on once \(v_{SG} \gt |V_{TP}|\)</td><td>\(V_{TP} \gt 0\): off only once \(v_{SG} \lt -V_{TP}\), a negative voltage</td></tr>
+<tr><td>Saturation current at zero gate voltage</td><td>0</td><td>\(K_nV_{TN}^2\) (NMOS) or \(K_pV_{TP}^2\) (PMOS)</td></tr>
+<tr><td>Circuit symbol</td><td>Broken channel line</td><td>Solid channel line</td></tr>
+<tr><td>On this page</td><td>Sections 2 and 3</td><td>Section 4</td></tr>
+</tbody></table></div>
+<div class="key"><span class="tag">Key idea</span><p>Both modes use the same current equations, with the same overdrive \(v_{GS} - V_{TN}\) (or \(v_{SG} + V_{TP}\)). Only the sign of the threshold changes, so check the sign of \(V_{TN}\) or \(V_{TP}\) first: it tells you which mode the problem is about.</p></div>
 </section>
 
 <section id="nmos-iv">
-<h2><span class="n">02</span>NMOS current-voltage characteristics</h2>
+<h2><span class="n">02</span>Enhancement NMOS current-voltage characteristics</h2>
 <p class="reading"><b>Reading</b> Neamen 3.1.3; Lecture 22</p>
+<div class="note"><span class="tag">Enhancement mode</span><p>Sections 2 and 3 are about <strong>enhancement-mode</strong> devices: no channel at zero gate voltage, \(V_{TN} \gt 0\) and \(V_{TP} \lt 0\). The equations carry over unchanged to depletion-mode devices in section 4; only the sign of the threshold flips.</p></div>
 <p>The <strong>threshold voltage</strong> \(V_{TN}\) is the gate-source voltage needed to create the inversion layer. Below it the transistor is off (\(i_D = 0\)). Above it, a small \(v_{DS}\) gives a current proportional to \(v_{DS}\). As \(v_{DS}\) rises, the channel near the drain thins, until at \(v_{DS(sat)} = v_{GS} - V_{TN}\) it is pinched off. Beyond that the current stops increasing: the transistor is in the <strong>saturation</strong> region.</p>
 <ul>
 <li><strong>Cutoff</strong>, \(v_{GS} \lt V_{TN}\): no inversion layer, so \(i_D = 0\).</li>
@@ -299,10 +315,10 @@
 </section>
 
 <section id="pmos">
-<h2><span class="n">03</span>PMOS and circuit symbols</h2>
+<h2><span class="n">03</span>Enhancement PMOS and circuit symbols</h2>
 <p class="reading"><b>Reading</b> Neamen 3.1.4 to 3.1.6; Lecture 23</p>
 
-<h3 id="pmos-iv">PMOS characteristics</h3>
+<h3 id="pmos-iv">Enhancement PMOS characteristics</h3>
 <p>The p-channel enhancement MOSFET has an n-type substrate and p-type source and drain. Holes are the carriers, so a negative gate voltage (relative to the source) is needed to form the hole inversion layer. Its threshold \(V_{TP}\) is negative, it turns on when \(v_{SG} \ge |V_{TP}|\), and conventional current flows into the source and out of the drain. Writing the equations with \(v_{SG}\) and \(v_{SD}\) keeps every quantity positive.</p>
 <div class="eq"><span class="tag">PMOS drain current</span>\[ \text{non-saturation } (v_{SD} \lt v_{SD(sat)}):\quad i_D = K_p\left[2(v_{SG} + V_{TP})v_{SD} - v_{SD}^2\right] \]
 \[ \text{saturation } (v_{SD} \ge v_{SD(sat)}):\quad i_D = K_p(v_{SG} + V_{TP})^2 \qquad v_{SD(sat)} = v_{SG} + V_{TP} \]
@@ -460,7 +476,7 @@
 <section id="depletion">
 <h2><span class="n">04</span>Depletion mode, CMOS and the summary</h2>
 <p class="reading"><b>Reading</b> Neamen 3.1.7 and 3.1.8; Lecture 24</p>
-<p>In a <strong>depletion-mode</strong> MOSFET a channel exists at \(v_{GS} = 0\). For an n-channel device, a negative \(v_{GS}\) creates a space-charge region that narrows the channel, and at \(v_{GS} = V_{TN}\) (negative) the channel is fully depleted and the current is zero. A positive \(v_{GS}\) forms an electron accumulation layer and increases the current.</p>
+<p>Sections 2 and 3 covered enhancement-mode devices, which are off until the gate creates a channel. In a <strong>depletion-mode</strong> MOSFET a channel exists at \(v_{GS} = 0\). For an n-channel device, a negative \(v_{GS}\) creates a space-charge region that narrows the channel, and at \(v_{GS} = V_{TN}\) (negative) the channel is fully depleted and the current is zero. A positive \(v_{GS}\) forms an electron accumulation layer and increases the current.</p>
 <p>The current equations are exactly the same as for enhancement devices. Only the sign of the threshold changes:</p>
 <div class="tbl"><table><thead><tr><th></th><th>NMOS</th><th>PMOS</th></tr></thead><tbody>
 <tr><td>Enhancement</td><td>\(V_{TN} \gt 0\)</td><td>\(V_{TP} \lt 0\)</td></tr>
