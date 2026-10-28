@@ -489,6 +489,10 @@ dl.terms dd{margin:0;color:var(--text)}
 .prob h2{margin:1em 0 .2em}
 .prob .meta{font-size:13px;color:var(--ink-2);margin:0 0 16px;max-width:none}
 .prob .acts{margin-top:20px}
+/* Diagrams in generated problems: wide ones scroll on a phone; shapes the model left unstyled are thin black outlines */
+.gen-fig{overflow-x:auto;margin:18px 0}
+:where(.gen-fig svg) :where(line,path,polyline,polygon,rect,circle,ellipse){fill:none;stroke:var(--ink);stroke-width:1.4}
+.gen-fig svg :is(.c1f,.c3f,.c4f){stroke:none}
 .prob .sol{margin-top:18px;padding:6px 20px;background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);overflow-x:auto}
 .filter{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:14px;color:var(--ink-2)}
 .filter select{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:6px 10px;max-width:100%}

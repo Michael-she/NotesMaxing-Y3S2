@@ -140,6 +140,12 @@ Type filter then lists it under "sketching".
   safely; don't break them.
 - **Difficulty:** the levels are Fundamental, Basic, Exam and Final boss. Exam is the default.
 - **Topic:** optional. When none is given, the model chooses one.
+- **Diagrams:** the model may put a ```` ```plot ```` block (JSON: axes, formulas or points, marks) or an
+  ```` ```svg ```` block in the problem or the solution, only where one is needed. The page draws plot
+  blocks itself, evaluating each formula with a whitelist of functions (`formula()` in `problems.html`).
+  SVG blocks are sanitised with DOMPurify, and their colours, styles and sizes are removed so the site's
+  SVG classes draw them (`.gen-fig` in `site.css`). The diagrams are kept as source text in the saved
+  problem, so old records need no change.
 
 ### Usage ledger
 

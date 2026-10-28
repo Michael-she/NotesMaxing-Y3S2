@@ -116,6 +116,8 @@ endpoint and key as the Ask Gemini panel.
 - Every generated problem is saved in the browser (`localStorage`, key `notes-problems`) and listed under
   Saved problems. Export and Import move them between browsers as one JSON file.
 - The titles of the problems already saved for a module are sent with each request so the next one differs.
+- Where a question or its solution needs a diagram, The Lovely Lady adds one. Graphs are drawn by the page
+  from the formulas she gives; circuits and block diagrams come as SVG, cleaned and styled by the site.
 
 ## Notes on sources
 
