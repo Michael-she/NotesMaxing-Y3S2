@@ -119,7 +119,8 @@ window.NOTES_MANIFEST = {
      "href": "CS354-Control-Systems/papers/CS354_2026_A1_Memo.pdf"
     }
    ],
-   "tuts": null
+   "tuts": null,
+   "problems": null
   },
   {
    "id": "vibration",
@@ -202,7 +203,8 @@ window.NOTES_MANIFEST = {
    ],
    "exams": [],
    "papers": [],
-   "tuts": null
+   "tuts": null,
+   "problems": null
   },
   {
    "id": "da344",
@@ -328,7 +330,8 @@ window.NOTES_MANIFEST = {
      "href": "DA344-Data-Analytics/papers/DA344_2019_A1_Memo.pdf"
     }
    ],
-   "tuts": null
+   "tuts": null,
+   "problems": null
   },
   {
    "id": "cs245",
@@ -407,7 +410,8 @@ window.NOTES_MANIFEST = {
      "href": "CS245-Computer-Systems/papers/CS245_A1_2025_Practice_Paper.pdf"
     }
    ],
-   "tuts": null
+   "tuts": null,
+   "problems": null
   },
   {
    "id": "electronics",
@@ -494,6 +498,10 @@ window.NOTES_MANIFEST = {
      11
     ],
     "questions": 22
+   },
+   "problems": {
+    "href": "Electronics/problems.json",
+    "count": 30
    }
   }
  ]

@@ -15,6 +15,8 @@ What counts as what, inside each module folder listed in modules.json:
     papers  every non-empty .pdf inside the module's papers/ folder
     exams   every .html file inside the module's exam-prep/ folder: practice exam papers with memos.
             A page can carry <meta name="exam-scope" content="A1"> and <meta name="exam-marks" content="80">.
+    problems  the module's problems.json, if there is one: practice problems with worked solutions that
+            problems.html lists with the ones generated in the browser, on every device
     tuts    the module's tuts/tuts.json (made by build_tuts.py): its address and the weeks and question
             count, for the random tutorial question page
 The week number is read from the path ("Week12-...", "week3.html"), the title
@@ -148,6 +150,14 @@ def _exams(folder):
     return out
 
 
+def _problems(folder):
+    path = os.path.join(HERE, folder, "problems.json")
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as fh:
+        return {"href": _url(folder, "problems.json"), "count": len(json.load(fh))}
+
+
 def _tuts(folder):
     path = os.path.join(HERE, folder, TUTS_INDEX)
     if not os.path.exists(path):
@@ -162,7 +172,7 @@ def build():
     with open(MODULES_PATH, encoding="utf-8") as fh:
         modules = json.load(fh)
     return {"modules": [
-        {**mod, "notes": _notes(mod["folder"]), "exams": _exams(mod["folder"]), "papers": _papers(mod["folder"]), "tuts": _tuts(mod["folder"])}
+        {**mod, "notes": _notes(mod["folder"]), "exams": _exams(mod["folder"]), "papers": _papers(mod["folder"]), "tuts": _tuts(mod["folder"]), "problems": _problems(mod["folder"])}
         for mod in modules
     ]}
 

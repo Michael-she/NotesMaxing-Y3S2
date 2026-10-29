@@ -251,7 +251,7 @@
 
   const SEP = '===SOLUTION===';
   function systemPrompt(){
-    const done = loadAll().filter(p => p.module === mod.id).slice(0, 40).map(p => '- ' + p.title);
+    const done = moduleProblems().slice(0, 60).map(p => '- ' + p.title);
     return [
       `You write practice problems for a university engineering student taking ${course}.`,
       'Write ONE new problem of the kind described under REQUEST, at the level described under DIFFICULTY, then a fully worked solution.',
@@ -288,10 +288,11 @@
     $('#pTitle').textContent = p.title || 'Writing the problem…';
     const when = p.created ? new Date(p.created).toLocaleDateString(undefined, {day: 'numeric', month: 'short', year: 'numeric'}) : '';
     $('#pMeta').textContent = [when, p.sources && p.sources.length ? 'From ' + p.sources.join(', ') : '', p.request ? 'Asked for: ' + p.request : '',
-      weekTag(p), levelOf(p), p.tokens ? notesLedger.fmt(p.tokens.in + p.tokens.out) : ''].filter(Boolean).join(' · ');
+      weekTag(p), levelOf(p), p.tokens ? notesLedger.fmt(p.tokens.in + p.tokens.out) : '', p.shared ? 'Shared on every device' : ''].filter(Boolean).join(' · ');
     $('#pBody').innerHTML = render(p.problem) + (live && !p.solution ? '<span class="typing"></span>' : '');
     solEl.innerHTML = render(p.solution || '');
     showSol.disabled = !p.solution; $('#again').disabled = !!live; $('#del').disabled = !!live;
+    $('#del').hidden = !!p.shared;   // shared problems live in the repository
     out.hidden = false;
     if (!live){ typeset($('#pBody')); typeset(solEl); }
   }
@@ -300,6 +301,10 @@
 
   // ---------- saved problems ----------
   const KEY = 'notes-problems';
+  // Problems kept in the repository (the module's problems.json): listed with this browser's own on every
+  // device, and never deleted or exported from here.
+  let shared = [];
+  const moduleProblems = () => [...loadAll().filter(p => p.module === mod.id), ...shared];
   function loadAll(){
     try{ const v = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(v) ? v : []; }catch(e){ return []; }
   }
@@ -308,7 +313,7 @@
   }
   const filterEl = $('#weekFilter');
   function renderSaved(){
-    const all = loadAll().filter(p => p.module === mod.id);
+    const all = moduleProblems();
     // the filter lists the weeks that actually occur, so it never offers an empty choice
     const weeks = [...new Set(all.flatMap(weeksOf))].sort((a, b) => a - b);
     const want = filterEl.value || 'all';
@@ -333,6 +338,7 @@
   }
   filterEl.addEventListener('change', renderSaved);
   $('#del').onclick = () => {
+    if (current && current.shared) return;
     if (!current || !confirm('Delete "' + current.title + '"?')) return;
     saveAll(loadAll().filter(p => p.id !== current.id));
     current = null; out.hidden = true; renderSaved();
@@ -479,6 +485,10 @@
   };
 
   renderSaved();
+  if (mod.problems) fetch(url(mod.problems.href)).then(r => r.ok ? r.json() : []).then(list => {
+    shared = (Array.isArray(list) ? list : []).map(p => Object.assign({}, p, {module: mod.id, shared: true}));
+    renderSaved();
+  }).catch(() => {});
 })();
 </script>
 </body>

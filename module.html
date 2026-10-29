@@ -122,7 +122,8 @@
     const a = el('a', 'row'); a.href = 'problems.html?m=' + encodeURIComponent(mod.id);
     let saved = 0;
     try{ saved = JSON.parse(localStorage.getItem('notes-problems') || '[]').filter(p => p.module === mod.id).length; }catch(e){}
-    a.append(el('span', 'w', ''), el('span', 't', 'Problem generator'), el('span', 'm', saved ? saved + ' saved' : ''));
+    const set = mod.problems ? mod.problems.count : 0;
+    a.append(el('span', 'w', ''), el('span', 't', 'Problem generator'), el('span', 'm', [set ? set + ' shared' : '', saved ? saved + ' saved' : ''].filter(Boolean).join(' · ')));
     a.dataset.find = 'problem generator practice questions';
     const rows = [a];
     if (mod.tuts){
