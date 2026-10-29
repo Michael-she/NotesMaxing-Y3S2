@@ -459,9 +459,23 @@ window.NOTES_MANIFEST = {
      "marks": 90,
      "questions": null,
      "href": "Electronics/exam-prep/EL245_2020_A2.html"
+    },
+    {
+     "title": "2025 Assessment 2, with a memo",
+     "scope": "A2",
+     "marks": 90,
+     "questions": null,
+     "href": "Electronics/exam-prep/EL245_2025_A2.html"
     }
    ],
    "papers": [
+    {
+     "file": "EL245_2025_A2.pdf",
+     "year": 2025,
+     "memo": false,
+     "size": 2705193,
+     "href": "Electronics/papers/EL245_2025_A2.pdf"
+    },
     {
      "file": "EL245_2020_A2.pdf",
      "year": 2020,
