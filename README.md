@@ -117,7 +117,7 @@ endpoint and key as the Ask Gemini panel.
   Saved problems. Export and Import move them between browsers as one JSON file.
 - The titles of the problems already saved for a module are sent with each request so the next one differs.
 - A module can also ship shared problems in `<module folder>/problems.json`. They appear in Saved problems on
-  every device and cannot be deleted from the page. Electronics has 30, covering weeks 7 to 11.
+  every device and cannot be deleted from the page. Electronics has 40: weeks 7 to 11, and diodes and semiconductors.
 - Where a question or its solution needs a diagram, The Lovely Lady adds one. Graphs are drawn by the page
   from the formulas she gives; circuits and block diagrams come as SVG, cleaned and styled by the site.
 

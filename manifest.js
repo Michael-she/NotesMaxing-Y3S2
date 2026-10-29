@@ -501,7 +501,7 @@ window.NOTES_MANIFEST = {
    },
    "problems": {
     "href": "Electronics/problems.json",
-    "count": 30
+    "count": 40
    }
   }
  ]
