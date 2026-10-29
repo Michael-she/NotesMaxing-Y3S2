@@ -500,6 +500,10 @@ dl.terms dd{margin:0;color:var(--text)}
 :root[data-theme="dark"] .tut-sheet img{filter:invert(.9) hue-rotate(180deg);border-color:transparent}
 .prob>.gen-status{display:block;margin-top:10px}
 #solActs{margin-top:10px}
+/* A circuit cut from a past paper, shown as paper; the dark theme inverts it */
+figure.scan{margin:.8em 0}
+figure.scan img{display:block;max-width:100%;height:auto;margin:0 auto}
+:root[data-theme="dark"] figure.scan img{filter:invert(.9) hue-rotate(180deg)}
 .tut-done li{display:flex;align-items:center}
 .tut-done .row{flex:1;min-width:0;background:none;border:0;font:inherit;text-align:left;cursor:pointer}
 .tut-done li>.btn{flex:none;margin:0 14px 0 4px}

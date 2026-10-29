@@ -452,7 +452,15 @@ window.NOTES_MANIFEST = {
      "href": "Electronics/EL245_Week11_Notes_MOSFET-Loads-and-Applications.html"
     }
    ],
-   "exams": [],
+   "exams": [
+    {
+     "title": "2020 Assessment 2, with a memo",
+     "scope": "A2",
+     "marks": 90,
+     "questions": null,
+     "href": "Electronics/exam-prep/EL245_2020_A2.html"
+    }
+   ],
    "papers": [
     {
      "file": "EL245_2020_A2.pdf",
