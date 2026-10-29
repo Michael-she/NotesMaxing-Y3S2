@@ -453,7 +453,15 @@ window.NOTES_MANIFEST = {
     }
    ],
    "exams": [],
-   "papers": [],
+   "papers": [
+    {
+     "file": "EL245_2020_A2.pdf",
+     "year": 2020,
+     "memo": false,
+     "size": 1182552,
+     "href": "Electronics/papers/EL245_2020_A2.pdf"
+    }
+   ],
    "tuts": {
     "href": "Electronics/tuts/tuts.json",
     "weeks": [
