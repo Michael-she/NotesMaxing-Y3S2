@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 1: Semiconductors and the pn diode · EL245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=electronics">&larr; Electronics</a>
+  <div class="k">EL245 · Week 1</div>
+  <ol>
+    <li><a href="#intrinsic">1. Intrinsic semiconductors</a></li>
+    <li class="sub"><a href="#bands">Energy bands</a></li>
+    <li class="sub"><a href="#ni">Intrinsic carrier concentration</a></li>
+    <li><a href="#doping">2. Doping</a></li>
+    <li><a href="#transport">3. Drift and diffusion</a></li>
+    <li><a href="#equilibrium">4. The pn junction in equilibrium</a></li>
+    <li><a href="#reverse">5. Reverse bias</a></li>
+    <li><a href="#forward">6. Forward bias and the diode equation</a></li>
+    <li><a href="#temp">7. Temperature and breakdown</a></li>
+    <li class="sub"><a href="#breakdown">Breakdown</a></li>
+    <li><a href="#switching">8. Switching behaviour</a></li>
+    <li><a href="#dc">9. DC analysis and diode models</a></li>
+    <li class="sub"><a href="#iteration">Iteration</a></li>
+    <li class="sub"><a href="#loadline">Load line</a></li>
+    <li class="sub"><a href="#pwl">Ideal and piecewise linear models</a></li>
+    <li><a href="#small">10. The small-signal model</a></li>
+    <li class="sub"><a href="#capacitance">Capacitances and the full model</a></li>
+    <li><a href="#special">11. Special diodes</a></li>
+    <li><a href="#thermo">12. The diode thermometer</a></li>
+    <li><a href="#practice">13. Practice problems</a></li>
+    <li><a href="#sheet">14. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">ELECTRONICS 245 · CHAPTER 1 · SEMICONDUCTOR MATERIALS AND DIODES</div>
+  <h1>Semiconductor physics and the pn diode</h1>
+  <p class="lede">Where the carriers in silicon come from, how a pn junction turns them into a one-way device, and how to analyse a diode circuit exactly, with a model, and for small signals.</p>
+</header>
+
+<section id="intrinsic">
+<h2><span class="n">01</span>Intrinsic semiconductors</h2>
+<p class="reading"><b>Reading</b> Chapter 1 summary, section 1.1 (1)</p>
+<p>A pure silicon (\(\text{Si}\)) or germanium (\(\text{Ge}\)) crystal is a tetrahedral lattice. Every atom has four valence electrons and shares each one with a neighbour in a covalent bond, so all four of its bonds are full.</p>
+<div class="box watch"><span class="label">Watch out</span><p>The summary calls the Si and Ge lattice "diamond/zincblende". Silicon and germanium are diamond lattices. Zincblende is the compound-semiconductor version, as in \(\text{GaAs}\). The bonding picture above is the same for both.</p></div>
+<h3 id="bands">Energy bands</h3>
+<p>Electron energies in the crystal fall into bands. The <strong>valence band</strong> (top edge \(E_v\)) holds electrons bound to atoms. The <strong>conduction band</strong> (bottom edge \(E_c\)) holds electrons free to move through the lattice, and only these conduct. Between them lies a forbidden gap.</p>
+<div class="box def"><span class="label">Definition</span><p>The <strong>bandgap</strong> is \(E_g = E_c - E_v\). Typical values are \(1.1\ \text{eV}\) for \(\text{Si}\), \(1.4\ \text{eV}\) for \(\text{GaAs}\) and \(0.66\ \text{eV}\) for \(\text{Ge}\).</p></div>
+<p>At \(T = 0\ \text{K}\) every valence state is full and the conduction band is empty, so the crystal is a perfect insulator. At higher temperature, thermal energy lifts some electrons across \(E_g\). Each one leaves an empty valence state called a <strong>hole</strong>, which behaves as a mobile carrier of charge \(+e\). Electrons and holes are created in pairs.</p>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Energy band diagram. A conduction band above a valence band, separated by the bandgap. One electron has been lifted from the valence band into the conduction band, leaving a hole.">
+<rect class="area" x="120" y="30" width="400" height="50"/>
+<rect class="area" x="120" y="170" width="400" height="50"/>
+<text class="lab b" x="130" y="58" text-anchor="start">Conduction band</text>
+<text class="lab b" x="130" y="205" text-anchor="start">Valence band</text>
+<text class="lab b" x="112" y="84" text-anchor="end">E<tspan dy="3" font-size="75%">c</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab b" x="112" y="166" text-anchor="end">E<tspan dy="3" font-size="75%">v</tspan><tspan dy="-3"> </tspan></text>
+<line class="ln c4 thin" x1="560" y1="82" x2="560" y2="168"/>
+<polygon class="c4f" points="560,82 562.7,88 557.3,88"/>
+<polygon class="c4f" points="560,168 557.3,162 562.7,162"/>
+<text class="lab b" x="572" y="129" text-anchor="start">E<tspan dy="3" font-size="75%">g</tspan><tspan dy="-3"> </tspan></text>
+<text class="tk" x="215" y="129" text-anchor="middle">forbidden: no electron states</text>
+<line class="ln c3 dash" x1="330" y1="184" x2="330" y2="72"/>
+<polygon class="c3f" points="330,68 333.1,75 326.9,75"/>
+<circle class="c3f" cx="330" cy="56" r="6"/>
+<circle class="hollow ln c3" cx="330" cy="196" r="6"/>
+<text class="tk" x="342" y="52" text-anchor="start">free electron</text>
+<text class="tk" x="342" y="200" text-anchor="start">hole (+e)</text>
+<text class="tk" x="342" y="129" text-anchor="start">thermal generation</text>
+</svg>
+<figcaption><b>Figure 1.1</b> Thermal generation of an electron-hole pair across the bandgap.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> The amber arrow is the thermal energy that lifts one valence electron into the conduction band. The filled amber dot is the free electron and the open circle is the hole it left behind.</p>
+
+<h3 id="ni">Intrinsic carrier concentration</h3>
+<p>In a pure crystal the number of electrons per cm³ equals the number of holes. Call it \(n_i\). A wider gap makes it exponentially smaller, and a higher temperature makes it larger.</p>
+<div class="eq"><span class="tag">Intrinsic carrier concentration</span>\[ n_i = B\,T^{3/2}\exp\!\left(-\frac{E_g}{2kT}\right) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(n_i\)</dt><dd>Intrinsic carrier concentration (cm\(^{-3}\)).</dd>
+  <dt>\(B\)</dt><dd>Material coefficient: \(\text{Si}\) \(5.23\times10^{15}\), \(\text{Ge}\) \(1.66\times10^{15}\), \(\text{GaAs}\) \(2.10\times10^{14}\) (cm\(^{-3}\)K\(^{-3/2}\)).</dd>
+  <dt>\(T\)</dt><dd>Absolute temperature (K).</dd>
+  <dt>\(E_g\)</dt><dd>Bandgap (eV).</dd>
+  <dt>\(k\)</dt><dd>Boltzmann's constant, \(8.62\times10^{-5}\ \text{eV/K}\) (the summary writes \(86\times10^{-6}\)).</dd>
+</dl>
+</div>
+<p>For silicon at \(300\ \text{K}\) the formula gives \(1.56\times10^{10}\ \text{cm}^{-3}\), which the course rounds to \(n_i \approx 1.5\times10^{10}\ \text{cm}^{-3}\). That figure is used in every later calculation.</p>
+<div class="ex"><div class="hd">Worked example 1.1 <span>temperature and bandgap</span></div><div class="bd">
+<p>Find \(n_i\) for silicon at \(350\ \text{K}\) and compare it with \(300\ \text{K}\). Then find \(n_i\) for germanium at \(300\ \text{K}\). Use \(E_g = 1.1\ \text{eV}\) for \(\text{Si}\) and \(0.66\ \text{eV}\) for \(\text{Ge}\).</p>
+<div class="step"><i>1</i><div>Silicon at \(350\ \text{K}\): \(T^{3/2} = 6548\) and \(E_g/2kT = 1.1/(2\times8.617\times10^{-5}\times350) = 18.24\), so \(\exp(-18.24) = 1.20\times10^{-8}\).</div></div>
+<div class="step"><i>2</i><div>\[ n_i = (5.23\times10^{15})(6548)(1.20\times10^{-8}) = 4.12\times10^{11}\ \text{cm}^{-3} \]</div></div>
+<div class="step"><i>3</i><div>Ratio to \(300\ \text{K}\): \(4.12\times10^{11}/1.56\times10^{10} = 26.3\).</div></div>
+<div class="step"><i>4</i><div>Germanium at \(300\ \text{K}\) with \(B = 1.66\times10^{15}\): \(n_i = 2.47\times10^{13}\ \text{cm}^{-3}\), which is about 1600 times the silicon value.</div></div>
+<div class="ans">\(n_i(\text{Si}, 350\ \text{K}) = 4.12\times10^{11}\ \text{cm}^{-3}\), 26.3 times its \(300\ \text{K}\) value for a rise of only \(50\ \text{K}\). Germanium's smaller gap gives it thousands of times more intrinsic carriers than silicon at the same temperature.</div>
+</div></div>
+</section>
+
+<section id="doping">
+<h2><span class="n">02</span>Doping</h2>
+<p class="reading"><b>Reading</b> Chapter 1 summary, section 1.1 (2)</p>
+<p>Adding a small amount of impurity makes the carrier concentration far larger than \(n_i\) and decides which carrier dominates.</p>
+<div class="tbl"><table><thead><tr><th></th><th>n-type</th><th>p-type</th></tr></thead><tbody>
+<tr><td>Impurity</td><td>Donor, Group V (phosphorus, arsenic, antimony)</td><td>Acceptor, Group III (boron, gallium, indium)</td></tr>
+<tr><td>What happens</td><td>Four electrons bond. The fifth is loosely bound and ionises into the conduction band at room temperature.</td><td>The atom takes a valence electron to complete four bonds, which leaves a free hole.</td></tr>
+<tr><td>Fixed ion left behind</td><td>Positive donor ion \(N_d^+\)</td><td>Negative acceptor ion \(N_a^-\)</td></tr>
+<tr><td>Majority carriers</td><td>Electrons, \(n_0 \approx N_d\)</td><td>Holes, \(p_0 \approx N_a\)</td></tr>
+<tr><td>Minority carriers</td><td>Holes, \(p_0 \approx n_i^2/N_d\)</td><td>Electrons, \(n_0 \approx n_i^2/N_a\)</td></tr>
+</tbody></table></div>
+<p>The fixed ions are immobile. Only the carriers move, and this is why a doped crystal stays electrically neutral until a junction is made.</p>
+<div class="eq"><span class="tag">Mass-action law</span>\[ n_0\,p_0 = n_i^2 \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(n_0\)</dt><dd>Thermal-equilibrium electron concentration (cm\(^{-3}\)).</dd>
+  <dt>\(p_0\)</dt><dd>Thermal-equilibrium hole concentration (cm\(^{-3}\)).</dd>
+  <dt>\(n_i\)</dt><dd>Intrinsic carrier concentration (cm\(^{-3}\)).</dd>
+</dl>
+</div>
+<p>The law holds for any doping, so raising one carrier concentration lowers the other by the same factor. This is how the minority-carrier values in the table follow from the majority ones.</p>
+<div class="ex"><div class="hd">Worked example 2.1 <span>majority and minority carriers</span></div><div class="bd">
+<p>Silicon at \(300\ \text{K}\) (\(n_i = 1.5\times10^{10}\ \text{cm}^{-3}\)) is doped (a) n-type with \(N_d = 5\times10^{15}\ \text{cm}^{-3}\) and (b) p-type with \(N_a = 8\times10^{16}\ \text{cm}^{-3}\). Find both carrier concentrations in each.</p>
+<div class="step"><i>1</i><div>(a) Electrons are the majority carrier, so \(n_0 \approx N_d = 5\times10^{15}\ \text{cm}^{-3}\).</div></div>
+<div class="step"><i>2</i><div>Holes follow from mass action: \(p_0 = n_i^2/N_d = (1.5\times10^{10})^2/(5\times10^{15}) = 4.50\times10^{4}\ \text{cm}^{-3}\).</div></div>
+<div class="step"><i>3</i><div>(b) Holes are the majority carrier, so \(p_0 \approx N_a = 8\times10^{16}\ \text{cm}^{-3}\).</div></div>
+<div class="step"><i>4</i><div>Electrons: \(n_0 = n_i^2/N_a = 2.81\times10^{3}\ \text{cm}^{-3}\).</div></div>
+<div class="ans">(a) \(n_0 = 5\times10^{15}\) and \(p_0 = 4.5\times10^{4}\ \text{cm}^{-3}\). (b) \(p_0 = 8\times10^{16}\) and \(n_0 = 2.8\times10^{3}\ \text{cm}^{-3}\). In each case the minority carriers are about eleven orders of magnitude below the majority carriers.</div>
+</div></div>
+</section>
+
+<section id="transport">
+<h2><span class="n">03</span>Drift and diffusion</h2>
+<p class="reading"><b>Reading</b> Chapter 1 summary, section 1.1 (3)</p>
+<p>Carriers move by two mechanisms. <strong>Drift</strong> is directed motion caused by an electric field. <strong>Diffusion</strong> is motion from high to low concentration. Both matter in a pn junction, and equilibrium is the state where they cancel.</p>
+<div class="eq"><span class="tag">Drift current</span>\[ v_{dn} = -\mu_n E \qquad v_{dp} = +\mu_p E \qquad J_{\text{drift}} = e(n\mu_n + p\mu_p)E = \sigma E = \frac{E}{\rho} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(v_{dn}, v_{dp}\)</dt><dd>Electron and hole drift velocities (cm/s). Electrons move against the field.</dd>
+  <dt>\(\mu_n, \mu_p\)</dt><dd>Electron and hole mobilities (cm\(^2\)/V·s). For low-doped silicon at room temperature, \(\mu_n \approx 1350\) and \(\mu_p \approx 480\).</dd>
+  <dt>\(E\)</dt><dd>Electric field (V/cm).</dd>
+  <dt>\(J_{\text{drift}}\)</dt><dd>Drift current density (A/cm\(^2\)).</dd>
+  <dt>\(e\)</dt><dd>Electron charge, \(1.6\times10^{-19}\ \text{C}\).</dd>
+  <dt>\(n, p\)</dt><dd>Electron and hole concentrations (cm\(^{-3}\)).</dd>
+  <dt>\(\sigma\)</dt><dd>Conductivity (\((\Omega\cdot\text{cm})^{-1}\)).</dd>
+  <dt>\(\rho\)</dt><dd>Resistivity, \(1/\sigma\) (\(\Omega\cdot\text{cm}\)).</dd>
+</dl>
+</div>
+<p>Electrons move more easily than holes, so \(\mu_n \gt \mu_p\) and n-type material conducts better than p-type at the same doping. Drift velocity does not grow forever. Above about \(10^4\ \text{V/cm}\) it saturates at \(v_{\text{sat}} \approx 10^7\ \text{cm/s}\).</p>
+<div class="eq"><span class="tag">Diffusion current</span>\[ J_{n,\text{diff}} = eD_n\frac{dn}{dx} \qquad J_{p,\text{diff}} = -eD_p\frac{dp}{dx} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(J_{n,\text{diff}}, J_{p,\text{diff}}\)</dt><dd>Electron and hole diffusion current densities (A/cm\(^2\)).</dd>
+  <dt>\(D_n, D_p\)</dt><dd>Diffusion coefficients (cm\(^2\)/s).</dd>
+  <dt>\(dn/dx, dp/dx\)</dt><dd>Concentration gradients (cm\(^{-4}\)).</dd>
+</dl>
+</div>
+<div class="eq"><span class="tag">Einstein relation</span>\[ \frac{D_n}{\mu_n} = \frac{D_p}{\mu_p} = \frac{kT}{e} = V_T \approx 0.026\ \text{V at } 300\ \text{K} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(D_n, D_p\)</dt><dd>Diffusion coefficients (cm\(^2\)/s).</dd>
+  <dt>\(\mu_n, \mu_p\)</dt><dd>Mobilities (cm\(^2\)/V·s).</dd>
+  <dt>\(k\)</dt><dd>Boltzmann's constant (\(1.38\times10^{-23}\ \text{J/K}\)).</dd>
+  <dt>\(T\)</dt><dd>Absolute temperature (K).</dd>
+  <dt>\(e\)</dt><dd>Electron charge (C).</dd>
+  <dt>\(V_T\)</dt><dd>Thermal voltage (V).</dd>
+</dl>
+</div>
+<div class="ex"><div class="hd">Worked example 3.1 <span>conductivity, drift and diffusion</span></div><div class="bd">
+<p>An n-type silicon bar has \(n \approx N_d = 10^{16}\ \text{cm}^{-3}\) at \(300\ \text{K}\). Use the low-doped mobilities. Find its conductivity and resistivity, the electron drift velocity in a field of \(100\ \text{V/cm}\), and \(D_n\).</p>
+<div class="step"><i>1</i><div>Holes are negligible, so \(\sigma = en\mu_n = (1.6\times10^{-19})(10^{16})(1350) = 2.16\ (\Omega\cdot\text{cm})^{-1}\).</div></div>
+<div class="step"><i>2</i><div>\(\rho = 1/\sigma = 0.463\ \Omega\cdot\text{cm}\).</div></div>
+<div class="step"><i>3</i><div>\(|v_{dn}| = \mu_n E = 1350\times100 = 1.35\times10^{5}\ \text{cm/s}\), well below \(v_{\text{sat}}\).</div></div>
+<div class="step"><i>4</i><div>Einstein relation: \(D_n = \mu_n V_T = 1350\times0.026 = 35.1\ \text{cm}^2/\text{s}\).</div></div>
+<div class="ans">\(\sigma = 2.16\ (\Omega\cdot\text{cm})^{-1}\), \(\rho = 0.463\ \Omega\cdot\text{cm}\), \(v_{dn} = 1.35\times10^{5}\ \text{cm/s}\) and \(D_n = 35.1\ \text{cm}^2/\text{s}\). At \(10^4\ \text{V/cm}\) the linear formula would give \(1.35\times10^{7}\ \text{cm/s}\), above \(v_{\text{sat}}\), so the velocity saturates there instead.</div>
+</div></div>
+<div class="note"><span class="tag">Mobility and doping</span><p>The summary quotes mobilities for low-doped silicon. In heavily doped material the mobility is lower, so the example above slightly overstates \(\sigma\) for \(10^{16}\ \text{cm}^{-3}\). Use the given values in this course.</p></div>
+</section>
+
+<section id="equilibrium">
+<h2><span class="n">04</span>The pn junction in equilibrium</h2>
+<p class="reading"><b>Reading</b> Chapter 1 summary, section 1.2 (1)</p>
+<p>Join p-type and n-type material at a metallurgical junction at \(x = 0\). Holes are plentiful on the p side and scarce on the n side, so holes diffuse from p to n. Electrons diffuse from n to p for the same reason. Each carrier that leaves uncovers a fixed ion it used to cancel: negative acceptor ions \(N_a^-\) on the p side and positive donor ions \(N_d^+\) on the n side.</p>
+<p>These ions form a <strong>space-charge region</strong>, also called the <strong>depletion region</strong>, because almost no mobile carriers remain in it. Its charge sets up an internal electric field pointing from n to p. That field pushes carriers back, and the junction reaches thermal equilibrium when the field's drift current exactly balances the diffusion current for both carrier types.</p>
+<figure>
+<svg viewBox="0 0 640 330" class="fig" role="img" aria-label="A pn junction in equilibrium. The p side holds fixed negative ions and the n side fixed positive ions. A depletion region around the junction carries an electric field from n to p, and the electrostatic potential rises by the built-in potential across it.">
+<rect class="frame" x="60" y="20" width="520" height="100"/>
+<rect class="area" x="270" y="20" width="100" height="100"/>
+<line class="ln c4 dash thin" x1="320" y1="14" x2="320" y2="126"/>
+<text class="tk" x="320" y="10" text-anchor="middle">x = 0</text>
+<text class="lab b" x="70" y="38" text-anchor="start">p-type</text>
+<text class="lab b" x="570" y="38" text-anchor="end">n-type</text>
+<circle class="hollow ln c1" cx="282" cy="52" r="7"/>
+<line class="ln c1 thin" x1="278.5" y1="52" x2="285.5" y2="52"/>
+<circle class="hollow ln c1" cx="282" cy="78" r="7"/>
+<line class="ln c1 thin" x1="278.5" y1="78" x2="285.5" y2="78"/>
+<circle class="hollow ln c1" cx="282" cy="104" r="7"/>
+<line class="ln c1 thin" x1="278.5" y1="104" x2="285.5" y2="104"/>
+<circle class="hollow ln c1" cx="300" cy="52" r="7"/>
+<line class="ln c1 thin" x1="296.5" y1="52" x2="303.5" y2="52"/>
+<circle class="hollow ln c1" cx="300" cy="78" r="7"/>
+<line class="ln c1 thin" x1="296.5" y1="78" x2="303.5" y2="78"/>
+<circle class="hollow ln c1" cx="300" cy="104" r="7"/>
+<line class="ln c1 thin" x1="296.5" y1="104" x2="303.5" y2="104"/>
+<circle class="hollow ln c3" cx="340" cy="52" r="7"/>
+<line class="ln c3 thin" x1="336.5" y1="52" x2="343.5" y2="52"/>
+<line class="ln c3 thin" x1="340" y1="48.5" x2="340" y2="55.5"/>
+<circle class="hollow ln c3" cx="340" cy="78" r="7"/>
+<line class="ln c3 thin" x1="336.5" y1="78" x2="343.5" y2="78"/>
+<line class="ln c3 thin" x1="340" y1="74.5" x2="340" y2="81.5"/>
+<circle class="hollow ln c3" cx="340" cy="104" r="7"/>
+<line class="ln c3 thin" x1="336.5" y1="104" x2="343.5" y2="104"/>
+<line class="ln c3 thin" x1="340" y1="100.5" x2="340" y2="107.5"/>
+<circle class="hollow ln c3" cx="358" cy="52" r="7"/>
+<line class="ln c3 thin" x1="354.5" y1="52" x2="361.5" y2="52"/>
+<line class="ln c3 thin" x1="358" y1="48.5" x2="358" y2="55.5"/>
+<circle class="hollow ln c3" cx="358" cy="78" r="7"/>
+<line class="ln c3 thin" x1="354.5" y1="78" x2="361.5" y2="78"/>
+<line class="ln c3 thin" x1="358" y1="74.5" x2="358" y2="81.5"/>
+<circle class="hollow ln c3" cx="358" cy="104" r="7"/>
+<line class="ln c3 thin" x1="354.5" y1="104" x2="361.5" y2="104"/>
+<line class="ln c3 thin" x1="358" y1="100.5" x2="358" y2="107.5"/>
+<circle class="hollow ln c4" cx="90" cy="60" r="3"/>
+<circle class="hollow ln c4" cx="100" cy="95" r="3"/>
+<circle class="hollow ln c4" cx="130" cy="60" r="3"/>
+<circle class="hollow ln c4" cx="140" cy="95" r="3"/>
+<circle class="hollow ln c4" cx="170" cy="60" r="3"/>
+<circle class="hollow ln c4" cx="180" cy="95" r="3"/>
+<circle class="hollow ln c4" cx="210" cy="60" r="3"/>
+<circle class="hollow ln c4" cx="220" cy="95" r="3"/>
+<circle class="hollow ln c4" cx="240" cy="60" r="3"/>
+<circle class="hollow ln c4" cx="250" cy="95" r="3"/>
+<circle class="c4f" cx="395" cy="60" r="3"/>
+<circle class="c4f" cx="410" cy="95" r="3"/>
+<circle class="c4f" cx="435" cy="60" r="3"/>
+<circle class="c4f" cx="450" cy="95" r="3"/>
+<circle class="c4f" cx="475" cy="60" r="3"/>
+<circle class="c4f" cx="490" cy="95" r="3"/>
+<circle class="c4f" cx="515" cy="60" r="3"/>
+<circle class="c4f" cx="530" cy="95" r="3"/>
+<circle class="c4f" cx="550" cy="60" r="3"/>
+<circle class="c4f" cx="565" cy="95" r="3"/>
+<line class="ln c3" x1="362" y1="126" x2="278" y2="126"/>
+<polygon class="c3f" points="276,126 283,122.8 283,129.2"/>
+<text class="lab b" x="374" y="130" text-anchor="start">E</text>
+<text class="tk" x="262" y="140" text-anchor="end">depletion region</text>
+<line class="ln c4 thin" x1="270" y1="150" x2="370" y2="150"/>
+<polygon class="c4f" points="270,150 275,147.8 275,152.2"/>
+<polygon class="c4f" points="370,150 365,152.2 365,147.8"/>
+<text class="lab" x="320" y="166" text-anchor="middle">W</text>
+<rect class="frame" x="60" y="200" width="520" height="90"/>
+<line class="grid" x1="60" y1="206" x2="580" y2="206"/>
+<polyline class="ln c1" points="60,284 270,284 271,284 272,283.9 273,283.9 274,283.8 275,283.6 276,283.4 277,283.2 278,283 279,282.7 280,282.4 281,282.1 282,281.8 283,281.4 284,280.9 285,280.5 286,280 287,279.5 288,278.9 289,278.4 290,277.8 291,277.1 292,276.4 293,275.7 294,275 295,274.2 296,273.5 297,272.6 298,271.8 299,270.9 300,270 301,269 302,268 303,267 304,266 305,264.9 306,263.8 307,262.6 308,261.5 309,260.3 310,259 311,257.8 312,256.5 313,255.2 314,253.8 315,252.4 316,251 317,249.5 318,248.1 319,246.5 320,245 321,243.5 322,241.9 323,240.5 324,239 325,237.6 326,236.2 327,234.8 328,233.5 329,232.2 330,231 331,229.7 332,228.5 333,227.4 334,226.2 335,225.1 336,224 337,223 338,222 339,221 340,220 341,219.1 342,218.2 343,217.4 344,216.5 345,215.8 346,215 347,214.3 348,213.6 349,212.9 350,212.2 351,211.6 352,211.1 353,210.5 354,210 355,209.5 356,209.1 357,208.6 358,208.2 359,207.9 360,207.6 361,207.3 362,207 363,206.8 364,206.6 365,206.4 366,206.2 367,206.1 368,206.1 369,206 370,206 580,206"/>
+<text class="tk" x="54" y="210" text-anchor="end">V<tspan dy="3" font-size="75%">bi</tspan><tspan dy="-3"> </tspan></text>
+<text class="tk" x="54" y="288" text-anchor="end">0</text>
+<text class="lab" x="16" y="245" text-anchor="middle" transform="rotate(-90 16 245)">potential (V)</text>
+<text class="lab" x="320" y="320" text-anchor="middle">position x (not to scale)</text>
+<line class="grid" x1="270" y1="200" x2="270" y2="290"/>
+<line class="grid" x1="370" y1="200" x2="370" y2="290"/>
+</svg>
+<figcaption><b>Figure 4.1</b> A pn junction in equilibrium, with its depletion region and potential.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> Circled signs are the fixed ions. Open circles are holes and filled dots are electrons. The amber arrow is the internal field. The lower plot is drawn from the depletion approximation with \(N_a = N_d\), so the potential rises smoothly by \(V_{bi}\) across the depletion region and is flat outside it.</p>
+<p>The potential difference across the depletion region is the <strong>built-in potential</strong>.</p>
+<div class="eq"><span class="tag">Built-in potential</span>\[ V_{bi} = V_T\ln\!\left(\frac{N_aN_d}{n_i^2}\right) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(V_{bi}\)</dt><dd>Built-in potential barrier (V). Typically \(0.6\) to \(0.8\ \text{V}\) for silicon.</dd>
+  <dt>\(V_T\)</dt><dd>Thermal voltage, \(kT/e \approx 0.026\ \text{V}\).</dd>
+  <dt>\(N_a, N_d\)</dt><dd>Acceptor and donor concentrations on the two sides (cm\(^{-3}\)).</dd>
+  <dt>\(n_i\)</dt><dd>Intrinsic carrier concentration (cm\(^{-3}\)).</dd>
+</dl>
+</div>
+<div class="box watch"><span class="label">Watch out</span><p>You cannot measure \(V_{bi}\) with a voltmeter. The metal contacts at the leads add contact potentials that cancel it, so no net voltage appears at the terminals of an unbiased diode.</p></div>
+<div class="ex"><div class="hd">Worked example 4.1 <span>built-in potential</span></div><div class="bd">
+<p>A silicon junction at \(300\ \text{K}\) has \(N_a = 10^{17}\ \text{cm}^{-3}\) and \(N_d = 10^{16}\ \text{cm}^{-3}\). Find \(V_{bi}\). Then find it again when \(N_a\) is raised tenfold.</p>
+<div class="step"><i>1</i><div>\(N_aN_d/n_i^2 = 10^{33}/(1.5\times10^{10})^2 = 4.44\times10^{12}\).</div></div>
+<div class="step"><i>2</i><div>\(V_{bi} = 0.026\ln(4.44\times10^{12}) = 0.026\times29.12 = 0.757\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>With \(N_a = 10^{18}\ \text{cm}^{-3}\): \(V_{bi} = 0.817\ \text{V}\).</div></div>
+<div class="ans">\(V_{bi} = 0.757\ \text{V}\), rising to \(0.817\ \text{V}\). Ten times more doping adds only \(V_T\ln 10 \approx 60\ \text{mV}\), because \(V_{bi}\) depends on the logarithm of the doping.</div>
+</div></div>
+</section>
+
+<section id="reverse">
+<h2><span class="n">05</span>Reverse bias</h2>
+<p class="reading"><b>Reading</b> Chapter 1 summary, section 1.2 (2)</p>
+<p>Reverse bias means a positive voltage \(V_R\) on the n region relative to the p region, so \(v_D = -V_R \lt 0\). The applied voltage adds to the built-in one, and the barrier becomes \(V_{bi} + V_R\). The internal field strengthens and the depletion region widens.</p>
+<div class="eq"><span class="tag">Depletion width and junction capacitance</span>\[ W \propto \sqrt{V_{bi} + V_R} \qquad C_j = C_{j0}\left(1 + \frac{V_R}{V_{bi}}\right)^{-1/2} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(W\)</dt><dd>Depletion region width (cm).</dd>
+  <dt>\(V_{bi}\)</dt><dd>Built-in potential (V).</dd>
+  <dt>\(V_R\)</dt><dd>Magnitude of the reverse bias (V).</dd>
+  <dt>\(C_j\)</dt><dd>Junction (depletion layer) capacitance at reverse bias \(V_R\) (F).</dd>
+  <dt>\(C_{j0}\)</dt><dd>Junction capacitance at zero bias (F).</dd>
+</dl>
+</div>
+<p>Majority carriers cannot cross the larger barrier. Only a tiny <strong>reverse saturation current</strong> \(I_S\) flows, made of thermally generated minority carriers near the edges of the depletion region.</p>
+<p>The depletion region is an insulating layer between two conducting regions, so it acts as a capacitor. A wider layer means a smaller capacitance. A <strong>varactor diode</strong> uses this to make a capacitor that a reverse voltage can tune.</p>
+<div class="ex"><div class="hd">Worked example 5.1 <span>a tunable capacitance</span></div><div class="bd">
+<p>A junction has \(C_{j0} = 2\ \text{pF}\) and \(V_{bi} = 0.7\ \text{V}\). Find \(C_j\) at \(V_R = 5\ \text{V}\) and the factor by which the depletion width grows.</p>
+<div class="step"><i>1</i><div>\(1 + V_R/V_{bi} = 1 + 5/0.7 = 8.14\).</div></div>
+<div class="step"><i>2</i><div>\(C_j = 2/\sqrt{8.14} = 0.701\ \text{pF}\).</div></div>
+<div class="step"><i>3</i><div>\(W(5\ \text{V})/W(0) = \sqrt{(0.7+5)/0.7} = 2.85\).</div></div>
+<div class="ans">\(C_j = 0.701\ \text{pF}\), about 35% of the zero-bias value. The depletion width grows by a factor of 2.85, and the capacitance falls by the same factor.</div>
+</div></div>
+</section>
+
+<section id="forward">
+<h2><span class="n">06</span>Forward bias and the diode equation</h2>
+<p class="reading"><b>Reading</b> Chapter 1 summary, section 1.2 (3 and 4)</p>
+<p>Forward bias means a positive voltage \(v_D\) on the p region relative to the n region. It lowers the barrier to \(V_{bi} - v_D\), and large numbers of majority carriers diffuse across. Electrons from the n side enter the p side, and holes from the p side enter the n side. There they are <strong>excess minority carriers</strong>. They diffuse through the neutral regions and recombine with majority carriers, which carries a strong diffusion current.</p>
+<div class="eq"><span class="tag">Ideal diode equation</span>\[ i_D = I_S\left[\exp\!\left(\frac{v_D}{nV_T}\right) - 1\right] \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(i_D\)</dt><dd>Diode current, positive from anode to cathode (A).</dd>
+  <dt>\(I_S\)</dt><dd>Reverse saturation current (A). It is proportional to the junction area and is typically \(10^{-18}\) to \(10^{-12}\ \text{A}\) for silicon.</dd>
+  <dt>\(v_D\)</dt><dd>Voltage from anode to cathode (V).</dd>
+  <dt>\(n\)</dt><dd>Emission coefficient, \(1 \le n \le 2\). Take \(n = 1\) unless recombination in the depletion region matters.</dd>
+  <dt>\(V_T\)</dt><dd>Thermal voltage, \(kT/e \approx 26\ \text{mV}\) at \(300\ \text{K}\) (V).</dd>
+</dl>
+</div>
+<p>Two limits cover almost every calculation:</p>
+<div class="eq"><span class="tag">Forward and reverse limits</span>\[ v_D \gt 0.1\ \text{V}:\quad i_D \approx I_S\exp\!\left(\frac{v_D}{nV_T}\right),\quad v_D = nV_T\ln\!\left(\frac{i_D}{I_S}\right) \qquad v_D \le -0.1\ \text{V}:\quad i_D \approx -I_S \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(i_D\)</dt><dd>Diode current (A).</dd>
+  <dt>\(v_D\)</dt><dd>Diode voltage (V).</dd>
+  <dt>\(I_S\)</dt><dd>Reverse saturation current (A).</dd>
+  <dt>\(n\)</dt><dd>Emission coefficient (dimensionless).</dd>
+  <dt>\(V_T\)</dt><dd>Thermal voltage (V).</dd>
+</dl>
+</div>
+<div class="key"><span class="tag">Key idea</span><p>Forward current grows by a factor of 10 for roughly every \(60\ \text{mV}\) increase in \(v_D\) (\(n = 1\), \(300\ \text{K}\)). Voltage depends on the logarithm of current, so a diode's forward voltage barely moves while its current changes a great deal. That is why \(0.6\) to \(0.7\ \text{V}\) is a usable figure for silicon.</p></div>
+<div class="ex"><div class="hd">Worked example 6.1 <span>using the diode equation</span></div><div class="bd">
+<p>A silicon diode has \(I_S = 10^{-14}\ \text{A}\), \(n = 1\) and \(V_T = 26\ \text{mV}\). Find the voltage at \(i_D = 2\ \text{mA}\), the current at \(v_D = 0.65\ \text{V}\) and the current at \(v_D = -0.3\ \text{V}\).</p>
+<div class="step"><i>1</i><div>Forward voltage: \(v_D = 0.026\ln(2\times10^{-3}/10^{-14}) = 0.026\times26.02 = 0.6766\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>Current at \(0.65\ \text{V}\): \(i_D = 10^{-14}\exp(0.65/0.026) = 0.720\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>At \(-0.3\ \text{V}\) the exponential is negligible, so \(i_D \approx -I_S = -10^{-14}\ \text{A}\).</div></div>
+<div class="step"><i>4</i><div>Check the decade rule: \(V_T\ln 10 = 59.9\ \text{mV}\) per factor of 10.</div></div>
+<div class="ans">\(v_D = 0.677\ \text{V}\) at \(2\ \text{mA}\); \(i_D = 0.72\ \text{mA}\) at \(0.65\ \text{V}\); \(i_D \approx -10\ \text{fA}\) at \(-0.3\ \text{V}\). Raising the voltage by \(26.6\ \text{mV}\) from \(0.65\ \text{V}\) to \(0.6766\ \text{V}\) multiplies the current by \(2.78\).</div>
+</div></div>
+</section>
+
+<section id="temp">
+<h2><span class="n">07</span>Temperature and breakdown</h2>
+<p class="reading"><b>Reading</b> Chapter 1 summary, section 1.2 (5 and 6)</p>
+<p>The saturation current depends strongly on temperature, because \(I_S \propto n_i^2 \propto T^3\exp(-E_g/kT)\). In theory \(I_S\) doubles for about every \(5\,^\circ\text{C}\). In real diodes the measured reverse current doubles for about every \(10\,^\circ\text{C}\).</p>
+<p>At a fixed forward current the opposite happens to the voltage. The exponential in the diode equation grows with temperature, but \(I_S\) grows faster, so the voltage needed for the same current falls.</p>
+<div class="eq"><span class="tag">Forward voltage temperature coefficient</span>\[ \frac{dv_D}{dT} \approx -2.0\ \text{mV}/^\circ\text{C} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(dv_D/dT\)</dt><dd>Change in forward voltage per unit temperature at constant diode current (mV/\(^\circ\)C).</dd>
+</dl>
+</div>
+<h3 id="breakdown">Breakdown</h3>
+<p>Beyond a large enough reverse voltage a junction conducts heavily. Two mechanisms cause it.</p>
+<div class="tbl"><table><thead><tr><th></th><th>Avalanche</th><th>Zener</th></tr></thead><tbody>
+<tr><td>Typical breakdown voltage \(V_Z\)</td><td>Above \(5\ \text{V}\)</td><td>Below \(5\ \text{V}\)</td></tr>
+<tr><td>Junction</td><td>Lightly doped</td><td>Heavily doped, depletion layer under \(100\ \text{Å}\)</td></tr>
+<tr><td>Mechanism</td><td>The field accelerates minority carriers until they free more electron-hole pairs by impact ionisation.</td><td>The field reaches about \(10^6\ \text{V/cm}\) and valence electrons tunnel straight from the p side into empty conduction states on the n side.</td></tr>
+</tbody></table></div>
+<div class="ex"><div class="hd">Worked example 7.1 <span>temperature drift</span></div><div class="bd">
+<p>At \(25\,^\circ\text{C}\) a diode has a reverse current of \(2\ \text{nA}\) and needs \(0.650\ \text{V}\) at a fixed forward current. Estimate both at the stated temperatures using the real-diode rules above.</p>
+<div class="step"><i>1</i><div>Reverse current at \(85\,^\circ\text{C}\): \(60\,^\circ\text{C}\) higher is six doublings, so the factor is \(2^6 = 64\).</div></div>
+<div class="step"><i>2</i><div>\(I_R = 2\ \text{nA}\times64 = 128\ \text{nA}\).</div></div>
+<div class="step"><i>3</i><div>Forward voltage at \(75\,^\circ\text{C}\): \(50\,^\circ\text{C}\) higher at \(-2.0\ \text{mV}/^\circ\text{C}\) gives a change of \(-100\ \text{mV}\).</div></div>
+<div class="step"><i>4</i><div>\(v_D = 0.650 - 0.100 = 0.550\ \text{V}\).</div></div>
+<div class="ans">\(I_R \approx 128\ \text{nA}\) at \(85\,^\circ\text{C}\) and \(v_D \approx 0.550\ \text{V}\) at \(75\,^\circ\text{C}\). Leakage rises quickly with heat while forward voltage falls.</div>
+</div></div>
+</section>
+
+<section id="switching">
+<h2><span class="n">08</span>Switching behaviour</h2>
+<p class="reading"><b>Reading</b> Chapter 1 summary, section 1.2 (7)</p>
+<p>Switch a diode quickly from forward conduction (current \(I_F\)) to reverse bias, with the reverse current limited by the circuit to \(I_R \approx V_R/R_R\). It does not turn off at once, because forward conduction stored excess minority carriers near the depletion region and they must be removed first.</p>
+<div class="tbl"><table><thead><tr><th>Interval</th><th>What happens</th></tr></thead><tbody>
+<tr><td>Storage time \(t_s\)</td><td>The stored charge is extracted. The diode voltage stays near \(+V_\gamma\) while the current is already reversed to \(-I_R\).</td></tr>
+<tr><td>Fall time \(t_f\)</td><td>The reverse current decays from \(-I_R\) to \(10\%\) of its initial value as the junction capacitance charges.</td></tr>
+<tr><td>Reverse recovery time \(t_{rr}\)</td><td>\(t_{rr} = t_s + t_f\)</td></tr>
+</tbody></table></div>
+<div class="eq"><span class="tag">Reverse recovery</span>\[ I_R \approx \frac{V_R}{R_R} \qquad t_{rr} = t_s + t_f \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(I_R\)</dt><dd>Reverse current during recovery (A).</dd>
+  <dt>\(V_R\)</dt><dd>Reverse voltage applied by the circuit (V).</dd>
+  <dt>\(R_R\)</dt><dd>Resistance that limits the reverse current (\(\Omega\)).</dd>
+  <dt>\(t_{rr}\)</dt><dd>Reverse recovery time (s).</dd>
+  <dt>\(t_s\)</dt><dd>Storage time (s).</dd>
+  <dt>\(t_f\)</dt><dd>Fall time (s).</dd>
+</dl>
+</div>
+<div class="ex"><div class="hd">Worked example 8.1 <span>reverse recovery</span></div><div class="bd">
+<p>A diode carrying \(I_F\) is switched to a \(5\ \text{V}\) reverse supply through \(1\ \text{k}\Omega\). It has \(t_s = 40\ \text{ns}\) and \(t_f = 25\ \text{ns}\).</p>
+<div class="step"><i>1</i><div>\(I_R \approx V_R/R_R = 5/1000 = 5\ \text{mA}\), flowing backwards during \(t_s\).</div></div>
+<div class="step"><i>2</i><div>\(t_{rr} = 40 + 25 = 65\ \text{ns}\).</div></div>
+<div class="ans">The diode conducts backwards at about \(5\ \text{mA}\) for \(40\ \text{ns}\), and is fully off after about \(65\ \text{ns}\). A Schottky diode (section 11) has \(t_s \approx 0\) and avoids most of this.</div>
+</div></div>
+</section>
+
+<section id="dc">
+<h2><span class="n">09</span>DC analysis and diode models</h2>
+<p class="reading"><b>Reading</b> Chapter 1 summary, section 1.3</p>
+<p>The standard circuit is a supply \(V_{PS}\) in series with a resistor \(R\) and a diode. Kirchhoff's voltage law gives \(V_{PS} = I_DR + V_D\), and the diode equation gives a second relation between \(I_D\) and \(V_D\). Four methods solve the pair. They trade accuracy for effort, and the exponential equation cannot be solved in closed form.</p>
+<h3 id="iteration">Iteration</h3>
+<p>Guess \(V_D\) (\(0.7\ \text{V}\) is a good start), find \(I_D = (V_{PS} - V_D)/R\), then update \(V_D = nV_T\ln(I_D/I_S)\). Repeat until \(V_D\) stops changing. It converges fast because \(V_D\) depends only on the logarithm of the current.</p>
+<h3 id="loadline">Load line</h3>
+<div class="eq"><span class="tag">Load line</span>\[ I_D = \frac{V_{PS}}{R} - \frac{V_D}{R} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(I_D\)</dt><dd>Diode current (A).</dd>
+  <dt>\(V_{PS}\)</dt><dd>Supply voltage (V). It is the intercept on the voltage axis.</dd>
+  <dt>\(R\)</dt><dd>Series resistance (\(\Omega\)). The current-axis intercept is \(V_{PS}/R\) and the slope is \(-1/R\).</dd>
+  <dt>\(V_D\)</dt><dd>Diode voltage (V).</dd>
+</dl>
+</div>
+<p>Plot this straight line over the diode's \(i_D\)-\(v_D\) curve. They cross at the <strong>quiescent point</strong> (Q-point) \((V_{DQ}, I_{DQ})\), the only pair of values that satisfies both the diode and the circuit.</p>
+<h3 id="pwl">Ideal and piecewise linear models</h3>
+<p>For hand work, replace the exponential by straight lines.</p>
+<div class="tbl"><table><thead><tr><th>Model</th><th>Conducting</th><th>Blocking</th></tr></thead><tbody>
+<tr><td>Ideal</td><td>\(V_D = 0\) when \(I_D \gt 0\)</td><td>\(I_D = 0\) when \(V_D \le 0\)</td></tr>
+<tr><td>Piecewise linear</td><td>ON when \(v_D \ge V_\gamma\): \(v_D = V_\gamma + i_Dr_f\)</td><td>OFF when \(v_D \lt V_\gamma\): \(i_D = 0\)</td></tr>
+</tbody></table></div>
+<div class="eq"><span class="tag">Piecewise linear model</span>\[ v_D = V_\gamma + i_Dr_f \qquad r_f = \frac{\Delta v_D}{\Delta i_D} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(v_D\)</dt><dd>Diode voltage when ON (V).</dd>
+  <dt>\(V_\gamma\)</dt><dd>Cut-in voltage (V). Typically \(0.6\) to \(0.7\ \text{V}\) for silicon.</dd>
+  <dt>\(i_D\)</dt><dd>Diode current (A).</dd>
+  <dt>\(r_f\)</dt><dd>Forward resistance, the slope of the ON line (\(\Omega\)).</dd>
+</dl>
+</div>
+<p>By hand \(r_f\) is usually taken as zero, so \(v_D \approx V_\gamma\) whenever \(i_D \gt 0\). The model is a source \(V_\gamma\) in series with \(r_f\) when ON and an open circuit when OFF.</p>
+<figure>
+<svg viewBox="0 0 640 190" class="fig" role="img" aria-label="Three diode models drawn as circuits. ON: a voltage source of the cut-in voltage in series with a forward resistance. OFF: an open circuit. Ideal: a bare cut-in source with no resistance.">
+<text class="lab b" x="110" y="28" text-anchor="middle">ON (v<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> ≥ V<tspan dy="3" font-size="75%">γ</tspan><tspan dy="-3"> </tspan>)</text>
+<circle class="hollow ln c4" cx="20" cy="95" r="3.5"/>
+<polyline class="ln c4" points="24,95 46,95"/>
+<line class="ln c4" x1="46" y1="95" x2="57" y2="95"/>
+<line class="ln c4" x1="63" y1="95" x2="74" y2="95"/>
+<line class="ln c4" x1="57" y1="85" x2="57" y2="105"/>
+<line class="ln c4" x1="63" y1="90" x2="63" y2="100"/>
+<text class="tk" x="57" y="80" text-anchor="end">+</text>
+<text class="lab" x="60" y="123" text-anchor="middle">V<tspan dy="3" font-size="75%">γ</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="74,95 92,95"/>
+<polyline class="ln c4" points="92,95 115.4,95 118,88 123.2,102 128.4,88 133.6,102 138.8,88 144,102 146.6,95 170,95"/>
+<text class="lab" x="131" y="83" text-anchor="middle">r<tspan dy="3" font-size="75%">f</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="170,95 196,95"/>
+<circle class="hollow ln c4" cx="200" cy="95" r="3.5"/>
+<line class="ln c3 thin" x1="30" y1="65" x2="80" y2="65"/>
+<polygon class="c3f" points="80,65 74,67.7 74,62.3"/>
+<text class="lab" x="92" y="69" text-anchor="start">i<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan></text>
+<text class="tk" x="20" y="117" text-anchor="middle">A</text>
+<text class="tk" x="200" y="117" text-anchor="middle">K</text>
+<text class="lab b" x="305" y="28" text-anchor="middle">OFF (v<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> &lt; V<tspan dy="3" font-size="75%">γ</tspan><tspan dy="-3"> </tspan>)</text>
+<circle class="hollow ln c4" cx="250" cy="95" r="3.5"/>
+<polyline class="ln c4" points="254,95 290,95"/>
+<polyline class="ln c4" points="320,95 356,95"/>
+<circle class="hollow ln c4" cx="360" cy="95" r="3.5"/>
+<text class="tk" x="305" y="99" text-anchor="middle">open</text>
+<text class="tk" x="250" y="117" text-anchor="middle">A</text>
+<text class="tk" x="360" y="117" text-anchor="middle">K</text>
+<text class="lab b" x="525" y="28" text-anchor="middle">Ideal (r<tspan dy="3" font-size="75%">f</tspan><tspan dy="-3"> </tspan> = 0)</text>
+<circle class="hollow ln c4" cx="430" cy="95" r="3.5"/>
+<polyline class="ln c4" points="434,95 496,95"/>
+<line class="ln c4" x1="496" y1="95" x2="507" y2="95"/>
+<line class="ln c4" x1="513" y1="95" x2="524" y2="95"/>
+<line class="ln c4" x1="507" y1="85" x2="507" y2="105"/>
+<line class="ln c4" x1="513" y1="90" x2="513" y2="100"/>
+<text class="tk" x="507" y="80" text-anchor="end">+</text>
+<text class="lab" x="510" y="123" text-anchor="middle">V<tspan dy="3" font-size="75%">γ</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="524,95 606,95"/>
+<circle class="hollow ln c4" cx="610" cy="95" r="3.5"/>
+<text class="tk" x="430" y="117" text-anchor="middle">A</text>
+<text class="tk" x="610" y="117" text-anchor="middle">K</text>
+</svg>
+<figcaption><b>Figure 9.2</b> The ON, OFF and ideal diode models as circuits.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 9.2:</b> A is the anode and K the cathode. With \(r_f = 0\) the ON model becomes a bare source of \(V_\gamma\), which is a vertical line on the \(i_D\)-\(v_D\) plot.</p>
+<div class="ex"><div class="hd">Worked example 9.1 <span>one circuit, four methods</span></div><div class="bd">
+<p>A \(5\ \text{V}\) supply drives a diode through \(1\ \text{k}\Omega\). The diode has \(I_S = 10^{-14}\ \text{A}\) and \(n = 1\). Find \(I_D\) and \(V_D\) by iteration, by the load line, with the \(0.7\ \text{V}\) model and with a piecewise model having \(V_\gamma = 0.65\ \text{V}\) and \(r_f = 20\ \Omega\).</p>
+<div class="step"><i>1</i><div>Iteration, starting at \(V_D = 0.7\ \text{V}\):
+<div class="tbl"><table><thead><tr><th>Pass</th><th>\(V_D\) used (V)</th><th>\(I_D\) (mA)</th><th>New \(V_D\) (V)</th></tr></thead><tbody>
+<tr><td>1</td><td>0.7000</td><td>4.300</td><td>0.6965</td></tr>
+<tr><td>2</td><td>0.6965</td><td>4.304</td><td>0.6965</td></tr>
+<tr><td>3</td><td>0.6965</td><td>4.304</td><td>0.6965</td></tr>
+</tbody></table></div></div></div>
+<div class="step"><i>2</i><div>It has settled after two passes: \(V_{DQ} = 0.6965\ \text{V}\) and \(I_{DQ} = 4.304\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>Load line: the intercepts are \(5\ \text{V}\) and \(5/1000 = 5\ \text{mA}\), and it crosses the curve at the same point (Figure 9.1).</div></div>
+<div class="step"><i>4</i><div>\(0.7\ \text{V}\) model: \(I_D = (5 - 0.7)/1000 = 4.30\ \text{mA}\).</div></div>
+<div class="step"><i>5</i><div>Piecewise model: \(I_D = (5 - 0.65)/(1000 + 20) = 4.265\ \text{mA}\), and \(V_D = 0.65 + I_D(20) = 0.735\ \text{V}\).</div></div>
+<div class="ans">Exact: \(0.696\ \text{V}\) and \(4.30\ \text{mA}\). The ideal diode gives \(5.00\ \text{mA}\), the \(0.7\ \text{V}\) model \(4.30\ \text{mA}\) and the piecewise model \(4.26\ \text{mA}\). The ideal diode is about 16% high. The \(0.7\ \text{V}\) model is within 0.1% and the piecewise model within 1%, because \(R\) sets most of the current when the supply is much larger than \(V_D\).</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 320" class="fig" role="img" aria-label="Diode current against voltage. The exponential characteristic, the 5 V and 1 kilohm load line, the operating point at 0.696 V and 4.30 mA, and the piecewise linear model with 0.65 V cut-in and 20 ohms forward resistance.">
+<line class="grid" x1="60" y1="20" x2="60" y2="270"/>
+<text class="tk" x="60" y="286" text-anchor="middle">0</text>
+<line class="grid" x1="197.5" y1="20" x2="197.5" y2="270"/>
+<text class="tk" x="197.5" y="286" text-anchor="middle">0.2</text>
+<line class="grid" x1="335" y1="20" x2="335" y2="270"/>
+<text class="tk" x="335" y="286" text-anchor="middle">0.4</text>
+<line class="grid" x1="472.5" y1="20" x2="472.5" y2="270"/>
+<text class="tk" x="472.5" y="286" text-anchor="middle">0.6</text>
+<line class="grid" x1="610" y1="20" x2="610" y2="270"/>
+<text class="tk" x="610" y="286" text-anchor="middle">0.8</text>
+<line class="grid" x1="60" y1="270" x2="610" y2="270"/>
+<text class="tk" x="54" y="274" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="228.3" x2="610" y2="228.3"/>
+<text class="tk" x="54" y="232.3" text-anchor="end">1</text>
+<line class="grid" x1="60" y1="186.7" x2="610" y2="186.7"/>
+<text class="tk" x="54" y="190.7" text-anchor="end">2</text>
+<line class="grid" x1="60" y1="145" x2="610" y2="145"/>
+<text class="tk" x="54" y="149" text-anchor="end">3</text>
+<line class="grid" x1="60" y1="103.3" x2="610" y2="103.3"/>
+<text class="tk" x="54" y="107.3" text-anchor="end">4</text>
+<line class="grid" x1="60" y1="61.7" x2="610" y2="61.7"/>
+<text class="tk" x="54" y="65.7" text-anchor="end">5</text>
+<line class="grid" x1="60" y1="20" x2="610" y2="20"/>
+<text class="tk" x="54" y="24" text-anchor="end">6</text>
+<rect class="frame" x="60" y="20" width="550" height="250"/>
+<text class="lab" x="335" y="306" text-anchor="middle">diode voltage v<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="16" y="145" text-anchor="middle" transform="rotate(-90 16 145)">diode current i<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> (mA)</text>
+<polyline class="ln c1" points="60,270 63.4,270 66.9,270 70.3,270 73.8,270 77.2,270 80.6,270 84.1,270 87.5,270 90.9,270 94.4,270 97.8,270 101.2,270 104.7,270 108.1,270 111.6,270 115,270 118.4,270 121.9,270 125.3,270 128.8,270 132.2,270 135.6,270 139.1,270 142.5,270 145.9,270 149.4,270 152.8,270 156.2,270 159.7,270 163.1,270 166.6,270 170,270 173.4,270 176.9,270 180.3,270 183.8,270 187.2,270 190.6,270 194.1,270 197.5,270 200.9,270 204.4,270 207.8,270 211.2,270 214.7,270 218.1,270 221.6,270 225,270 228.4,270 231.9,270 235.3,270 238.8,270 242.2,270 245.6,270 249.1,270 252.5,270 255.9,270 259.4,270 262.8,270 266.2,270 269.7,270 273.1,270 276.6,270 280,270 283.4,270 286.9,270 290.3,270 293.8,270 297.2,270 300.6,270 304.1,270 307.5,270 310.9,270 314.4,270 317.8,270 321.2,270 324.7,270 328.1,270 331.6,270 335,270 338.4,270 341.9,270 345.3,270 348.7,270 352.2,270 355.6,270 359.1,270 362.5,270 365.9,270 369.4,270 372.8,270 376.2,270 379.7,270 383.1,270 386.6,270 390,270 393.4,269.9 396.9,269.9 400.3,269.9 403.8,269.9 407.2,269.9 410.6,269.9 414.1,269.8 417.5,269.8 420.9,269.8 424.4,269.7 427.8,269.6 431.2,269.6 434.7,269.5 438.1,269.4 441.6,269.2 445,269.1 448.4,268.9 451.9,268.6 455.3,268.3 458.7,268 462.2,267.5 465.6,267 469.1,266.4 472.5,265.6 475.9,264.7 479.4,263.6 482.8,262.2 486.2,260.5 489.7,258.5 493.1,256.1 496.6,253.2 500,249.6 503.4,245.2 506.9,240 510.3,233.6 513.8,225.9 517.2,216.6 520.6,205.3 524.1,191.5 527.5,174.9 530.9,154.7 534.4,130.3 537.8,100.6 541.2,64.7 544.7,21.2"/>
+<polyline class="ln c3" points="60,61.7 610,95"/>
+<polyline class="ln c2 dash" points="506.9,270 589.4,20"/>
+<circle class="c4f" cx="538.8" cy="90.7" r="4.5"/>
+<text class="lab b halo" x="528.8" y="112.7" text-anchor="end">Q (0.696 V, 4.30 mA)</text>
+<text class="lab c3t halo" x="266.2" y="57.8" text-anchor="start">load line</text>
+<text class="lab c1t halo" x="376.2" y="228.3" text-anchor="end">exponential</text>
+<text class="tk c2t halo" x="545.4" y="172.1" text-anchor="start">piecewise</text>
+<text class="tk c2t halo" x="545.4" y="188.8" text-anchor="start">linear</text>
+</svg>
+<figcaption><b>Figure 9.1</b> The exponential curve, load line, Q-point and piecewise linear model of example 9.1.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 9.1:</b> The teal curve is \(i_D = I_S(e^{v_D/V_T} - 1)\) with \(I_S = 10^{-14}\ \text{A}\). The amber line is the load line. The dashed line is the piecewise model, which is zero up to \(0.65\ \text{V}\) and then rises with slope \(1/20\ \Omega\). The dark dot is the Q-point.</p>
+</section>
+
+<section id="small">
+<h2><span class="n">10</span>The small-signal model</h2>
+<p class="reading"><b>Reading</b> Chapter 1 summary, section 1.4</p>
+<p>Often a diode carries a DC bias (\(V_{PS}\), \(I_{DQ}\), \(V_{DQ}\)) plus a small time-varying signal \(v_i(t)\). Write each variable as its DC value plus the signal part: \(v_D(t) = V_{DQ} + v_d(t)\) and \(i_D(t) = I_{DQ} + i_d(t)\).</p>
+<p>Near the Q-point the exponential curve looks like its tangent, so the signal part follows a straight-line law. That holds only while the signal is small.</p>
+<div class="eq"><span class="tag">Small-signal condition</span>\[ v_d \ll nV_T \quad (\approx 26\ \text{mV}) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(v_d\)</dt><dd>Signal part of the diode voltage (V).</dd>
+  <dt>\(n\)</dt><dd>Emission coefficient.</dd>
+  <dt>\(V_T\)</dt><dd>Thermal voltage (V).</dd>
+</dl>
+</div>
+<p>The slope of the tangent is the small-signal conductance, and its inverse is the diffusion resistance.</p>
+<div class="eq"><span class="tag">Small-signal conductance and diffusion resistance</span>\[ g_d = \left.\frac{di_D}{dv_D}\right|_{Q} = \frac{I_{DQ}}{nV_T} \qquad r_d = \frac{1}{g_d} = \frac{nV_T}{I_{DQ}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(g_d\)</dt><dd>Small-signal conductance (S).</dd>
+  <dt>\(i_D, v_D\)</dt><dd>Total diode current (A) and voltage (V).</dd>
+  <dt>\(I_{DQ}\)</dt><dd>DC diode current at the Q-point (A).</dd>
+  <dt>\(n\)</dt><dd>Emission coefficient.</dd>
+  <dt>\(V_T\)</dt><dd>Thermal voltage (V).</dd>
+  <dt>\(r_d\)</dt><dd>Diffusion resistance (\(\Omega\)).</dd>
+</dl>
+</div>
+<p>At \(I_{DQ} = 1\ \text{mA}\), \(r_d = 26\ \text{mV}/1\ \text{mA} = 26\ \Omega\). At \(0.25\ \text{mA}\) it is \(104\ \Omega\). A diode is a variable resistor controlled by its bias current.</p>
+<figure>
+<svg viewBox="0 0 640 430" class="fig" role="img" aria-label="The exponential diode curve near the operating point, with the tangent at the operating point. A sinusoidal voltage of 10 millivolts amplitude drawn below the voltage axis produces the current waveform drawn to the right of the current axis.">
+<line class="grid" x1="60" y1="20" x2="60" y2="260"/>
+<text class="tk" x="60" y="276" text-anchor="middle">0.64</text>
+<line class="grid" x1="147.5" y1="20" x2="147.5" y2="260"/>
+<text class="tk" x="147.5" y="276" text-anchor="middle">0.66</text>
+<line class="grid" x1="235" y1="20" x2="235" y2="260"/>
+<text class="tk" x="235" y="276" text-anchor="middle">0.68</text>
+<line class="grid" x1="322.5" y1="20" x2="322.5" y2="260"/>
+<text class="tk" x="322.5" y="276" text-anchor="middle">0.70</text>
+<line class="grid" x1="410" y1="20" x2="410" y2="260"/>
+<text class="tk" x="410" y="276" text-anchor="middle">0.72</text>
+<line class="grid" x1="60" y1="260" x2="410" y2="260"/>
+<text class="tk" x="54" y="264" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="200" x2="410" y2="200"/>
+<text class="tk" x="54" y="204" text-anchor="end">2</text>
+<line class="grid" x1="60" y1="140" x2="410" y2="140"/>
+<text class="tk" x="54" y="144" text-anchor="end">4</text>
+<line class="grid" x1="60" y1="80" x2="410" y2="80"/>
+<text class="tk" x="54" y="84" text-anchor="end">6</text>
+<line class="grid" x1="60" y1="20" x2="410" y2="20"/>
+<text class="tk" x="54" y="24" text-anchor="end">8</text>
+<rect class="frame" x="60" y="20" width="350" height="240"/>
+<text class="lab" x="235" y="296" text-anchor="middle">diode voltage v<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="16" y="140" text-anchor="middle" transform="rotate(-90 16 140)">diode current i<tspan dy="3" font-size="75%">D</tspan><tspan dy="-3"> </tspan> (mA)</text>
+<polyline class="ln c1" points="60,245.3 62.2,245 64.4,244.7 66.6,244.4 68.8,244.1 70.9,243.8 73.1,243.5 75.3,243.2 77.5,242.9 79.7,242.5 81.9,242.2 84.1,241.8 86.3,241.5 88.4,241.1 90.6,240.8 92.8,240.4 95,240 97.2,239.6 99.4,239.2 101.6,238.8 103.8,238.4 105.9,238 108.1,237.6 110.3,237.1 112.5,236.7 114.7,236.2 116.9,235.8 119.1,235.3 121.3,234.8 123.4,234.3 125.6,233.8 127.8,233.3 130,232.8 132.2,232.3 134.4,231.7 136.6,231.2 138.8,230.6 140.9,230 143.1,229.5 145.3,228.9 147.5,228.3 149.7,227.7 151.9,227 154.1,226.4 156.3,225.7 158.4,225.1 160.6,224.4 162.8,223.7 165,223 167.2,222.3 169.4,221.5 171.6,220.8 173.8,220 175.9,219.3 178.1,218.5 180.3,217.7 182.5,216.8 184.7,216 186.9,215.1 189.1,214.3 191.3,213.4 193.4,212.5 195.6,211.6 197.8,210.6 200,209.7 202.2,208.7 204.4,207.7 206.6,206.7 208.8,205.6 210.9,204.6 213.1,203.5 215.3,202.4 217.5,201.3 219.7,200.1 221.9,199 224.1,197.8 226.3,196.6 228.4,195.4 230.6,194.1 232.8,192.8 235,191.5 237.2,190.2 239.4,188.8 241.6,187.4 243.8,186 245.9,184.6 248.1,183.1 250.3,181.6 252.5,180.1 254.7,178.6 256.9,177 259.1,175.4 261.3,173.7 263.4,172.1 265.6,170.4 267.8,168.6 270,166.8 272.2,165 274.4,163.2 276.6,161.3 278.8,159.4 280.9,157.4 283.1,155.4 285.3,153.4 287.5,151.3 289.7,149.2 291.9,147.1 294.1,144.9 296.3,142.7 298.4,140.4 300.6,138.1 302.8,135.7 305,133.3 307.2,130.8 309.4,128.3 311.6,125.8 313.7,123.1 315.9,120.5 318.1,117.8 320.3,115 322.5,112.2 324.7,109.3 326.9,106.4 329.1,103.4 331.2,100.4 333.4,97.3 335.6,94.1 337.8,90.9 340,87.6 342.2,84.3 344.4,80.9 346.6,77.4 348.7,73.8 350.9,70.2 353.1,66.5 355.3,62.8 357.5,59 359.7,55.1 361.9,51.1 364.1,47 366.2,42.9 368.4,38.7 370.6,34.4 372.8,30 375,25.5 377.2,21"/>
+<polyline class="ln c3 thin" points="193.4,260 404.8,20"/>
+<circle class="c4f" cx="307.1" cy="130.9" r="4.5"/>
+<line class="ln c4 dash thin" x1="307.1" y1="130.9" x2="307.1" y2="280"/>
+<line class="ln c4 dash thin" x1="307.1" y1="130.9" x2="430" y2="130.9"/>
+<polyline class="ln c1" points="307.1,296 309.9,297 312.6,298 315.3,299 318,300 320.6,301 323.2,302 325.7,303 328.2,304 330.6,305 332.8,306 335,307 337.1,308 339,309 340.8,310 342.5,311 344.1,312 345.5,313 346.7,314 347.8,315 348.7,316 349.5,317 350.1,318 350.5,319 350.8,320 350.9,321 350.8,322 350.5,323 350.1,324 349.5,325 348.7,326 347.8,327 346.7,328 345.5,329 344.1,330 342.5,331 340.8,332 339,333 337.1,334 335,335 332.8,336 330.6,337 328.2,338 325.7,339 323.2,340 320.6,341 318,342 315.3,343 312.6,344 309.9,345 307.1,346 304.4,347 301.6,348 298.9,349 296.2,350 293.6,351 291,352 288.5,353 286,354 283.7,355 281.4,356 279.2,357 277.2,358 275.2,359 273.4,360 271.7,361 270.2,362 268.8,363 267.5,364 266.4,365 265.5,366 264.7,367 264.1,368 263.7,369 263.5,370 263.4,371 263.5,372 263.7,373 264.1,374 264.7,375 265.5,376 266.4,377 267.5,378 268.8,379 270.2,380 271.7,381 273.4,382 275.2,383 277.2,384 279.2,385 281.4,386 283.7,387 286,388 288.5,389 291,390 293.6,391 296.2,392 298.9,393 301.6,394 304.4,395 307.1,396"/>
+<text class="lab c1t" x="367.1" y="400" text-anchor="start">v<tspan dy="3" font-size="75%">d</tspan><tspan dy="-3"> </tspan>(t)</text>
+<text class="tk" x="299.1" y="276" text-anchor="end">V<tspan dy="3" font-size="75%">DQ</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c1" points="430,130.9 431.9,127.7 433.8,124.5 435.7,121.2 437.6,117.9 439.5,114.6 441.4,111.3 443.3,107.9 445.2,104.6 447.1,101.3 449,98.1 450.9,95 452.8,92 454.7,89.1 456.6,86.4 458.5,83.8 460.4,81.4 462.3,79.1 464.2,77.2 466.1,75.4 468,73.9 469.9,72.6 471.8,71.6 473.7,70.9 475.6,70.5 477.5,70.3 479.4,70.5 481.3,70.9 483.2,71.6 485.1,72.6 487,73.9 488.9,75.4 490.8,77.2 492.7,79.1 494.6,81.4 496.5,83.8 498.4,86.4 500.3,89.1 502.2,92 504.1,95 506,98.1 507.9,101.3 509.8,104.6 511.7,107.9 513.6,111.3 515.5,114.6 517.4,117.9 519.3,121.2 521.2,124.5 523.1,127.7 525,130.9 526.9,134 528.8,137 530.7,139.9 532.6,142.7 534.5,145.4 536.4,147.9 538.3,150.4 540.2,152.7 542.1,154.9 544,157 545.9,159 547.8,160.8 549.7,162.5 551.6,164 553.5,165.4 555.4,166.7 557.3,167.8 559.2,168.8 561.1,169.7 563,170.4 564.9,171 566.8,171.5 568.7,171.8 570.6,172 572.5,172.1 574.4,172 576.3,171.8 578.2,171.5 580.1,171 582,170.4 583.9,169.7 585.8,168.8 587.7,167.8 589.6,166.7 591.5,165.4 593.4,164 595.3,162.5 597.2,160.8 599.1,159 601,157 602.9,154.9 604.8,152.7 606.7,150.4 608.6,147.9 610.5,145.4 612.4,142.7 614.3,139.9 616.2,137 618.1,134 620,130.9"/>
+<text class="lab c1t" x="616" y="60.9" text-anchor="end">i<tspan dy="3" font-size="75%">d</tspan><tspan dy="-3"> </tspan>(t)</text>
+<text class="tk" x="434" y="144.9" text-anchor="start">I<tspan dy="3" font-size="75%">DQ</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab c3t halo" x="343.8" y="224" text-anchor="start">slope 1/r<tspan dy="3" font-size="75%">d</tspan><tspan dy="-3"> </tspan> = g<tspan dy="3" font-size="75%">d</tspan><tspan dy="-3"> </tspan></text>
+</svg>
+<figcaption><b>Figure 10.1</b> A small sinusoid at the Q-point and the current it produces.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 10.1:</b> The amber line is the tangent at the Q-point, with slope \(g_d\). The signal below the voltage axis has an amplitude of \(10\ \text{mV}\), which is larger than a true small signal, so the current waveform to the right is visibly lopsided. The exponential curve rises faster above the Q-point than the tangent does. Keep \(v_d \ll 26\ \text{mV}\) and the lopsidedness disappears.</p>
+<h3 id="capacitance">Capacitances and the full model</h3>
+<p>Forward bias stores minority-carrier charge, and that charge changes with voltage. The result is a <strong>diffusion capacitance</strong> proportional to the current.</p>
+<div class="eq"><span class="tag">Diffusion capacitance and small-signal admittance</span>\[ C_d = \frac{dQ}{dv_D} \approx \frac{\tau_T}{V_T}\,I_{DQ} \qquad Y = g_d + j\omega\,(C_d + C_j) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(C_d\)</dt><dd>Diffusion capacitance (F).</dd>
+  <dt>\(Q\)</dt><dd>Stored excess minority-carrier charge (C).</dd>
+  <dt>\(v_D\)</dt><dd>Diode voltage (V).</dd>
+  <dt>\(\tau_T\)</dt><dd>Minority-carrier lifetime or transit time (s).</dd>
+  <dt>\(V_T\)</dt><dd>Thermal voltage (V).</dd>
+  <dt>\(I_{DQ}\)</dt><dd>DC diode current (A).</dd>
+  <dt>\(Y\)</dt><dd>Small-signal admittance (S).</dd>
+  <dt>\(g_d\)</dt><dd>Small-signal conductance (S).</dd>
+  <dt>\(\omega\)</dt><dd>Signal angular frequency (rad/s).</dd>
+  <dt>\(C_j\)</dt><dd>Junction capacitance (F).</dd>
+</dl>
+</div>
+<p>Under forward bias \(C_d\) is much larger than \(C_j\). The network is \(r_d\) in parallel with \(C_d + C_j\), all in series with the ohmic resistance \(r_s\) of the neutral semiconductor.</p>
+<figure>
+<svg viewBox="0 0 640 210" class="fig" role="img" aria-label="Small-signal model of a forward-biased diode: a series resistance r_s, then the diffusion resistance r_d in parallel with the diffusion capacitance C_d and the junction capacitance C_j.">
+<circle class="hollow ln c4" cx="36" cy="80" r="3.5"/>
+<polyline class="ln c4" points="40,80 60,80"/>
+<polyline class="ln c4" points="60,80 93,80 96.7,73 104,87 111.3,73 118.7,87 126,73 133.3,87 137,80 170,80"/>
+<text class="lab" x="115" y="68" text-anchor="middle">r<tspan dy="3" font-size="75%">s</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="170,80 440,80"/>
+<circle class="hollow ln c4" cx="36" cy="170" r="3.5"/>
+<polyline class="ln c4" points="40,170 440,170"/>
+<text class="tk" x="24" y="84" text-anchor="end">A</text>
+<text class="tk" x="24" y="174" text-anchor="end">K</text>
+<circle class="c4f" cx="250" cy="80" r="2.6"/>
+<circle class="c4f" cx="250" cy="170" r="2.6"/>
+<circle class="c4f" cx="340" cy="80" r="2.6"/>
+<circle class="c4f" cx="340" cy="170" r="2.6"/>
+<circle class="c4f" cx="430" cy="80" r="2.6"/>
+<circle class="c4f" cx="430" cy="170" r="2.6"/>
+<polyline class="ln c4" points="250,80 250,107 257,110 243,116 257,122 243,128 257,134 243,140 250,143 250,170"/>
+<text class="lab" x="262" y="129" text-anchor="start">r<tspan dy="3" font-size="75%">d</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="340,80 340,121"/>
+<polyline class="ln c4" points="340,129 340,170"/>
+<polyline class="ln c4" points="330,121 350,121"/>
+<polyline class="ln c4" points="330,129 350,129"/>
+<text class="lab" x="356" y="129" text-anchor="start">C<tspan dy="3" font-size="75%">d</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="430,80 430,121"/>
+<polyline class="ln c4" points="430,129 430,170"/>
+<polyline class="ln c4" points="420,121 440,121"/>
+<polyline class="ln c4" points="420,129 440,129"/>
+<text class="lab" x="446" y="129" text-anchor="start">C<tspan dy="3" font-size="75%">j</tspan><tspan dy="-3"> </tspan></text>
+<text class="tk" x="340" y="56" text-anchor="middle">all three in parallel</text>
+</svg>
+<figcaption><b>Figure 10.2</b> The high-frequency small-signal model of a forward-biased diode.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 10.2:</b> A is the anode and K the cathode. At low frequency the capacitors act as open circuits and only \(r_s + r_d\) remains.</p>
+<div class="ex"><div class="hd">Worked example 10.1 <span>a signal on top of a bias</span></div><div class="bd">
+<p>The circuit of example 9.1 (\(5\ \text{V}\), \(1\ \text{k}\Omega\), \(I_S = 10^{-14}\ \text{A}\)) also has a \(10\ \text{mV}\) amplitude signal in series with the supply. Take \(\tau_T = 10\ \text{ns}\). Find \(r_d\), the signal current and voltage across the diode, and \(C_d\).</p>
+<div class="step"><i>1</i><div>The bias is \(I_{DQ} = 4.30\ \text{mA}\), so \(r_d = 0.026/4.30\times10^{-3} = 6.04\ \Omega\).</div></div>
+<div class="step"><i>2</i><div>The signal sees \(R\) and \(r_d\) in series: \(i_d = v_i/(R + r_d) = 0.010/(1000 + 6.04) = 9.94\ \mu\text{A}\).</div></div>
+<div class="step"><i>3</i><div>\(v_d = i_dr_d = 60.1\ \mu\text{V}\), far below \(26\ \text{mV}\), so the small-signal model is valid.</div></div>
+<div class="step"><i>4</i><div>\(C_d = (\tau_T/V_T)I_{DQ} = (10\times10^{-9}/0.026)(4.30\times10^{-3}) = 1.66\ \text{nF}\).</div></div>
+<div class="ans">\(r_d = 6.04\ \Omega\), \(i_d = 9.94\ \mu\text{A}\) peak, \(v_d = 60.1\ \mu\text{V}\) peak and \(C_d = 1.66\ \text{nF}\). Nearly all the signal voltage drops across \(R\), because \(r_d\) is so small.</div>
+</div></div>
+</section>
+
+<section id="special">
+<h2><span class="n">11</span>Special diodes</h2>
+<p class="reading"><b>Reading</b> Chapter 1 summary, section 1.5, and the summary reference table</p>
+<div class="tbl"><table><thead><tr><th>Device</th><th>How it works</th><th>Key figures</th><th>Used for</th></tr></thead><tbody>
+<tr><td>Schottky barrier diode</td><td>Metal-semiconductor contact, such as aluminium on lightly doped n-type silicon. A majority-carrier device with negligible minority-carrier injection.</td><td>\(V_\gamma \approx 0.2\) to \(0.3\ \text{V}\), \(t_s \approx 0\), larger \(I_S\)</td><td>High-speed switching, low-loss rectification</td></tr>
+<tr><td>Solar cell</td><td>A pn junction delivering power in the fourth quadrant. Photons make electron-hole pairs in the space-charge region, giving a photocurrent \(I_{ph}\) from n to p, opposite to normal forward current.</td><td>\(I_{ph} = \eta e\Phi A\)</td><td>Solar energy conversion</td></tr>
+<tr><td>Photodiode</td><td>A reverse-biased junction. The current is dominated by \(I_{ph}\), so it is linear in optical power.</td><td>\(i_D = I_{ph} - I_S(e^{v_D/V_T} - 1)\)</td><td>Optical detection</td></tr>
+<tr><td>Light-emitting diode</td><td>A forward-biased junction in which injected minority carriers recombine radiatively and emit photons.</td><td>\(E = h\nu = hc/\lambda\), \(V_\gamma \approx 1.5\) to \(2.2\ \text{V}\), \(I_D \approx 5\) to \(20\ \text{mA}\)</td><td>Displays, optical transmitters, optocouplers</td></tr>
+<tr><td>Zener diode</td><td>Built to run safely in reverse breakdown when external circuitry limits the power. Modelled as a constant voltage \(V_Z\) in series with a small dynamic resistance \(r_z = \Delta V_Z/\Delta I_Z\).</td><td>\(V_Z = V_{Z0} + I_Zr_z\), \(P_{Z,\max} = I_ZV_Z\)</td><td>Voltage reference and regulator (Chapter 2)</td></tr>
+</tbody></table></div>
+<p>In \(I_{ph} = \eta e\Phi A\), \(\eta\) is the quantum efficiency, \(\Phi\) the photon flux and \(A\) the junction area.</p>
+<p>An LED needs a direct-bandgap material such as \(\text{GaAs}\), \(\text{GaP}\) or \(\text{GaAsP}\). Silicon is an indirect-bandgap material, so recombination gives its energy to the lattice as heat (phonons) instead of light, which makes silicon unsuitable.</p>
+<div class="ex"><div class="hd">Worked example 11.1 <span>an LED and a Schottky diode</span></div><div class="bd">
+<p>(a) An LED with \(V_\gamma = 1.8\ \text{V}\) runs at \(10\ \text{mA}\) from a \(5\ \text{V}\) supply. Find the series resistor and the wavelength of the light, taking the photon energy as \(V_\gamma\) electron-volts and \(hc = 1240\ \text{eV·nm}\). (b) A rectifier passes \(2\ \text{A}\). Compare the conduction loss of a silicon diode (\(V_\gamma = 0.7\ \text{V}\)) and a Schottky diode (\(V_\gamma = 0.3\ \text{V}\)).</p>
+<div class="step"><i>1</i><div>\(R = (5 - 1.8)/10\ \text{mA} = 320\ \Omega\).</div></div>
+<div class="step"><i>2</i><div>\(\lambda = hc/E = 1240/1.8 = 689\ \text{nm}\), which is red.</div></div>
+<div class="step"><i>3</i><div>Loss \(= I V_\gamma\): silicon \(2\times0.7 = 1.4\ \text{W}\), Schottky \(2\times0.3 = 0.6\ \text{W}\).</div></div>
+<div class="ans">\(R = 320\ \Omega\) and \(\lambda \approx 689\ \text{nm}\). The Schottky diode saves 0.8 W, which is more than half the loss.</div>
+</div></div>
+</section>
+
+<section id="thermo">
+<h2><span class="n">12</span>The diode thermometer</h2>
+<p class="reading"><b>Reading</b> Chapter 1 summary, section 1.6</p>
+<p>A diode biased by a constant current source has a forward voltage that falls almost linearly with temperature, which makes it a sensor. Write the diode current at two temperatures, \(T_1\) and \(T_2\), with the same current in both. Their ratio is 1:</p>
+<div class="eq"><span class="tag">Constant-current condition</span>\[ \frac{I_{D1}}{I_{D2}} = \frac{e^{-E_g/kT_1}\,e^{eV_{D1}/kT_1}}{e^{-E_g/kT_2}\,e^{eV_{D2}/kT_2}} = 1 \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(I_{D1}, I_{D2}\)</dt><dd>Diode current at \(T_1\) and \(T_2\) (A).</dd>
+  <dt>\(E_g\)</dt><dd>Bandgap (eV).</dd>
+  <dt>\(k\)</dt><dd>Boltzmann's constant.</dd>
+  <dt>\(T_1, T_2\)</dt><dd>Two absolute temperatures (K).</dd>
+  <dt>\(e\)</dt><dd>Electron charge (C).</dd>
+  <dt>\(V_{D1}, V_{D2}\)</dt><dd>Diode voltages at \(T_1\) and \(T_2\) (V).</dd>
+</dl>
+</div>
+<p>Solving for \(V_{D2}\) gives the voltage at any temperature from one calibration point:</p>
+<div class="eq"><span class="tag">Diode voltage against temperature</span>\[ V_{D2} = \frac{E_g}{e}\left(1 - \frac{T_2}{T_1}\right) + V_{D1}\,\frac{T_2}{T_1} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(V_{D2}\)</dt><dd>Diode voltage at temperature \(T_2\) (V).</dd>
+  <dt>\(E_g/e\)</dt><dd>Bandgap in volts (\(1.12\ \text{V}\) for silicon).</dd>
+  <dt>\(T_1\)</dt><dd>Calibration temperature (K).</dd>
+  <dt>\(T_2\)</dt><dd>Temperature being measured (K).</dd>
+  <dt>\(V_{D1}\)</dt><dd>Diode voltage at the calibration temperature (V).</dd>
+</dl>
+</div>
+<p>For silicon, \(E_g/e = 1.12\ \text{V}\), calibrated at \(T_1 = 300\ \text{K}\):</p>
+<div class="eq"><span class="tag">Silicon diode thermometer</span>\[ V_D(T) = 1.12 - 0.522\left(\frac{T}{300}\right) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(V_D(T)\)</dt><dd>Diode voltage at the constant bias current (V).</dd>
+  <dt>\(T\)</dt><dd>Absolute temperature (K).</dd>
+</dl>
+</div>
+<div class="box watch"><span class="label">Watch out</span><p>The constant \(0.522\) is \(1.12 - V_{D1}\), so the summary has assumed \(V_{D1} = 0.598\ \text{V}\) at \(300\ \text{K}\) without stating it. The slope is \(-0.522/300 = -1.74\ \text{mV/K}\), a little below the \(-2.0\ \text{mV}/^\circ\text{C}\) of section 7. The two agree only for a different calibration voltage, about \(0.52\ \text{V}\). The straight line also ignores the \(T^3\) factor in \(I_S\). Calibrate your own sensor at a known temperature.</p></div>
+<div class="ex"><div class="hd">Worked example 12.1 <span>reading a temperature</span></div><div class="bd">
+<p>A silicon diode follows \(V_D(T) = 1.12 - 0.522(T/300)\) at its bias current. Find \(V_D\) at \(350\ \text{K}\), and the temperature when \(V_D = 0.550\ \text{V}\).</p>
+<div class="step"><i>1</i><div>\(V_D(350) = 1.12 - 0.522\times350/300 = 0.511\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>Rearrange: \(T = 300(1.12 - V_D)/0.522 = 300(1.12 - 0.550)/0.522 = 327.6\ \text{K}\).</div></div>
+<div class="step"><i>3</i><div>In degrees Celsius: \(327.6 - 273.15 = 54.4\,^\circ\text{C}\).</div></div>
+<div class="ans">\(V_D(350\ \text{K}) = 0.511\ \text{V}\), and \(0.550\ \text{V}\) corresponds to \(327.6\ \text{K}\) (\(54.4\,^\circ\text{C}\)).</div>
+</div></div>
+</section>
+
+<section id="practice">
+<h2><span class="n">13</span>Practice problems</h2>
+<div class="ex"><div class="hd">Problem 13.1 <span>carriers and resistivity</span></div><div class="bd">
+<p>Silicon at \(300\ \text{K}\) is doped p-type with \(N_a = 3\times10^{17}\ \text{cm}^{-3}\). Find the electron concentration, the conductivity and the resistivity. Use \(\mu_p = 480\ \text{cm}^2/\text{V·s}\).</p>
+<div class="step"><i>1</i><div>\(p_0 \approx N_a = 3\times10^{17}\ \text{cm}^{-3}\), and \(n_0 = n_i^2/N_a = (1.5\times10^{10})^2/(3\times10^{17}) = 750\ \text{cm}^{-3}\).</div></div>
+<div class="step"><i>2</i><div>\[ \sigma = ep\mu_p = (1.6\times10^{-19})(3\times10^{17})(480) = 23.0\ (\Omega\cdot\text{cm})^{-1} \]</div></div>
+<div class="step"><i>3</i><div>\(\rho = 1/\sigma = 0.0434\ \Omega\cdot\text{cm}\).</div></div>
+<div class="ans">\(n_0 = 750\ \text{cm}^{-3}\), \(\sigma = 23.0\ (\Omega\cdot\text{cm})^{-1}\), \(\rho = 0.0434\ \Omega\cdot\text{cm}\). The electrons contribute nothing measurable to \(\sigma\).</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 13.2 <span>a diode circuit, exact and approximate</span></div><div class="bd">
+<p>A \(9\ \text{V}\) supply drives a diode with \(I_S = 2\times10^{-14}\ \text{A}\) through \(2.2\ \text{k}\Omega\). Find \(V_D\) and \(I_D\) by iteration, and compare with the \(0.7\ \text{V}\) model. Then find \(r_d\).</p>
+<div class="step"><i>1</i><div>Start at \(V_D = 0.7\ \text{V}\): \(I_D = (9 - 0.7)/2200 = 3.773\ \text{mA}\).</div></div>
+<div class="step"><i>2</i><div>Update: \(V_D = 0.026\ln(3.773\times10^{-3}/(2\times10^{-14})) = 0.6750\ \text{V}\). A second pass gives \(I_D = (9 - 0.6751)/2200 = 3.784\ \text{mA}\) and the same \(V_D\).</div></div>
+<div class="step"><i>3</i><div>The \(0.7\ \text{V}\) model gives \(3.773\ \text{mA}\), which is within 0.3% of the exact value.</div></div>
+<div class="step"><i>4</i><div>\(r_d = 0.026/3.78\times10^{-3} = 6.87\ \Omega\).</div></div>
+<div class="ans">\(V_D = 0.675\ \text{V}\), \(I_D = 3.78\ \text{mA}\), \(r_d = 6.9\ \Omega\). A large supply voltage across a large resistor makes \(I_D\) insensitive to the diode model.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 13.3 <span>small-signal check</span></div><div class="bd">
+<p>A \(12\ \text{V}\) supply and a \(5\ \text{mV}\) amplitude signal drive a diode (\(I_S = 10^{-14}\ \text{A}\)) through \(4.7\ \text{k}\Omega\). The diode has \(\tau_T = 4\ \text{ns}\). Find \(I_{DQ}\), \(r_d\), the signal current and voltage amplitudes, and \(C_d\).</p>
+<div class="step"><i>1</i><div>Solving \(I_D = (12 - V_D)/4700\) with the diode equation gives \(V_{DQ} = 0.681\ \text{V}\) and \(I_{DQ} = 2.408\ \text{mA}\).</div></div>
+<div class="step"><i>2</i><div>\(r_d = 0.026/2.41\times10^{-3} = 10.80\ \Omega\).</div></div>
+<div class="step"><i>3</i><div>\(i_d = 0.005/(4700 + 10.80) = 1.061\ \mu\text{A}\), and \(v_d = i_dr_d = 11.5\ \mu\text{V}\).</div></div>
+<div class="step"><i>4</i><div>\(C_d = (4\times10^{-9}/0.026)(2.41\times10^{-3}) = 370\ \text{pF}\).</div></div>
+<div class="ans">\(I_{DQ} = 2.41\ \text{mA}\), \(r_d = 10.8\ \Omega\), \(i_d = 1.06\ \mu\text{A}\), \(v_d = 11.5\ \mu\text{V}\), \(C_d = 370\ \text{pF}\). \(v_d \ll 26\ \text{mV}\), so the model holds.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 13.4 <span>a junction and its capacitance</span></div><div class="bd">
+<p>A silicon junction at \(300\ \text{K}\) has \(N_a = 5\times10^{16}\ \text{cm}^{-3}\), \(N_d = 5\times10^{15}\ \text{cm}^{-3}\) and \(C_{j0} = 3\ \text{pF}\). Find \(V_{bi}\), then \(C_j\) at \(V_R = 4\ \text{V}\).</p>
+<div class="step"><i>1</i><div>\[ V_{bi} = 0.026\ln\!\left[\dfrac{(5\times10^{16})(5\times10^{15})}{(1.5\times10^{10})^2}\right] = 0.721\ \text{V} \]</div></div>
+<div class="step"><i>2</i><div>\(C_j = 3(1 + 4/0.721)^{-1/2} = 1.172\ \text{pF}\).</div></div>
+<div class="ans">\(V_{bi} = 0.721\ \text{V}\) and \(C_j = 1.17\ \text{pF}\), about 39% of \(C_{j0}\).</div>
+</div></div>
+</section>
+
+<section id="sheet">
+<h2><span class="n">14</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>Carriers</h4>
+<p>\(n_i = BT^{3/2}\exp(-E_g/2kT)\), \(n_i \approx 1.5\times10^{10}\ \text{cm}^{-3}\) (\(\text{Si}\), \(300\ \text{K}\))</p>
+<p>\(n_0p_0 = n_i^2\), \(n_0 \approx N_d\), \(p_0 \approx N_a\)</p>
+<p>\(E_g\): \(\text{Si}\) \(1.1\), \(\text{GaAs}\) \(1.4\), \(\text{Ge}\) \(0.66\ \text{eV}\)</p>
+</div>
+<div><h4>Transport</h4>
+<p>\(J_{\text{drift}} = e(n\mu_n + p\mu_p)E = \sigma E\)</p>
+<p>\(J_{n,\text{diff}} = eD_n\,dn/dx\), \(J_{p,\text{diff}} = -eD_p\,dp/dx\)</p>
+<p>\(D/\mu = kT/e = V_T \approx 26\ \text{mV}\)</p>
+<p>\(\mu_n \approx 1350\), \(\mu_p \approx 480\ \text{cm}^2/\text{V·s}\)</p>
+</div>
+<div><h4>Junction</h4>
+<p>\(V_{bi} = V_T\ln(N_aN_d/n_i^2)\)</p>
+<p>\(W \propto \sqrt{V_{bi} + V_R}\)</p>
+<p>\(C_j = C_{j0}(1 + V_R/V_{bi})^{-1/2}\)</p>
+</div>
+<div><h4>Diode equation</h4>
+<p>\(i_D = I_S[\exp(v_D/nV_T) - 1]\)</p>
+<p>\(v_D = nV_T\ln(i_D/I_S)\) (forward)</p>
+<p>Decade of current per \(60\ \text{mV}\)</p>
+<p>\(dv_D/dT \approx -2.0\ \text{mV}/^\circ\text{C}\)</p>
+<p>\(I_S\) doubles per \(10\,^\circ\text{C}\) (real diodes)</p>
+</div>
+<div><h4>Models and load line</h4>
+<p>\(I_D = (V_{PS} - V_D)/R\)</p>
+<p>ON: \(v_D = V_\gamma + i_Dr_f\), OFF: \(i_D = 0\)</p>
+<p>\(V_\gamma \approx 0.6\) to \(0.7\ \text{V}\) (\(\text{Si}\)), \(0.2\) to \(0.3\ \text{V}\) (Schottky)</p>
+</div>
+<div><h4>Small signal</h4>
+<p>\(v_d \ll nV_T\)</p>
+<p>\(g_d = I_{DQ}/nV_T\), \(r_d = nV_T/I_{DQ}\)</p>
+<p>\(C_d \approx (\tau_T/V_T)I_{DQ}\)</p>
+<p>\(Y = g_d + j\omega(C_d + C_j)\)</p>
+</div>
+<div><h4>Switching and sensing</h4>
+<p>\(I_R \approx V_R/R_R\), \(t_{rr} = t_s + t_f\)</p>
+<p>\(V_{D2} = \frac{E_g}{e}\left(1 - \frac{T_2}{T_1}\right) + V_{D1}\frac{T_2}{T_1}\)</p>
+<p>\(E = h\nu = hc/\lambda\)</p>
+</div>
+</div>
+</section>
+
+<footer>
+<p>Sources: the "Comprehensive Diode Content Master Summary" (attachment.txt), Chapter 1, sections 1.1 to 1.6, and its reference table. The summary's figure numbers (1.4, 1.12, 1.30, 1.31, 1.35, 1.38) point to the textbook, which was not available, so the figures here are drawn from the formulas instead. The mobility, bandgap and \(B\) values are those of the summary, and \(hc = 1240\ \text{eV·nm}\) is a standard constant added for the LED example. Worked examples and problems use new values.</p>
+</footer>
+</main>
+</div>
+
+<script src="../assets/ask-gemini.js" data-store="electronics-w1" data-course="EL245 Electronics"
+        data-topic="Week 1: intrinsic and doped silicon, drift and diffusion, the pn junction, the diode equation, temperature and breakdown, switching, diode models, small-signal model, special diodes, diode thermometer"></script>
+</body>
+</html>

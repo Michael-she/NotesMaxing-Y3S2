@@ -420,6 +420,24 @@ window.NOTES_MANIFEST = {
    "name": "Electronics",
    "notes": [
     {
+     "title": "Semiconductor physics and the pn diode",
+     "week": 1,
+     "track": "",
+     "href": "Electronics/EL245_Week01_Notes_Semiconductor-Physics-and-the-PN-Diode.html"
+    },
+    {
+     "title": "Diode circuits: rectifiers, regulators, clippers and logic",
+     "week": 2,
+     "track": "",
+     "href": "Electronics/EL245_Week02_Notes_Diode-Circuits.html"
+    },
+    {
+     "title": "Diode-connected MOSFETs",
+     "week": 3,
+     "track": "",
+     "href": "Electronics/EL245_Week03_Notes_Diode-Connected-MOSFETs.html"
+    },
+    {
      "title": "BJT DC analysis, load lines and transfer curves",
      "week": 7,
      "track": "",

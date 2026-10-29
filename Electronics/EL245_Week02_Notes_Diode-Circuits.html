@@ -1,0 +1,1012 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 2: Diode circuits · EL245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=electronics">&larr; Electronics</a>
+  <div class="k">EL245 · Week 2</div>
+  <ol>
+    <li><a href="#chain">1. The power supply chain</a></li>
+    <li><a href="#halfwave">2. Half-wave rectifier</a></li>
+    <li><a href="#fullwave">3. Full-wave rectifiers</a></li>
+    <li class="sub"><a href="#centretap">Centre-tapped</a></li>
+    <li class="sub"><a href="#bridge">Bridge</a></li>
+    <li class="sub"><a href="#compare">Centre-tapped against bridge</a></li>
+    <li><a href="#filter">4. Filter capacitor and ripple</a></li>
+    <li class="sub"><a href="#surge">Diode currents</a></li>
+    <li><a href="#zener">5. Zener voltage regulators</a></li>
+    <li class="sub"><a href="#zdesign">Worst-case design</a></li>
+    <li class="sub"><a href="#zmerit">Source and load regulation</a></li>
+    <li><a href="#clippers">6. Clippers</a></li>
+    <li><a href="#clampers">7. Clampers</a></li>
+    <li><a href="#multi">8. Multiple-diode circuits</a></li>
+    <li><a href="#logic">9. Diode logic gates</a></li>
+    <li><a href="#special">10. Voltage doubler and optoisolator</a></li>
+    <li><a href="#practice">11. Practice problems</a></li>
+    <li><a href="#sheet">12. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">ELECTRONICS 245 · CHAPTER 2 · DIODE CIRCUITS</div>
+  <h1>Diode circuits: rectifiers, regulators, clippers and logic</h1>
+  <p class="lede">How to turn AC into smooth DC, hold a voltage steady with a Zener diode, shape and shift waveforms, and solve any circuit that contains several diodes.</p>
+</header>
+
+<section id="chain">
+<h2><span class="n">01</span>The power supply chain</h2>
+<p class="reading"><b>Reading</b> Chapter 2 summary, section 2.1</p>
+<p>A DC supply built from the mains passes the signal through five stages. Each stage fixes one problem left by the one before it.</p>
+<figure>
+<svg viewBox="0 0 640 120" class="fig" role="img" aria-label="Block diagram of a DC power supply: AC mains, power transformer, diode rectifier, RC filter, voltage regulator and DC load, in order, with an arrow from each block to the next.">
+<rect class="blk" x="8" y="24" width="88" height="52" rx="4"/>
+<text class="lab b" x="52" y="46" text-anchor="middle">AC</text>
+<text class="lab b" x="52" y="63" text-anchor="middle">mains</text>
+<text class="tk" x="52" y="96" text-anchor="middle">50 Hz sine</text>
+<line class="ln c4" x1="97" y1="50" x2="111" y2="50"/>
+<polygon class="c4f" points="112,50 106,52.7 106,47.3"/>
+<rect class="blk" x="113" y="24" width="88" height="52" rx="4"/>
+<text class="lab b" x="157" y="46" text-anchor="middle">Power</text>
+<text class="lab b" x="157" y="63" text-anchor="middle">transformer</text>
+<text class="tk" x="157" y="96" text-anchor="middle">steps the voltage</text>
+<line class="ln c4" x1="202" y1="50" x2="216" y2="50"/>
+<polygon class="c4f" points="217,50 211,52.7 211,47.3"/>
+<rect class="blk" x="218" y="24" width="88" height="52" rx="4"/>
+<text class="lab b" x="262" y="46" text-anchor="middle">Diode</text>
+<text class="lab b" x="262" y="63" text-anchor="middle">rectifier</text>
+<text class="tk" x="262" y="96" text-anchor="middle">AC to pulses</text>
+<line class="ln c4" x1="307" y1="50" x2="321" y2="50"/>
+<polygon class="c4f" points="322,50 316,52.7 316,47.3"/>
+<rect class="blk" x="323" y="24" width="88" height="52" rx="4"/>
+<text class="lab b" x="367" y="46" text-anchor="middle">RC</text>
+<text class="lab b" x="367" y="63" text-anchor="middle">filter</text>
+<text class="tk" x="367" y="96" text-anchor="middle">smooths pulses</text>
+<line class="ln c4" x1="412" y1="50" x2="426" y2="50"/>
+<polygon class="c4f" points="427,50 421,52.7 421,47.3"/>
+<rect class="blk" x="428" y="24" width="88" height="52" rx="4"/>
+<text class="lab b" x="472" y="46" text-anchor="middle">Voltage</text>
+<text class="lab b" x="472" y="63" text-anchor="middle">regulator</text>
+<text class="tk" x="472" y="96" text-anchor="middle">fixes the level</text>
+<line class="ln c4" x1="517" y1="50" x2="531" y2="50"/>
+<polygon class="c4f" points="532,50 526,52.7 526,47.3"/>
+<rect class="blk" x="533" y="24" width="88" height="52" rx="4"/>
+<text class="lab b" x="577" y="46" text-anchor="middle">DC</text>
+<text class="lab b" x="577" y="63" text-anchor="middle">load</text>
+<text class="tk" x="577" y="96" text-anchor="middle"></text>
+</svg>
+<figcaption><b>Figure 1.1</b> The stages of a linear DC power supply.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> The transformer sets the voltage. The rectifier turns the AC into pulses of one polarity. The filter capacitor smooths the pulses into a nearly constant voltage with some ripple. The regulator removes the remaining ripple and holds the output steady as the input and load change.</p>
+<p>Sections 2 to 4 cover the rectifier and filter, and section 5 the regulator. Sections 6 to 10 then use the same diodes to shape signals and build logic.</p>
+<div class="note"><span class="tag">Notation</span><p>\(V_M\) is the peak value of the sinusoid at the point where it is named, \(V_\gamma\) is the diode cut-in voltage, and diodes follow the piecewise linear model of Week 1 with \(r_f = 0\): a diode is ON with a drop of \(V_\gamma\) or OFF as an open circuit. Take \(V_\gamma = 0.7\ \text{V}\) unless a question says otherwise.</p></div>
+</section>
+
+<section id="halfwave">
+<h2><span class="n">02</span>Half-wave rectifier</h2>
+<p class="reading"><b>Reading</b> Chapter 2 summary, section 2.1 (1)</p>
+<p>One diode in series with a load \(R\), driven by a secondary voltage \(v_S = V_M\sin\omega t\). The diode conducts only while the source is high enough to exceed \(V_\gamma\).</p>
+<div class="tbl"><table><thead><tr><th>Source</th><th>Diode</th><th>Output</th></tr></thead><tbody>
+<tr><td>\(v_S \lt V_\gamma\)</td><td>OFF</td><td>\(v_O = 0\) and \(i_D = 0\)</td></tr>
+<tr><td>\(v_S \ge V_\gamma\)</td><td>ON</td><td>\(v_O = v_S - V_\gamma\) and \(i_D = (v_S - V_\gamma)/R\)</td></tr>
+</tbody></table></div>
+<div class="eq"><span class="tag">Half-wave rectifier</span>\[ v_{O,\text{peak}} = V_M - V_\gamma \qquad \text{PIV} = V_M \]
+\[ \omega t_1 = \sin^{-1}\!\left(\frac{V_\gamma}{V_M}\right) \qquad \omega t_2 = 180^\circ - \omega t_1 \qquad \%\text{ conduction} = \frac{\omega t_2 - \omega t_1}{360^\circ}\times100\% \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(v_{O,\text{peak}}\)</dt><dd>Peak output voltage (V).</dd>
+  <dt>\(V_M\)</dt><dd>Peak secondary voltage (V).</dd>
+  <dt>\(V_\gamma\)</dt><dd>Diode cut-in voltage (V).</dd>
+  <dt>\(\text{PIV}\)</dt><dd>Peak inverse voltage, the largest reverse voltage across the OFF diode (V).</dd>
+  <dt>\(\omega t_1, \omega t_2\)</dt><dd>Angles at which the diode turns on and off (degrees).</dd>
+</dl>
+</div>
+<p>The cut-in voltage costs the output a small slice at each end of the half-cycle, so the diode conducts for less than \(180^\circ\) of every cycle.</p>
+<div class="ex"><div class="hd">Worked example 2.1 <span>conduction angle</span></div><div class="bd">
+<p>A half-wave rectifier has a secondary of \(12\ \text{V}\) peak and a silicon diode with \(V_\gamma = 0.7\ \text{V}\). Find the peak output, the PIV and the fraction of each cycle for which the diode conducts.</p>
+<div class="step"><i>1</i><div>\(v_{O,\text{peak}} = V_M - V_\gamma = 12 - 0.7 = 11.3\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>At the negative peak the diode is OFF and carries the full source voltage, so \(\text{PIV} = V_M = 12\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>\(\omega t_1 = \sin^{-1}(0.7/12) = 3.34^\circ\) and \(\omega t_2 = 180^\circ - 3.34^\circ = 176.66^\circ\).</div></div>
+<div class="step"><i>4</i><div>Conduction: \((176.66 - 3.34)/360 = 48.1\%\).</div></div>
+<div class="ans">Peak output \(11.3\ \text{V}\), \(\text{PIV} = 12\ \text{V}\), and the diode conducts for \(48.1\%\) of the cycle, just under the ideal \(50\%\).</div>
+</div></div>
+</section>
+
+<section id="fullwave">
+<h2><span class="n">03</span>Full-wave rectifiers</h2>
+<p class="reading"><b>Reading</b> Chapter 2 summary, section 2.1 (2 and 3)</p>
+<p>A full-wave rectifier uses both half-cycles, so the output pulses come twice per input cycle.</p>
+<h3 id="centretap">Centre-tapped</h3>
+<p>A centre-tapped secondary gives two anti-phase voltages \(v_S\) measured from the tap, which is ground. Diode \(D_1\) conducts in the positive half-cycle and \(D_2\) in the negative one. Both feed one load \(R\) with a single diode drop in the path.</p>
+<div class="eq"><span class="tag">Centre-tapped rectifier</span>\[ v_{O,\text{peak}} = V_M - V_\gamma \qquad \text{PIV} = 2V_M - V_\gamma \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(v_{O,\text{peak}}\)</dt><dd>Peak output voltage (V).</dd>
+  <dt>\(V_M\)</dt><dd>Peak voltage of each half of the secondary, measured from the tap (V).</dd>
+  <dt>\(V_\gamma\)</dt><dd>Diode cut-in voltage (V).</dd>
+  <dt>\(\text{PIV}\)</dt><dd>Peak inverse voltage across the OFF diode (V).</dd>
+</dl>
+</div>
+<p>The OFF diode sees the other half of the winding in series with the output, so it must block about twice \(V_M\).</p>
+<h3 id="bridge">Bridge</h3>
+<p>A bridge uses four diodes and an ordinary secondary with no tap. In the positive half-cycle \(D_1\) and \(D_2\) conduct in series with the load. In the negative half-cycle \(D_3\) and \(D_4\) conduct. The current always passes through two diodes, so two drops are lost.</p>
+<figure>
+<svg viewBox="0 0 640 240" class="fig" role="img" aria-label="Full-wave bridge rectifier. An AC source feeds a four-diode bridge. The bridge output charges a filter capacitor in parallel with the load resistor.">
+<polyline class="ln c4" points="200,110 223.1,90.8"/>
+<polyline class="ln c4" points="236.9,79.2 260,60"/>
+<polygon class="ln c4 hollow" points="229.5,98.4 216.7,83.1 236.9,79.2"/>
+<polyline class="ln c4" points="243.3,86.9 230.5,71.6"/>
+<text class="lab" x="216" y="77" text-anchor="end">D<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="260,160 283.1,140.8"/>
+<polyline class="ln c4" points="296.9,129.2 320,110"/>
+<polygon class="ln c4 hollow" points="289.5,148.4 276.7,133.1 296.9,129.2"/>
+<polyline class="ln c4" points="303.3,136.9 290.5,121.6"/>
+<text class="lab" x="304" y="149" text-anchor="start">D<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="320,110 296.9,90.8"/>
+<polyline class="ln c4" points="283.1,79.2 260,60"/>
+<polygon class="ln c4 hollow" points="303.3,83.1 290.5,98.4 283.1,79.2"/>
+<polyline class="ln c4" points="289.5,71.6 276.7,86.9"/>
+<text class="lab" x="304" y="77" text-anchor="start">D<tspan dy="3" font-size="75%">3</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="260,160 236.9,140.8"/>
+<polyline class="ln c4" points="223.1,129.2 200,110"/>
+<polygon class="ln c4 hollow" points="243.3,133.1 230.5,148.4 223.1,129.2"/>
+<polyline class="ln c4" points="229.5,121.6 216.7,136.9"/>
+<text class="lab" x="216" y="149" text-anchor="end">D<tspan dy="3" font-size="75%">4</tspan><tspan dy="-3"> </tspan></text>
+<circle class="c4f" cx="200" cy="110" r="2.6"/>
+<circle class="c4f" cx="320" cy="110" r="2.6"/>
+<circle class="c4f" cx="260" cy="60" r="2.6"/>
+<circle class="c4f" cx="260" cy="160" r="2.6"/>
+<polyline class="ln c4" points="80,70 80,99"/>
+<polyline class="ln c4" points="80,121 80,150"/>
+<circle class="ln c4" cx="80" cy="110" r="11"/>
+<polyline class="ln c4 thin" points="73,110 73.7,108.8 74.4,107.6 75.1,106.8 75.8,106.2 76.5,106 77.2,106.2 77.9,106.8 78.6,107.6 79.3,108.8 80,110 80.7,111.2 81.4,112.4 82.1,113.2 82.8,113.8 83.5,114 84.2,113.8 84.9,113.2 85.6,112.4 86.3,111.2 87,110"/>
+<text class="lab" x="64" y="114" text-anchor="end">v<tspan dy="3" font-size="75%">S</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="80,70 140,70 140,110 200,110"/>
+<polyline class="ln c4" points="80,150 80,205 345,205 345,110 320,110"/>
+<polyline class="ln c4" points="260,60 260,60 470,60"/>
+<polyline class="ln c4" points="260,160 260,166"/>
+<polyline class="ln c4" points="251,166 269,166"/>
+<polyline class="ln c4" points="255,170 265,170"/>
+<polyline class="ln c4" points="258,174 262,174"/>
+<polyline class="ln c4" points="390,60 390,96"/>
+<polyline class="ln c4" points="390,104 390,140"/>
+<polyline class="ln c4" points="380,96 400,96"/>
+<polyline class="ln c4" points="380,104 400,104"/>
+<text class="lab" x="406" y="104" text-anchor="start">C</text>
+<circle class="c4f" cx="390" cy="60" r="2.6"/>
+<polyline class="ln c4" points="390,140 390,146"/>
+<polyline class="ln c4" points="381,146 399,146"/>
+<polyline class="ln c4" points="385,150 395,150"/>
+<polyline class="ln c4" points="388,154 392,154"/>
+<polyline class="ln c4" points="470,60 470,84 477,86.7 463,92 477,97.3 463,102.7 477,108 463,113.3 470,116 470,140"/>
+<text class="lab" x="482" y="104" text-anchor="start">R<tspan dy="3" font-size="75%">L</tspan><tspan dy="-3"> </tspan></text>
+<circle class="c4f" cx="470" cy="60" r="2.6"/>
+<polyline class="ln c4" points="470,140 470,146"/>
+<polyline class="ln c4" points="461,146 479,146"/>
+<polyline class="ln c4" points="465,150 475,150"/>
+<polyline class="ln c4" points="468,154 472,154"/>
+<circle class="hollow ln c4" cx="500" cy="60" r="3.5"/>
+<polyline class="ln c4" points="470,60 496,60"/>
+<text class="lab" x="512" y="64" text-anchor="start">v<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan></text>
+</svg>
+<figcaption><b>Figure 3.1</b> A full-wave bridge rectifier with a filter capacitor and load.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> When the top of the source is positive, current flows through \(D_1\), the load and \(D_2\). When the bottom is positive, it flows through \(D_3\), the load and \(D_4\). Either way it enters the load at the top, so the output never reverses.</p>
+<div class="eq"><span class="tag">Bridge rectifier</span>\[ v_{O,\text{peak}} = V_M - 2V_\gamma \qquad \text{PIV} = V_M - V_\gamma \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(v_{O,\text{peak}}\)</dt><dd>Peak output voltage (V).</dd>
+  <dt>\(V_M\)</dt><dd>Peak voltage of the whole secondary (V).</dd>
+  <dt>\(V_\gamma\)</dt><dd>Diode cut-in voltage (V).</dd>
+  <dt>\(\text{PIV}\)</dt><dd>Peak inverse voltage across each OFF diode (V).</dd>
+</dl>
+</div>
+<h3 id="compare">Centre-tapped against bridge</h3>
+<div class="tbl"><table><thead><tr><th></th><th>Centre-tapped</th><th>Bridge</th></tr></thead><tbody>
+<tr><td>Diodes</td><td>2</td><td>4</td></tr>
+<tr><td>Drops in the path</td><td>1</td><td>2</td></tr>
+<tr><td>Peak output</td><td>\(V_M - V_\gamma\)</td><td>\(V_M - 2V_\gamma\)</td></tr>
+<tr><td>PIV</td><td>\(2V_M - V_\gamma\)</td><td>\(V_M - V_\gamma\)</td></tr>
+<tr><td>Secondary</td><td>Tapped, two half-windings of \(V_M\) each</td><td>One winding</td></tr>
+</tbody></table></div>
+<p>The bridge needs only half the secondary turns for the same output, and its diodes need about half the PIV rating. The price is a second diode drop, which matters in low-voltage supplies.</p>
+<div class="ex"><div class="hd">Worked example 3.1 <span>sizing the transformer and diodes</span></div><div class="bd">
+<p>A rectifier must give a peak output of \(14\ \text{V}\) with \(V_\gamma = 0.7\ \text{V}\). Compare a centre-tapped design and a bridge.</p>
+<div class="step"><i>1</i><div>Centre-tapped: \(V_M = 14 + 0.7 = 14.7\ \text{V}\) per half. The whole secondary is \(2\times14.7 = 29.4\ \text{V}\) peak.</div></div>
+<div class="step"><i>2</i><div>\(\text{PIV} = 2(14.7) - 0.7 = 28.7\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>Bridge: \(V_M = 14 + 2(0.7) = 15.4\ \text{V}\), and \(\text{PIV} = 15.4 - 0.7 = 14.7\ \text{V}\).</div></div>
+<div class="step"><i>4</i><div>Secondary voltage ratio, bridge to centre-tapped: \(15.4/29.4 = 0.52\).</div></div>
+<div class="ans">Centre-tapped: \(29.4\ \text{V}\) peak secondary and PIV \(28.7\ \text{V}\). Bridge: \(15.4\ \text{V}\) peak secondary and PIV \(14.7\ \text{V}\). The bridge needs about half the secondary voltage, and so about half the turns, and diodes rated for about half the reverse voltage.</div>
+</div></div>
+</section>
+
+<section id="filter">
+<h2><span class="n">04</span>Filter capacitor and ripple</h2>
+<p class="reading"><b>Reading</b> Chapter 2 summary, section 2.1 (4)</p>
+<p>A large electrolytic capacitor \(C\) placed in parallel with the load keeps the output up while the diodes are OFF. The diodes recharge it briefly near each peak. Between peaks the capacitor alone feeds the load and its voltage decays:</p>
+<div class="eq"><span class="tag">Capacitor discharge</span>\[ v_O(t') = V_M\exp\!\left(-\frac{t'}{RC}\right) \approx V_M\left(1 - \frac{t'}{RC}\right) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(v_O(t')\)</dt><dd>Output voltage a time \(t'\) after the peak (V).</dd>
+  <dt>\(V_M\)</dt><dd>Peak output voltage (V).</dd>
+  <dt>\(t'\)</dt><dd>Time since the peak (s).</dd>
+  <dt>\(R\)</dt><dd>Load resistance (\(\Omega\)).</dd>
+  <dt>\(C\)</dt><dd>Filter capacitance (F).</dd>
+</dl>
+</div>
+<p>The decay is nearly linear because the ripple is small, which gives a simple formula for the <strong>ripple voltage</strong> \(V_r = V_M - V_L\), the peak-to-peak difference between the peak and the lowest output.</p>
+<div class="eq"><span class="tag">Ripple voltage</span>\[ V_r \approx \frac{V_M}{f_rRC} \qquad \text{half-wave: } f_r = f,\ V_r = \frac{V_M}{fRC} \qquad \text{full-wave: } f_r = 2f,\ V_r = \frac{V_M}{2fRC} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(V_r\)</dt><dd>Peak-to-peak ripple voltage (V).</dd>
+  <dt>\(V_M\)</dt><dd>Peak output voltage (V).</dd>
+  <dt>\(f_r\)</dt><dd>Ripple frequency (Hz).</dd>
+  <dt>\(f\)</dt><dd>Source frequency (Hz).</dd>
+  <dt>\(R\)</dt><dd>Load resistance (\(\Omega\)).</dd>
+  <dt>\(C\)</dt><dd>Filter capacitance (F).</dd>
+</dl>
+</div>
+<p>The discharge time \(T'\) is about one ripple period: \(1/f\) for half-wave and \(1/(2f)\) for full-wave. A full-wave circuit therefore needs half the capacitance for the same ripple.</p>
+<div class="box watch"><span class="label">Watch out</span><p>The summary quotes \(f = 60\ \text{Hz}\). South African mains is \(50\ \text{Hz}\), which gives more ripple for the same \(C\). Use the frequency in the question.</p></div>
+<h3 id="surge">Diode currents</h3>
+<p>The diodes conduct only for a short interval \(\Delta t\) just before each peak. Because they must supply a full cycle's worth of charge in that short time, their current is a narrow spike far larger than the load current.</p>
+<div class="eq"><span class="tag">Conduction interval and diode current</span>\[ \omega\,\Delta t \approx \sqrt{\frac{2V_r}{V_M}} \qquad i_{D,\text{peak}} \approx \frac{V_M}{R}\left(1 + \pi\sqrt{\frac{2V_M}{V_r}}\right) \]
+\[ i_{D,\text{avg}} \approx \frac{1}{\pi}\sqrt{\frac{2V_r}{V_M}}\left(\frac{V_M}{R}\right)\left(1 + \frac{\pi}{2}\sqrt{\frac{2V_M}{V_r}}\right) \approx I_L \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\omega\)</dt><dd>Source angular frequency, \(2\pi f\) (rad/s).</dd>
+  <dt>\(\Delta t\)</dt><dd>Time the diode conducts each cycle (s).</dd>
+  <dt>\(V_r\)</dt><dd>Ripple voltage (V).</dd>
+  <dt>\(V_M\)</dt><dd>Peak output voltage (V).</dd>
+  <dt>\(i_{D,\text{peak}}\)</dt><dd>Peak (surge) diode current (A).</dd>
+  <dt>\(R\)</dt><dd>Load resistance (\(\Omega\)).</dd>
+  <dt>\(i_{D,\text{avg}}\)</dt><dd>Average diode current over the cycle (A).</dd>
+  <dt>\(I_L\)</dt><dd>Average load current (A).</dd>
+</dl>
+</div>
+<div class="key"><span class="tag">Key idea</span><p>A larger \(C\) reduces ripple, but it also shortens \(\Delta t\) and raises the diode's peak current. Rate the diodes for the surge, not for the load current.</p></div>
+<div class="ex"><div class="hd">Worked example 4.1 <span>a filtered bridge supply</span></div><div class="bd">
+<p>A bridge rectifier on \(50\ \text{Hz}\) mains has a peak output of \(V_M = 14\ \text{V}\) and feeds a load of \(R = 200\ \Omega\). The ripple must not exceed \(0.7\ \text{V}\). Find \(C\), the conduction interval, and the peak and average diode current.</p>
+<div class="step"><i>1</i><div>Full-wave, so \(f_r = 2f = 100\ \text{Hz}\): \(C = V_M/(2fRV_r) = 14/(2\times50\times200\times0.7) = 1000\ \mu\text{F}\).</div></div>
+<div class="step"><i>2</i><div>\(\omega\Delta t = \sqrt{2(0.7)/14} = 0.316\ \text{rad} = 18.1^\circ\), so \(\Delta t = 0.316/(2\pi\times50) = 1.01\ \text{ms}\).</div></div>
+<div class="step"><i>3</i><div>\(\sqrt{2V_M/V_r} = \sqrt{2(14)/0.7} = 6.32\), so \(i_{D,\text{peak}} = (14/200)(1 + \pi\times6.32) = 1.46\ \text{A}\).</div></div>
+<div class="step"><i>4</i><div>Average: \(i_{D,\text{avg}} \approx (1/\pi)(0.3162)(0.07)(1 + 0.5\pi\times6.325) = 77\ \text{mA}\). The mean load current is about \((14 - 0.35)/200 = 68\ \text{mA}\).</div></div>
+<div class="ans">\(C = 1000\ \mu\text{F}\), \(\Delta t \approx 1.0\ \text{ms}\) of each \(10\ \text{ms}\) pulse period, \(i_{D,\text{peak}} \approx 1.46\ \text{A}\), which is about 21 times the load current. The average formula is only approximate and is about 13% above \(I_L\) here.</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 280" class="fig" role="img" aria-label="Bridge rectifier with a filter capacitor. The input sinusoid of 15.4 volts peak and the output, which follows each rectified peak and decays slowly between peaks, over five cycles.">
+<line class="grid" x1="60" y1="20" x2="60" y2="230"/>
+<text class="tk" x="60" y="246" text-anchor="middle">0</text>
+<line class="grid" x1="170" y1="20" x2="170" y2="230"/>
+<text class="tk" x="170" y="246" text-anchor="middle">20</text>
+<line class="grid" x1="280" y1="20" x2="280" y2="230"/>
+<text class="tk" x="280" y="246" text-anchor="middle">40</text>
+<line class="grid" x1="390" y1="20" x2="390" y2="230"/>
+<text class="tk" x="390" y="246" text-anchor="middle">60</text>
+<line class="grid" x1="500" y1="20" x2="500" y2="230"/>
+<text class="tk" x="500" y="246" text-anchor="middle">80</text>
+<line class="grid" x1="610" y1="20" x2="610" y2="230"/>
+<text class="tk" x="610" y="246" text-anchor="middle">100</text>
+<line class="grid" x1="60" y1="217.6" x2="610" y2="217.6"/>
+<text class="tk" x="54" y="221.6" text-anchor="end">-15</text>
+<line class="grid" x1="60" y1="186.8" x2="610" y2="186.8"/>
+<text class="tk" x="54" y="190.8" text-anchor="end">-10</text>
+<line class="grid" x1="60" y1="155.9" x2="610" y2="155.9"/>
+<text class="tk" x="54" y="159.9" text-anchor="end">-5</text>
+<line class="grid" x1="60" y1="125" x2="610" y2="125"/>
+<text class="tk" x="54" y="129" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="94.1" x2="610" y2="94.1"/>
+<text class="tk" x="54" y="98.1" text-anchor="end">5</text>
+<line class="grid" x1="60" y1="63.2" x2="610" y2="63.2"/>
+<text class="tk" x="54" y="67.2" text-anchor="end">10</text>
+<line class="grid" x1="60" y1="32.4" x2="610" y2="32.4"/>
+<text class="tk" x="54" y="36.4" text-anchor="end">15</text>
+<rect class="frame" x="60" y="20" width="550" height="210"/>
+<text class="lab" x="335" y="266" text-anchor="middle">time (ms)</text>
+<text class="lab" x="16" y="125" text-anchor="middle" transform="rotate(-90 16 125)">voltage (V)</text>
+<polyline class="ln c2 dash thin" points="60,125 61.1,119 62.2,113.1 63.3,107.2 64.4,101.3 65.5,95.6 66.6,90 67.7,84.5 68.8,79.2 69.9,74 71,69.1 72.1,64.4 73.2,59.9 74.3,55.7 75.4,51.7 76.5,48 77.6,44.7 78.7,41.6 79.8,38.9 80.9,36.6 82,34.5 83.1,32.9 84.2,31.6 85.3,30.6 86.4,30.1 87.5,29.9 88.6,30.1 89.7,30.6 90.8,31.6 91.9,32.9 93,34.5 94.1,36.6 95.2,38.9 96.3,41.6 97.4,44.7 98.5,48 99.6,51.7 100.7,55.7 101.8,59.9 102.9,64.4 104,69.1 105.1,74 106.2,79.2 107.3,84.5 108.4,90 109.5,95.6 110.6,101.3 111.7,107.2 112.8,113.1 113.9,119 115,125 116.1,131 117.2,136.9 118.3,142.8 119.4,148.7 120.5,154.4 121.6,160 122.7,165.5 123.8,170.8 124.9,176 126,180.9 127.1,185.6 128.2,190.1 129.3,194.3 130.4,198.3 131.5,202 132.6,205.3 133.7,208.4 134.8,211.1 135.9,213.4 137,215.5 138.1,217.1 139.2,218.4 140.3,219.4 141.4,219.9 142.5,220.1 143.6,219.9 144.7,219.4 145.8,218.4 146.9,217.1 148,215.5 149.1,213.4 150.2,211.1 151.3,208.4 152.4,205.3 153.5,202 154.6,198.3 155.7,194.3 156.8,190.1 157.9,185.6 159,180.9 160.1,176 161.2,170.8 162.3,165.5 163.4,160 164.5,154.4 165.6,148.7 166.7,142.8 167.8,136.9 168.9,131 170,125 171.1,119 172.2,113.1 173.3,107.2 174.4,101.3 175.5,95.6 176.6,90 177.7,84.5 178.8,79.2 179.9,74 181,69.1 182.1,64.4 183.2,59.9 184.3,55.7 185.4,51.7 186.5,48 187.6,44.7 188.7,41.6 189.8,38.9 190.9,36.6 192,34.5 193.1,32.9 194.2,31.6 195.3,30.6 196.4,30.1 197.5,29.9 198.6,30.1 199.7,30.6 200.8,31.6 201.9,32.9 203,34.5 204.1,36.6 205.2,38.9 206.3,41.6 207.4,44.7 208.5,48 209.6,51.7 210.7,55.7 211.8,59.9 212.9,64.4 214,69.1 215.1,74 216.2,79.2 217.3,84.5 218.4,90 219.5,95.6 220.6,101.3 221.7,107.2 222.8,113.1 223.9,119 225,125 226.1,131 227.2,136.9 228.3,142.8 229.4,148.7 230.5,154.4 231.6,160 232.7,165.5 233.8,170.8 234.9,176 236,180.9 237.1,185.6 238.2,190.1 239.3,194.3 240.4,198.3 241.5,202 242.6,205.3 243.7,208.4 244.8,211.1 245.9,213.4 247,215.5 248.1,217.1 249.2,218.4 250.3,219.4 251.4,219.9 252.5,220.1 253.6,219.9 254.7,219.4 255.8,218.4 256.9,217.1 258,215.5 259.1,213.4 260.2,211.1 261.3,208.4 262.4,205.3 263.5,202 264.6,198.3 265.7,194.3 266.8,190.1 267.9,185.6 269,180.9 270.1,176 271.2,170.8 272.3,165.5 273.4,160 274.5,154.4 275.6,148.7 276.7,142.8 277.8,136.9 278.9,131 280,125 281.1,119 282.2,113.1 283.3,107.2 284.4,101.3 285.5,95.6 286.6,90 287.7,84.5 288.8,79.2 289.9,74 291,69.1 292.1,64.4 293.2,59.9 294.3,55.7 295.4,51.7 296.5,48 297.6,44.7 298.7,41.6 299.8,38.9 300.9,36.6 302,34.5 303.1,32.9 304.2,31.6 305.3,30.6 306.4,30.1 307.5,29.9 308.6,30.1 309.7,30.6 310.8,31.6 311.9,32.9 313,34.5 314.1,36.6 315.2,38.9 316.3,41.6 317.4,44.7 318.5,48 319.6,51.7 320.7,55.7 321.8,59.9 322.9,64.4 324,69.1 325.1,74 326.2,79.2 327.3,84.5 328.4,90 329.5,95.6 330.6,101.3 331.7,107.2 332.8,113.1 333.9,119 335,125 336.1,131 337.2,136.9 338.3,142.8 339.4,148.7 340.5,154.4 341.6,160 342.7,165.5 343.8,170.8 344.9,176 346,180.9 347.1,185.6 348.2,190.1 349.3,194.3 350.4,198.3 351.5,202 352.6,205.3 353.7,208.4 354.8,211.1 355.9,213.4 357,215.5 358.1,217.1 359.2,218.4 360.3,219.4 361.4,219.9 362.5,220.1 363.6,219.9 364.7,219.4 365.8,218.4 366.9,217.1 368,215.5 369.1,213.4 370.2,211.1 371.3,208.4 372.4,205.3 373.5,202 374.6,198.3 375.7,194.3 376.8,190.1 377.9,185.6 379,180.9 380.1,176 381.2,170.8 382.3,165.5 383.4,160 384.5,154.4 385.6,148.7 386.7,142.8 387.8,136.9 388.9,131 390,125 391.1,119 392.2,113.1 393.3,107.2 394.4,101.3 395.5,95.6 396.6,90 397.7,84.5 398.8,79.2 399.9,74 401,69.1 402.1,64.4 403.2,59.9 404.3,55.7 405.4,51.7 406.5,48 407.6,44.7 408.7,41.6 409.8,38.9 410.9,36.6 412,34.5 413.1,32.9 414.2,31.6 415.3,30.6 416.4,30.1 417.5,29.9 418.6,30.1 419.7,30.6 420.8,31.6 421.9,32.9 423,34.5 424.1,36.6 425.2,38.9 426.3,41.6 427.4,44.7 428.5,48 429.6,51.7 430.7,55.7 431.8,59.9 432.9,64.4 434,69.1 435.1,74 436.2,79.2 437.3,84.5 438.4,90 439.5,95.6 440.6,101.3 441.7,107.2 442.8,113.1 443.9,119 445,125 446.1,131 447.2,136.9 448.3,142.8 449.4,148.7 450.5,154.4 451.6,160 452.7,165.5 453.8,170.8 454.9,176 456,180.9 457.1,185.6 458.2,190.1 459.3,194.3 460.4,198.3 461.5,202 462.6,205.3 463.7,208.4 464.8,211.1 465.9,213.4 467,215.5 468.1,217.1 469.2,218.4 470.3,219.4 471.4,219.9 472.5,220.1 473.6,219.9 474.7,219.4 475.8,218.4 476.9,217.1 478,215.5 479.1,213.4 480.2,211.1 481.3,208.4 482.4,205.3 483.5,202 484.6,198.3 485.7,194.3 486.8,190.1 487.9,185.6 489,180.9 490.1,176 491.2,170.8 492.3,165.5 493.4,160 494.5,154.4 495.6,148.7 496.7,142.8 497.8,136.9 498.9,131 500,125 501.1,119 502.2,113.1 503.3,107.2 504.4,101.3 505.5,95.6 506.6,90 507.7,84.5 508.8,79.2 509.9,74 511,69.1 512.1,64.4 513.2,59.9 514.3,55.7 515.4,51.7 516.5,48 517.6,44.7 518.7,41.6 519.8,38.9 520.9,36.6 522,34.5 523.1,32.9 524.2,31.6 525.3,30.6 526.4,30.1 527.5,29.9 528.6,30.1 529.7,30.6 530.8,31.6 531.9,32.9 533,34.5 534.1,36.6 535.2,38.9 536.3,41.6 537.4,44.7 538.5,48 539.6,51.7 540.7,55.7 541.8,59.9 542.9,64.4 544,69.1 545.1,74 546.2,79.2 547.3,84.5 548.4,90 549.5,95.6 550.6,101.3 551.7,107.2 552.8,113.1 553.9,119 555,125 556.1,131 557.2,136.9 558.3,142.8 559.4,148.7 560.5,154.4 561.6,160 562.7,165.5 563.8,170.8 564.9,176 566,180.9 567.1,185.6 568.2,190.1 569.3,194.3 570.4,198.3 571.5,202 572.6,205.3 573.7,208.4 574.8,211.1 575.9,213.4 577,215.5 578.1,217.1 579.2,218.4 580.3,219.4 581.4,219.9 582.5,220.1 583.6,219.9 584.7,219.4 585.8,218.4 586.9,217.1 588,215.5 589.1,213.4 590.2,211.1 591.3,208.4 592.4,205.3 593.5,202 594.6,198.3 595.7,194.3 596.8,190.1 597.9,185.6 599,180.9 600.1,176 601.2,170.8 602.3,165.5 603.4,160 604.5,154.4 605.6,148.7 606.7,142.8 607.8,136.9 608.9,131 610,125"/>
+<polyline class="ln c1" points="60,125 61.1,125 62.2,121.7 63.3,115.8 64.4,110 65.5,104.3 66.6,98.6 67.7,93.1 68.8,87.8 69.9,82.7 71,77.7 72.1,73 73.2,68.5 74.3,64.3 75.4,60.4 76.5,56.7 77.6,53.3 78.7,50.3 79.8,47.6 80.9,45.2 82,43.2 83.1,41.5 84.2,40.2 85.3,39.3 86.4,38.7 87.5,38.5 88.6,38.6 89.7,38.7 90.8,38.8 91.9,38.9 93,39 94.1,39 95.2,39.1 96.3,39.2 97.4,39.3 98.5,39.4 99.6,39.5 100.7,39.6 101.8,39.6 102.9,39.7 104,39.8 105.1,39.9 106.2,40 107.3,40.1 108.4,40.2 109.5,40.2 110.6,40.3 111.7,40.4 112.8,40.5 113.9,40.6 115,40.7 116.1,40.7 117.2,40.8 118.3,40.9 119.4,41 120.5,41.1 121.6,41.2 122.7,41.2 123.8,41.3 124.9,41.4 126,41.5 127.1,41.6 128.2,41.7 129.3,41.7 130.4,41.8 131.5,41.9 132.6,42 133.7,42.1 134.8,42.2 135.9,42.2 137,42.3 138.1,41.5 139.2,40.2 140.3,39.3 141.4,38.7 142.5,38.5 143.6,38.6 144.7,38.7 145.8,38.8 146.9,38.9 148,39 149.1,39 150.2,39.1 151.3,39.2 152.4,39.3 153.5,39.4 154.6,39.5 155.7,39.6 156.8,39.6 157.9,39.7 159,39.8 160.1,39.9 161.2,40 162.3,40.1 163.4,40.2 164.5,40.2 165.6,40.3 166.7,40.4 167.8,40.5 168.9,40.6 170,40.7 171.1,40.7 172.2,40.8 173.3,40.9 174.4,41 175.5,41.1 176.6,41.2 177.7,41.2 178.8,41.3 179.9,41.4 181,41.5 182.1,41.6 183.2,41.7 184.3,41.7 185.4,41.8 186.5,41.9 187.6,42 188.7,42.1 189.8,42.2 190.9,42.2 192,42.3 193.1,41.5 194.2,40.2 195.3,39.3 196.4,38.7 197.5,38.5 198.6,38.6 199.7,38.7 200.8,38.8 201.9,38.9 203,39 204.1,39 205.2,39.1 206.3,39.2 207.4,39.3 208.5,39.4 209.6,39.5 210.7,39.6 211.8,39.6 212.9,39.7 214,39.8 215.1,39.9 216.2,40 217.3,40.1 218.4,40.2 219.5,40.2 220.6,40.3 221.7,40.4 222.8,40.5 223.9,40.6 225,40.7 226.1,40.7 227.2,40.8 228.3,40.9 229.4,41 230.5,41.1 231.6,41.2 232.7,41.2 233.8,41.3 234.9,41.4 236,41.5 237.1,41.6 238.2,41.7 239.3,41.7 240.4,41.8 241.5,41.9 242.6,42 243.7,42.1 244.8,42.2 245.9,42.2 247,42.3 248.1,41.5 249.2,40.2 250.3,39.3 251.4,38.7 252.5,38.5 253.6,38.6 254.7,38.7 255.8,38.8 256.9,38.9 258,39 259.1,39 260.2,39.1 261.3,39.2 262.4,39.3 263.5,39.4 264.6,39.5 265.7,39.6 266.8,39.6 267.9,39.7 269,39.8 270.1,39.9 271.2,40 272.3,40.1 273.4,40.2 274.5,40.2 275.6,40.3 276.7,40.4 277.8,40.5 278.9,40.6 280,40.7 281.1,40.7 282.2,40.8 283.3,40.9 284.4,41 285.5,41.1 286.6,41.2 287.7,41.2 288.8,41.3 289.9,41.4 291,41.5 292.1,41.6 293.2,41.7 294.3,41.7 295.4,41.8 296.5,41.9 297.6,42 298.7,42.1 299.8,42.2 300.9,42.2 302,42.3 303.1,41.5 304.2,40.2 305.3,39.3 306.4,38.7 307.5,38.5 308.6,38.6 309.7,38.7 310.8,38.8 311.9,38.9 313,39 314.1,39 315.2,39.1 316.3,39.2 317.4,39.3 318.5,39.4 319.6,39.5 320.7,39.6 321.8,39.6 322.9,39.7 324,39.8 325.1,39.9 326.2,40 327.3,40.1 328.4,40.2 329.5,40.2 330.6,40.3 331.7,40.4 332.8,40.5 333.9,40.6 335,40.7 336.1,40.7 337.2,40.8 338.3,40.9 339.4,41 340.5,41.1 341.6,41.2 342.7,41.2 343.8,41.3 344.9,41.4 346,41.5 347.1,41.6 348.2,41.7 349.3,41.7 350.4,41.8 351.5,41.9 352.6,42 353.7,42.1 354.8,42.2 355.9,42.2 357,42.3 358.1,41.5 359.2,40.2 360.3,39.3 361.4,38.7 362.5,38.5 363.6,38.6 364.7,38.7 365.8,38.8 366.9,38.9 368,39 369.1,39 370.2,39.1 371.3,39.2 372.4,39.3 373.5,39.4 374.6,39.5 375.7,39.6 376.8,39.6 377.9,39.7 379,39.8 380.1,39.9 381.2,40 382.3,40.1 383.4,40.2 384.5,40.2 385.6,40.3 386.7,40.4 387.8,40.5 388.9,40.6 390,40.7 391.1,40.7 392.2,40.8 393.3,40.9 394.4,41 395.5,41.1 396.6,41.2 397.7,41.2 398.8,41.3 399.9,41.4 401,41.5 402.1,41.6 403.2,41.7 404.3,41.7 405.4,41.8 406.5,41.9 407.6,42 408.7,42.1 409.8,42.2 410.9,42.2 412,42.3 413.1,41.5 414.2,40.2 415.3,39.3 416.4,38.7 417.5,38.5 418.6,38.6 419.7,38.7 420.8,38.8 421.9,38.9 423,39 424.1,39 425.2,39.1 426.3,39.2 427.4,39.3 428.5,39.4 429.6,39.5 430.7,39.6 431.8,39.6 432.9,39.7 434,39.8 435.1,39.9 436.2,40 437.3,40.1 438.4,40.2 439.5,40.2 440.6,40.3 441.7,40.4 442.8,40.5 443.9,40.6 445,40.7 446.1,40.7 447.2,40.8 448.3,40.9 449.4,41 450.5,41.1 451.6,41.2 452.7,41.2 453.8,41.3 454.9,41.4 456,41.5 457.1,41.6 458.2,41.7 459.3,41.7 460.4,41.8 461.5,41.9 462.6,42 463.7,42.1 464.8,42.2 465.9,42.2 467,42.3 468.1,41.5 469.2,40.2 470.3,39.3 471.4,38.7 472.5,38.5 473.6,38.6 474.7,38.7 475.8,38.8 476.9,38.9 478,39 479.1,39 480.2,39.1 481.3,39.2 482.4,39.3 483.5,39.4 484.6,39.5 485.7,39.6 486.8,39.6 487.9,39.7 489,39.8 490.1,39.9 491.2,40 492.3,40.1 493.4,40.2 494.5,40.2 495.6,40.3 496.7,40.4 497.8,40.5 498.9,40.6 500,40.7 501.1,40.7 502.2,40.8 503.3,40.9 504.4,41 505.5,41.1 506.6,41.2 507.7,41.2 508.8,41.3 509.9,41.4 511,41.5 512.1,41.6 513.2,41.7 514.3,41.7 515.4,41.8 516.5,41.9 517.6,42 518.7,42.1 519.8,42.2 520.9,42.2 522,42.3 523.1,41.5 524.2,40.2 525.3,39.3 526.4,38.7 527.5,38.5 528.6,38.6 529.7,38.7 530.8,38.8 531.9,38.9 533,39 534.1,39 535.2,39.1 536.3,39.2 537.4,39.3 538.5,39.4 539.6,39.5 540.7,39.6 541.8,39.6 542.9,39.7 544,39.8 545.1,39.9 546.2,40 547.3,40.1 548.4,40.2 549.5,40.2 550.6,40.3 551.7,40.4 552.8,40.5 553.9,40.6 555,40.7 556.1,40.7 557.2,40.8 558.3,40.9 559.4,41 560.5,41.1 561.6,41.2 562.7,41.2 563.8,41.3 564.9,41.4 566,41.5 567.1,41.6 568.2,41.7 569.3,41.7 570.4,41.8 571.5,41.9 572.6,42 573.7,42.1 574.8,42.2 575.9,42.2 577,42.3 578.1,41.5 579.2,40.2 580.3,39.3 581.4,38.7 582.5,38.5 583.6,38.6 584.7,38.7 585.8,38.8 586.9,38.9 588,39 589.1,39 590.2,39.1 591.3,39.2 592.4,39.3 593.5,39.4 594.6,39.5 595.7,39.6 596.8,39.6 597.9,39.7 599,39.8 600.1,39.9 601.2,40 602.3,40.1 603.4,40.2 604.5,40.2 605.6,40.3 606.7,40.4 607.8,40.5 608.9,40.6 610,40.7"/>
+<text class="lab c2t halo" x="263.5" y="174.4" text-anchor="start">v<tspan dy="3" font-size="75%">S</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab c1t halo" x="241.5" y="60.1" text-anchor="start">v<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan></text>
+</svg>
+<figcaption><b>Figure 4.1</b> Input and filtered output of the supply in example 4.1.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> The dashed line is the input sinusoid of \(15.4\ \text{V}\) peak, so that two drops leave \(14\ \text{V}\). The output follows the rectified peak, then decays slowly. It is a numerical simulation of the circuit with ideal \(0.7\ \text{V}\) diodes, starting from an empty capacitor.</p>
+<figure>
+<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="Zoom on the output voltage between 60 and 100 milliseconds. Each peak at 14 volts is followed by a slow decay of about 0.62 volts.">
+<line class="grid" x1="60" y1="20" x2="60" y2="220"/>
+<text class="tk" x="60" y="236" text-anchor="middle">60</text>
+<line class="grid" x1="197.5" y1="20" x2="197.5" y2="220"/>
+<text class="tk" x="197.5" y="236" text-anchor="middle">70</text>
+<line class="grid" x1="335" y1="20" x2="335" y2="220"/>
+<text class="tk" x="335" y="236" text-anchor="middle">80</text>
+<line class="grid" x1="472.5" y1="20" x2="472.5" y2="220"/>
+<text class="tk" x="472.5" y="236" text-anchor="middle">90</text>
+<line class="grid" x1="610" y1="20" x2="610" y2="220"/>
+<text class="tk" x="610" y="236" text-anchor="middle">100</text>
+<line class="grid" x1="60" y1="220" x2="610" y2="220"/>
+<text class="tk" x="54" y="224" text-anchor="end">13.2</text>
+<line class="grid" x1="60" y1="180" x2="610" y2="180"/>
+<text class="tk" x="54" y="184" text-anchor="end">13.4</text>
+<line class="grid" x1="60" y1="140" x2="610" y2="140"/>
+<text class="tk" x="54" y="144" text-anchor="end">13.6</text>
+<line class="grid" x1="60" y1="100" x2="610" y2="100"/>
+<text class="tk" x="54" y="104" text-anchor="end">13.8</text>
+<line class="grid" x1="60" y1="60" x2="610" y2="60"/>
+<text class="tk" x="54" y="64" text-anchor="end">14.0</text>
+<line class="grid" x1="60" y1="20" x2="610" y2="20"/>
+<text class="tk" x="54" y="24" text-anchor="end">14.2</text>
+<rect class="frame" x="60" y="20" width="550" height="200"/>
+<text class="lab" x="335" y="256" text-anchor="middle">time (ms)</text>
+<text class="lab" x="16" y="120" text-anchor="middle" transform="rotate(-90 16 120)">output voltage v<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan> (V)</text>
+<polyline class="ln c1" points="60,128.9 60.7,129.6 61.4,130.3 62.1,131 62.8,131.6 63.4,132.3 64.1,133 64.8,133.7 65.5,134.4 66.2,135.1 66.9,135.7 67.6,136.4 68.3,137.1 68.9,137.8 69.6,138.5 70.3,139.1 71,139.8 71.7,140.5 72.4,141.2 73.1,141.9 73.8,142.5 74.4,143.2 75.1,143.9 75.8,144.6 76.5,145.3 77.2,145.9 77.9,146.6 78.6,147.3 79.3,148 79.9,148.6 80.6,149.3 81.3,150 82,150.7 82.7,151.4 83.4,152 84.1,152.7 84.8,153.4 85.4,154.1 86.1,154.7 86.8,155.4 87.5,156.1 88.2,156.8 88.9,157.4 89.6,158.1 90.3,158.8 90.9,159.5 91.6,160.1 92.3,160.8 93,161.5 93.7,162.2 94.4,162.8 95.1,163.5 95.8,164.2 96.4,164.9 97.1,165.5 97.8,166.2 98.5,166.9 99.2,167.6 99.9,168.2 100.6,168.9 101.3,169.6 101.9,170.3 102.6,170.9 103.3,171.6 104,172.3 104.7,172.9 105.4,173.6 106.1,174.3 106.8,175 107.4,175.6 108.1,176.3 108.8,177 109.5,177.6 110.2,178.3 110.9,179 111.6,179.6 112.3,180.3 112.9,181 113.6,181.7 114.3,182.3 115,183 115.7,183.7 116.4,182.3 117.1,169.2 117.8,156.8 118.4,145.1 119.1,134.2 119.8,124 120.5,114.6 121.2,105.9 121.9,97.9 122.6,90.7 123.3,84.3 123.9,78.6 124.6,73.7 125.3,69.5 126,66.1 126.7,63.4 127.4,61.5 128.1,60.4 128.8,60 129.4,60.5 130.1,61.2 130.8,61.9 131.5,62.6 132.2,63.3 132.9,64 133.6,64.7 134.3,65.4 134.9,66.1 135.6,66.8 136.3,67.5 137,68.2 137.7,68.9 138.4,69.6 139.1,70.3 139.8,71 140.4,71.7 141.1,72.4 141.8,73.1 142.5,73.7 143.2,74.4 143.9,75.1 144.6,75.8 145.3,76.5 145.9,77.2 146.6,77.9 147.3,78.6 148,79.3 148.7,80 149.4,80.7 150.1,81.4 150.8,82.1 151.4,82.8 152.1,83.5 152.8,84.2 153.5,84.9 154.2,85.6 154.9,86.3 155.6,87 156.3,87.6 156.9,88.3 157.6,89 158.3,89.7 159,90.4 159.7,91.1 160.4,91.8 161.1,92.5 161.8,93.2 162.4,93.9 163.1,94.6 163.8,95.3 164.5,95.9 165.2,96.6 165.9,97.3 166.6,98 167.3,98.7 167.9,99.4 168.6,100.1 169.3,100.8 170,101.5 170.7,102.2 171.4,102.8 172.1,103.5 172.8,104.2 173.4,104.9 174.1,105.6 174.8,106.3 175.5,107 176.2,107.7 176.9,108.4 177.6,109 178.3,109.7 178.9,110.4 179.6,111.1 180.3,111.8 181,112.5 181.7,113.2 182.4,113.9 183.1,114.5 183.8,115.2 184.4,115.9 185.1,116.6 185.8,117.3 186.5,118 187.2,118.7 187.9,119.3 188.6,120 189.3,120.7 189.9,121.4 190.6,122.1 191.3,122.8 192,123.5 192.7,124.1 193.4,124.8 194.1,125.5 194.8,126.2 195.4,126.9 196.1,127.6 196.8,128.2 197.5,128.9 198.2,129.6 198.9,130.3 199.6,131 200.3,131.6 200.9,132.3 201.6,133 202.3,133.7 203,134.4 203.7,135.1 204.4,135.7 205.1,136.4 205.8,137.1 206.4,137.8 207.1,138.5 207.8,139.1 208.5,139.8 209.2,140.5 209.9,141.2 210.6,141.9 211.3,142.5 211.9,143.2 212.6,143.9 213.3,144.6 214,145.3 214.7,145.9 215.4,146.6 216.1,147.3 216.8,148 217.4,148.6 218.1,149.3 218.8,150 219.5,150.7 220.2,151.4 220.9,152 221.6,152.7 222.3,153.4 222.9,154.1 223.6,154.7 224.3,155.4 225,156.1 225.7,156.8 226.4,157.4 227.1,158.1 227.8,158.8 228.4,159.5 229.1,160.1 229.8,160.8 230.5,161.5 231.2,162.2 231.9,162.8 232.6,163.5 233.3,164.2 233.9,164.9 234.6,165.5 235.3,166.2 236,166.9 236.7,167.6 237.4,168.2 238.1,168.9 238.8,169.6 239.4,170.3 240.1,170.9 240.8,171.6 241.5,172.3 242.2,172.9 242.9,173.6 243.6,174.3 244.3,175 244.9,175.6 245.6,176.3 246.3,177 247,177.6 247.7,178.3 248.4,179 249.1,179.6 249.8,180.3 250.4,181 251.1,181.7 251.8,182.3 252.5,183 253.2,183.7 253.9,182.3 254.6,169.2 255.3,156.8 255.9,145.1 256.6,134.2 257.3,124 258,114.6 258.7,105.9 259.4,97.9 260.1,90.7 260.8,84.3 261.4,78.6 262.1,73.7 262.8,69.5 263.5,66.1 264.2,63.4 264.9,61.5 265.6,60.4 266.3,60 266.9,60.5 267.6,61.2 268.3,61.9 269,62.6 269.7,63.3 270.4,64 271.1,64.7 271.8,65.4 272.4,66.1 273.1,66.8 273.8,67.5 274.5,68.2 275.2,68.9 275.9,69.6 276.6,70.3 277.3,71 277.9,71.7 278.6,72.4 279.3,73.1 280,73.7 280.7,74.4 281.4,75.1 282.1,75.8 282.8,76.5 283.4,77.2 284.1,77.9 284.8,78.6 285.5,79.3 286.2,80 286.9,80.7 287.6,81.4 288.3,82.1 288.9,82.8 289.6,83.5 290.3,84.2 291,84.9 291.7,85.6 292.4,86.3 293.1,87 293.8,87.6 294.4,88.3 295.1,89 295.8,89.7 296.5,90.4 297.2,91.1 297.9,91.8 298.6,92.5 299.3,93.2 299.9,93.9 300.6,94.6 301.3,95.3 302,95.9 302.7,96.6 303.4,97.3 304.1,98 304.8,98.7 305.4,99.4 306.1,100.1 306.8,100.8 307.5,101.5 308.2,102.2 308.9,102.8 309.6,103.5 310.3,104.2 310.9,104.9 311.6,105.6 312.3,106.3 313,107 313.7,107.7 314.4,108.4 315.1,109 315.8,109.7 316.4,110.4 317.1,111.1 317.8,111.8 318.5,112.5 319.2,113.2 319.9,113.9 320.6,114.5 321.3,115.2 321.9,115.9 322.6,116.6 323.3,117.3 324,118 324.7,118.7 325.4,119.3 326.1,120 326.8,120.7 327.4,121.4 328.1,122.1 328.8,122.8 329.5,123.5 330.2,124.1 330.9,124.8 331.6,125.5 332.3,126.2 332.9,126.9 333.6,127.6 334.3,128.2 335,128.9 335.7,129.6 336.4,130.3 337.1,131 337.8,131.6 338.4,132.3 339.1,133 339.8,133.7 340.5,134.4 341.2,135.1 341.9,135.7 342.6,136.4 343.3,137.1 343.9,137.8 344.6,138.5 345.3,139.1 346,139.8 346.7,140.5 347.4,141.2 348.1,141.9 348.8,142.5 349.4,143.2 350.1,143.9 350.8,144.6 351.5,145.3 352.2,145.9 352.9,146.6 353.6,147.3 354.3,148 354.9,148.6 355.6,149.3 356.3,150 357,150.7 357.7,151.4 358.4,152 359.1,152.7 359.8,153.4 360.4,154.1 361.1,154.7 361.8,155.4 362.5,156.1 363.2,156.8 363.9,157.4 364.6,158.1 365.3,158.8 365.9,159.5 366.6,160.1 367.3,160.8 368,161.5 368.7,162.2 369.4,162.8 370.1,163.5 370.8,164.2 371.4,164.9 372.1,165.5 372.8,166.2 373.5,166.9 374.2,167.6 374.9,168.2 375.6,168.9 376.3,169.6 376.9,170.3 377.6,170.9 378.3,171.6 379,172.3 379.7,172.9 380.4,173.6 381.1,174.3 381.8,175 382.4,175.6 383.1,176.3 383.8,177 384.5,177.6 385.2,178.3 385.9,179 386.6,179.6 387.3,180.3 387.9,181 388.6,181.7 389.3,182.3 390,183 390.7,183.7 391.4,182.3 392.1,169.2 392.8,156.8 393.4,145.1 394.1,134.2 394.8,124 395.5,114.6 396.2,105.9 396.9,97.9 397.6,90.7 398.2,84.3 398.9,78.6 399.6,73.7 400.3,69.5 401,66.1 401.7,63.4 402.4,61.5 403.1,60.4 403.7,60 404.4,60.5 405.1,61.2 405.8,61.9 406.5,62.6 407.2,63.3 407.9,64 408.6,64.7 409.2,65.4 409.9,66.1 410.6,66.8 411.3,67.5 412,68.2 412.7,68.9 413.4,69.6 414.1,70.3 414.7,71 415.4,71.7 416.1,72.4 416.8,73.1 417.5,73.7 418.2,74.4 418.9,75.1 419.6,75.8 420.2,76.5 420.9,77.2 421.6,77.9 422.3,78.6 423,79.3 423.7,80 424.4,80.7 425.1,81.4 425.7,82.1 426.4,82.8 427.1,83.5 427.8,84.2 428.5,84.9 429.2,85.6 429.9,86.3 430.6,87 431.2,87.6 431.9,88.3 432.6,89 433.3,89.7 434,90.4 434.7,91.1 435.4,91.8 436.1,92.5 436.7,93.2 437.4,93.9 438.1,94.6 438.8,95.3 439.5,95.9 440.2,96.6 440.9,97.3 441.6,98 442.2,98.7 442.9,99.4 443.6,100.1 444.3,100.8 445,101.5 445.7,102.2 446.4,102.8 447.1,103.5 447.7,104.2 448.4,104.9 449.1,105.6 449.8,106.3 450.5,107 451.2,107.7 451.9,108.4 452.6,109 453.2,109.7 453.9,110.4 454.6,111.1 455.3,111.8 456,112.5 456.7,113.2 457.4,113.9 458.1,114.5 458.7,115.2 459.4,115.9 460.1,116.6 460.8,117.3 461.5,118 462.2,118.7 462.9,119.3 463.6,120 464.2,120.7 464.9,121.4 465.6,122.1 466.3,122.8 467,123.5 467.7,124.1 468.4,124.8 469.1,125.5 469.7,126.2 470.4,126.9 471.1,127.6 471.8,128.2 472.5,128.9 473.2,129.6 473.9,130.3 474.6,131 475.2,131.6 475.9,132.3 476.6,133 477.3,133.7 478,134.4 478.7,135.1 479.4,135.7 480.1,136.4 480.7,137.1 481.4,137.8 482.1,138.5 482.8,139.1 483.5,139.8 484.2,140.5 484.9,141.2 485.6,141.9 486.2,142.5 486.9,143.2 487.6,143.9 488.3,144.6 489,145.3 489.7,145.9 490.4,146.6 491.1,147.3 491.7,148 492.4,148.6 493.1,149.3 493.8,150 494.5,150.7 495.2,151.4 495.9,152 496.6,152.7 497.2,153.4 497.9,154.1 498.6,154.7 499.3,155.4 500,156.1 500.7,156.8 501.4,157.4 502.1,158.1 502.7,158.8 503.4,159.5 504.1,160.1 504.8,160.8 505.5,161.5 506.2,162.2 506.9,162.8 507.6,163.5 508.2,164.2 508.9,164.9 509.6,165.5 510.3,166.2 511,166.9 511.7,167.6 512.4,168.2 513.1,168.9 513.7,169.6 514.4,170.3 515.1,170.9 515.8,171.6 516.5,172.3 517.2,172.9 517.9,173.6 518.6,174.3 519.2,175 519.9,175.6 520.6,176.3 521.3,177 522,177.6 522.7,178.3 523.4,179 524.1,179.6 524.7,180.3 525.4,181 526.1,181.7 526.8,182.3 527.5,183 528.2,183.7 528.9,182.3 529.6,169.2 530.2,156.8 530.9,145.1 531.6,134.2 532.3,124 533,114.6 533.7,105.9 534.4,97.9 535.1,90.7 535.7,84.3 536.4,78.6 537.1,73.7 537.8,69.5 538.5,66.1 539.2,63.4 539.9,61.5 540.6,60.4 541.2,60 541.9,60.5 542.6,61.2 543.3,61.9 544,62.6 544.7,63.3 545.4,64 546.1,64.7 546.7,65.4 547.4,66.1 548.1,66.8 548.8,67.5 549.5,68.2 550.2,68.9 550.9,69.6 551.6,70.3 552.2,71 552.9,71.7 553.6,72.4 554.3,73.1 555,73.7 555.7,74.4 556.4,75.1 557.1,75.8 557.7,76.5 558.4,77.2 559.1,77.9 559.8,78.6 560.5,79.3 561.2,80 561.9,80.7 562.6,81.4 563.2,82.1 563.9,82.8 564.6,83.5 565.3,84.2 566,84.9 566.7,85.6 567.4,86.3 568.1,87 568.7,87.6 569.4,88.3 570.1,89 570.8,89.7 571.5,90.4 572.2,91.1 572.9,91.8 573.6,92.5 574.2,93.2 574.9,93.9 575.6,94.6 576.3,95.3 577,95.9 577.7,96.6 578.4,97.3 579.1,98 579.7,98.7 580.4,99.4 581.1,100.1 581.8,100.8 582.5,101.5 583.2,102.2 583.9,102.8 584.6,103.5 585.2,104.2 585.9,104.9 586.6,105.6 587.3,106.3 588,107 588.7,107.7 589.4,108.4 590.1,109 590.7,109.7 591.4,110.4 592.1,111.1 592.8,111.8 593.5,112.5 594.2,113.2 594.9,113.9 595.6,114.5 596.2,115.2 596.9,115.9 597.6,116.6 598.3,117.3 599,118 599.7,118.7 600.4,119.3 601.1,120 601.7,120.7 602.4,121.4 603.1,122.1 603.8,122.8 604.5,123.5 605.2,124.1 605.9,124.8 606.6,125.5 607.2,126.2 607.9,126.9 608.6,127.6 609.3,128.2 610,128.9"/>
+<rect class="zone" x="114.9" y="20" width="13.8" height="200"/>
+<text class="lab b" x="109.4" y="32" text-anchor="end">Δt</text>
+<line class="ln c3" x1="575.6" y1="60" x2="575.6" y2="184.2"/>
+<polygon class="c3f" points="575.6,60 578.3,66 572.9,66"/>
+<polygon class="c3f" points="575.6,184.2 572.9,178.2 578.3,178.2"/>
+<text class="lab b c3t" x="567.6" y="120" text-anchor="end">V<tspan dy="3" font-size="75%">r</tspan><tspan dy="-3"> </tspan></text>
+<line class="ln c3 dash thin" x1="535.6" y1="60" x2="583.6" y2="60"/>
+<line class="ln c3 dash thin" x1="535.6" y1="184.2" x2="583.6" y2="184.2"/>
+</svg>
+<figcaption><b>Figure 4.2</b> The ripple and the conduction interval, enlarged.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.2:</b> The dashed box is the conduction interval \(\Delta t\) before the peak at \(65\ \text{ms}\). The arrow is the ripple \(V_r\). The simulation gives \(V_r = 0.62\ \text{V}\) and \(\Delta t = 0.93\ \text{ms}\). The formulas give \(0.70\ \text{V}\) and \(1.01\ \text{ms}\), so they are slightly cautious. They assume the capacitor discharges for the whole period, but it discharges for the period minus \(\Delta t\).</p>
+<div class="box watch"><span class="label">Watch out</span><p>The average-current formula is for the current through the rectifier as a whole. In a full-wave circuit the pulses alternate between two diodes, so each diode carries about half of \(I_L\) on average, while its peak current is unchanged.</p></div>
+</section>
+
+<section id="zener">
+<h2><span class="n">05</span>Zener voltage regulators</h2>
+<p class="reading"><b>Reading</b> Chapter 2 summary, section 2.2</p>
+<p>A Zener diode in reverse breakdown holds a nearly constant voltage \(V_Z\) across its terminals, whatever current it carries. Connect it in parallel with the load, and feed both through a series resistor \(R_i\). Changes in the input or in the load current then change the current through \(R_i\) and the Zener, but hardly change the output.</p>
+<figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="Zener voltage regulator. A supply drives a series resistor R_i. The Zener, modelled as a voltage V_Z0 in series with a resistance r_z, and the load resistor R_L are connected in parallel across the output.">
+<polyline class="ln c4" points="70,70 70,124"/>
+<polyline class="ln c4" points="70,146 70,200"/>
+<circle class="ln c4" cx="70" cy="135" r="11"/>
+<text class="lab" x="70" y="134" text-anchor="middle">+</text>
+<text class="lab" x="70" y="145" text-anchor="middle">−</text>
+<text class="lab" x="54" y="139" text-anchor="end">V<tspan dy="3" font-size="75%">PS</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="70,70 140,70"/>
+<polyline class="ln c4" points="140,70 170,70 173.3,63 180,77 186.7,63 193.3,77 200,63 206.7,77 210,70 240,70"/>
+<text class="lab" x="190" y="58" text-anchor="middle">R<tspan dy="3" font-size="75%">i</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="240,70 500,70"/>
+<circle class="c4f" cx="330" cy="70" r="2.6"/>
+<circle class="c4f" cx="470" cy="70" r="2.6"/>
+<polyline class="ln c4" points="330,70 330,86.5 337,88.3 323,92 337,95.7 323,99.3 337,103 323,106.7 330,108.5 330,125"/>
+<text class="lab" x="342" y="101.5" text-anchor="start">r<tspan dy="3" font-size="75%">z</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="330,125 330,138"/>
+<polyline class="ln c4" points="330,138 330,147"/>
+<polyline class="ln c4" points="330,153 330,162"/>
+<line class="ln c4" x1="320" y1="147" x2="340" y2="147"/>
+<line class="ln c4" x1="325" y1="153" x2="335" y2="153"/>
+<text class="lab" x="316" y="154" text-anchor="end">V<tspan dy="3" font-size="75%">Z0</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="330,162 330,200"/>
+<text class="tk" x="352" y="160" text-anchor="start">Zener model</text>
+<polyline class="ln c4" points="470,70 470,109 477,113.3 463,122 477,130.7 463,139.3 477,148 463,156.7 470,161 470,200"/>
+<text class="lab" x="482" y="139" text-anchor="start">R<tspan dy="3" font-size="75%">L</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="70,200 470,200"/>
+<polyline class="ln c4" points="270,200 270,206"/>
+<polyline class="ln c4" points="261,206 279,206"/>
+<polyline class="ln c4" points="265,210 275,210"/>
+<polyline class="ln c4" points="268,214 272,214"/>
+<circle class="c4f" cx="270" cy="200" r="2.6"/>
+<circle class="c4f" cx="330" cy="200" r="2.6"/>
+<circle class="c4f" cx="470" cy="200" r="2.6"/>
+<circle class="hollow ln c4" cx="500" cy="70" r="3.5"/>
+<text class="lab" x="512" y="74" text-anchor="start">v<tspan dy="3" font-size="75%">L</tspan><tspan dy="-3"> </tspan></text>
+<line class="ln c3 thin" x1="262" y1="50" x2="304" y2="50"/>
+<polygon class="c3f" points="304,50 298,52.7 298,47.3"/>
+<text class="lab" x="283" y="44" text-anchor="middle">I<tspan dy="3" font-size="75%">i</tspan><tspan dy="-3"> </tspan></text>
+<line class="ln c3 thin" x1="352" y1="86" x2="352" y2="116"/>
+<polygon class="c3f" points="352,116 349.3,110 354.7,110"/>
+<text class="lab" x="360" y="104" text-anchor="start">I<tspan dy="3" font-size="75%">Z</tspan><tspan dy="-3"> </tspan></text>
+<line class="ln c3 thin" x1="492" y1="86" x2="492" y2="116"/>
+<polygon class="c3f" points="492,116 489.3,110 494.7,110"/>
+<text class="lab" x="500" y="104" text-anchor="start">I<tspan dy="3" font-size="75%">L</tspan><tspan dy="-3"> </tspan></text>
+</svg>
+<figcaption><b>Figure 5.1</b> A Zener regulator with the Zener drawn as its equivalent circuit.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.1:</b> \(V_{Z0}\) in series with \(r_z\) models the Zener in breakdown. The current \(I_i\) through \(R_i\) divides into \(I_Z\) in the Zener and \(I_L\) in the load.</p>
+<div class="eq"><span class="tag">Regulator node equation</span>\[ I_i = I_Z + I_L \quad\Longrightarrow\quad \frac{V_{PS} - V_Z}{R_i} = I_Z + \frac{V_Z}{R_L} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(I_i\)</dt><dd>Current through the series resistor (A).</dd>
+  <dt>\(I_Z\)</dt><dd>Zener current (A).</dd>
+  <dt>\(I_L\)</dt><dd>Load current (A).</dd>
+  <dt>\(V_{PS}\)</dt><dd>Unregulated input voltage (V).</dd>
+  <dt>\(V_Z\)</dt><dd>Zener (output) voltage (V).</dd>
+  <dt>\(R_i\)</dt><dd>Series resistor (\(\Omega\)).</dd>
+  <dt>\(R_L\)</dt><dd>Load resistor (\(\Omega\)).</dd>
+</dl>
+</div>
+<h3 id="zdesign">Worst-case design</h3>
+<p>A design must work at the extremes of input and load. Two limits apply to the Zener.</p>
+<div class="tbl"><table><thead><tr><th>Limit</th><th>Requirement</th></tr></thead><tbody>
+<tr><td>It must stay in breakdown</td><td>\(I_Z \ge I_{Z(\min)} \approx 0.1\,I_{Z(\max)}\)</td></tr>
+<tr><td>It must not overheat</td><td>\(P_{Z(\max)} = I_{Z(\max)}V_Z\)</td></tr>
+</tbody></table></div>
+<div class="box watch"><span class="label">Watch out</span><p>The summary says "Transistor/diode must stay in breakdown". The device meant is the Zener diode.</p></div>
+<p>The Zener current is smallest when the input is lowest and the load takes most current, and largest when the input is highest and the load takes least. Each case fixes \(R_i\):</p>
+<div class="eq"><span class="tag">Worst-case design equations</span>\[ R_i = \frac{V_{PS(\min)} - V_Z}{I_{Z(\min)} + I_{L(\max)}} = \frac{V_{PS(\max)} - V_Z}{I_{Z(\max)} + I_{L(\min)}} \]
+\[ I_{Z(\max)} = \frac{I_{L(\max)}\left[V_{PS(\max)} - V_Z\right] - I_{L(\min)}\left[V_{PS(\min)} - V_Z\right]}{V_{PS(\min)} - 0.9V_Z - 0.1V_{PS(\max)}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(R_i\)</dt><dd>Series resistor (\(\Omega\)).</dd>
+  <dt>\(V_{PS(\min)}, V_{PS(\max)}\)</dt><dd>Lowest and highest input voltage (V).</dd>
+  <dt>\(V_Z\)</dt><dd>Zener voltage (V).</dd>
+  <dt>\(I_{Z(\min)}, I_{Z(\max)}\)</dt><dd>Smallest and largest Zener current in the design (A).</dd>
+  <dt>\(I_{L(\min)}, I_{L(\max)}\)</dt><dd>Smallest and largest load current (A).</dd>
+</dl>
+</div>
+<p>The second equation comes from setting the two expressions for \(R_i\) equal and using \(I_{Z(\min)} = 0.1\,I_{Z(\max)}\). Find \(I_{Z(\max)}\) first, then \(I_{Z(\min)}\), then \(R_i\).</p>
+<div class="ex"><div class="hd">Worked example 5.1 <span>designing a 5.1 V regulator</span></div><div class="bd">
+<p>A \(5.1\ \text{V}\) Zener regulates a load that draws \(5\) to \(25\ \text{mA}\) from an input that varies between \(10\ \text{V}\) and \(14\ \text{V}\). Find \(R_i\), the Zener power rating, and then check a standard \(160\ \Omega\) resistor.</p>
+<div class="step"><i>1</i><div>Numerator: \(25\ \text{mA}(14 - 5.1) - 5\ \text{mA}(10 - 5.1) = 0.198\ \text{W}\). Denominator: \(10 - 0.9(5.1) - 0.1(14) = 4.01\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>\(I_{Z(\max)} = 0.198/4.01 = 49.4\ \text{mA}\), so \(I_{Z(\min)} = 4.94\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>\(R_i = (10 - 5.1)/(4.94\ \text{mA} + 25\ \text{mA}) = 163.7\ \Omega\). The other case gives \((14 - 5.1)/(49.38\ \text{mA} + 5\ \text{mA}) = 163.7\ \Omega\), the same, which checks the algebra.</div></div>
+<div class="step"><i>4</i><div>Power: \(P_{Z(\max)} = 49.38\ \text{mA}\times5.1\ \text{V} = 0.252\ \text{W}\).</div></div>
+<div class="step"><i>5</i><div>With \(R_i = 160\ \Omega\): \(I_{Z(\min)} = (10 - 5.1)/160 - 25\ \text{mA} = 5.63\ \text{mA}\) and \(I_{Z(\max)} = (14 - 5.1)/160 - 5\ \text{mA} = 50.62\ \text{mA}\).</div></div>
+<div class="ans">\(R_i = 163.7\ \Omega\) and a Zener rated above \(0.25\ \text{W}\). The \(160\ \Omega\) resistor keeps \(I_{Z(\min)} = 5.63\ \text{mA}\), above \(0.1\,I_{Z(\max)} = 5.06\ \text{mA}\), at a worst-case power of \(0.258\ \text{W}\). A \(0.5\ \text{W}\) Zener is the sensible choice.</div>
+</div></div>
+<h3 id="zmerit">Source and load regulation</h3>
+<p>A real Zener has a resistance \(r_z = \Delta V_Z/\Delta I_Z\), so its voltage drifts as its current changes. Two figures of merit measure how much of that drift reaches the load.</p>
+<div class="eq"><span class="tag">Regulation figures of merit</span>\[ \text{Source regulation} = \frac{\Delta v_L}{\Delta V_{PS}}\times100\% = \frac{r_z}{R_i + r_z}\times100\% \]
+\[ \text{Load regulation} = \frac{v_{L,\text{no load}} - v_{L,\text{full load}}}{v_{L,\text{full load}}}\times100\% \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\Delta v_L\)</dt><dd>Change in output voltage (V).</dd>
+  <dt>\(\Delta V_{PS}\)</dt><dd>Change in input voltage (V).</dd>
+  <dt>\(r_z\)</dt><dd>Zener dynamic resistance (\(\Omega\)).</dd>
+  <dt>\(R_i\)</dt><dd>Series resistor (\(\Omega\)).</dd>
+  <dt>\(v_{L,\text{no load}}\)</dt><dd>Output with \(I_L = 0\) (V).</dd>
+  <dt>\(v_{L,\text{full load}}\)</dt><dd>Output at the full load current (V).</dd>
+</dl>
+</div>
+<p>Source regulation is a voltage divider between \(R_i\) and \(r_z\). A large \(R_i\) and a small \(r_z\) both help. The first form treats the load as a fixed current, which is how it is used here.</p>
+<div class="ex"><div class="hd">Worked example 5.2 <span>how steady is the output?</span></div><div class="bd">
+<p>A Zener with \(V_{Z0} = 5.0\ \text{V}\) and \(r_z = 8\ \Omega\) is fed through \(R_i = 164\ \Omega\) from \(V_{PS} = 12\ \text{V}\). The load current ranges from \(0\) to \(25\ \text{mA}\). Find the source regulation and the load regulation.</p>
+<div class="step"><i>1</i><div>Source regulation \(= 8/(164 + 8) = 4.65\%\). A \(4\ \text{V}\) change in \(V_{PS}\) moves the output by \(4\times0.0465 = 0.186\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>The node equation \((V_{PS} - v_L)/R_i = I_L + (v_L - V_{Z0})/r_z\) gives \(v_L = (V_{PS}r_z + V_{Z0}R_i - I_LR_ir_z)/(R_i + r_z)\).</div></div>
+<div class="step"><i>3</i><div>No load: \(v_L = (12\times8 + 5\times164)/172 = 5.326\ \text{V}\). Full load: subtract \(0.025\times164\times8/172 = 0.191\ \text{V}\) to get \(5.135\ \text{V}\).</div></div>
+<div class="step"><i>4</i><div>Load regulation \(= (5.326 - 5.135)/5.135 = 3.71\%\).</div></div>
+<div class="ans">Source regulation \(4.65\%\) and load regulation \(3.71\%\). The Zener current falls from \(40.7\ \text{mA}\) at no load to \(16.9\ \text{mA}\) at full load, which is what moves the output by \(0.191\ \text{V}\).</div>
+</div></div>
+</section>
+
+<section id="clippers">
+<h2><span class="n">06</span>Clippers</h2>
+<p class="reading"><b>Reading</b> Chapter 2 summary, section 2.3 (1)</p>
+<p>A <strong>clipper</strong> (or limiter) removes the part of a signal that goes beyond a chosen level and leaves the rest unchanged. A diode in series with a DC bias \(V_B\) conducts only when the input passes \(V_B + V_\gamma\), and from then on holds the output at that level.</p>
+<p>A <strong>positive clipper</strong> tracks \(v_I\) until \(v_I \ge V_B + V_\gamma\), then holds \(v_O = V_B + V_\gamma\). Two opposing shunt branches clip both peaks. This is the double limiter:</p>
+<div class="eq"><span class="tag">Double diode clipper</span>\[ -(V_{B2} + V_\gamma) \le v_O \le V_{B1} + V_\gamma \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(v_O\)</dt><dd>Output voltage (V).</dd>
+  <dt>\(V_{B1}\)</dt><dd>Bias battery in the branch that limits the positive peak (V).</dd>
+  <dt>\(V_{B2}\)</dt><dd>Bias battery in the branch that limits the negative peak (V).</dd>
+  <dt>\(V_\gamma\)</dt><dd>Diode cut-in voltage (V).</dd>
+</dl>
+</div>
+<p>Two back-to-back Zener diodes give symmetric limits of \(\pm(V_Z + V_\gamma)\). One Zener is in breakdown and the other is forward biased, so each limit costs one \(V_Z\) and one \(V_\gamma\).</p>
+<figure>
+<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="Double diode clipper and its transfer characteristic. Two shunt branches, each a diode and a battery, limit the output between minus 2.7 volts and plus 3.7 volts for batteries of 2 and 3 volts.">
+<circle class="hollow ln c4" cx="24" cy="80" r="3.5"/>
+<polyline class="ln c4" points="28,80 50,80"/>
+<polyline class="ln c4" points="50,80 74,80 76.7,73 82,87 87.3,73 92.7,87 98,73 103.3,87 106,80 130,80"/>
+<text class="lab" x="90" y="68" text-anchor="middle">R</text>
+<polyline class="ln c4" points="130,80 215,80"/>
+<circle class="hollow ln c4" cx="219" cy="80" r="3.5"/>
+<text class="lab" x="219" y="64" text-anchor="middle">v<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab" x="24" y="100" text-anchor="middle">v<tspan dy="3" font-size="75%">I</tspan><tspan dy="-3"> </tspan></text>
+<circle class="c4f" cx="150" cy="80" r="2.6"/>
+<circle class="c4f" cx="195" cy="80" r="2.6"/>
+<polyline class="ln c4" points="130,80 150,80"/>
+<polyline class="ln c4" points="150,80 150,95"/>
+<polyline class="ln c4" points="150,113 150,128"/>
+<polygon class="ln c4" points="140,95 160,95 150,113"/>
+<polyline class="ln c4" points="140,113 160,113"/>
+<text class="lab" x="134" y="108" text-anchor="end">D<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="150,128 150,138"/>
+<polyline class="ln c4" points="150,138 150,147"/>
+<polyline class="ln c4" points="150,153 150,162"/>
+<line class="ln c4" x1="140" y1="147" x2="160" y2="147"/>
+<line class="ln c4" x1="145" y1="153" x2="155" y2="153"/>
+<text class="lab" x="136" y="154" text-anchor="end">V<tspan dy="3" font-size="75%">B1</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="150,162 150,205"/>
+<polyline class="ln c4" points="195,80 195,95"/>
+<polyline class="ln c4" points="195,113 195,128"/>
+<polygon class="ln c4" points="185,113 205,113 195,95"/>
+<polyline class="ln c4" points="185,95 205,95"/>
+<text class="lab" x="211" y="108" text-anchor="start">D<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="195,128 195,138"/>
+<polyline class="ln c4" points="195,138 195,147"/>
+<polyline class="ln c4" points="195,153 195,162"/>
+<line class="ln c4" x1="185" y1="153" x2="205" y2="153"/>
+<line class="ln c4" x1="190" y1="147" x2="200" y2="147"/>
+<text class="lab" x="209" y="154" text-anchor="start">V<tspan dy="3" font-size="75%">B2</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="195,162 195,205"/>
+<polyline class="ln c4" points="150,205 195,205"/>
+<polyline class="ln c4" points="172,205 172,211"/>
+<polyline class="ln c4" points="163,211 181,211"/>
+<polyline class="ln c4" points="167,215 177,215"/>
+<polyline class="ln c4" points="170,219 174,219"/>
+<circle class="c4f" cx="150" cy="205" r="2.6"/>
+<circle class="c4f" cx="195" cy="205" r="2.6"/>
+<text class="tk" x="20" y="160" text-anchor="start">V<tspan dy="3" font-size="75%">B1</tspan><tspan dy="-3"> </tspan> = 3 V</text>
+<text class="tk" x="20" y="176" text-anchor="start">V<tspan dy="3" font-size="75%">B2</tspan><tspan dy="-3"> </tspan> = 2 V</text>
+<text class="tk" x="20" y="192" text-anchor="start">V<tspan dy="3" font-size="75%">γ</tspan><tspan dy="-3"> </tspan> = 0.7 V</text>
+<g transform="translate(255,0)">
+<line class="grid" x1="50" y1="20" x2="50" y2="220"/>
+<text class="tk" x="50" y="236" text-anchor="middle">-6</text>
+<line class="grid" x1="128.8" y1="20" x2="128.8" y2="220"/>
+<text class="tk" x="128.8" y="236" text-anchor="middle">-3</text>
+<line class="grid" x1="207.5" y1="20" x2="207.5" y2="220"/>
+<text class="tk" x="207.5" y="236" text-anchor="middle">0</text>
+<line class="grid" x1="286.2" y1="20" x2="286.2" y2="220"/>
+<text class="tk" x="286.2" y="236" text-anchor="middle">3</text>
+<line class="grid" x1="365" y1="20" x2="365" y2="220"/>
+<text class="tk" x="365" y="236" text-anchor="middle">6</text>
+<line class="grid" x1="50" y1="220" x2="365" y2="220"/>
+<text class="tk" x="44" y="224" text-anchor="end">-4</text>
+<line class="grid" x1="50" y1="175.6" x2="365" y2="175.6"/>
+<text class="tk" x="44" y="179.6" text-anchor="end">-2</text>
+<line class="grid" x1="50" y1="131.1" x2="365" y2="131.1"/>
+<text class="tk" x="44" y="135.1" text-anchor="end">0</text>
+<line class="grid" x1="50" y1="86.7" x2="365" y2="86.7"/>
+<text class="tk" x="44" y="90.7" text-anchor="end">2</text>
+<line class="grid" x1="50" y1="42.2" x2="365" y2="42.2"/>
+<text class="tk" x="44" y="46.2" text-anchor="end">4</text>
+<rect class="frame" x="50" y="20" width="315" height="200"/>
+<text class="lab" x="207.5" y="256" text-anchor="middle">input v<tspan dy="3" font-size="75%">I</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="16" y="120" text-anchor="middle" transform="rotate(-90 16 120)">output v<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan> (V)</text>
+<polyline class="ln c1" points="50,191.1 52.6,191.1 55.3,191.1 57.9,191.1 60.5,191.1 63.1,191.1 65.7,191.1 68.4,191.1 71,191.1 73.6,191.1 76.2,191.1 78.9,191.1 81.5,191.1 84.1,191.1 86.8,191.1 89.4,191.1 92,191.1 94.6,191.1 97.2,191.1 99.9,191.1 102.5,191.1 105.1,191.1 107.8,191.1 110.4,191.1 113,191.1 115.6,191.1 118.2,191.1 120.9,191.1 123.5,191.1 126.1,191.1 128.8,191.1 131.4,191.1 134,191.1 136.6,191.1 139.2,188.9 141.9,186.7 144.5,184.4 147.1,182.2 149.8,180 152.4,177.8 155,175.6 157.6,173.3 160.2,171.1 162.9,168.9 165.5,166.7 168.1,164.4 170.8,162.2 173.4,160 176,157.8 178.6,155.6 181.2,153.3 183.9,151.1 186.5,148.9 189.1,146.7 191.8,144.4 194.4,142.2 197,140 199.6,137.8 202.2,135.6 204.9,133.3 207.5,131.1 210.1,128.9 212.8,126.7 215.4,124.4 218,122.2 220.6,120 223.2,117.8 225.9,115.6 228.5,113.3 231.1,111.1 233.8,108.9 236.4,106.7 239,104.4 241.6,102.2 244.2,100 246.9,97.8 249.5,95.6 252.1,93.3 254.8,91.1 257.4,88.9 260,86.7 262.6,84.4 265.2,82.2 267.9,80 270.5,77.8 273.1,75.6 275.8,73.3 278.4,71.1 281,68.9 283.6,66.7 286.2,64.4 288.9,62.2 291.5,60 294.1,57.8 296.8,55.6 299.4,53.3 302,51.1 304.6,48.9 307.3,48.9 309.9,48.9 312.5,48.9 315.1,48.9 317.8,48.9 320.4,48.9 323,48.9 325.6,48.9 328.2,48.9 330.9,48.9 333.5,48.9 336.1,48.9 338.8,48.9 341.4,48.9 344,48.9 346.6,48.9 349.2,48.9 351.9,48.9 354.5,48.9 357.1,48.9 359.8,48.9 362.4,48.9 365,48.9"/>
+<line class="ln c3 dash thin" x1="50" y1="48.9" x2="304.6" y2="48.9"/>
+<line class="ln c3 dash thin" x1="50" y1="191.1" x2="136.6" y2="191.1"/>
+<text class="lab c3t halo" x="359" y="42.9" text-anchor="end">+3.7 V</text>
+<text class="lab c3t halo" x="359" y="207.1" text-anchor="end">−2.7 V</text>
+<text class="tk halo" x="196.2" y="118.7" text-anchor="end">slope 1</text>
+</g>
+</svg>
+<figcaption><b>Figure 6.1</b> A double diode clipper and its transfer characteristic.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 6.1:</b> \(D_1\) with \(V_{B1}\) turns on when \(v_O\) reaches \(3.7\ \text{V}\). \(D_2\) with \(V_{B2}\) turns on when \(v_O\) falls to \(-2.7\ \text{V}\). Between those values both diodes are OFF and the output equals the input, a line of slope 1.</p>
+<div class="ex"><div class="hd">Worked example 6.1 <span>clipping a sinusoid</span></div><div class="bd">
+<p>The clipper of Figure 6.1 has \(V_{B1} = 3\ \text{V}\), \(V_{B2} = 2\ \text{V}\) and \(V_\gamma = 0.7\ \text{V}\). The input is \(8\sin\omega t\) volts. Find the output limits and the angles at which clipping starts and ends.</p>
+<div class="step"><i>1</i><div>Upper limit \(3 + 0.7 = 3.7\ \text{V}\). Lower limit \(-(2 + 0.7) = -2.7\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>Positive clipping starts when \(8\sin\omega t = 3.7\): \(\omega t = \sin^{-1}(3.7/8) = 27.5^\circ\). It ends at \(180^\circ - 27.5^\circ = 152.5^\circ\).</div></div>
+<div class="step"><i>3</i><div>Negative clipping starts when \(8\sin\omega t = -2.7\): \(\omega t = 180^\circ + \sin^{-1}(2.7/8) = 199.7^\circ\). It ends at \(360^\circ - 19.7^\circ = 340.3^\circ\).</div></div>
+<div class="ans">The output swings between \(-2.7\ \text{V}\) and \(+3.7\ \text{V}\). The top is flat from \(27.5^\circ\) to \(152.5^\circ\) and the bottom from \(199.7^\circ\) to \(340.3^\circ\). The rest follows the input.</div>
+</div></div>
+</section>
+
+<section id="clampers">
+<h2><span class="n">07</span>Clampers</h2>
+<p class="reading"><b>Reading</b> Chapter 2 summary, section 2.3 (2)</p>
+<p>A <strong>clamper</strong> (DC restorer) shifts a whole AC waveform up or down by a fixed DC level without changing its shape. It needs a capacitor in series, a diode in shunt and a resistor \(R\) in parallel with the diode.</p>
+<p>Take the circuit of Figure 7.1, with the diode anode at the output. On the first negative swing of the input the diode turns ON and charges the capacitor towards the negative peak. After the peak the diode turns OFF. If \(RC \gg T\), the capacitor cannot discharge through \(R\) during a cycle, and it acts as a battery in series with the input.</p>
+<div class="eq"><span class="tag">Clamper</span>\[ v_O(t) = v_I(t) + V_C \qquad V_C = V_M - V_\gamma \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(v_O(t)\)</dt><dd>Output voltage (V).</dd>
+  <dt>\(v_I(t)\)</dt><dd>Input voltage (V).</dd>
+  <dt>\(V_C\)</dt><dd>Steady voltage across the capacitor (V).</dd>
+  <dt>\(V_M\)</dt><dd>Peak input voltage (V).</dd>
+  <dt>\(V_\gamma\)</dt><dd>Diode cut-in voltage (V).</dd>
+</dl>
+</div>
+<p>The lowest point of the output is therefore pinned at \(-V_\gamma\), the voltage at which the diode turns ON. Reversing the diode pins the highest point instead and shifts the waveform down.</p>
+<figure>
+<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="Diode clamper and its waveforms. A series capacitor, a shunt diode and a shunt resistor shift a 5 volt peak sinusoid up so that its lowest point sits at minus 0.7 volts.">
+<circle class="hollow ln c4" cx="24" cy="80" r="3.5"/>
+<polyline class="ln c4" points="28,80 50,80"/>
+<polyline class="ln c4" points="50,80 76,80"/>
+<polyline class="ln c4" points="84,80 110,80"/>
+<polyline class="ln c4" points="76,70 76,90"/>
+<polyline class="ln c4" points="84,70 84,90"/>
+<text class="lab" x="80" y="64" text-anchor="middle">C</text>
+<polyline class="ln c4" points="110,80 215,80"/>
+<circle class="hollow ln c4" cx="219" cy="80" r="3.5"/>
+<circle class="c4f" cx="130" cy="80" r="2.6"/>
+<circle class="c4f" cx="180" cy="80" r="2.6"/>
+<polyline class="ln c4" points="110,80 130,80"/>
+<polyline class="ln c4" points="130,80 130,101"/>
+<polyline class="ln c4" points="130,119 130,140"/>
+<polygon class="ln c4" points="120,101 140,101 130,119"/>
+<polyline class="ln c4" points="120,119 140,119"/>
+<text class="lab" x="114" y="114" text-anchor="end">D</text>
+<polyline class="ln c4" points="180,80 180,98 187,100 173,104 187,108 173,112 187,116 173,120 180,122 180,140"/>
+<text class="lab" x="192" y="114" text-anchor="start">R</text>
+<polyline class="ln c4" points="130,140 180,140"/>
+<circle class="c4f" cx="130" cy="140" r="2.6"/>
+<circle class="c4f" cx="180" cy="140" r="2.6"/>
+<polyline class="ln c4" points="155,140 155,146"/>
+<polyline class="ln c4" points="146,146 164,146"/>
+<polyline class="ln c4" points="150,150 160,150"/>
+<polyline class="ln c4" points="153,154 157,154"/>
+<text class="lab" x="24" y="100" text-anchor="middle">v<tspan dy="3" font-size="75%">I</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab" x="219" y="64" text-anchor="middle">v<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan></text>
+<g transform="translate(255,0)">
+<line class="grid" x1="50" y1="20" x2="50" y2="220"/>
+<text class="tk" x="50" y="236" text-anchor="middle">0</text>
+<line class="grid" x1="128.8" y1="20" x2="128.8" y2="220"/>
+<text class="tk" x="128.8" y="236" text-anchor="middle">10</text>
+<line class="grid" x1="207.5" y1="20" x2="207.5" y2="220"/>
+<text class="tk" x="207.5" y="236" text-anchor="middle">20</text>
+<line class="grid" x1="286.2" y1="20" x2="286.2" y2="220"/>
+<text class="tk" x="286.2" y="236" text-anchor="middle">30</text>
+<line class="grid" x1="365" y1="20" x2="365" y2="220"/>
+<text class="tk" x="365" y="236" text-anchor="middle">40</text>
+<line class="grid" x1="50" y1="197.8" x2="365" y2="197.8"/>
+<text class="tk" x="44" y="201.8" text-anchor="end">-5</text>
+<line class="grid" x1="50" y1="142.2" x2="365" y2="142.2"/>
+<text class="tk" x="44" y="146.2" text-anchor="end">0</text>
+<line class="grid" x1="50" y1="86.7" x2="365" y2="86.7"/>
+<text class="tk" x="44" y="90.7" text-anchor="end">5</text>
+<line class="grid" x1="50" y1="31.1" x2="365" y2="31.1"/>
+<text class="tk" x="44" y="35.1" text-anchor="end">10</text>
+<rect class="frame" x="50" y="20" width="315" height="200"/>
+<text class="lab" x="207.5" y="256" text-anchor="middle">time (ms)</text>
+<text class="lab" x="16" y="120" text-anchor="middle" transform="rotate(-90 16 120)">voltage (V)</text>
+<polyline class="ln c2 dash thin" points="50,142.2 52,137.9 53.9,133.5 55.9,129.3 57.9,125.1 59.8,121 61.8,117 63.8,113.2 65.8,109.6 67.7,106.1 69.7,102.9 71.7,100 73.6,97.3 75.6,94.9 77.6,92.7 79.5,90.9 81.5,89.4 83.5,88.2 85.4,87.4 87.4,86.8 89.4,86.7 91.3,86.8 93.3,87.4 95.3,88.2 97.2,89.4 99.2,90.9 101.2,92.7 103.2,94.9 105.1,97.3 107.1,100 109.1,102.9 111,106.1 113,109.6 115,113.2 116.9,117 118.9,121 120.9,125.1 122.8,129.3 124.8,133.5 126.8,137.9 128.8,142.2 130.7,146.6 132.7,150.9 134.7,155.2 136.6,159.4 138.6,163.5 140.6,167.4 142.5,171.2 144.5,174.9 146.5,178.3 148.4,181.5 150.4,184.5 152.4,187.2 154.3,189.6 156.3,191.7 158.3,193.5 160.2,195.1 162.2,196.2 164.2,197.1 166.2,197.6 168.1,197.8 170.1,197.6 172.1,197.1 174,196.2 176,195.1 178,193.5 179.9,191.7 181.9,189.6 183.9,187.2 185.8,184.5 187.8,181.5 189.8,178.3 191.8,174.9 193.7,171.2 195.7,167.4 197.7,163.5 199.6,159.4 201.6,155.2 203.6,150.9 205.5,146.6 207.5,142.2 209.5,137.9 211.4,133.5 213.4,129.3 215.4,125.1 217.3,121 219.3,117 221.3,113.2 223.2,109.6 225.2,106.1 227.2,102.9 229.2,100 231.1,97.3 233.1,94.9 235.1,92.7 237,90.9 239,89.4 241,88.2 242.9,87.4 244.9,86.8 246.9,86.7 248.8,86.8 250.8,87.4 252.8,88.2 254.8,89.4 256.7,90.9 258.7,92.7 260.7,94.9 262.6,97.3 264.6,100 266.6,102.9 268.5,106.1 270.5,109.6 272.5,113.2 274.4,117 276.4,121 278.4,125.1 280.3,129.3 282.3,133.5 284.3,137.9 286.2,142.2 288.2,146.6 290.2,150.9 292.2,155.2 294.1,159.4 296.1,163.5 298.1,167.4 300,171.2 302,174.9 304,178.3 305.9,181.5 307.9,184.5 309.9,187.2 311.8,189.6 313.8,191.7 315.8,193.5 317.8,195.1 319.7,196.2 321.7,197.1 323.7,197.6 325.6,197.8 327.6,197.6 329.6,197.1 331.5,196.2 333.5,195.1 335.5,193.5 337.4,191.7 339.4,189.6 341.4,187.2 343.3,184.5 345.3,181.5 347.3,178.3 349.2,174.9 351.2,171.2 353.2,167.4 355.2,163.5 357.1,159.4 359.1,155.2 361.1,150.9 363,146.6 365,142.2"/>
+<polyline class="ln c1" points="50,94.4 52,90.1 53.9,85.8 55.9,81.5 57.9,77.3 59.8,73.2 61.8,69.2 63.8,65.4 65.8,61.8 67.7,58.4 69.7,55.2 71.7,52.2 73.6,49.5 75.6,47.1 77.6,44.9 79.5,43.1 81.5,41.6 83.5,40.4 85.4,39.6 87.4,39.1 89.4,38.9 91.3,39.1 93.3,39.6 95.3,40.4 97.2,41.6 99.2,43.1 101.2,44.9 103.2,47.1 105.1,49.5 107.1,52.2 109.1,55.2 111,58.4 113,61.8 115,65.4 116.9,69.2 118.9,73.2 120.9,77.3 122.8,81.5 124.8,85.8 126.8,90.1 128.8,94.4 130.7,98.8 132.7,103.1 134.7,107.4 136.6,111.6 138.6,115.7 140.6,119.7 142.5,123.5 144.5,127.1 146.5,130.5 148.4,133.7 150.4,136.7 152.4,139.4 154.3,141.8 156.3,143.9 158.3,145.8 160.2,147.3 162.2,148.5 164.2,149.3 166.2,149.8 168.1,150 170.1,149.8 172.1,149.3 174,148.5 176,147.3 178,145.8 179.9,143.9 181.9,141.8 183.9,139.4 185.8,136.7 187.8,133.7 189.8,130.5 191.8,127.1 193.7,123.5 195.7,119.7 197.7,115.7 199.6,111.6 201.6,107.4 203.6,103.1 205.5,98.8 207.5,94.4 209.5,90.1 211.4,85.8 213.4,81.5 215.4,77.3 217.3,73.2 219.3,69.2 221.3,65.4 223.2,61.8 225.2,58.4 227.2,55.2 229.2,52.2 231.1,49.5 233.1,47.1 235.1,44.9 237,43.1 239,41.6 241,40.4 242.9,39.6 244.9,39.1 246.9,38.9 248.8,39.1 250.8,39.6 252.8,40.4 254.8,41.6 256.7,43.1 258.7,44.9 260.7,47.1 262.6,49.5 264.6,52.2 266.6,55.2 268.5,58.4 270.5,61.8 272.5,65.4 274.4,69.2 276.4,73.2 278.4,77.3 280.3,81.5 282.3,85.8 284.3,90.1 286.2,94.4 288.2,98.8 290.2,103.1 292.2,107.4 294.1,111.6 296.1,115.7 298.1,119.7 300,123.5 302,127.1 304,130.5 305.9,133.7 307.9,136.7 309.9,139.4 311.8,141.8 313.8,143.9 315.8,145.8 317.8,147.3 319.7,148.5 321.7,149.3 323.7,149.8 325.6,150 327.6,149.8 329.6,149.3 331.5,148.5 333.5,147.3 335.5,145.8 337.4,143.9 339.4,141.8 341.4,139.4 343.3,136.7 345.3,133.7 347.3,130.5 349.2,127.1 351.2,123.5 353.2,119.7 355.2,115.7 357.1,111.6 359.1,107.4 361.1,103.1 363,98.8 365,94.4"/>
+<line class="ln c3 dash thin" x1="50" y1="150" x2="365" y2="150"/>
+<text class="lab c3t halo" x="361" y="164" text-anchor="end">−0.7 V</text>
+<line class="ln c3 dash thin" x1="50" y1="38.9" x2="365" y2="38.9"/>
+<text class="lab c3t halo" x="361" y="54.9" text-anchor="end">9.3 V</text>
+<text class="lab c1t halo" x="109.1" y="53.3" text-anchor="start">v<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab c2t halo" x="69.7" y="202.2" text-anchor="start">v<tspan dy="3" font-size="75%">I</tspan><tspan dy="-3"> </tspan></text>
+</g>
+</svg>
+<figcaption><b>Figure 7.1</b> A diode clamper and its steady-state waveforms.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 7.1:</b> The dashed wave is the input and the teal wave is the output. The waveforms are drawn for the steady state, after the capacitor has charged during the first cycle. The output is the input lifted by \(V_C = 4.3\ \text{V}\).</p>
+<div class="box watch"><span class="label">Watch out</span><p>Two things in the summary need care. Its text gives \(V_C = V_M - V_B\) for a clamp with a reference battery \(V_B\), without showing the circuit, and the sign of \(V_B\) depends on how the battery is connected. This page works the circuit with no battery, where \(V_C = V_M - V_\gamma\). Its diagram description shows a diode pointing down to ground but an output shifted below zero. A diode with its anode at the output clamps the negative peaks and lifts the waveform. To push the waveform below zero, reverse the diode.</p></div>
+<div class="ex"><div class="hd">Worked example 7.1 <span>restoring a DC level</span></div><div class="bd">
+<p>A \(5\ \text{V}\) peak sinusoid drives the clamper of Figure 7.1 with \(V_\gamma = 0.7\ \text{V}\) and \(RC \gg T\). Find the capacitor voltage and the range of the output. Then say what happens when the diode is reversed.</p>
+<div class="step"><i>1</i><div>\(V_C = V_M - V_\gamma = 5 - 0.7 = 4.3\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>\(v_O = v_I + 4.3\), so the minimum is \(-5 + 4.3 = -0.7\ \text{V}\), which is \(-V_\gamma\) as expected, and the maximum is \(5 + 4.3 = 9.3\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>Reversed diode: the capacitor charges on positive peaks to \(V_M - V_\gamma\) with the opposite sign, so \(v_O = v_I - 4.3\) and the output runs from \(-9.3\ \text{V}\) to \(+0.7\ \text{V}\).</div></div>
+<div class="ans">Output between \(-0.7\ \text{V}\) and \(9.3\ \text{V}\), a peak-to-peak swing of \(10\ \text{V}\), the same as the input. Reversing the diode gives \(-9.3\ \text{V}\) to \(+0.7\ \text{V}\).</div>
+</div></div>
+</section>
+
+<section id="multi">
+<h2><span class="n">08</span>Multiple-diode circuits</h2>
+<p class="reading"><b>Reading</b> Chapter 2 summary, section 2.4 (1)</p>
+<p>With several diodes you cannot tell by inspection which are ON. The method is to guess, solve the resulting linear circuit and check the guess.</p>
+<ol>
+<li>Assume a state for every diode. ON means replace it by \(V_\gamma\). OFF means replace it by an open circuit. With \(N\) diodes there are \(2^N\) possible sets of states.</li>
+<li>Solve the linear circuit with KVL and KCL for all unknown diode currents \(i_D\) and voltages \(v_D\).</li>
+<li>Check the assumptions. Every ON diode must have \(i_D \gt 0\). Every OFF diode must have \(v_D \lt V_\gamma\).</li>
+<li>If any check fails, change the assumed states and repeat.</li>
+</ol>
+<p>A good first guess is to turn ON the diode with the largest forward drive, because when two diodes compete for the same node, the one that turns on first limits the voltage so the other cannot.</p>
+<figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="A resistor feeds a node A that has two branches to ground. Each branch is a diode in series with a battery, one of 2 volts and one of 6 volts. A 10 volt source drives the circuit.">
+<polyline class="ln c4" points="70,60 70,114"/>
+<polyline class="ln c4" points="70,136 70,190"/>
+<circle class="ln c4" cx="70" cy="125" r="11"/>
+<text class="lab" x="70" y="124" text-anchor="middle">+</text>
+<text class="lab" x="70" y="135" text-anchor="middle">−</text>
+<text class="lab" x="54" y="129" text-anchor="end">V<tspan dy="3" font-size="75%">S</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="70,60 110,60"/>
+<polyline class="ln c4" points="110,60 140,60 143.3,53 150,67 156.7,53 163.3,67 170,53 176.7,67 180,60 210,60"/>
+<text class="lab" x="160" y="48" text-anchor="middle">R</text>
+<polyline class="ln c4" points="210,60 420,60"/>
+<circle class="c4f" cx="250" cy="60" r="2.6"/>
+<text class="lab b" x="250" y="44" text-anchor="middle">A</text>
+<polyline class="ln c4" points="250,60 300,60"/>
+<circle class="c4f" cx="300" cy="60" r="2.6"/>
+<circle class="c4f" cx="400" cy="60" r="2.6"/>
+<polyline class="ln c4" points="300,60 300,81"/>
+<polyline class="ln c4" points="300,99 300,120"/>
+<polygon class="ln c4" points="290,81 310,81 300,99"/>
+<polyline class="ln c4" points="290,99 310,99"/>
+<text class="lab" x="284" y="94" text-anchor="end">D<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="300,120 300,133"/>
+<polyline class="ln c4" points="300,133 300,142"/>
+<polyline class="ln c4" points="300,148 300,157"/>
+<line class="ln c4" x1="290" y1="142" x2="310" y2="142"/>
+<line class="ln c4" x1="295" y1="148" x2="305" y2="148"/>
+<text class="lab" x="286" y="149" text-anchor="end">V<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="300,157 300,190"/>
+<polyline class="ln c4" points="400,60 400,81"/>
+<polyline class="ln c4" points="400,99 400,120"/>
+<polygon class="ln c4" points="390,81 410,81 400,99"/>
+<polyline class="ln c4" points="390,99 410,99"/>
+<text class="lab" x="384" y="94" text-anchor="end">D<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="400,120 400,133"/>
+<polyline class="ln c4" points="400,133 400,142"/>
+<polyline class="ln c4" points="400,148 400,157"/>
+<line class="ln c4" x1="390" y1="142" x2="410" y2="142"/>
+<line class="ln c4" x1="395" y1="148" x2="405" y2="148"/>
+<text class="lab" x="386" y="149" text-anchor="end">V<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="400,157 400,190"/>
+<polyline class="ln c4" points="70,190 400,190"/>
+<polyline class="ln c4" points="250,190 250,196"/>
+<polyline class="ln c4" points="241,196 259,196"/>
+<polyline class="ln c4" points="245,200 255,200"/>
+<polyline class="ln c4" points="248,204 252,204"/>
+<circle class="c4f" cx="250" cy="190" r="2.6"/>
+<circle class="c4f" cx="300" cy="190" r="2.6"/>
+<circle class="c4f" cx="400" cy="190" r="2.6"/>
+</svg>
+<figcaption><b>Figure 8.1</b> A resistor feeding two diode branches with different batteries.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 8.1:</b> Node A is fed through \(R\) from \(V_S\). \(D_1\) with \(V_1\) would hold A at \(V_1 + V_\gamma\). \(D_2\) with \(V_2\) would hold it at \(V_2 + V_\gamma\).</p>
+<div class="ex"><div class="hd">Worked example 8.1 <span>which diode conducts?</span></div><div class="bd">
+<p>In Figure 8.1, \(V_S = 10\ \text{V}\), \(R = 1\ \text{k}\Omega\), \(V_1 = 2\ \text{V}\), \(V_2 = 6\ \text{V}\) and \(V_\gamma = 0.7\ \text{V}\). Find the voltage at A and the current in each diode.</p>
+<div class="step"><i>1</i><div>Both OFF: no current flows through \(R\), so A would sit at \(10\ \text{V}\). Then \(D_1\) would have \(10 - 2 = 8\ \text{V}\) across it, more than \(V_\gamma\). The guess fails.</div></div>
+<div class="step"><i>2</i><div>Both ON would need A at \(2.7\ \text{V}\) and \(6.7\ \text{V}\) at once. Impossible.</div></div>
+<div class="step"><i>3</i><div>Try \(D_1\) ON and \(D_2\) OFF. A \(= V_1 + V_\gamma = 2.7\ \text{V}\), and \(i_{D1} = (10 - 2.7)/1000 = 7.3\ \text{mA}\), which is positive.</div></div>
+<div class="step"><i>4</i><div>Check \(D_2\): its forward voltage is \(2.7 - 6 = -3.3\ \text{V}\), less than \(V_\gamma\), so it is OFF as assumed.</div></div>
+<div class="ans">\(v_A = 2.7\ \text{V}\), \(i_{D1} = 7.3\ \text{mA}\) and \(i_{D2} = 0\). The low-voltage branch wins, and it keeps the higher one OFF. This circuit is a bottom clipper with two levels.</div>
+</div></div>
+</section>
+
+<section id="logic">
+<h2><span class="n">09</span>Diode logic gates</h2>
+<p class="reading"><b>Reading</b> Chapter 2 summary, section 2.4 (2)</p>
+<p>Take logic High as \(5\ \text{V}\) and Low as \(0\ \text{V}\). Two diodes and a resistor build each gate.</p>
+<figure>
+<svg viewBox="0 0 640 240" class="fig" role="img" aria-label="Diode OR gate on the left and AND gate on the right. In the OR gate the inputs connect to diode anodes and a resistor pulls the output to ground. In the AND gate the inputs connect to diode cathodes and a resistor pulls the output to plus 5 volts.">
+<text class="lab b" x="115" y="20" text-anchor="middle">OR gate</text>
+<circle class="hollow ln c4" cx="24" cy="60" r="3.5"/>
+<polyline class="ln c4" points="28,60 70,60"/>
+<polyline class="ln c4" points="70,60 91,60"/>
+<polyline class="ln c4" points="109,60 130,60"/>
+<polygon class="ln c4" points="91,50 91,70 109,60"/>
+<polyline class="ln c4" points="109,50 109,70"/>
+<polyline class="ln c4" points="130,60 170,60"/>
+<text class="lab" x="18" y="48" text-anchor="start">V<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> </tspan></text>
+<circle class="hollow ln c4" cx="24" cy="130" r="3.5"/>
+<polyline class="ln c4" points="28,130 70,130"/>
+<polyline class="ln c4" points="70,130 91,130"/>
+<polyline class="ln c4" points="109,130 130,130"/>
+<polygon class="ln c4" points="91,120 91,140 109,130"/>
+<polyline class="ln c4" points="109,120 109,140"/>
+<polyline class="ln c4" points="130,130 170,130"/>
+<text class="lab" x="18" y="118" text-anchor="start">V<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="170,60 170,130"/>
+<circle class="c4f" cx="170" cy="95" r="2.6"/>
+<polyline class="ln c4" points="170,95 216,95"/>
+<circle class="hollow ln c4" cx="220" cy="95" r="3.5"/>
+<text class="lab" x="228" y="99" text-anchor="start">V<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="170,130 170,149.5 177,151.7 163,156 177,160.3 163,164.7 177,169 163,173.3 170,175.5 170,195"/>
+<text class="lab" x="182" y="166.5" text-anchor="start">R</text>
+<polyline class="ln c4" points="170,195 170,201"/>
+<polyline class="ln c4" points="161,201 179,201"/>
+<polyline class="ln c4" points="165,205 175,205"/>
+<polyline class="ln c4" points="168,209 172,209"/>
+<text class="lab b" x="440" y="20" text-anchor="middle">AND gate</text>
+<circle class="hollow ln c4" cx="354" cy="60" r="3.5"/>
+<polyline class="ln c4" points="358,60 400,60"/>
+<polyline class="ln c4" points="400,60 421,60"/>
+<polyline class="ln c4" points="439,60 460,60"/>
+<polygon class="ln c4" points="439,50 439,70 421,60"/>
+<polyline class="ln c4" points="421,50 421,70"/>
+<polyline class="ln c4" points="460,60 500,60"/>
+<text class="lab" x="348" y="48" text-anchor="start">V<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> </tspan></text>
+<circle class="hollow ln c4" cx="354" cy="130" r="3.5"/>
+<polyline class="ln c4" points="358,130 400,130"/>
+<polyline class="ln c4" points="400,130 421,130"/>
+<polyline class="ln c4" points="439,130 460,130"/>
+<polygon class="ln c4" points="439,120 439,140 421,130"/>
+<polyline class="ln c4" points="421,120 421,140"/>
+<polyline class="ln c4" points="460,130 500,130"/>
+<text class="lab" x="348" y="118" text-anchor="start">V<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="500,60 500,130"/>
+<circle class="c4f" cx="500" cy="95" r="2.6"/>
+<polyline class="ln c4" points="500,95 546,95"/>
+<circle class="hollow ln c4" cx="550" cy="95" r="3.5"/>
+<text class="lab" x="558" y="99" text-anchor="start">V<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="500,20 500,32 507,33.3 493,36 507,38.7 493,41.3 507,44 493,46.7 500,48 500,60"/>
+<text class="lab" x="512" y="44" text-anchor="start">R</text>
+<polyline class="ln c4" points="488,20 512,20"/>
+<text class="lab" x="500" y="13" text-anchor="middle">+5 V</text>
+</svg>
+<figcaption><b>Figure 9.1</b> Diode OR and AND gates.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 9.1:</b> In the OR gate the diode with the highest input conducts. In the AND gate the diode with the lowest input conducts.</p>
+<div class="tbl"><table><thead><tr><th></th><th>OR gate</th><th>AND gate</th></tr></thead><tbody>
+<tr><td>Inputs connect to</td><td>Anodes</td><td>Cathodes</td></tr>
+<tr><td>Resistor</td><td>Pull-down to ground</td><td>Pull-up to \(+5\ \text{V}\)</td></tr>
+<tr><td>Any input High</td><td>That diode conducts: \(V_O \approx 4.3\ \text{V}\)</td><td>No effect on its own</td></tr>
+<tr><td>Any input Low</td><td>No effect on its own</td><td>That diode conducts: \(V_O \approx 0.7\ \text{V}\)</td></tr>
+<tr><td>All inputs High</td><td>\(V_O \approx 4.3\ \text{V}\)</td><td>All diodes OFF: \(V_O = 5\ \text{V}\)</td></tr>
+<tr><td>All inputs Low</td><td>All diodes OFF: \(V_O = 0\)</td><td>\(V_O \approx 0.7\ \text{V}\)</td></tr>
+</tbody></table></div>
+<div class="eq"><span class="tag">Diode gate output levels</span>\[ \text{OR: } V_O = \max(V_1, V_2) - V_\gamma \qquad \text{AND: } V_O = \min(V_1, V_2) + V_\gamma \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(V_O\)</dt><dd>Output voltage (V).</dd>
+  <dt>\(V_1, V_2\)</dt><dd>Input voltages (V).</dd>
+  <dt>\(V_\gamma\)</dt><dd>Diode cut-in voltage (V).</dd>
+</dl>
+</div>
+<p>The OR form holds when the highest input is above \(V_\gamma\), and the AND form when the lowest is below \(5\ \text{V} - V_\gamma\). The summary gives the Low and High cases. The general forms follow from the same diode model.</p>
+<div class="key"><span class="tag">Key idea</span><p>Every diode gate shifts the signal level by \(V_\gamma\): Highs fall by \(0.7\ \text{V}\) through an OR gate, and Lows rise by \(0.7\ \text{V}\) through an AND gate. Cascade several and the levels drift until they are no longer recognisable. This limits diode logic without active restoring amplifiers.</p></div>
+<div class="ex"><div class="hd">Worked example 9.1 <span>level degradation</span></div><div class="bd">
+<p>A High of \(5\ \text{V}\) passes through three diode OR gates in series, and a Low of \(0\ \text{V}\) passes through three AND gates in series. Take \(V_\gamma = 0.7\ \text{V}\).</p>
+<div class="step"><i>1</i><div>OR chain: each gate subtracts \(0.7\ \text{V}\) from the High, so the levels are \(4.3\ \text{V}\), \(3.6\ \text{V}\) and \(2.9\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>AND chain: each gate adds \(0.7\ \text{V}\) to the Low, so the levels are \(0.7\ \text{V}\), \(1.4\ \text{V}\) and \(2.1\ \text{V}\).</div></div>
+<div class="ans">After three stages the High has fallen to \(2.9\ \text{V}\) and the Low has risen to \(2.1\ \text{V}\). The noise margin to the middle of the range shrinks with every stage, so a restoring amplifier is needed after a few gates.</div>
+</div></div>
+</section>
+
+<section id="special">
+<h2><span class="n">10</span>Voltage doubler and optoisolator</h2>
+<p class="reading"><b>Reading</b> Chapter 2 summary, section 2.5</p>
+<p>A <strong>voltage doubler</strong> uses two diodes and two capacitors to produce a DC output of about twice the peak input.</p>
+<figure>
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="Voltage doubler. An AC source drives capacitor C1 in series. Diode D2 from ground to the capacitor node charges C1. Diode D1 to the output node charges C2 to about twice the peak voltage.">
+<polyline class="ln c4" points="60,60 60,104"/>
+<polyline class="ln c4" points="60,126 60,170"/>
+<circle class="ln c4" cx="60" cy="115" r="11"/>
+<polyline class="ln c4 thin" points="53,115 53.7,113.8 54.4,112.6 55.1,111.8 55.8,111.2 56.5,111 57.2,111.2 57.9,111.8 58.6,112.6 59.3,113.8 60,115 60.7,116.2 61.4,117.4 62.1,118.2 62.8,118.8 63.5,119 64.2,118.8 64.9,118.2 65.6,117.4 66.3,116.2 67,115"/>
+<text class="lab" x="44" y="119" text-anchor="end">v<tspan dy="3" font-size="75%">S</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="60,60 90,60"/>
+<polyline class="ln c4" points="90,60 116,60"/>
+<polyline class="ln c4" points="124,60 150,60"/>
+<polyline class="ln c4" points="116,50 116,70"/>
+<polyline class="ln c4" points="124,50 124,70"/>
+<text class="lab" x="120" y="44" text-anchor="middle">C<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="150,60 200,60"/>
+<circle class="c4f" cx="200" cy="60" r="2.6"/>
+<text class="tk" x="200" y="44" text-anchor="middle">X</text>
+<polyline class="ln c4" points="200,60 200,106"/>
+<polyline class="ln c4" points="200,124 200,170"/>
+<polygon class="ln c4" points="190,124 210,124 200,106"/>
+<polyline class="ln c4" points="190,106 210,106"/>
+<text class="lab" x="184" y="119" text-anchor="end">D<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="200,60 231,60"/>
+<polyline class="ln c4" points="249,60 280,60"/>
+<polygon class="ln c4" points="231,50 231,70 249,60"/>
+<polyline class="ln c4" points="249,50 249,70"/>
+<text class="lab" x="240" y="44" text-anchor="middle">D<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="280,60 420,60"/>
+<circle class="c4f" cx="320" cy="60" r="2.6"/>
+<polyline class="ln c4" points="320,60 320,111"/>
+<polyline class="ln c4" points="320,119 320,170"/>
+<polyline class="ln c4" points="310,111 330,111"/>
+<polyline class="ln c4" points="310,119 330,119"/>
+<text class="lab" x="336" y="119" text-anchor="start">C<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> </tspan></text>
+<circle class="c4f" cx="400" cy="60" r="2.6"/>
+<polyline class="ln c4" points="400,60 400,93 407,96.7 393,104 407,111.3 393,118.7 407,126 393,133.3 400,137 400,170"/>
+<text class="lab" x="412" y="119" text-anchor="start">R<tspan dy="3" font-size="75%">L</tspan><tspan dy="-3"> </tspan></text>
+<circle class="hollow ln c4" cx="430" cy="60" r="3.5"/>
+<polyline class="ln c4" points="400,60 426,60"/>
+<text class="lab" x="440" y="64" text-anchor="start">V<tspan dy="3" font-size="75%">O</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="60,170 400,170"/>
+<polyline class="ln c4" points="250,170 250,176"/>
+<polyline class="ln c4" points="241,176 259,176"/>
+<polyline class="ln c4" points="245,180 255,180"/>
+<polyline class="ln c4" points="248,184 252,184"/>
+<circle class="c4f" cx="200" cy="170" r="2.6"/>
+<circle class="c4f" cx="320" cy="170" r="2.6"/>
+<circle class="c4f" cx="400" cy="170" r="2.6"/>
+</svg>
+<figcaption><b>Figure 10.1</b> A voltage doubler.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 10.1:</b> On the negative half-cycle \(D_2\) conducts and charges \(C_1\) to about \(V_M\), with the left plate positive. On the positive half-cycle \(D_2\) is OFF. The source voltage now adds to the voltage on \(C_1\), and \(D_1\) charges \(C_2\) to about \(2V_M\).</p>
+<div class="eq"><span class="tag">Voltage doubler</span>\[ V_{C1} \approx V_M \qquad V_O \approx 2V_M \qquad \text{with finite } V_\gamma:\ V_{C1} = V_M - V_\gamma,\quad V_O = 2(V_M - V_\gamma) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(V_{C1}\)</dt><dd>Voltage on \(C_1\) (V).</dd>
+  <dt>\(V_M\)</dt><dd>Peak source voltage (V).</dd>
+  <dt>\(V_O\)</dt><dd>Output voltage across \(C_2\) (V).</dd>
+  <dt>\(V_\gamma\)</dt><dd>Diode cut-in voltage (V).</dd>
+</dl>
+</div>
+<p>The summary gives the ideal result. The finite-\(V_\gamma\) form follows because \(C_1\) loses one diode drop when it charges and \(C_2\) loses another.</p>
+<p>An <strong>optoisolator</strong> pairs an input LED with an output photodiode in one package. The signal travels as light, so the two sides share no electrical connection and can be isolated by more than \(1\ \text{kV}\).</p>
+<div class="ex"><div class="hd">Worked example 10.1 <span>doubling a 12 V peak supply</span></div><div class="bd">
+<p>A doubler is fed from a secondary of \(12\ \text{V}\) peak. Find the output with ideal diodes and with \(V_\gamma = 0.7\ \text{V}\).</p>
+<div class="step"><i>1</i><div>Ideal: \(V_O = 2V_M = 24\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>With \(V_\gamma\): \(V_{C1} = 12 - 0.7 = 11.3\ \text{V}\), and \(V_O = 2(12 - 0.7) = 22.6\ \text{V}\).</div></div>
+<div class="ans">\(24\ \text{V}\) ideally and \(22.6\ \text{V}\) with silicon diodes. Under load, the output also sags between charging pulses, as in a filtered rectifier.</div>
+</div></div>
+</section>
+
+<section id="practice">
+<h2><span class="n">11</span>Practice problems</h2>
+<div class="ex"><div class="hd">Problem 11.1 <span>a filtered half-wave supply</span></div><div class="bd">
+<p>A half-wave rectifier has a \(10\ \text{V}\) peak secondary, \(V_\gamma = 0.7\ \text{V}\), \(R = 470\ \Omega\), \(C = 470\ \mu\text{F}\) and \(f = 50\ \text{Hz}\). Find the ripple, the lowest output, the conduction interval and the peak diode current.</p>
+<div class="step"><i>1</i><div>\(V_M = 10 - 0.7 = 9.3\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>Half-wave: \(V_r = V_M/(fRC) = 9.3/(50\times470\times470\times10^{-6}) = 0.842\ \text{V}\).</div></div>
+<div class="step"><i>3</i><div>Lowest output: \(V_L = 9.3 - 0.842 = 8.46\ \text{V}\).</div></div>
+<div class="step"><i>4</i><div>\(\omega\Delta t = \sqrt{2(0.842)/9.3} = 0.426\ \text{rad} = 24.4^\circ\), so \(\Delta t = 1.35\ \text{ms}\).</div></div>
+<div class="step"><i>5</i><div>\(\sqrt{2V_M/V_r} = 4.70\), so \(i_{D,\text{peak}} = (9.3/470)(1 + \pi\times4.70) = 0.312\ \text{A}\).</div></div>
+<div class="ans">\(V_r = 0.84\ \text{V}\), \(V_L = 8.46\ \text{V}\), \(\Delta t = 1.35\ \text{ms}\) and \(i_{D,\text{peak}} = 0.31\ \text{A}\), about 16 times the load current of \(9.3/470 = 19.8\ \text{mA}\).</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 11.2 <span>designing a 9.1 V regulator</span></div><div class="bd">
+<p>A \(9.1\ \text{V}\) Zener regulates a load of \(10\) to \(40\ \text{mA}\) from an input of \(14\) to \(18\ \text{V}\). Find \(I_{Z(\max)}\), \(I_{Z(\min)}\), \(R_i\) and the power the Zener must dissipate.</p>
+<div class="step"><i>1</i><div>Numerator: \(40\ \text{mA}(18 - 9.1) - 10\ \text{mA}(14 - 9.1) = 0.307\ \text{W}\). Denominator: \(14 - 0.9(9.1) - 0.1(18) = 4.01\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>\(I_{Z(\max)} = 76.6\ \text{mA}\) and \(I_{Z(\min)} = 7.66\ \text{mA}\).</div></div>
+<div class="step"><i>3</i><div>\(R_i = (14 - 9.1)/(7.656\ \text{mA} + 40\ \text{mA}) = 102.8\ \Omega\). Check: \((18 - 9.1)/(76.56\ \text{mA} + 10\ \text{mA}) = 102.8\ \Omega\).</div></div>
+<div class="step"><i>4</i><div>\(P_{Z(\max)} = 76.56\ \text{mA}\times9.1\ \text{V} = 0.70\ \text{W}\).</div></div>
+<div class="ans">\(I_{Z(\max)} = 76.6\ \text{mA}\), \(I_{Z(\min)} = 7.66\ \text{mA}\), \(R_i = 102.8\ \Omega\) and \(P_{Z(\max)} = 0.70\ \text{W}\), so a \(1\ \text{W}\) Zener is needed.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 11.3 <span>a Zener clipper</span></div><div class="bd">
+<p>Two back-to-back \(3.3\ \text{V}\) Zener diodes with \(V_\gamma = 0.7\ \text{V}\) clip a \(10\ \text{V}\) peak sinusoid. Find the output limits, and the fraction of each half-cycle for which the output is clipped.</p>
+<div class="step"><i>1</i><div>Limits: \(\pm(V_Z + V_\gamma) = \pm4.0\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>Clipping starts at \(\sin^{-1}(4/10) = 23.6^\circ\) and ends at \(180^\circ - 23.6^\circ = 156.4^\circ\).</div></div>
+<div class="step"><i>3</i><div>Clipped part of the half-cycle: \((156.4 - 23.6)/180 = 73.8\%\).</div></div>
+<div class="ans">The output lies between \(-4.0\ \text{V}\) and \(+4.0\ \text{V}\), and each peak is flattened for \(73.8\%\) of its half-cycle.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 11.4 <span>gates with unequal inputs</span></div><div class="bd">
+<p>Find \(V_O\) for a two-input diode AND gate (pull-up to \(5\ \text{V}\)) and a two-input diode OR gate when the inputs are \(V_1 = 5\ \text{V}\) and \(V_2 = 3.3\ \text{V}\). Use \(V_\gamma = 0.7\ \text{V}\).</p>
+<div class="step"><i>1</i><div>AND: the diode on the lower input, \(3.3\ \text{V}\), conducts, so \(V_O = 3.3 + 0.7 = 4.0\ \text{V}\). The diode on \(5\ \text{V}\) is OFF.</div></div>
+<div class="step"><i>2</i><div>OR: the diode on the higher input, \(5\ \text{V}\), conducts, so \(V_O = 5 - 0.7 = 4.3\ \text{V}\).</div></div>
+<div class="ans">AND gives \(4.0\ \text{V}\) and OR gives \(4.3\ \text{V}\). Intermediate inputs make the AND output a \(V_\gamma\) above the lower input, not exactly a Low.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 11.5 <span>centre-tapped or bridge?</span></div><div class="bd">
+<p>A supply needs a \(9\ \text{V}\) peak output. Find the secondary peak voltage and the PIV for a centre-tapped rectifier and for a bridge, with \(V_\gamma = 0.7\ \text{V}\).</p>
+<div class="step"><i>1</i><div>Centre-tapped: \(V_M = 9 + 0.7 = 9.7\ \text{V}\) per half, and \(\text{PIV} = 2(9.7) - 0.7 = 18.7\ \text{V}\).</div></div>
+<div class="step"><i>2</i><div>Bridge: \(V_M = 9 + 1.4 = 10.4\ \text{V}\), and \(\text{PIV} = 10.4 - 0.7 = 9.7\ \text{V}\).</div></div>
+<div class="ans">Centre-tapped: \(9.7\ \text{V}\) per half and PIV \(18.7\ \text{V}\). Bridge: \(10.4\ \text{V}\) across the whole secondary and PIV \(9.7\ \text{V}\).</div>
+</div></div>
+</section>
+
+<section id="sheet">
+<h2><span class="n">12</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>Rectifiers</h4>
+<p>Half-wave: \(v_{O,\text{pk}} = V_M - V_\gamma\), \(\text{PIV} = V_M\)</p>
+<p>Centre-tapped: \(v_{O,\text{pk}} = V_M - V_\gamma\), \(\text{PIV} = 2V_M - V_\gamma\)</p>
+<p>Bridge: \(v_{O,\text{pk}} = V_M - 2V_\gamma\), \(\text{PIV} = V_M - V_\gamma\)</p>
+<p>Conduction: \(\omega t_1 = \sin^{-1}(V_\gamma/V_M)\), \(\omega t_2 = 180^\circ - \omega t_1\)</p>
+</div>
+<div><h4>Filter</h4>
+<p>\(V_r \approx V_M/(f_rRC)\)</p>
+<p>Half-wave \(f_r = f\), full-wave \(f_r = 2f\)</p>
+<p>\(\omega\Delta t \approx \sqrt{2V_r/V_M}\)</p>
+<p>\(i_{D,\text{pk}} \approx (V_M/R)\left(1 + \pi\sqrt{2V_M/V_r}\right)\)</p>
+</div>
+<div><h4>Zener regulator</h4>
+<p>\(I_i = I_Z + I_L\)</p>
+<p>\(I_{Z(\min)} \approx 0.1\,I_{Z(\max)}\), \(P_{Z(\max)} = I_{Z(\max)}V_Z\)</p>
+<p>\(R_i = \dfrac{V_{PS(\min)} - V_Z}{I_{Z(\min)} + I_{L(\max)}}\)</p>
+<p>\[ I_{Z(\max)} = \dfrac{I_{L(\max)}[V_{PS(\max)} - V_Z] - I_{L(\min)}[V_{PS(\min)} - V_Z]}{V_{PS(\min)} - 0.9V_Z - 0.1V_{PS(\max)}} \]</p>
+<p>Source regulation \(= r_z/(R_i + r_z)\)</p>
+</div>
+<div><h4>Clippers and clampers</h4>
+<p>\(-(V_{B2} + V_\gamma) \le v_O \le V_{B1} + V_\gamma\)</p>
+<p>Zener clipper: \(\pm(V_Z + V_\gamma)\)</p>
+<p>Clamper: \(v_O = v_I + V_C\), \(V_C = V_M - V_\gamma\), \(RC \gg T\)</p>
+</div>
+<div><h4>Multiple diodes and logic</h4>
+<p>Assume ON or OFF, solve, check \(i_D \gt 0\) (ON) and \(v_D \lt V_\gamma\) (OFF)</p>
+<p>OR: \(V_O = \max(V_1, V_2) - V_\gamma\)</p>
+<p>AND: \(V_O = \min(V_1, V_2) + V_\gamma\)</p>
+</div>
+<div><h4>Other</h4>
+<p>Doubler: \(V_O \approx 2V_M\), or \(2(V_M - V_\gamma)\) with finite \(V_\gamma\)</p>
+<p>Optoisolator: LED to photodiode, isolation above \(1\ \text{kV}\)</p>
+</div>
+</div>
+</section>
+
+<footer>
+<p>Sources: the "Comprehensive Diode Content Master Summary" (attachment.txt), Chapter 2, sections 2.1 to 2.5, with its reference table. The summary's figure numbers (2.6, 2.8, 2.9, 2.19, 2.22, 2.24, 2.27, 2.41, 2.42) point to the textbook, which was not available, so the figures here are drawn from the formulas. The waveforms in Figures 4.1 and 4.2 come from a numerical simulation of the circuit. The general OR and AND level formulas and the finite-\(V_\gamma\) doubler result are derived from the summary's model and are not stated in it. Worked examples and problems use new values.</p>
+</footer>
+</main>
+</div>
+
+<script src="../assets/ask-gemini.js" data-store="electronics-w2" data-course="EL245 Electronics"
+        data-topic="Week 2: half-wave, centre-tapped and bridge rectifiers, filter capacitor and ripple, Zener regulators, clippers, clampers, multiple-diode circuits, diode logic, voltage doubler"></script>
+</body>
+</html>
