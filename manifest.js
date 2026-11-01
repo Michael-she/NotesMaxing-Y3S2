@@ -283,6 +283,12 @@ window.NOTES_MANIFEST = {
      "week": 12,
      "track": "",
      "href": "DA344-Data-Analytics/DA344_Week12_Notes_Ensemble-Learning.html"
+    },
+    {
+     "title": "A2 Exam Briefing and Ensemble Learning Recap",
+     "week": 12,
+     "track": "",
+     "href": "DA344-Data-Analytics/DA344_Week12_Revision_A2-Briefing-and-Ensemble-Recap.html"
     }
    ],
    "exams": [],

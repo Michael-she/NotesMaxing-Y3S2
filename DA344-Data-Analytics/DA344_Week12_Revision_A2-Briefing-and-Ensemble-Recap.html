@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 12: A2 briefing and ensemble recap · DA344 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=da344">&larr; Data Analytics</a>
+  <div class="k">DA344 · Week 12</div>
+  <ol>
+    <li><a href="#s1">1. The A2 exam</a></li>
+    <li class="sub"><a href="#s1-scope">What is assessed</a></li>
+    <li class="sub"><a href="#s1-marking">Formulas, marking and question style</a></li>
+    <li class="sub"><a href="#s1-prep">How to prepare</a></li>
+    <li><a href="#s2">2. Ensembles in one view</a></li>
+    <li><a href="#s3">3. Bagging and random forests</a></li>
+    <li><a href="#s4">4. AdaBoost</a></li>
+    <li class="sub"><a href="#s4-stump">Finding a stump's split</a></li>
+    <li class="sub"><a href="#s4-weights">The weight formulas</a></li>
+    <li class="sub"><a href="#s4-two">Textbook against classical update</a></li>
+    <li><a href="#s5">5. Gradient boosting</a></li>
+    <li><a href="#s6">6. Stacking</a></li>
+    <li><a href="#s7">7. Practice problems</a></li>
+    <li><a href="#s8">8. Formulas to memorise</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">DATA ANALYTICS 344 · TERM 4 FINAL LECTURE · ENSEMBLE RECAP AND A2 BRIEFING</div>
+  <h1>A2 Exam Briefing and Ensemble Learning Recap</h1>
+  <p class="lede">The last lecture recapped ensemble learning, stressed the AdaBoost weight formulas you must memorise, and then set out what the A2 exam covers and how it is marked. This page records the briefing and works through the recap with new numbers. The full ensemble theory is on the Week 12 notes page.</p>
+</header>
+
+<section id="s1">
+<h2><span class="n">01</span>The A2 exam</h2>
+<div class="tbl"><table><thead><tr><th>Item</th><th>What was said</th></tr></thead><tbody>
+<tr><td>Day</td><td>A Saturday. The lecturer will be at the venue to help.</td></tr>
+<tr><td>Length</td><td>3 hours</td></tr>
+<tr><td>Total</td><td>150 marks</td></tr>
+<tr><td>Term 3 share</td><td>About 30 marks (29 to 31), from the first three Term 3 topics only</td></tr>
+<tr><td>Term 4 share</td><td>The rest (about 120 marks), with a section for each Term 4 topic group</td></tr>
+<tr><td>Formula sheet</td><td>None. One or two questions may state a formula, but do not rely on it.</td></tr>
+<tr><td>Code</td><td>None: no tracing through code and no writing code (confirmed with the second lecturer)</td></tr>
+<tr><td>Answers</td><td>Short written responses and calculations. No multiple choice is expected.</td></tr>
+</tbody></table></div>
+
+<h3 id="s1-scope">What is assessed</h3>
+<p>The module framework numbers its <strong>topics</strong> one lower than the teaching <strong>weeks</strong>: the topics end at topic 11 while the weeks run to 12. This caused confusion. The rule is simpler than the numbering: from Term 3, only the first three topics are assessed, and they coincide with the first three weeks.</p>
+<div class="tbl"><table><thead><tr><th>Part</th><th>Topics</th><th>Notes pages on this site</th></tr></thead><tbody>
+<tr><td>Term 3 (about 30 marks)</td><td>Introduction to data analytics; data exploration; data quality and preparation</td><td>Weeks 1, 2 and 3</td></tr>
+<tr><td>Term 4, section 1</td><td>Information-based learning (decision trees)</td><td>Week 7</td></tr>
+<tr><td>Term 4, section 2</td><td>Similarity-based learning</td><td>Week 8</td></tr>
+<tr><td>Term 4, section 3</td><td>Error-based learning through to deep learning, as one section: linear and logistic regression, neural networks, CNNs and RNNs</td><td>Weeks 8 (regression part), 9, 10 and 11</td></tr>
+<tr><td>Term 4, section 4</td><td>Ensemble learning</td><td>Week 12</td></tr>
+</tbody></table></div>
+<p>Clustering, prototype learning, SOMs and rule-based knowledge discovery (Weeks 4 to 6) fall outside the stated Term 3 scope. Everything in Term 4 is assessable, though not every subtopic will appear.</p>
+<p>Error-based learning and deep learning share a section because the same idea, gradient descent on an error surface, runs through all of them. The section is broad, so expect a spread from linear regression to RNNs.</p>
+<div class="box watch"><span class="label">Watch out</span><p>Ensemble learning lost the most marks last year. Students treated it as less important because it comes at the end of term. Its calculations (AdaBoost weights, gradient-boosting residuals) are short and mechanical, so they are some of the cheapest marks on the paper.</p></div>
+
+<h3 id="s1-marking">Formulas, marking and question style</h3>
+<ul>
+<li><strong>Why calculations:</strong> the class is large, so questions are chosen to be marked objectively against a marking guide with specific correct answers, leaving little room for debate.</li>
+<li><strong>Part marks:</strong> a formula sheet was requested and refused, because it makes part marks harder to award. Instead the marking guide gives marks for applying the right formula even when the final answer is wrong. So always write the formula down before substituting.</li>
+<li><strong>Theory:</strong> a few marks go to definitions and short theory questions, in the style of the quizzes.</li>
+<li><strong>Length:</strong> answers are short. Long paragraph answers are avoided because they are hard to mark.</li>
+<li><strong>Extracts:</strong> for harder procedures (such as choosing a gradient-boosting split), expect to be given part of the working and asked to continue it.</li>
+</ul>
+<div class="key"><span class="tag">Disclaimer from the lecturer</span><p>Nothing said in lectures is a promise about the paper. You can be assessed on anything in scope. The paper also passes a moderator and an external examiner, who may change the style of questions.</p></div>
+
+<h3 id="s1-prep">How to prepare</h3>
+<p>The recommended textbook (Kelleher et al.) is the single source of truth; the slides and weekly study guides are built from it. The suggested order:</p>
+<ol>
+<li><strong>Weekly study guides</strong> first: points to remember and sample questions.</li>
+<li><strong>Slides</strong>, one by one, making sure you understand every worked example. Some exam questions are slide examples taken directly or with small changes.</li>
+<li><strong>Quizzes</strong>, for the definition and theory marks.</li>
+<li><strong>Tutorials</strong>, lastly, if time allows. They are mostly code, but were written to reinforce the theory, and later ones include theory questions.</li>
+</ol>
+<div class="box watch"><span class="label">Watch out</span><p>Do not memorise the answers to slide examples. If a number in the question has changed, a memorised answer sends you in the wrong direction. Learn the method.</p></div>
+<div class="note"><span class="tag">Other points</span><p>Not every tutorial and quiz counts: the best of them are selected (the number was not stated in the recording). Lecture attendance has been low, and much of the A2 emphasis came from in-lecture questions, so join a study group with people who attended. Use the module discussion forum for questions.</p></div>
+</section>
+
+<section id="s2">
+<h2><span class="n">02</span>Ensembles in one view</h2>
+<p>An ensemble combines many <strong>weak learners</strong>: models only slightly better than random guessing. Each makes different mistakes, so combining more of them gives a more reliable prediction.</p>
+<div class="tbl"><table><thead><tr><th>Method</th><th>How models differ</th><th>Training</th><th>Combination</th></tr></thead><tbody>
+<tr><td>Bagging (and random forests)</td><td>Sampling of instances (and of features)</td><td>Parallel</td><td>Vote or average</td></tr>
+<tr><td>AdaBoost</td><td>Sampling biased towards the instances previous models got wrong</td><td>Sequential</td><td>Vote weighted by confidence \(\alpha\)</td></tr>
+<tr><td>Gradient boosting</td><td>Each model predicts the remaining error itself</td><td>Sequential</td><td>Base model plus the sum of corrections</td></tr>
+<tr><td>Stacking</td><td>Different model types</td><td>Parallel base models, then a meta-learner</td><td>A meta-learner learns how to combine them</td></tr>
+</tbody></table></div>
+<div class="key"><span class="tag">The point to emphasise</span><p>Bagging and boosting differ in how the models are trained. Bagging's models are independent, so they can be trained in parallel (good for computational efficiency). Boosting's models are sequential: each depends on the errors of the one before.</p></div>
+<p>AdaBoost and gradient boosting both focus on errors, in different ways. AdaBoost reweights the <em>erroneous instances</em> so they are sampled more. Gradient boosting trains models to predict <em>the error itself</em>.</p>
+</section>
+
+<section id="s3">
+<h2><span class="n">03</span>Bagging and random forests</h2>
+<p>Bagging draws a <strong>bootstrap sample</strong> for each model: the same size as the dataset, sampled <strong>with replacement</strong>. Some instances repeat and others are left out. The left-out instances form that model's <strong>out-of-bag (OOB)</strong> set.</p>
+<p>The OOB instances were never seen by the model trained on that sample, so they act as a built-in validation set. You do not need a separate train and test split or cross-validation to estimate the error.</p>
+<div class="eq"><span class="tag">Chance an instance is out of bag</span>\[ P(\text{OOB}) = \left(1 - \frac{1}{n}\right)^{n} \approx e^{-1} \approx 0.368 \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(P(\text{OOB})\)</dt><dd>Probability that a given instance is never drawn into one bootstrap sample.</dd>
+  <dt>\(n\)</dt><dd>Number of instances in the dataset, and the size of the bootstrap sample.</dd>
+</dl>
+</div>
+<p>A <strong>random forest</strong> samples at two levels:</p>
+<ol>
+<li><strong>Instances:</strong> each tree gets its own bootstrap sample, so each tree emphasises a different part of the problem and their weaknesses compensate for each other.</li>
+<li><strong>Features:</strong> at each split, a decision tree normally checks every feature for the most information gain. A random forest checks only a random subset, typically \(\sqrt{m}\) of the \(m\) features, and picks the best of those.</li>
+</ol>
+<p>Because each tree has an OOB set and sees a different subset of features, a random forest can also rank features: it shows which features help and which do not, so it is useful for feature selection.</p>
+<div class="ex"><div class="hd">Worked example 3.1 <span>OOB size and features per split</span></div><div class="bd">
+<p>A random forest is trained on a dataset of 10 instances with 30 descriptive features. Find the chance that a given instance is out of bag for one tree, the expected number of OOB instances per tree, and the number of features checked at each split.</p>
+<div class="step"><i>1</i><div>\(P(\text{OOB}) = (1 - 1/10)^{10} = 0.9^{10} = 0.3487\).</div></div>
+<div class="step"><i>2</i><div>Expected OOB instances per tree: \(10 \times 0.3487 = 3.49\). The large-\(n\) value \(e^{-1} = 0.368\) is close even at \(n = 10\); at \(n = 1000\) the exact value is 0.3677.</div></div>
+<div class="step"><i>3</i><div>Features per split: \(\sqrt{30} = 5.477\), so 5 features (rounded down).</div></div>
+<div class="ans">About 35 % of instances (3.49 of 10) are out of bag for each tree, and each split chooses from 5 randomly selected features.</div>
+</div></div>
+</section>
+
+<section id="s4">
+<h2><span class="n">04</span>AdaBoost</h2>
+<p>AdaBoost builds a sequence of <strong>decision stumps</strong> (trees with one split). Every instance carries a weight, used as its probability of being sampled for the next model's training set. Weights start equal. After each model, the weights of misclassified instances go up and the weights of correct ones go down, so the next sample is biased towards the problem cases. Over the iterations the models zero in on the hard instances and correct for them.</p>
+
+<h3 id="s4-stump">Finding a stump's split</h3>
+<p>For a continuous feature, sort the instances by that feature and place candidate thresholds only where the label changes, at the midpoint between the two neighbouring values. Score each candidate and keep the best. This is the same method as for continuous features in information-based learning (Week 7).</p>
+<figure>
+<svg viewBox="0 0 640 200" class="fig" role="img" aria-label="Ten days of ambient temperature with high or low pump demand, and the two candidate stump splits at 15.5 and 30.5 degrees">
+<rect class="frame" x="60" y="20" width="550" height="130"/>
+<text class="tk" x="60" y="166" text-anchor="middle">5</text>
+<text class="tk" x="143.3" y="166" text-anchor="middle">10</text>
+<text class="tk" x="226.7" y="166" text-anchor="middle">15</text>
+<text class="tk" x="310" y="166" text-anchor="middle">20</text>
+<text class="tk" x="393.3" y="166" text-anchor="middle">25</text>
+<text class="tk" x="476.7" y="166" text-anchor="middle">30</text>
+<text class="tk" x="560" y="166" text-anchor="middle">35</text>
+<text class="lab" x="335" y="188" text-anchor="middle">ambient temperature (°C)</text>
+<text class="tk" x="52" y="67.3" text-anchor="end">High</text>
+<text class="tk" x="52" y="110.7" text-anchor="end">Low</text>
+<polyline class="ln c1" points="235,20 235,150"/>
+<text class="tk halo" x="235" y="30.8" text-anchor="middle">15.5 (round 1)</text>
+<polyline class="ln c3 dash" points="485,20 485,150"/>
+<text class="tk halo" x="485" y="30.8" text-anchor="middle">30.5 (round 2)</text>
+<circle class="c3f" cx="110" cy="106.7" r="5"/>
+<text class="tk" x="110" y="96.7" text-anchor="middle">8</text>
+<circle class="c3f" cx="160" cy="106.7" r="5"/>
+<text class="tk" x="160" y="96.7" text-anchor="middle">11</text>
+<circle class="c3f" cx="210" cy="106.7" r="5"/>
+<text class="tk" x="210" y="96.7" text-anchor="middle">14</text>
+<circle class="c1f" cx="260" cy="63.3" r="5"/>
+<text class="tk" x="260" y="53.3" text-anchor="middle">17</text>
+<circle class="c1f" cx="310" cy="63.3" r="5"/>
+<text class="tk" x="310" y="53.3" text-anchor="middle">20</text>
+<circle class="c1f" cx="360" cy="63.3" r="5"/>
+<text class="tk" x="360" y="53.3" text-anchor="middle">23</text>
+<circle class="c1f" cx="410" cy="63.3" r="5"/>
+<text class="tk" x="410" y="53.3" text-anchor="middle">26</text>
+<circle class="c1f" cx="460" cy="63.3" r="5"/>
+<text class="tk" x="460" y="53.3" text-anchor="middle">29</text>
+<circle class="c3f" cx="510" cy="106.7" r="5"/>
+<text class="tk" x="510" y="96.7" text-anchor="middle">32</text>
+<circle class="c3f" cx="560" cy="106.7" r="5"/>
+<text class="tk" x="560" y="96.7" text-anchor="middle">35</text>
+</svg>
+<figcaption><b>Figure 4.1</b> Pump demand against temperature, with the two candidate splits.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> Teal dots are High demand and amber dots Low. The label changes twice, between 14 and 17 °C and between 29 and 32 °C, so the only candidate thresholds are 15.5 °C and 30.5 °C. Round 1 picks 15.5 °C (solid line); round 2, with the reweighted data, picks 30.5 °C (dashed).</p>
+
+<div class="ex"><div class="hd">Worked example 4.1 <span>Round 1 stump</span></div><div class="bd">
+<p>Ten days of ambient temperature (°C) and pump demand: 8 L, 11 L, 14 L, 17 H, 20 H, 23 H, 26 H, 29 H, 32 L, 35 L. Each instance starts with weight 0.1. Find the best one-split stump and its weighted error \(\epsilon\).</p>
+<div class="step"><i>1</i><div>The data are already sorted. Labels change between 14 and 17, and between 29 and 32, so the candidates are 15.5 °C and 30.5 °C.</div></div>
+<div class="step"><i>2</i><div>Split at 15.5: below predicts Low, above predicts High (the majority on each side). It misclassifies 32 and 35, so \(\epsilon = 0.1 + 0.1 = 0.2\).</div></div>
+<div class="step"><i>3</i><div>Split at 30.5: below predicts High, above predicts Low. It misclassifies 8, 11 and 14, so \(\epsilon = 0.3\).</div></div>
+<div class="ans">The round 1 stump is "temperature \(\lt\) 15.5 °C → Low, else High", with \(\epsilon_1 = 0.2\). It gets the two hot days wrong.</div>
+</div></div>
+
+<h3 id="s4-weights">The weight formulas</h3>
+<p>The lecturer called these the formulas you must remember. They are not on any formula sheet. There are three: the error, the weight update (one case for wrong instances and one for correct ones) and the model's confidence.</p>
+<div class="eq"><span class="tag">AdaBoost, textbook form</span>\[ \epsilon = \sum_{i \,\in\, \text{misclassified}} w_i \]
+\[ w_i \leftarrow w_i \times \frac{1}{2\epsilon} \quad \text{(misclassified)}, \qquad w_i \leftarrow w_i \times \frac{1}{2(1-\epsilon)} \quad \text{(correct)} \]
+\[ \alpha = \frac{1}{2} \ln\!\left(\frac{1-\epsilon}{\epsilon}\right) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\epsilon\)</dt><dd>Weighted error of the model: the sum of the weights of the instances it gets wrong (between 0 and 1).</dd>
+  <dt>\(w_i\)</dt><dd>Weight of instance \(i\): its probability of being sampled for the next model. The weights sum to 1.</dd>
+  <dt>\(\alpha\)</dt><dd>Confidence of the model, used to weight its vote in the ensemble.</dd>
+</dl>
+</div>
+<p>After this update the misclassified instances hold exactly half the total weight and the correct ones the other half, so the weights still sum to 1 with no extra step.</p>
+
+<div class="ex"><div class="hd">Worked example 4.2 <span>Round 1 weight update</span></div><div class="bd">
+<p>Update the weights after the stump of worked example 4.1 (\(\epsilon_1 = 0.2\); 32 and 35 wrong) and find its confidence.</p>
+<div class="step"><i>1</i><div>Misclassified (32, 35): \(0.1 \times \dfrac{1}{2(0.2)} = 0.25\) each.</div></div>
+<div class="step"><i>2</i><div>Correct (the other eight): \(0.1 \times \dfrac{1}{2(0.8)} = 0.0625\) each.</div></div>
+<div class="step"><i>3</i><div>Check the sum: \(2(0.25) + 8(0.0625) = 0.5 + 0.5 = 1\).</div></div>
+<div class="step"><i>4</i><div>Confidence: \(\alpha_1 = \tfrac12 \ln(0.8/0.2) = \tfrac12 \ln 4 = 0.6931\).</div></div>
+<div class="ans">The two hot days now have weight 0.25 each (up from 0.1); the other eight have 0.0625 (down from 0.1). \(\alpha_1 = 0.693\).</div>
+</div></div>
+
+<h3 id="s4-two">Textbook against classical update</h3>
+<p>The slides show two AdaBoost examples: the textbook one (Kelleher) and a classical one presented later. Both reach the same weights and the same predictions. The classical form multiplies by \(e^{\pm\alpha}\) and then needs an extra <strong>normalisation</strong> step; the textbook form needs none. In the exam the textbook form is quicker.</p>
+<div class="eq"><span class="tag">AdaBoost, classical form</span>\[ w_i \leftarrow \frac{w_i\, e^{\alpha}}{Z} \;\text{(misclassified)}, \qquad w_i \leftarrow \frac{w_i\, e^{-\alpha}}{Z} \;\text{(correct)} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(w_i\)</dt><dd>Weight of instance \(i\).</dd>
+  <dt>\(\alpha\)</dt><dd>Confidence of the model, as above.</dd>
+  <dt>\(Z\)</dt><dd>Normalising constant: the sum of the weights after multiplying, so the new weights sum to 1.</dd>
+</dl>
+</div>
+<p>Why they agree: with \(e^{\alpha} = \sqrt{(1-\epsilon)/\epsilon}\), the normalising constant is</p>
+\[ Z = \epsilon\, e^{\alpha} + (1-\epsilon)\, e^{-\alpha} = 2\sqrt{\epsilon(1-\epsilon)}, \]
+<p>so \(e^{\alpha}/Z = 1/(2\epsilon)\) and \(e^{-\alpha}/Z = 1/(2(1-\epsilon))\): exactly the textbook factors.</p>
+
+<div class="ex"><div class="hd">Worked example 4.3 <span>Same weights by the classical route</span></div><div class="bd">
+<p>Repeat the round 1 update of worked example 4.2 with the classical form.</p>
+<div class="step"><i>1</i><div>\(e^{\alpha_1} = e^{0.6931} = 2\) and \(e^{-\alpha_1} = 0.5\).</div></div>
+<div class="step"><i>2</i><div>Before normalising: wrong \(0.1 \times 2 = 0.2\); correct \(0.1 \times 0.5 = 0.05\).</div></div>
+<div class="step"><i>3</i><div>\(Z = 2(0.2) + 8(0.05) = 0.8\), which equals \(2\sqrt{0.2 \times 0.8} = 0.8\).</div></div>
+<div class="step"><i>4</i><div>Normalise: wrong \(0.2/0.8 = 0.25\); correct \(0.05/0.8 = 0.0625\).</div></div>
+<div class="ans">0.25 and 0.0625, the same as the textbook update, with one extra step.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Worked example 4.4 <span>Round 2 and the ensemble so far</span></div><div class="bd">
+<p>Using the weights from worked example 4.2, find the round 2 stump, its error and confidence, the new weights, and the two-model ensemble's predictions. (Here each candidate is scored by its weighted error directly; on the slides the next training set is drawn by sampling with these weights.)</p>
+<div class="step"><i>1</i><div>Split at 15.5 (as before): wrong on 32 and 35, \(\epsilon = 0.25 + 0.25 = 0.5\). No better than guessing on the new weights, as expected.</div></div>
+<div class="step"><i>2</i><div>Split at 30.5 (High below, Low above): wrong on 8, 11 and 14, \(\epsilon_2 = 3(0.0625) = 0.1875\). This is the round 2 stump.</div></div>
+<div class="step"><i>3</i><div>\(\alpha_2 = \tfrac12 \ln(0.8125/0.1875) = 0.7332\).</div></div>
+<div class="step"><i>4</i><div>New weights. Wrong (8, 11, 14): \(0.0625/(2 \times 0.1875) = 0.1667\). Correct: 32 and 35 go to \(0.25/(2 \times 0.8125) = 0.1538\); the other five go to \(0.0625/1.625 = 0.0385\). Sum: \(0.5 + 0.3077 + 0.1923 = 1\).</div></div>
+<div class="step"><i>5</i><div>Ensemble score with High \(= +1\), Low \(= -1\): \(H = \alpha_1 h_1 + \alpha_2 h_2\). Below 15.5: \(-0.6931 + 0.7332 = +0.040\) (High). Between: \(+1.426\) (High). Above 30.5: \(+0.6931 - 0.7332 = -0.040\) (Low).</div></div>
+<div class="ans">Round 2 stump: temperature \(\lt\) 30.5 °C → High, else Low, \(\epsilon_2 = 0.1875\), \(\alpha_2 = 0.733\). The two-model ensemble still gets 8, 11 and 14 wrong, because the more confident second stump outvotes the first there. A third round is needed.</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 240" class="fig" role="img" aria-label="Instance weights: initial 0.1 each, after round 1 and after round 2 of the textbook AdaBoost update">
+<line class="grid" x1="60" y1="190" x2="620" y2="190"/>
+<text class="tk" x="54" y="194" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="133.3" x2="620" y2="133.3"/>
+<text class="tk" x="54" y="137.3" text-anchor="end">0.1</text>
+<line class="grid" x1="60" y1="76.7" x2="620" y2="76.7"/>
+<text class="tk" x="54" y="80.7" text-anchor="end">0.2</text>
+<line class="grid" x1="60" y1="20" x2="620" y2="20"/>
+<text class="tk" x="54" y="24" text-anchor="end">0.3</text>
+<rect class="frame" x="60" y="20" width="560" height="170"/>
+<rect class="blk" x="67" y="133.3" width="12.6" height="56.7"/>
+<rect class="blkd" x="81" y="154.6" width="12.6" height="35.4"/>
+<rect class="area" x="95" y="95.6" width="12.6" height="94.4"/>
+<text class="tk" x="88" y="206" text-anchor="middle">8</text>
+<rect class="blk" x="123" y="133.3" width="12.6" height="56.7"/>
+<rect class="blkd" x="137" y="154.6" width="12.6" height="35.4"/>
+<rect class="area" x="151" y="95.6" width="12.6" height="94.4"/>
+<text class="tk" x="144" y="206" text-anchor="middle">11</text>
+<rect class="blk" x="179" y="133.3" width="12.6" height="56.7"/>
+<rect class="blkd" x="193" y="154.6" width="12.6" height="35.4"/>
+<rect class="area" x="207" y="95.6" width="12.6" height="94.4"/>
+<text class="tk" x="200" y="206" text-anchor="middle">14</text>
+<rect class="blk" x="235" y="133.3" width="12.6" height="56.7"/>
+<rect class="blkd" x="249" y="154.6" width="12.6" height="35.4"/>
+<rect class="area" x="263" y="168.2" width="12.6" height="21.8"/>
+<text class="tk" x="256" y="206" text-anchor="middle">17</text>
+<rect class="blk" x="291" y="133.3" width="12.6" height="56.7"/>
+<rect class="blkd" x="305" y="154.6" width="12.6" height="35.4"/>
+<rect class="area" x="319" y="168.2" width="12.6" height="21.8"/>
+<text class="tk" x="312" y="206" text-anchor="middle">20</text>
+<rect class="blk" x="347" y="133.3" width="12.6" height="56.7"/>
+<rect class="blkd" x="361" y="154.6" width="12.6" height="35.4"/>
+<rect class="area" x="375" y="168.2" width="12.6" height="21.8"/>
+<text class="tk" x="368" y="206" text-anchor="middle">23</text>
+<rect class="blk" x="403" y="133.3" width="12.6" height="56.7"/>
+<rect class="blkd" x="417" y="154.6" width="12.6" height="35.4"/>
+<rect class="area" x="431" y="168.2" width="12.6" height="21.8"/>
+<text class="tk" x="424" y="206" text-anchor="middle">26</text>
+<rect class="blk" x="459" y="133.3" width="12.6" height="56.7"/>
+<rect class="blkd" x="473" y="154.6" width="12.6" height="35.4"/>
+<rect class="area" x="487" y="168.2" width="12.6" height="21.8"/>
+<text class="tk" x="480" y="206" text-anchor="middle">29</text>
+<rect class="blk" x="515" y="133.3" width="12.6" height="56.7"/>
+<rect class="blkd" x="529" y="48.3" width="12.6" height="141.7"/>
+<rect class="area" x="543" y="102.8" width="12.6" height="87.2"/>
+<text class="tk" x="536" y="206" text-anchor="middle">32</text>
+<rect class="blk" x="571" y="133.3" width="12.6" height="56.7"/>
+<rect class="blkd" x="585" y="48.3" width="12.6" height="141.7"/>
+<rect class="area" x="599" y="102.8" width="12.6" height="87.2"/>
+<text class="tk" x="592" y="206" text-anchor="middle">35</text>
+<text class="lab" x="340" y="228" text-anchor="middle">instance (temperature, °C)</text>
+<text class="lab" x="16" y="105" text-anchor="middle" transform="rotate(-90 16 105)">weight</text>
+</svg>
+<figcaption><b>Figure 4.2</b> Instance weights at the start, after round 1 and after round 2.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.2:</b> For each day, the outlined bar is the starting weight (0.1), the teal-edged bar the weight after round 1 and the shaded bar the weight after round 2. The hot days rise to 0.25 after round 1. In round 2 the cold days are the ones misclassified, so they rise to 0.1667, while the five middle days, right both times, fall to 0.0385.</p>
+<div class="box watch"><span class="label">Watch out</span><p>In the recording, the explanation of the slide's updated weights is partly inaudible and at one point sounds as if misclassified weights go down. They go up: \(1/(2\epsilon) \gt 1\) whenever \(\epsilon \lt 0.5\). Correct instances go down, since \(1/(2(1-\epsilon)) \lt 1\).</p></div>
+</section>
+
+<section id="s5">
+<h2><span class="n">05</span>Gradient boosting</h2>
+<p>The slide example is a <strong>regression</strong> problem: each instance has a numeric target value, not a class. Gradient boosting focuses on the error itself:</p>
+<ol>
+<li>Start with a base model \(F_0\) that predicts the average target for every instance.</li>
+<li>Compute the residuals \(y - F_0\). These become the new targets.</li>
+<li>Train a stump on the input feature to predict the residuals. Choose its split as the one giving the <strong>lowest variance</strong> of the residuals within the branches. Each branch predicts the mean residual in it.</li>
+<li>Add it on: \(F_1 = F_0 + R_1\). Find the new residuals \(y - F_1\), train again, and repeat for the stated number of iterations.</li>
+</ol>
+<div class="eq"><span class="tag">Gradient boosting</span>\[ F_k(x) = F_{k-1}(x) + R_k(x) = F_0 + \sum_{j=1}^{k} R_j(x) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(F_k\)</dt><dd>Ensemble prediction after \(k\) correction models.</dd>
+  <dt>\(F_0\)</dt><dd>Base prediction: the mean of the training targets.</dd>
+  <dt>\(R_j\)</dt><dd>Correction model \(j\), trained to predict the residuals \(y - F_{j-1}\).</dd>
+</dl>
+</div>
+<p>This is the lecture's form, with each correction added in full. The Week 12 notes page adds a learning rate \(\eta\) in front of each \(R_j\); with \(\eta = 1\) the two agree.</p>
+<div class="box exam"><span class="label">Exam</span><p>Asked whether students must compute the variance at every candidate split, the lecturer said this is very unlikely; that kind of split search is examined in information-based learning. Expect an extract of the working and be ready to continue it: subtract to get residuals, add the correction, and repeat.</p></div>
+
+<div class="ex"><div class="hd">Worked example 5.1 <span>Two rounds of gradient boosting</span></div><div class="bd">
+<p>Five instances: \(x = 1, 2, 3, 4, 5\) with targets \(y = 20, 24, 30, 46, 50\). Run two rounds with one-split stumps and find the training sum of squared errors (SSE) after each.</p>
+<div class="step"><i>1</i><div>\(F_0 = (20 + 24 + 30 + 46 + 50)/5 = 34\). Residuals \(y - F_0\): \(-14, -10, -4, 12, 16\). SSE \(= 712\).</div></div>
+<div class="step"><i>2</i><div>Score each split by the total squared deviation of the residuals from their branch mean (lowest is best): split at 1.5 gives 467.0; at 2.5, 232.0; at 3.5, 58.67; at 4.5, 392.0. Choose 3.5.</div></div>
+<div class="step"><i>3</i><div>\(R_1\): left mean \((-14 - 10 - 4)/3 = -9.333\); right mean \((12 + 16)/2 = 14\). So \(F_1 = 24.667\) for \(x \le 3\) and \(48\) for \(x \ge 4\).</div></div>
+<div class="step"><i>4</i><div>New residuals \(y - F_1\): \(-4.667, -0.667, 5.333, -2, 2\). SSE \(= 58.67\).</div></div>
+<div class="step"><i>5</i><div>Round 2 splits: 1.5 gives 31.44; 2.5, 34.96; 3.5, 58.67; 4.5, 53.67. Choose 1.5: left mean \(-4.667\), right mean \((-0.667 + 5.333 - 2 + 2)/4 = 1.167\).</div></div>
+<div class="step"><i>6</i><div>\(F_2 = F_1 + R_2\): \(20, 25.833, 25.833, 49.167, 49.167\). Residuals \(0, -1.833, 4.167, -3.167, 0.833\). SSE \(= 31.44\).</div></div>
+<div class="ans">\(F_2\) predicts 20, 25.83, 25.83, 49.17 and 49.17. The SSE falls from 712 to 58.67 to 31.44 over the two rounds.</div>
+</div></div>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Five training points, the mean model F0 and the stepped models F1 and F2 after one and two residual stumps">
+<line class="grid" x1="115" y1="20" x2="115" y2="215"/>
+<text class="tk" x="115" y="231" text-anchor="middle">1</text>
+<line class="grid" x1="225" y1="20" x2="225" y2="215"/>
+<text class="tk" x="225" y="231" text-anchor="middle">2</text>
+<line class="grid" x1="335" y1="20" x2="335" y2="215"/>
+<text class="tk" x="335" y="231" text-anchor="middle">3</text>
+<line class="grid" x1="445" y1="20" x2="445" y2="215"/>
+<text class="tk" x="445" y="231" text-anchor="middle">4</text>
+<line class="grid" x1="555" y1="20" x2="555" y2="215"/>
+<text class="tk" x="555" y="231" text-anchor="middle">5</text>
+<line class="grid" x1="60" y1="190.6" x2="610" y2="190.6"/>
+<text class="tk" x="54" y="194.6" text-anchor="end">20</text>
+<line class="grid" x1="60" y1="141.9" x2="610" y2="141.9"/>
+<text class="tk" x="54" y="145.9" text-anchor="end">30</text>
+<line class="grid" x1="60" y1="93.1" x2="610" y2="93.1"/>
+<text class="tk" x="54" y="97.1" text-anchor="end">40</text>
+<line class="grid" x1="60" y1="44.4" x2="610" y2="44.4"/>
+<text class="tk" x="54" y="48.4" text-anchor="end">50</text>
+<rect class="frame" x="60" y="20" width="550" height="195"/>
+<text class="lab" x="335" y="251" text-anchor="middle">x</text>
+<text class="lab" x="16" y="117.5" text-anchor="middle" transform="rotate(-90 16 117.5)">target y</text>
+<polyline class="ln c4 dash" points="60,122.4 610,122.4"/>
+<polyline class="ln c2" points="60,167.9 170,167.9 170,167.9 280,167.9 280,167.9 390,167.9 390,54.1 500,54.1 500,54.1 610,54.1"/>
+<polyline class="ln c1" points="60,190.6 170,190.6 170,162.2 280,162.2 280,162.2 390,162.2 390,48.4 500,48.4 500,48.4 610,48.4"/>
+<circle class="c3f" cx="115" cy="190.6" r="5"/>
+<circle class="c3f" cx="225" cy="171.1" r="5"/>
+<circle class="c3f" cx="335" cy="141.9" r="5"/>
+<circle class="c3f" cx="445" cy="63.9" r="5"/>
+<circle class="c3f" cx="555" cy="44.4" r="5"/>
+<text class="tk halo" x="604.5" y="116.4" text-anchor="end">F<tspan dy="3" font-size="75%">0</tspan><tspan dy="-3"> </tspan></text>
+<text class="tk halo" x="360" y="161.9" text-anchor="middle">F<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> </tspan></text>
+<text class="tk halo" x="75" y="194.6" text-anchor="middle">F<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> </tspan></text>
+</svg>
+<figcaption><b>Figure 5.1</b> The mean model and the first two gradient-boosting models.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.1:</b> Amber dots are the five targets. The dashed line is \(F_0 = 34\). The light teal steps are \(F_1\), which splits at 3.5, and the dark teal steps are \(F_2\), which adds a second split at 1.5 and fits \(x = 1\) exactly.</p>
+</section>
+
+<section id="s6">
+<h2><span class="n">06</span>Stacking</h2>
+<p>Stacking is a <strong>heterogeneous</strong> ensemble: the base models need not be of the same kind. A neural network, a decision tree and a regression model can be combined. Each base model makes its prediction, and these predictions are treated as intermediate features. A <strong>meta-learner</strong> is trained on them and learns how much to trust each base model's decision.</p>
+<div class="box def"><span class="label">Definition</span><p><strong>Meta-learner:</strong> the model in a stacking ensemble whose inputs are the base models' predictions and whose output is the final prediction.</p></div>
+</section>
+
+<section id="s7">
+<h2><span class="n">07</span>Practice problems</h2>
+<div class="ex"><div class="hd">Problem 7.1 <span>Textbook update with unequal weights</span></div><div class="bd">
+<p>Six instances have weights 0.3, 0.2, 0.2, 0.1, 0.1 and 0.1. A stump misclassifies instances 2 and 5. Find \(\epsilon\), \(\alpha\) and the new weights.</p>
+<div class="step"><i>1</i><div>\(\epsilon = 0.2 + 0.1 = 0.3\).</div></div>
+<div class="step"><i>2</i><div>\(\alpha = \tfrac12 \ln(0.7/0.3) = 0.4236\).</div></div>
+<div class="step"><i>3</i><div>Wrong, factor \(1/(2 \times 0.3) = 1.667\): instance 2 becomes 0.3333, instance 5 becomes 0.1667.</div></div>
+<div class="step"><i>4</i><div>Correct, factor \(1/(2 \times 0.7) = 0.7143\): instance 1 becomes 0.2143, instance 3 becomes 0.1429, instances 4 and 6 become 0.0714.</div></div>
+<div class="ans">\(\epsilon = 0.3\), \(\alpha = 0.424\). New weights: 0.2143, 0.3333, 0.1429, 0.0714, 0.1667, 0.0714 (sum 1; the two wrong ones hold 0.5).</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 7.2 <span>Confidence-weighted vote</span></div><div class="bd">
+<p>Three AdaBoost stumps have weighted errors 0.2, 0.35 and 0.4. For one instance they vote Positive, Negative, Negative. What does the ensemble predict, and what would a plain majority vote predict?</p>
+<div class="step"><i>1</i><div>\(\alpha_1 = \tfrac12\ln(0.8/0.2) = 0.6931\); \(\alpha_2 = \tfrac12\ln(0.65/0.35) = 0.3095\); \(\alpha_3 = \tfrac12\ln(0.6/0.4) = 0.2027\).</div></div>
+<div class="step"><i>2</i><div>Score with Positive \(= +1\): \(0.6931 - 0.3095 - 0.2027 = 0.1809\).</div></div>
+<div class="ans">The score is positive, so AdaBoost predicts Positive. The plain majority (two of three) would say Negative: the most accurate stump outweighs the other two together.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 7.3 <span>Bagging numbers</span></div><div class="bd">
+<p>A dataset has 20 instances and 50 descriptive features. For one tree of a random forest, find the probability that a given instance appears in its bootstrap sample at least once, the expected number of OOB instances, and the features checked per split.</p>
+<div class="step"><i>1</i><div>\(P(\text{OOB}) = 0.95^{20} = 0.3585\), so \(P(\text{in sample}) = 1 - 0.3585 = 0.6415\).</div></div>
+<div class="step"><i>2</i><div>Expected OOB instances: \(20 \times 0.3585 = 7.17\).</div></div>
+<div class="step"><i>3</i><div>\(\sqrt{50} = 7.07\), so 7 features per split.</div></div>
+<div class="ans">0.6415; about 7.17 OOB instances per tree; 7 features per split.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 7.4 <span>Bagging against boosting</span></div><div class="bd">
+<p>In two or three sentences, state how bagging and boosting differ in the way their models are trained, and one consequence.</p>
+<div class="step"><i>1</i><div>Bagging trains each model independently on its own bootstrap sample. Boosting trains them in sequence, each on data weighted towards the previous model's errors.</div></div>
+<div class="ans">Bagging's models can be trained in parallel, which saves time; boosting's cannot, because each model needs the errors of the one before it.</div>
+</div></div>
+</section>
+
+<section id="s8">
+<h2><span class="n">08</span>Formulas to memorise</h2>
+<p>There is no formula sheet in the A2. These are the ensemble formulas from this lecture; write each down before using it, since the marking guide gives marks for the right formula.</p>
+<div class="sheet">
+<div><h4>Bagging</h4>
+<p>\(P(\text{OOB}) = (1 - 1/n)^n \approx 0.368\)</p>
+<p>Features per split in a random forest: \(\sqrt{m}\)</p></div>
+<div><h4>AdaBoost (textbook)</h4>
+<p>\(\epsilon = \sum w_i\) over misclassified instances</p>
+<p>Wrong: \(w_i \times 1/(2\epsilon)\)</p>
+<p>Correct: \(w_i \times 1/(2(1-\epsilon))\)</p>
+<p>\(\alpha = \tfrac12 \ln\big((1-\epsilon)/\epsilon\big)\)</p></div>
+<div><h4>AdaBoost (classical)</h4>
+<p>\(w_i e^{\pm\alpha}/Z\), with \(Z = 2\sqrt{\epsilon(1-\epsilon)}\)</p>
+<p>Ensemble: \(H(x) = \sum \alpha_t h_t(x)\)</p></div>
+<div><h4>Gradient boosting</h4>
+<p>\(F_0 = \bar{y}\)</p>
+<p>Residual: \(y - F_{k-1}\)</p>
+<p>\(F_k = F_{k-1} + R_k\)</p>
+<p>Split: lowest within-branch variance of the residuals</p></div>
+</div>
+</section>
+
+<footer>
+<p>Sources: the lecture recording A2_Data_Breakdown.mp4 (audio only, about 30 minutes), transcribed automatically. The slides shown in the lecture were not available, so the slide examples it refers to (the bike-rental AdaBoost example and the gradient-boosting values such as −255, −72.5 and 7.5) are not reproduced; all worked examples here use new numbers. The textbook AdaBoost formulas follow Kelleher et al. (2020) Section 4.4.5, as the lecture described them; check them against your slides. Parts of the audio were unclear, including a stretch around 10 minutes lost to microphone noise and the number of tutorials and quizzes that count towards the class mark.</p>
+</footer>
+</main>
+</div>
+
+<script src="../assets/ask-gemini.js" data-store="da344-w12-revision" data-course="DA344 Data Analytics"
+        data-topic="Week 12: A2 exam scope and marking, bagging and random forests, AdaBoost textbook and classical weight updates, gradient boosting, stacking"></script>
+</body>
+</html>
