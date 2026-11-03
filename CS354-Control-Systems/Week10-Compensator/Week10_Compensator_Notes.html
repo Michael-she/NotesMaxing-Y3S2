@@ -245,10 +245,46 @@
 
 <section id="practice">
 <h2><span class="n">07</span>Practice problems</h2>
-<details><summary>Problem 1. Tutorial 8: \(\mathbf{A} = \begin{bmatrix} 0 & 1 \\ -5 & -6 \end{bmatrix}\), \(\mathbf{B} = [0\;\;1]^T\), \(\mathbf{C} = [1\;\;0]\). Find \(\mathbf{K}\) for poles \(-4 \pm 4j\) and \(\mathbf{L}\) for estimator poles at −12 (twice).</summary><div class="sol"><p>\(\alpha_c = s^2 + 8s + 32\): \(\mathbf{K} = [27\;\;2]\) (\(\zeta = 0.707\), \(\omega_n = 5.66\), \(t_s = 1.15\) s). \(\alpha_e = s^2 + 24s + 144\): \(\det[s\mathbf{I} - \mathbf{A} + \mathbf{L}\mathbf{C}] = s^2 + (6 + L_1)s + (5 + 6L_1 + L_2)\), so \(\mathbf{L} = [18\;\;31]^T\).</p></div></details>
-<details><summary>Problem 2. Find the compensator for that design in the tutorial's convention \(D_c = \mathbf{K}(s\mathbf{I} - \mathbf{A} + \mathbf{B}\mathbf{K} + \mathbf{L}\mathbf{C})^{-1}\mathbf{L}\).</summary><div class="sol"><p>\(D_c(s) = \dfrac{548s + 3573}{s^2 + 26s + 207}\): zero −6.52, poles \(-13 \pm 6.16j\), DC gain 17.26. The zero is closer to the origin than the poles: predominantly lead.</p></div></details>
-<details><summary>Problem 3. Give \(\bar N\) for that design and show that \(\mathbf{M} = \mathbf{B}\bar N\) removes \(r\) from the error equation.</summary><div class="sol"><p>\(\bar N = \alpha_c(0)/b(0) = 32\). \(\dot{\tilde{\mathbf{x}}} = (\mathbf{A} - \mathbf{L}\mathbf{C})\tilde{\mathbf{x}} + (\mathbf{B}\bar N - \mathbf{M})r\), which is \((\mathbf{A} - \mathbf{L}\mathbf{C})\tilde{\mathbf{x}}\) when \(\mathbf{M} = \mathbf{B}\bar N\). With \(\mathbf{M} = \mathbf{0}\) the command would drive the error, exciting the estimator poles on every step.</p></div></details>
-<details><summary>Problem 4. Integral control for the Tutorial 8 plant with poles \(-4 \pm 4j\) and −8.</summary><div class="sol"><p>\(\mathbf{A}_a = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ 0 & -5 & -6 \end{bmatrix}\), \(\mathbf{B}_a = [0\;\;0\;\;1]^T\), \(\det\mathcal{C}_a = -1\). Companion form: \(s^3 + (6 + K_3)s^2 + (5 + K_2)s + K_1 = s^3 + 16s^2 + 96s + 256\), so \(\mathbf{K}_a = [256\;\;91\;\;10]\). With the stiffness 6 instead of 5, the \(\bar N\) design settles at 0.970 (0.957 with the estimator); integral control at exactly 1.</p></div></details>
+<details><summary>Problem 1. Tutorial 8: \(\mathbf{A} = \begin{bmatrix} 0 & 1 \\ -5 & -6 \end{bmatrix}\), \(\mathbf{B} = [0\;\;1]^T\), \(\mathbf{C} = [1\;\;0]\). Find \(\mathbf{K}\) for poles \(-4 \pm 4j\) and \(\mathbf{L}\) for estimator poles at −12 (twice).</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Design the control law and the estimator separately (the separation principle): match \(\det[s\mathbf{I} - (\mathbf{A} - \mathbf{B}\mathbf{K})]\) to \(\alpha_c\), and \(\det[s\mathbf{I} - (\mathbf{A} - \mathbf{L}\mathbf{C})]\) to \(\alpha_e\).</p>
+<div class="step"><i>1</i><div>Control poles \(-4 \pm 4j\): \(\alpha_c(s) = (s+4)^2 + 16 = s^2 + 8s + 32\) (\(\omega_n = 5.66\) rad/s, \(\zeta = 0.707\), \(t_s = 4.6/4 = 1.15\) s).</div></div>
+<div class="step"><i>2</i><div>Companion form with \(a(s) = s^2 + 6s + 5\): \(K_1 = 32 - 5 = 27\), \(K_2 = 8 - 6 = 2\). \(\mathbf{K} = [27\;\;2]\).</div></div>
+<div class="step"><i>3</i><div>Estimator poles at −12 twice: \(\alpha_e(s) = (s+12)^2 = s^2 + 24s + 144\).</div></div>
+<div class="step"><i>4</i><div>\(\mathbf{A} - \mathbf{L}\mathbf{C} = \begin{bmatrix} -L_1 & 1 \\ -5 - L_2 & -6 \end{bmatrix}\), \(\det[s\mathbf{I} - (\mathbf{A} - \mathbf{L}\mathbf{C})] = s^2 + (6 + L_1)s + (5 + 6L_1 + L_2)\).</div></div>
+<div class="step"><i>5</i><div>Match: \(6 + L_1 = 24 \Rightarrow L_1 = 18\); \(5 + 108 + L_2 = 144 \Rightarrow L_2 = 31\). \(\mathbf{L} = [18\;\;31]^T\).</div></div>
+<div class="step"><i>6</i><div>Checks: \(\mathrm{tr}(\mathbf{A} - \mathbf{B}\mathbf{K}) = -8\), \(\det = 32\); \(\mathrm{tr}(\mathbf{A} - \mathbf{L}\mathbf{C}) = -24\), \(\det = 144\) ✓.</div></div>
+<div class="ans">\(\mathbf{K} = [27\;\;2]\), \(\mathbf{L} = [18\;\;31]^T\).</div>
+</div></details>
+<details><summary>Problem 2. Find the compensator for that design in the tutorial's convention \(D_c = \mathbf{K}(s\mathbf{I} - \mathbf{A} + \mathbf{B}\mathbf{K} + \mathbf{L}\mathbf{C})^{-1}\mathbf{L}\).</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> The compensator is the estimator plus control law seen as one transfer function from \(y\) to \(u\). Build the matrix \(s\mathbf{I} - \mathbf{A} + \mathbf{B}\mathbf{K} + \mathbf{L}\mathbf{C}\), invert it with the adjugate, and multiply by \(\mathbf{K}\) and \(\mathbf{L}\).</p>
+<div class="step"><i>1</i><div>\(\mathbf{B}\mathbf{K} = \begin{bmatrix} 0 & 0 \\ 27 & 2 \end{bmatrix}\), \(\mathbf{L}\mathbf{C} = \begin{bmatrix} 18 & 0 \\ 31 & 0 \end{bmatrix}\), so \(s\mathbf{I} - \mathbf{A} + \mathbf{B}\mathbf{K} + \mathbf{L}\mathbf{C} = \begin{bmatrix} s + 18 & -1 \\ 63 & s + 8 \end{bmatrix}\).</div></div>
+<div class="step"><i>2</i><div>Determinant: \((s + 18)(s + 8) + 63 = s^2 + 26s + 207\). Adjugate: \(\begin{bmatrix} s + 8 & 1 \\ -63 & s + 18 \end{bmatrix}\).</div></div>
+<div class="step"><i>3</i><div>Numerator: \(\mathbf{K}\,\mathrm{adj}\,\mathbf{L} = [27\;\;2]\begin{bmatrix} s + 8 & 1 \\ -63 & s + 18 \end{bmatrix}\begin{bmatrix} 18 \\ 31 \end{bmatrix} = [27s + 90\;\;\;2s + 63]\begin{bmatrix} 18 \\ 31 \end{bmatrix} = 548s + 3573\).</div></div>
+<div class="step"><i>4</i><div>\(D_c(s) = \dfrac{548s + 3573}{s^2 + 26s + 207}\).</div></div>
+<div class="step"><i>5</i><div>Zero: \(s = -3573/548 = -6.52\). Poles: \(s = -13 \pm \sqrt{169 - 207} = -13 \pm 6.16j\). DC gain: \(3573/207 = 17.26\).</div></div>
+<div class="step"><i>6</i><div>The zero is closer to the origin than the poles, so at low frequency it adds phase lead before the poles take it away: the compensator acts mainly as a lead network.</div></div>
+<div class="ans">\(D_c(s) = \dfrac{548s + 3573}{s^2 + 26s + 207}\): zero −6.52, poles \(-13 \pm 6.16j\), DC gain 17.26, mainly lead.</div>
+</div></details>
+<details><summary>Problem 3. Give \(\bar N\) for that design and show that \(\mathbf{M} = \mathbf{B}\bar N\) removes \(r\) from the error equation.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> \(\bar N\) follows from the closed-loop DC gain as before. Then write the estimator error equation with the command entering through \(\mathbf{M}r\) and see what choice of \(\mathbf{M}\) cancels the \(r\) term.</p>
+<div class="step"><i>1</i><div>\(\bar N = \alpha_c(0)/b(0) = 32/1 = 32\).</div></div>
+<div class="step"><i>2</i><div>Plant: \(\dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}u\) with \(u = -\mathbf{K}\hat{\mathbf{x}} + \bar Nr\). Estimator: \(\dot{\hat{\mathbf{x}}} = (\mathbf{A} - \mathbf{B}\mathbf{K} - \mathbf{L}\mathbf{C})\hat{\mathbf{x}} + \mathbf{L}y + \mathbf{M}r\).</div></div>
+<div class="step"><i>3</i><div>Subtract to get the error \(\tilde{\mathbf{x}} = \mathbf{x} - \hat{\mathbf{x}}\): \(\dot{\tilde{\mathbf{x}}} = (\mathbf{A} - \mathbf{L}\mathbf{C})\tilde{\mathbf{x}} + (\mathbf{B}\bar N - \mathbf{M})r\).</div></div>
+<div class="step"><i>4</i><div>With \(\mathbf{M} = \mathbf{B}\bar N\) the last term vanishes: \(r\) no longer drives the error, so a step command does not disturb the estimate and \(Y/R = \bar N b(s)/\alpha_c(s)\).</div></div>
+<div class="step"><i>5</i><div>With \(\mathbf{M} = \mathbf{0}\) the command would enter the error equation and excite the estimator poles on every step.</div></div>
+<div class="ans">\(\bar N = 32\); \(\mathbf{M} = \mathbf{B}\bar N\) makes the \(r\) term \((\mathbf{B}\bar N - \mathbf{M})r\) zero in the error equation.</div>
+</div></details>
+<details><summary>Problem 4. Integral control for the Tutorial 8 plant with poles \(-4 \pm 4j\) and −8.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Add the integral of the output error as an extra state, \(\dot x_I = \mathbf{C}\mathbf{x} - r\), form the augmented system, check it is controllable, and place its three poles. Then compare how robust this is with the \(\bar N\) design.</p>
+<div class="step"><i>1</i><div>Augmented state \([x_I\;\;\mathbf{x}]^T\): \(\mathbf{A}_a = \begin{bmatrix} 0 & \mathbf{C} \\ \mathbf{0} & \mathbf{A} \end{bmatrix} = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ 0 & -5 & -6 \end{bmatrix}\), \(\mathbf{B}_a = [0\;\;0\;\;1]^T\).</div></div>
+<div class="step"><i>2</i><div>Controllability: \(\mathcal{C}_a = [\mathbf{B}_a\;\;\mathbf{A}_a\mathbf{B}_a\;\;\mathbf{A}_a^2\mathbf{B}_a] = \begin{bmatrix} 0 & 0 & 1 \\ 0 & 1 & -6 \\ 1 & -6 & 31 \end{bmatrix}\), \(\det = -1 \ne 0\) ✓.</div></div>
+<div class="step"><i>3</i><div>Desired: \((s^2 + 8s + 32)(s + 8) = s^3 + 16s^2 + 96s + 256\).</div></div>
+<div class="step"><i>4</i><div>\(\mathbf{A}_a\) is in companion form with \(a(s) = s^3 + 6s^2 + 5s\): \(\det[s\mathbf{I} - (\mathbf{A}_a - \mathbf{B}_a\mathbf{K}_a)] = s^3 + (6 + K_3)s^2 + (5 + K_2)s + K_1\).</div></div>
+<div class="step"><i>5</i><div>Match: \(K_1 = 256\), \(K_2 = 91\), \(K_3 = 10\). \(\mathbf{K}_a = [256\;\;91\;\;10]\), i.e. \(u = -256x_I - [91\;\;10]\mathbf{x}\).</div></div>
+<div class="step"><i>6</i><div>Robustness: if the real stiffness is 6 instead of 5, the \(\bar N\) design gives \(y_{ss} = 32/33 = 0.970\) (0.957 with the estimator), because \(\bar N\) was computed from the wrong model.</div></div>
+<div class="step"><i>7</i><div>With integral control \(\dot x_I = 0\) in steady state forces \(y = r\) exactly, whatever the plant parameters, as long as the loop stays stable.</div></div>
+<div class="ans">\(\mathbf{K}_a = [256\;\;91\;\;10]\); integral control settles at exactly 1, while the \(\bar N\) design gives 0.970 (0.957 with the estimator) when the stiffness is 6.</div>
+</div></details>
 
 </section>
 

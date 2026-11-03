@@ -865,11 +865,52 @@
 
 <section id="practice">
 <h2><span class="n">09</span>Practice problems</h2>
-<details><summary>Problem 1. Find the steady-state output of \(G(s) = \dfrac{20}{s + 10}\) for \(u(t) = 3\sin 10t\). (Tutorial 3 problem 1.1 uses this plant.)</summary><div class="sol"><p>\(G(j10) = 20/(10 + 10j)\): \(M = 1.41\), \(\phi = -45^\circ\). \(y_{ss} = 4.24\sin(10t - 45^\circ)\), lagging by \(\pi/40 = 0.0785\) s.</p></div></details>
-<details><summary>Problem 2. Estimate PM and GM for \(G(s) = \dfrac{10}{(s+1)^2}\) with P control \(k_P = 1\) and with D control \(k_D = 1\).</summary><div class="sol"><p>P: \(|G| = 1\) at \(\omega = 3\) rad/s, \(\angle = -2\tan^{-1}3 = -143^\circ\), PM ≈ 36.9°. The phase only approaches −180°, so GM = ∞. D: \(L = 10s/(s+1)^2\), \(|L| = 10\omega/(1+\omega^2) = 1\) at \(\omega = 0.101\) and \(\omega = 9.90\) rad/s. The crossover is the upper one, where \(|L|\) falls through 1: \(\angle L = 90^\circ - 2\tan^{-1}9.9 = -78.5^\circ\), so PM ≈ 101.5°; GM = ∞. D control gives the larger margin (Tutorial 3 answers ≈ 45° and ≈ 90° from asymptotes).</p></div></details>
-<details><summary>Problem 3. A lead must add 40° of phase at 10 rad/s. Find \(\alpha\) and \(T\), and the compensator's high-frequency gain increase.</summary><div class="sol"><p>\(\alpha = (1 - \sin40^\circ)/(1 + \sin40^\circ) = 0.217\). \(T = 1/(10\sqrt{0.217}) = 0.214\) s. Gain rises by \(1/\alpha = 4.60\) (13.3 dB) at high frequency.</p></div></details>
-<details><summary>Problem 4. An overshoot of at most 15 % is required. What phase margin should you design for?</summary><div class="sol"><p>\(\zeta = 0.517\) for 15 % overshoot, so PM ≈ 53.2° from Figure 4.2 (the PM/100 rule gives about 51.7°).</p></div></details>
-<details><summary>Problem 5. Tutorial 3: \(G = \dfrac{50}{s(0.2s+1)}\), ramp error below 0.005. What is the minimum \(K\), and the PM of \(KG\) with \(K = 5\)?</summary><div class="sol"><p>\(K_v = 50K \ge 200 \Rightarrow K \ge 4\). With \(K = 5\): \(\omega_c = 35.2\) rad/s, PM \(= 8.1^\circ\) (tutorial: 35 rad/s, 8°).</p></div></details>
+<details><summary>Problem 1. Find the steady-state output of \(G(s) = \dfrac{20}{s + 10}\) for \(u(t) = 3\sin 10t\). (Tutorial 3 problem 1.1 uses this plant.)</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> For a stable system driven by \(A\sin\omega_0t\), the steady-state output is \(AM\sin(\omega_0t + \phi)\) with \(M = |G(j\omega_0)|\) and \(\phi = \angle G(j\omega_0)\). Evaluate \(G\) at \(s = j10\).</p>
+<div class="step"><i>1</i><div>\(G(j10) = \dfrac{20}{10 + j10}\).</div></div>
+<div class="step"><i>2</i><div>Magnitude: \(M = \dfrac{20}{\sqrt{10^2 + 10^2}} = \dfrac{20}{14.14} = 1.414\).</div></div>
+<div class="step"><i>3</i><div>Phase: \(\phi = 0^\circ - \tan^{-1}(10/10) = -45^\circ\).</div></div>
+<div class="step"><i>4</i><div>Output amplitude: \(AM = 3(1.414) = 4.24\).</div></div>
+<div class="step"><i>5</i><div>Time lag: \(\delta t = \dfrac{|\phi|}{\omega_0} = \dfrac{\pi/4}{10} = 0.0785\) s.</div></div>
+<div class="ans">\(y_{ss}(t) = 4.24\sin(10t - 45^\circ)\), lagging the input by 0.0785 s.</div>
+</div></details>
+<details><summary>Problem 2. Estimate PM and GM for \(G(s) = \dfrac{10}{(s+1)^2}\) with P control \(k_P = 1\) and with D control \(k_D = 1\).</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Find the crossover frequency \(\omega_c\) where \(|L(j\omega)| = 1\), then PM \(= 180^\circ + \angle L(j\omega_c)\). For GM, find where the phase reaches −180°; if it never does, GM is infinite.</p>
+<div class="step"><i>1</i><div>P control, \(L = \dfrac{10}{(s+1)^2}\): \(|L| = \dfrac{10}{1 + \omega^2} = 1 \Rightarrow \omega^2 = 9\), \(\omega_c = 3\) rad/s.</div></div>
+<div class="step"><i>2</i><div>Phase: \(\angle L(j3) = -2\tan^{-1}3 = -2(71.57^\circ) = -143.1^\circ\). PM \(= 180^\circ - 143.1^\circ = 36.9^\circ\).</div></div>
+<div class="step"><i>3</i><div>Each pole adds at most −90°, so \(\angle L \to -180^\circ\) only as \(\omega \to \infty\) and never crosses it: GM = ∞.</div></div>
+<div class="step"><i>4</i><div>D control, \(L = \dfrac{10s}{(s+1)^2}\): \(|L| = \dfrac{10\omega}{1 + \omega^2} = 1 \Rightarrow \omega^2 - 10\omega + 1 = 0\), \(\omega = 0.101\) or 9.90 rad/s.</div></div>
+<div class="step"><i>5</i><div>The gain is below 1 at low frequency, rises above 1, then falls through 1 again at 9.90 rad/s: that falling crossing is the crossover.</div></div>
+<div class="step"><i>6</i><div>Phase there: \(\angle L = 90^\circ - 2\tan^{-1}9.90 = 90^\circ - 168.5^\circ = -78.5^\circ\). PM \(= 180^\circ - 78.5^\circ = 101.5^\circ\).</div></div>
+<div class="step"><i>7</i><div>The phase only falls from +90° to −90°, never reaching −180°: GM = ∞.</div></div>
+<div class="ans">P: PM ≈ 36.9°, GM = ∞. D: PM ≈ 101.5°, GM = ∞. D control gives far more phase margin (Tutorial 3, from asymptotes: about 45° and 90°).</div>
+</div></details>
+<details><summary>Problem 3. A lead must add 40° of phase at 10 rad/s. Find \(\alpha\) and \(T\), and the compensator's high-frequency gain increase.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> A lead gives its maximum phase \(\phi_{max}\) at \(\omega_{max} = 1/(T\sqrt\alpha)\), with \(\sin\phi_{max} = \dfrac{1-\alpha}{1+\alpha}\). Solve for \(\alpha\) from the phase needed, then place \(\omega_{max}\) at the target frequency.</p>
+<div class="step"><i>1</i><div>Invert the phase formula: \(\alpha = \dfrac{1 - \sin\phi_{max}}{1 + \sin\phi_{max}}\).</div></div>
+<div class="step"><i>2</i><div>\(\sin40^\circ = 0.643\): \(\alpha = \dfrac{1 - 0.643}{1 + 0.643} = \dfrac{0.357}{1.643} = 0.217\).</div></div>
+<div class="step"><i>3</i><div>Place the peak at 10 rad/s: \(T = \dfrac{1}{\omega_{max}\sqrt\alpha} = \dfrac{1}{10\sqrt{0.217}} = \dfrac{1}{4.66} = 0.214\) s.</div></div>
+<div class="step"><i>4</i><div>Zero at \(1/T = 4.66\) rad/s and pole at \(1/(\alpha T) = 21.4\) rad/s; their geometric mean is 10 rad/s ✓.</div></div>
+<div class="step"><i>5</i><div>High-frequency gain of \(\dfrac{Ts+1}{\alpha Ts+1}\): \(T/(\alpha T) = 1/\alpha = 4.60\), i.e. \(20\log_{10}4.60 = 13.3\) dB (and \(1/\sqrt\alpha = 2.14\), 6.6 dB, at 10 rad/s itself).</div></div>
+<div class="ans">\(\alpha = 0.217\), \(T = 0.214\) s (zero 4.66 rad/s, pole 21.4 rad/s); the high-frequency gain rises 4.60 times (13.3 dB).</div>
+</div></details>
+<details><summary>Problem 4. An overshoot of at most 15 % is required. What phase margin should you design for?</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Convert the overshoot limit to a damping ratio, then to a phase margin using the relation between PM and \(\zeta\) for a second-order loop (Figure 4.2), or the rough rule \(\zeta \approx \text{PM}/100\).</p>
+<div class="step"><i>1</i><div>\(\zeta = \dfrac{-\ln M_p}{\sqrt{\pi^2 + \ln^2 M_p}}\) with \(\ln 0.15 = -1.897\): \(\zeta = \dfrac{1.897}{\sqrt{9.870 + 3.599}} = 0.517\).</div></div>
+<div class="step"><i>2</i><div>Exact second-order relation (Figure 4.2): \(\text{PM} = \tan^{-1}\dfrac{2\zeta}{\sqrt{\sqrt{1 + 4\zeta^4} - 2\zeta^2}} = 53.2^\circ\).</div></div>
+<div class="step"><i>3</i><div>Rough rule: \(\text{PM} \approx 100\zeta = 51.7^\circ\).</div></div>
+<div class="step"><i>4</i><div>Design for a little more than that, since real loops are rarely exactly second order.</div></div>
+<div class="ans">Design for PM ≈ 53° (about 52° from \(\zeta \approx\) PM/100).</div>
+</div></details>
+<details><summary>Problem 5. Tutorial 3: \(G = \dfrac{50}{s(0.2s+1)}\), ramp error below 0.005. What is the minimum \(K\), and the PM of \(KG\) with \(K = 5\)?</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> The ramp-error requirement fixes \(K\) through \(K_v\). Then find the crossover of \(KG\) and its phase margin to see whether gain alone is enough.</p>
+<div class="step"><i>1</i><div>Type 1 loop: \(K_v = \lim_{s\to0} sKG = 50K\). \(e_{ss} = 1/K_v \lt 0.005 \Rightarrow K_v \gt 200 \Rightarrow K \ge 4\).</div></div>
+<div class="step"><i>2</i><div>With \(K = 5\): \(KG = \dfrac{250}{s(0.2s+1)}\), \(|KG(j\omega)| = \dfrac{250}{\omega\sqrt{1 + 0.04\omega^2}}\).</div></div>
+<div class="step"><i>3</i><div>Crossover: \(\dfrac{250}{\omega\sqrt{1 + 0.04\omega^2}} = 1\), solved numerically: \(\omega_c = 35.2\) rad/s.</div></div>
+<div class="step"><i>4</i><div>Phase: \(\angle KG = -90^\circ - \tan^{-1}(0.2 \times 35.2) = -90^\circ - 81.9^\circ = -171.9^\circ\).</div></div>
+<div class="step"><i>5</i><div>PM \(= 180^\circ - 171.9^\circ = 8.1^\circ\): far too little. Gain alone cannot meet both the error and the margin; a compensator is needed.</div></div>
+<div class="ans">\(K \ge 4\); with \(K = 5\), \(\omega_c = 35.2\) rad/s and PM = 8.1° (tutorial: 35 rad/s, 8°).</div>
+</div></details>
 
 </section>
 

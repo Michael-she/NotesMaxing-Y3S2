@@ -391,10 +391,45 @@ tf(sysG)                            % back to a transfer function</code></pre>
 
 <section id="practice">
 <h2><span class="n">09</span>Practice problems</h2>
-<details><summary>Problem 1. Series RLC: \(L = 0.5\) H, \(R = 3\) Ω, \(C = 0.25\) F, input \(v_{in}\), output \(v_C\), \(\mathbf{x} = [v_C\;\;i]^T\). Find the model, poles and \(G(s)\). (Tutorial 5 problem 1.)</summary><div class="sol"><p>\(C\dot v_C = i\), \(L\dot i = v_{in} - Ri - v_C\): \(\mathbf{A} = \begin{bmatrix} 0 & 4 \\ -2 & -6 \end{bmatrix}\), \(\mathbf{B} = [0\;\;2]^T\), \(\mathbf{C} = [1\;\;0]\). \(\det(s\mathbf{I} - \mathbf{A}) = s^2 + 6s + 8\), poles −2, −4. \(G = 8/((s+2)(s+4))\), DC gain 1 (the capacitor charges to the source voltage).</p></div></details>
-<details><summary>Problem 2. Write the control and modal forms of \(H(s) = \dfrac{3s + 1}{s^2 + 3s + 2}\).</summary><div class="sol"><p>Control: \(\mathbf{A}_c = \begin{bmatrix} -3 & -2 \\ 1 & 0 \end{bmatrix}\), \(\mathbf{B}_c = [1\;\;0]^T\), \(\mathbf{C}_c = [3\;\;1]\). Modal: residues \(-2/1 = -2\) at −1 and \(-5/(-1) = 5\) at −2: \(\mathbf{A} = \mathrm{diag}(-1, -2)\), \(\mathbf{B} = [1\;\;1]^T\), \(\mathbf{C} = [-2\;\;5]\).</p></div></details>
-<details><summary>Problem 3. Why can \(F(s) = \dfrac{s+4}{(s+1)(s^2+4s+13)}\) not have a diagonal modal form with real numbers? Give its real block.</summary><div class="sol"><p>Poles −1 and \(-2 \pm 3j\). The complex pair needs the real block \(\begin{bmatrix} -2 & 3 \\ -3 & -2 \end{bmatrix}\) (characteristic polynomial \(s^2 + 4s + 13\)). The residue at −1 is \(3/10 = 0.3\).</p></div></details>
-<details><summary>Problem 4. \(\mathbf{A} = \begin{bmatrix} -2 & 0 \\ 0 & -5 \end{bmatrix}\), \(\mathbf{B} = [0\;\;1]^T\), \(\mathbf{C} = [1\;\;1]\). Controllable? Observable? \(G(s)\)?</summary><div class="sol"><p>Row 1 of B is zero: the −2 mode is uncontrollable (\(\det\mathcal{C} = 0\)). C has no zero column: observable. \(G = 1/(s+5)\).</p></div></details>
+<details><summary>Problem 1. Series RLC: \(L = 0.5\) H, \(R = 3\) Ω, \(C = 0.25\) F, input \(v_{in}\), output \(v_C\), \(\mathbf{x} = [v_C\;\;i]^T\). Find the model, poles and \(G(s)\). (Tutorial 5 problem 1.)</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Write one first-order equation per energy store (capacitor voltage and inductor current), arrange them as \(\dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}u\), then get the poles from \(\det(s\mathbf{I} - \mathbf{A}) = 0\) and the transfer function from \(G = \mathbf{C}(s\mathbf{I} - \mathbf{A})^{-1}\mathbf{B}\).</p>
+<div class="step"><i>1</i><div>Capacitor: \(C\dot v_C = i\), so \(\dot v_C = \dfrac{1}{C}i = 4i\).</div></div>
+<div class="step"><i>2</i><div>Inductor (KVL round the loop): \(L\dot i = v_{in} - Ri - v_C\), so \(\dot i = \dfrac{1}{L}(v_{in} - Ri - v_C) = -2v_C - 6i + 2v_{in}\).</div></div>
+<div class="step"><i>3</i><div>Matrices: \(\mathbf{A} = \begin{bmatrix} 0 & 4 \\ -2 & -6 \end{bmatrix}\), \(\mathbf{B} = \begin{bmatrix} 0 \\ 2 \end{bmatrix}\), \(\mathbf{C} = [1\;\;0]\) (the output is \(v_C\)), \(D = 0\).</div></div>
+<div class="step"><i>4</i><div>Characteristic polynomial: \(\det(s\mathbf{I} - \mathbf{A}) = \det\begin{bmatrix} s & -4 \\ 2 & s+6 \end{bmatrix} = s(s+6) + 8 = s^2 + 6s + 8 = (s+2)(s+4)\). Poles −2 and −4.</div></div>
+<div class="step"><i>5</i><div>Inverse: \((s\mathbf{I} - \mathbf{A})^{-1} = \dfrac{1}{s^2+6s+8}\begin{bmatrix} s+6 & 4 \\ -2 & s \end{bmatrix}\).</div></div>
+<div class="step"><i>6</i><div>\(G = \mathbf{C}(s\mathbf{I}-\mathbf{A})^{-1}\mathbf{B} = \dfrac{[1\;\;0]}{s^2+6s+8}\begin{bmatrix} s+6 & 4 \\ -2 & s \end{bmatrix}\begin{bmatrix} 0 \\ 2 \end{bmatrix} = \dfrac{8}{(s+2)(s+4)}\).</div></div>
+<div class="step"><i>7</i><div>DC gain \(G(0) = 8/8 = 1\): in steady state the capacitor charges to the source voltage.</div></div>
+<div class="ans">\(\mathbf{A} = \begin{bmatrix} 0 & 4 \\ -2 & -6 \end{bmatrix}\), \(\mathbf{B} = [0\;\;2]^T\), \(\mathbf{C} = [1\;\;0]\); poles −2, −4; \(G(s) = \dfrac{8}{(s+2)(s+4)}\).</div>
+</div></details>
+<details><summary>Problem 2. Write the control and modal forms of \(H(s) = \dfrac{3s + 1}{s^2 + 3s + 2}\).</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Control canonical form is read straight from the coefficients of \(H = b(s)/a(s)\). Modal form puts the poles on the diagonal, with \(\mathbf{B}\) all ones and \(\mathbf{C}\) holding the partial-fraction residues.</p>
+<div class="step"><i>1</i><div>\(a(s) = s^2 + 3s + 2\) (\(a_1 = 3\), \(a_2 = 2\)) and \(b(s) = 3s + 1\) (\(b_1 = 3\), \(b_2 = 1\)).</div></div>
+<div class="step"><i>2</i><div>Control form: top row of \(\mathbf{A}_c\) is \(-a_1, -a_2\), with ones on the subdiagonal: \(\mathbf{A}_c = \begin{bmatrix} -3 & -2 \\ 1 & 0 \end{bmatrix}\), \(\mathbf{B}_c = [1\;\;0]^T\), \(\mathbf{C}_c = [b_1\;\;b_2] = [3\;\;1]\).</div></div>
+<div class="step"><i>3</i><div>Modal form: poles from \(s^2 + 3s + 2 = (s+1)(s+2)\): −1 and −2.</div></div>
+<div class="step"><i>4</i><div>Residues by cover-up: at −1, \(\left.\dfrac{3s+1}{s+2}\right|_{s=-1} = \dfrac{-2}{1} = -2\); at −2, \(\left.\dfrac{3s+1}{s+1}\right|_{s=-2} = \dfrac{-5}{-1} = 5\). So \(H = \dfrac{-2}{s+1} + \dfrac{5}{s+2}\).</div></div>
+<div class="step"><i>5</i><div>\(\mathbf{A} = \mathrm{diag}(-1, -2)\), \(\mathbf{B} = [1\;\;1]^T\), \(\mathbf{C} = [-2\;\;5]\).</div></div>
+<div class="step"><i>6</i><div>Check: \(\dfrac{-2}{s+1} + \dfrac{5}{s+2} = \dfrac{-2(s+2) + 5(s+1)}{(s+1)(s+2)} = \dfrac{3s + 1}{s^2+3s+2}\) ✓.</div></div>
+<div class="ans">Control: \(\mathbf{A}_c = \begin{bmatrix} -3 & -2 \\ 1 & 0 \end{bmatrix}\), \(\mathbf{B}_c = [1\;\;0]^T\), \(\mathbf{C}_c = [3\;\;1]\). Modal: \(\mathbf{A} = \mathrm{diag}(-1, -2)\), \(\mathbf{B} = [1\;\;1]^T\), \(\mathbf{C} = [-2\;\;5]\).</div>
+</div></details>
+<details><summary>Problem 3. Why can \(F(s) = \dfrac{s+4}{(s+1)(s^2+4s+13)}\) not have a diagonal modal form with real numbers? Give its real block.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> A diagonal modal form needs the poles on the diagonal. Complex poles would put complex numbers in the matrices, so a complex pair is kept as a real 2 × 2 block with the same characteristic polynomial.</p>
+<div class="step"><i>1</i><div>Poles: \(s = -1\) and the roots of \(s^2 + 4s + 13\): \(s = \dfrac{-4 \pm \sqrt{16 - 52}}{2} = -2 \pm 3j\).</div></div>
+<div class="step"><i>2</i><div>A diagonal form would need \(-2 + 3j\) and \(-2 - 3j\) on the diagonal, and complex residues: not a real model.</div></div>
+<div class="step"><i>3</i><div>Real block for \(\sigma \pm j\omega = -2 \pm 3j\): \(\begin{bmatrix} \sigma & \omega \\ -\omega & \sigma \end{bmatrix} = \begin{bmatrix} -2 & 3 \\ -3 & -2 \end{bmatrix}\).</div></div>
+<div class="step"><i>4</i><div>Check: its characteristic polynomial is \((s+2)^2 + 9 = s^2 + 4s + 13\) ✓.</div></div>
+<div class="step"><i>5</i><div>The real pole keeps its own diagonal entry, with residue \(\left.\dfrac{s+4}{s^2+4s+13}\right|_{s=-1} = \dfrac{3}{10} = 0.3\).</div></div>
+<div class="ans">The poles \(-2 \pm 3j\) are complex, so they need the real block \(\begin{bmatrix} -2 & 3 \\ -3 & -2 \end{bmatrix}\) instead of two diagonal entries; the pole −1 (residue 0.3) stays diagonal.</div>
+</div></details>
+<details><summary>Problem 4. \(\mathbf{A} = \begin{bmatrix} -2 & 0 \\ 0 & -5 \end{bmatrix}\), \(\mathbf{B} = [0\;\;1]^T\), \(\mathbf{C} = [1\;\;1]\). Controllable? Observable? \(G(s)\)?</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Form the controllability matrix \(\mathcal{C} = [\mathbf{B}\;\;\mathbf{A}\mathbf{B}]\) and observability matrix \(\mathcal{O} = [\mathbf{C};\;\mathbf{C}\mathbf{A}]\); each property holds when its determinant is non-zero. For a diagonal \(\mathbf{A}\) the tests can be read directly: a zero row of \(\mathbf{B}\) or a zero column of \(\mathbf{C}\) loses a mode.</p>
+<div class="step"><i>1</i><div>\(\mathbf{A}\mathbf{B} = \begin{bmatrix} -2 & 0 \\ 0 & -5 \end{bmatrix}\begin{bmatrix} 0 \\ 1 \end{bmatrix} = \begin{bmatrix} 0 \\ -5 \end{bmatrix}\), so \(\mathcal{C} = \begin{bmatrix} 0 & 0 \\ 1 & -5 \end{bmatrix}\), \(\det\mathcal{C} = 0\): not controllable.</div></div>
+<div class="step"><i>2</i><div>Reason: \(\dot x_1 = -2x_1\) has no \(u\) in it, so the input can never affect the −2 mode.</div></div>
+<div class="step"><i>3</i><div>\(\mathbf{C}\mathbf{A} = [1\;\;1]\begin{bmatrix} -2 & 0 \\ 0 & -5 \end{bmatrix} = [-2\;\;-5]\), so \(\mathcal{O} = \begin{bmatrix} 1 & 1 \\ -2 & -5 \end{bmatrix}\), \(\det\mathcal{O} = -5 + 2 = -3 \ne 0\): observable.</div></div>
+<div class="step"><i>4</i><div>Transfer function: \((s\mathbf{I}-\mathbf{A})^{-1}\mathbf{B} = [0\;\;\tfrac{1}{s+5}]^T\), so \(G = [1\;\;1][0\;\;\tfrac{1}{s+5}]^T = \dfrac{1}{s+5}\).</div></div>
+<div class="step"><i>5</i><div>The uncontrollable mode −2 does not appear in \(G\): a transfer function only shows modes that are both controllable and observable.</div></div>
+<div class="ans">Not controllable (the −2 mode), observable; \(G(s) = \dfrac{1}{s+5}\).</div>
+</div></details>
 
 </section>
 

@@ -263,10 +263,41 @@
 
 <section id="practice">
 <h2><span class="n">07</span>Practice problems</h2>
-<details><summary>Problem 1. Tutorial 7 problem 1 and 2: \(\mathbf{A} = \begin{bmatrix} 0 & 1 \\ -8 & -6 \end{bmatrix}\), \(\mathbf{B} = [0\;\;1]^T\), \(\mathbf{C} = [1\;\;0]\). Find \(\mathbf{K}\) for poles \(-6 \pm 6j\), the steady-state output with \(u = -\mathbf{K}\mathbf{x} + r\), and \(\bar N\).</summary><div class="sol"><p>\(\alpha_c = s^2 + 12s + 72\); companion form gives \(\mathbf{K} = [72 - 8\;\;12 - 6] = [64\;\;6]\). With \(u = -\mathbf{K}\mathbf{x} + r\): \(y_{ss} = 1/72 = 0.0139\), a 98.6 % error. \(\bar N = \alpha_c(0)/b(0) = 72/1 = 72\).</p></div></details>
-<details><summary>Problem 2. For the same plant, place both estimator poles at −20.</summary><div class="sol"><p>\(\det[s\mathbf{I} - (\mathbf{A} - \mathbf{L}\mathbf{C})] = s^2 + (6 + L_1)s + (8 + 6L_1 + L_2) = s^2 + 40s + 400\): \(L_1 = 34\), \(L_2 = 188\). Trace −40 ✓.</p></div></details>
-<details><summary>Problem 3. Why does \(\bar N\) not move any closed-loop pole?</summary><div class="sol"><p>It multiplies the external signal \(r\), so it enters only the input matrix of the closed loop \((\mathbf{A} - \mathbf{B}\mathbf{K},\,\mathbf{B}\bar N)\), never the system matrix.</p></div></details>
-<details><summary>Problem 4. With estimator poles at −5 (three times) for the servo drive of Tutorial 7, \(l_3 = 0\). What does that mean?</summary><div class="sol"><p>The estimator then makes no correction to the actuator-state estimate from the output error: \(\hat x_3\) runs open loop, decaying at the actuator's own pole of −5, which already equals the requested pole.</p></div></details>
+<details><summary>Problem 1. Tutorial 7 problem 1 and 2: \(\mathbf{A} = \begin{bmatrix} 0 & 1 \\ -8 & -6 \end{bmatrix}\), \(\mathbf{B} = [0\;\;1]^T\), \(\mathbf{C} = [1\;\;0]\). Find \(\mathbf{K}\) for poles \(-6 \pm 6j\), the steady-state output with \(u = -\mathbf{K}\mathbf{x} + r\), and \(\bar N\).</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Place the poles by matching coefficients (easy here: \(\mathbf{A}\) is in companion form). Then find the steady-state output with \(u = -\mathbf{K}\mathbf{x} + r\), and the reference gain \(\bar N\) that removes the resulting error.</p>
+<div class="step"><i>1</i><div>Poles \(-6 \pm 6j\): \(\alpha_c(s) = (s+6)^2 + 36 = s^2 + 12s + 72\) (\(\omega_n = 8.49\) rad/s, \(\zeta = 0.707\)).</div></div>
+<div class="step"><i>2</i><div>Open loop: \(a(s) = s^2 + 6s + 8\). Companion form: \(K_1 = \alpha_2 - a_2 = 72 - 8 = 64\), \(K_2 = \alpha_1 - a_1 = 12 - 6 = 6\). \(\mathbf{K} = [64\;\;6]\).</div></div>
+<div class="step"><i>3</i><div>With \(u = -\mathbf{K}\mathbf{x} + r\): \(\dot{\mathbf{x}} = (\mathbf{A} - \mathbf{B}\mathbf{K})\mathbf{x} + \mathbf{B}r\), and \(\mathbf{A} - \mathbf{B}\mathbf{K} = \begin{bmatrix} 0 & 1 \\ -72 & -12 \end{bmatrix}\).</div></div>
+<div class="step"><i>4</i><div>Steady state: \(y_{ss} = -\mathbf{C}(\mathbf{A} - \mathbf{B}\mathbf{K})^{-1}\mathbf{B} = \dfrac{b(0)}{\alpha_c(0)} = \dfrac{1}{72} = 0.0139\) for a unit step: a 98.6 % error.</div></div>
+<div class="step"><i>5</i><div>Reference gain: \(\bar N = \dfrac{-1}{\mathbf{C}(\mathbf{A}-\mathbf{B}\mathbf{K})^{-1}\mathbf{B}} = \dfrac{\alpha_c(0)}{b(0)} = \dfrac{72}{1} = 72\), so \(u = -\mathbf{K}\mathbf{x} + 72r\) gives \(y_{ss} = r\).</div></div>
+<div class="ans">\(\mathbf{K} = [64\;\;6]\); without \(\bar N\), \(y_{ss} = 0.0139\) (98.6 % error); \(\bar N = 72\).</div>
+</div></details>
+<details><summary>Problem 2. For the same plant, place both estimator poles at −20.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> The estimation error obeys \(\dot{\tilde{\mathbf{x}}} = (\mathbf{A} - \mathbf{L}\mathbf{C})\tilde{\mathbf{x}}\). Choose \(\mathbf{L}\) so that \(\det[s\mathbf{I} - (\mathbf{A} - \mathbf{L}\mathbf{C})]\) equals the desired estimator polynomial \(\alpha_e(s)\).</p>
+<div class="step"><i>1</i><div>\(\alpha_e(s) = (s + 20)^2 = s^2 + 40s + 400\).</div></div>
+<div class="step"><i>2</i><div>\(\mathbf{L}\mathbf{C} = \begin{bmatrix} L_1 & 0 \\ L_2 & 0 \end{bmatrix}\), so \(\mathbf{A} - \mathbf{L}\mathbf{C} = \begin{bmatrix} -L_1 & 1 \\ -8 - L_2 & -6 \end{bmatrix}\).</div></div>
+<div class="step"><i>3</i><div>\(\det[s\mathbf{I} - (\mathbf{A} - \mathbf{L}\mathbf{C})] = (s + L_1)(s + 6) + (8 + L_2) = s^2 + (6 + L_1)s + (8 + 6L_1 + L_2)\).</div></div>
+<div class="step"><i>4</i><div>Match \(s^1\): \(6 + L_1 = 40 \Rightarrow L_1 = 34\). Match \(s^0\): \(8 + 6(34) + L_2 = 400 \Rightarrow L_2 = 188\).</div></div>
+<div class="step"><i>5</i><div>Check: \(\mathrm{tr}(\mathbf{A} - \mathbf{L}\mathbf{C}) = -34 - 6 = -40\) ✓; determinant \(6(34) + 8 + 188 = 400\) ✓.</div></div>
+<div class="ans">\(\mathbf{L} = [34\;\;188]^T\).</div>
+</div></details>
+<details><summary>Problem 3. Why does \(\bar N\) not move any closed-loop pole?</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Write the closed-loop state equation with the reference gain and see where \(\bar N\) ends up.</p>
+<div class="step"><i>1</i><div>\(u = -\mathbf{K}\mathbf{x} + \bar Nr\) gives \(\dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}(-\mathbf{K}\mathbf{x} + \bar Nr) = (\mathbf{A} - \mathbf{B}\mathbf{K})\mathbf{x} + \mathbf{B}\bar N\,r\).</div></div>
+<div class="step"><i>2</i><div>The poles are the eigenvalues of the system matrix \(\mathbf{A} - \mathbf{B}\mathbf{K}\), which contains no \(\bar N\).</div></div>
+<div class="step"><i>3</i><div>\(\bar N\) sits only in the input matrix \(\mathbf{B}\bar N\): it scales how strongly \(r\) drives the loop, i.e. the DC gain, as \(Y/R = \bar N\,b(s)/\alpha_c(s)\).</div></div>
+<div class="ans">\(\bar N\) multiplies the external input \(r\), so it appears only in the input matrix \(\mathbf{B}\bar N\), never in \(\mathbf{A} - \mathbf{B}\mathbf{K}\), and cannot move a pole; it only sets the DC gain.</div>
+</div></details>
+<details><summary>Problem 4. With estimator poles at −5 (three times) for the servo drive of Tutorial 7, \(l_3 = 0\). What does that mean?</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Find \(\mathbf{L}\) for the servo drive with all three estimator poles at −5 from the estimator characteristic polynomial (Tutorial 7, Equation 5), then interpret the zero gain.</p>
+<div class="step"><i>1</i><div>Servo drive: \(\mathbf{A} = \begin{bmatrix} 0 & 1 & 0 \\ 0 & -2 & 4 \\ 0 & 0 & -5 \end{bmatrix}\), \(\mathbf{C} = [1\;\;0\;\;0]\).</div></div>
+<div class="step"><i>2</i><div>\(\det[s\mathbf{I} - (\mathbf{A} - \mathbf{L}\mathbf{C})] = s^3 + (7 + l_1)s^2 + (10 + 7l_1 + l_2)s + (10l_1 + 5l_2 + 4l_3)\).</div></div>
+<div class="step"><i>3</i><div>Target \((s+5)^3 = s^3 + 15s^2 + 75s + 125\).</div></div>
+<div class="step"><i>4</i><div>Match: \(7 + l_1 = 15 \Rightarrow l_1 = 8\); \(10 + 56 + l_2 = 75 \Rightarrow l_2 = 9\); \(80 + 45 + 4l_3 = 125 \Rightarrow l_3 = 0\).</div></div>
+<div class="step"><i>5</i><div>The estimator equation for the third state is \(\dot{\hat x}_3 = -5\hat x_3 + 5u + l_3(y - \hat y)\). With \(l_3 = 0\) the output error never corrects \(\hat x_3\).</div></div>
+<div class="step"><i>6</i><div>That is acceptable here because its error already decays at the actuator\'s own pole, −5, which is exactly where the estimator pole was asked to be: no correction is needed to put it there.</div></div>
+<div class="ans">\(\mathbf{L} = [8\;\;9\;\;0]^T\). The actuator-state estimate runs open loop, decaying at the actuator\'s own pole −5, which already equals the requested estimator pole.</div>
+</div></details>
 
 </section>
 

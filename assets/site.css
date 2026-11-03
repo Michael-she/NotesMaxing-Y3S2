@@ -256,9 +256,10 @@ mjx-container.wide-math{display:block!important;max-width:100%;overflow-x:auto;o
 .ex>.hd{background:var(--genoa);color:var(--on-teal);font-weight:600;padding:9px 16px;font-size:15px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
 .ex>.hd span{font-weight:400;opacity:.88;font-size:13px}
 .ex>.bd{padding:6px 18px 14px;overflow-x:auto}
-.ex .step{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;margin:.8em 0}
-.ex .step>i{font-style:normal;font-family:var(--f-mono);font-size:12px;color:var(--genoa);padding-top:4px}
-.ex .ans,.soln{background:var(--wash);padding:8px 14px;border-radius:8px;margin-top:10px}
+.ex .step,details .sol .step{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;margin:.8em 0}
+.ex .step>i,details .sol .step>i{font-style:normal;font-family:var(--f-mono);font-size:12px;color:var(--genoa);padding-top:4px}
+.ex .step>div,details .sol .step>div{min-width:0;overflow-x:auto;overflow-y:hidden}
+.ex .ans,.soln,details .sol .ans{background:var(--wash);padding:8px 14px;border-radius:8px;margin-top:10px}
 .qa{border:1px solid var(--rule);border-radius:var(--r);margin:1.8em 0;background:var(--surface);padding:6px 18px 14px;overflow-x:auto}
 .qa .qnum{font-weight:600;color:var(--genoa)}
 details{border:1px solid var(--rule);border-radius:var(--r);margin:.9em 0;background:var(--surface)}
@@ -576,8 +577,8 @@ details.memo h4{margin:1.1em 0 .3em;font-size:15px;color:var(--ink)}
 details.memo h4 .mk{font-family:var(--f-mono);font-size:12.5px;font-weight:500;color:var(--ink-2);margin-left:6px}
 /* memo layout: an approach line, then each part as numbered steps with the marks each step earns, ending in a boxed answer */
 details.memo .sol{padding:6px 18px 16px}
-.memo .plan{margin:.9em 0 .2em;padding:9px 13px;background:var(--bg);border-radius:8px;font-size:15px;color:var(--text)}
-.memo .plan b{color:var(--ink)}
+.memo .plan,details .sol .plan{margin:.9em 0 .2em;padding:9px 13px;background:var(--bg);border-radius:8px;font-size:15px;color:var(--text)}
+.memo .plan b,details .sol .plan b{color:var(--ink)}
 .mp{padding:.2em 0 1.1em;border-bottom:1px solid var(--rule)}
 .mp:last-child{border-bottom:0;padding-bottom:.2em}
 details.memo .mp>h4{display:flex;align-items:baseline;gap:10px;margin:1em 0 .35em}

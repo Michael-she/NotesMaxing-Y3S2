@@ -393,10 +393,41 @@
 
 <section id="practice">
 <h2><span class="n">07</span>Practice problems</h2>
-<details><summary>Problem 1. Convert \(D(s) = \dfrac{U}{E} = \dfrac{4}{0.1s + 1}\) to a difference equation with Tustin's method and \(T = 0.02\) s.</summary><div class="sol"><p>\(2/T = 100\): \(D(z) = \dfrac{4(z+1)}{10(z-1) + (z+1)} = \dfrac{4z + 4}{11z - 9}\). So \(11u(k) = 9u(k-1) + 4e(k) + 4e(k-1)\). DC check: \(z = 1\) gives \(8/2 = 4\) ✓.</p></div></details>
-<details><summary>Problem 2. Find the Tustin PID coefficients for \(k_P = 2\), \(k_I = 5\) s⁻¹, \(k_D = 0.1\) s and \(T = 0.01\) s.</summary><div class="sol"><p>\(a_0 = 2 + 0.025 + 20 = 22.025\), \(a_1 = 0.05 - 40 = -39.95\), \(a_2 = -2 + 0.025 + 20 = 18.025\). \(u(k) = u(k-2) + 22.025e(k) - 39.95e(k-1) + 18.025e(k-2)\). (Checked numerically against the bilinear transform.)</p></div></details>
-<details><summary>Problem 3. A 0.5 Hz test gives input amplitude 40°, output amplitude 41°, output peaks 0.15 s behind. Give magnitude in dB and phase.</summary><div class="sol"><p>\(M = 1.025\), 0.21 dB. \(\phi = -360 \times 0.5 \times 0.15 = -27^\circ\).</p></div></details>
-<details><summary>Problem 4. Why does a heavy disc behind a 20:1 gearbox barely change the motor's time constant?</summary><div class="sol"><p>Inertia referred to the motor shaft is \(J_L/GR^2\), so the gearbox divides the disc's inertia by 400.</p></div></details>
+<details><summary>Problem 1. Convert \(D(s) = \dfrac{U}{E} = \dfrac{4}{0.1s + 1}\) to a difference equation with Tustin's method and \(T = 0.02\) s.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Tustin's method replaces \(s\) by \(\dfrac{2}{T}\dfrac{z-1}{z+1}\). Simplify to a ratio of polynomials in \(z\), divide through by the highest power of \(z\), and read off the difference equation using \(z^{-1}u \leftrightarrow u(k-1)\).</p>
+<div class="step"><i>1</i><div>\(2/T = 2/0.02 = 100\), so \(s \to 100\dfrac{z-1}{z+1}\).</div></div>
+<div class="step"><i>2</i><div>\(D(z) = \dfrac{4}{0.1\cdot100\dfrac{z-1}{z+1} + 1} = \dfrac{4}{10\dfrac{z-1}{z+1} + 1}\).</div></div>
+<div class="step"><i>3</i><div>Multiply top and bottom by \(z+1\): \(D(z) = \dfrac{4(z+1)}{10(z-1) + (z+1)} = \dfrac{4z + 4}{11z - 9}\).</div></div>
+<div class="step"><i>4</i><div>Divide by \(z\): \(\dfrac{U}{E} = \dfrac{4 + 4z^{-1}}{11 - 9z^{-1}}\), so \((11 - 9z^{-1})U = (4 + 4z^{-1})E\).</div></div>
+<div class="step"><i>5</i><div>Time domain: \(11u(k) - 9u(k-1) = 4e(k) + 4e(k-1)\).</div></div>
+<div class="step"><i>6</i><div>DC check: at \(z = 1\), \(D(1) = 8/2 = 4 = D(0)\) of the continuous controller ✓ (Tustin maps \(s = 0\) to \(z = 1\)).</div></div>
+<div class="ans">\(u(k) = \tfrac{9}{11}u(k-1) + \tfrac{4}{11}\big(e(k) + e(k-1)\big)\), i.e. \(11u(k) = 9u(k-1) + 4e(k) + 4e(k-1)\).</div>
+</div></details>
+<details><summary>Problem 2. Find the Tustin PID coefficients for \(k_P = 2\), \(k_I = 5\) s⁻¹, \(k_D = 0.1\) s and \(T = 0.01\) s.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Apply Tustin to each PID term, put everything over the common denominator \(1 - z^{-2}\), and collect the coefficients of \(e(k)\), \(e(k-1)\), \(e(k-2)\).</p>
+<div class="step"><i>1</i><div>Terms: \(k_P\); \(\dfrac{k_I}{s} \to \dfrac{k_IT}{2}\dfrac{1 + z^{-1}}{1 - z^{-1}}\); \(k_Ds \to \dfrac{2k_D}{T}\dfrac{1 - z^{-1}}{1 + z^{-1}}\).</div></div>
+<div class="step"><i>2</i><div>Common denominator \((1 - z^{-1})(1 + z^{-1}) = 1 - z^{-2}\). Then \(U(1 - z^{-2}) = (a_0 + a_1z^{-1} + a_2z^{-2})E\) with \(a_0 = k_P + \dfrac{k_IT}{2} + \dfrac{2k_D}{T}\), \(a_1 = k_IT - \dfrac{4k_D}{T}\), \(a_2 = -k_P + \dfrac{k_IT}{2} + \dfrac{2k_D}{T}\).</div></div>
+<div class="step"><i>3</i><div>Numbers: \(\dfrac{k_IT}{2} = \dfrac{5(0.01)}{2} = 0.025\); \(\dfrac{2k_D}{T} = \dfrac{0.2}{0.01} = 20\); \(k_IT = 0.05\); \(\dfrac{4k_D}{T} = 40\).</div></div>
+<div class="step"><i>4</i><div>\(a_0 = 2 + 0.025 + 20 = 22.025\); \(a_1 = 0.05 - 40 = -39.95\); \(a_2 = -2 + 0.025 + 20 = 18.025\).</div></div>
+<div class="step"><i>5</i><div>Difference equation: \(u(k) = u(k-2) + 22.025e(k) - 39.95e(k-1) + 18.025e(k-2)\).</div></div>
+<div class="step"><i>6</i><div>Check: \(a_0 + a_1 + a_2 = 0.1 = 2k_IT\), as the integral term requires for a constant error.</div></div>
+<div class="ans">\(u(k) = u(k-2) + 22.025e(k) - 39.95e(k-1) + 18.025e(k-2)\).</div>
+</div></details>
+<details><summary>Problem 3. A 0.5 Hz test gives input amplitude 40°, output amplitude 41°, output peaks 0.15 s behind. Give magnitude in dB and phase.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> In a frequency-response test the gain is the output amplitude over the input amplitude, and the phase comes from the time delay between matching peaks: \(\phi = -360^\circ f\,\delta t\).</p>
+<div class="step"><i>1</i><div>Magnitude: \(M = 41/40 = 1.025\).</div></div>
+<div class="step"><i>2</i><div>In decibels: \(20\log_{10}1.025 = 0.21\) dB.</div></div>
+<div class="step"><i>3</i><div>The output peaks \(\delta t = 0.15\) s after the input; one period is \(1/f = 2\) s, so the lag is \(0.15/2 = 0.075\) of a cycle.</div></div>
+<div class="step"><i>4</i><div>Phase: \(\phi = -360^\circ(0.075) = -360^\circ(0.5)(0.15) = -27^\circ\).</div></div>
+<div class="ans">\(M = 1.025\) (0.21 dB), \(\phi = -27^\circ\) at 0.5 Hz (\(\omega = 3.14\) rad/s).</div>
+</div></details>
+<details><summary>Problem 4. Why does a heavy disc behind a 20:1 gearbox barely change the motor's time constant?</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Refer the load inertia to the motor shaft. A gearbox with ratio \(GR\) scales speeds by \(GR\) and torques by \(1/GR\), so the inertia seen by the motor is divided by \(GR^2\).</p>
+<div class="step"><i>1</i><div>Effective inertia on the motor shaft: \(J_e = J_m + J_G + \dfrac{J_L}{GR^2}\).</div></div>
+<div class="step"><i>2</i><div>With \(GR = 20\): \(GR^2 = 400\), so the disc contributes only \(J_L/400\).</div></div>
+<div class="step"><i>3</i><div>The mechanical time constant is proportional to \(J_e\) (roughly \(\tau \approx J_e/B_e\)); if \(J_L/400\) is small next to \(J_m + J_G\), \(J_e\) and \(\tau\) barely change.</div></div>
+<div class="ans">The gearbox divides the disc inertia by \(GR^2 = 400\) before the motor sees it, so the motor time constant hardly changes.</div>
+</div></details>
 
 </section>
 

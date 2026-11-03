@@ -444,11 +444,50 @@
 
 <section id="practice">
 <h2><span class="n">09</span>Practice problems</h2>
-<details><summary>Problem 1. Tutorial 10 problem 1: a loop samples at 250 Hz. Where do components at 180, 300, 320, 250 and 500 Hz appear?</summary><div class="sol"><p>Nyquist 125 Hz. 180 → 70 Hz, 300 → 50 Hz, 320 → 70 Hz, 250 → 0 Hz, 500 → 0 Hz. The last two become constant offsets.</p></div></details>
-<details><summary>Problem 2. Tutorial 10 problems 2 and 3: \(\omega_{BW} = 15\) rad/s. Give the conservative prefilter, its lag at \(\omega_{BW}\), its attenuation at 300 Hz, and the sample period.</summary><div class="sol"><p>\(a = 150\) rad/s (23.9 Hz); lag \(\tan^{-1}0.1 = 5.71^\circ\). At 1885 rad/s: \(0.0793\) (−22.0 dB). \(\omega_s \approx 1500\) rad/s gives \(T = 4.19\) ms, rounded to 4 ms (250 Hz, Nyquist 785 rad/s, prefilter attenuation there 0.188, a factor of 5.3).</p></div></details>
-<details><summary>Problem 3. Tutorial 10 problem 4: discretise \(D(s) = \dfrac{12(s+3)}{s+15}\) with Tustin at \(T = 4\) ms.</summary><div class="sol"><p>\(2/T = 500\): zero at 0.9881, pole at 0.9417, gain 11.7204. \(u(k) = 0.9417u(k-1) + 11.7204e(k) - 11.5806e(k-1)\).</p></div></details>
-<details><summary>Problem 4. Inverted pendulum (term summary): \(\ddot\theta + 3\dot\theta - 2\theta = u\) about upright. Is it stable? Find \(\mathbf{K}\) for poles \(-2 \pm 2j\).</summary><div class="sol"><p>Poles \((-3 \pm \sqrt{17})/2 = 0.562,\,-3.562\): unstable. \(\mathbf{A} = \begin{bmatrix} 0 & 1 \\ 2 & -3 \end{bmatrix}\), \(\det\mathcal{C} = -1\). \(s^2 + (3 + K_2)s + (K_1 - 2) = s^2 + 4s + 8\): \(\mathbf{K} = [10\;\;1]\).</p></div></details>
-<details><summary>Problem 5. Why can an alias not be removed by a digital filter after sampling?</summary><div class="sol"><p>After sampling, the aliased component has exactly the same sample values as a genuine low-frequency signal, so no operation on the numbers can tell them apart. Only an analogue filter ahead of the sampler can remove it.</p></div></details>
+<details><summary>Problem 1. Tutorial 10 problem 1: a loop samples at 250 Hz. Where do components at 180, 300, 320, 250 and 500 Hz appear?</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Components above the Nyquist frequency \(f_s/2 = 125\) Hz fold back to \(f_a = |f - Nf_s|\), with \(N\) the integer nearest \(f/f_s\).</p>
+<div class="step"><i>1</i><div>180 Hz: \(N = 1\), \(|180 - 250| = 70\) Hz.</div></div>
+<div class="step"><i>2</i><div>300 Hz: \(N = 1\), \(|300 - 250| = 50\) Hz.</div></div>
+<div class="step"><i>3</i><div>320 Hz: \(N = 1\), \(|320 - 250| = 70\) Hz (the same as 180 Hz: both sit 70 Hz from 250 Hz).</div></div>
+<div class="step"><i>4</i><div>250 Hz: \(N = 1\), \(|250 - 250| = 0\) Hz: sampled at the same point of every cycle, it looks constant.</div></div>
+<div class="step"><i>5</i><div>500 Hz: \(N = 2\), \(|500 - 500| = 0\) Hz: also a constant offset.</div></div>
+<div class="ans">180 → 70 Hz, 300 → 50 Hz, 320 → 70 Hz, 250 → 0 Hz, 500 → 0 Hz (the last two become DC offsets).</div>
+</div></details>
+<details><summary>Problem 2. Tutorial 10 problems 2 and 3: \(\omega_{BW} = 15\) rad/s. Give the conservative prefilter, its lag at \(\omega_{BW}\), its attenuation at 300 Hz, and the sample period.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> The conservative design puts the analogue prefilter \(H_p = \dfrac{a}{s + a}\) a decade above the bandwidth (\(a = 10\omega_{BW}\)) so it costs little phase, then samples about ten times faster than \(a\) so the prefilter attenuates what could alias.</p>
+<div class="step"><i>1</i><div>Prefilter corner: \(a = 10 \times 15 = 150\) rad/s (\(150/2\pi = 23.9\) Hz).</div></div>
+<div class="step"><i>2</i><div>Phase lag at \(\omega_{BW}\): \(\angle H_p = -\tan^{-1}(15/150) = -\tan^{-1}0.1 = -5.71^\circ\).</div></div>
+<div class="step"><i>3</i><div>At 300 Hz, \(\omega = 2\pi(300) = 1885\) rad/s: \(|H_p| = \dfrac{150}{\sqrt{150^2 + 1885^2}} = 0.0793\), i.e. −22.0 dB.</div></div>
+<div class="step"><i>4</i><div>Sample rate: \(\omega_s \approx 10a = 1500\) rad/s, so \(T = 2\pi/1500 = 4.19\) ms; round to \(T = 4\) ms (250 Hz).</div></div>
+<div class="step"><i>5</i><div>Check at the new Nyquist frequency, \(\pi/T = 785\) rad/s: \(|H_p| = 150/\sqrt{150^2 + 785^2} = 0.188\), so anything that could alias is cut by a factor of 5.3.</div></div>
+<div class="ans">\(H_p = \dfrac{150}{s + 150}\) (23.9 Hz), 5.71° lag at 15 rad/s, 0.0793 (−22.0 dB) at 300 Hz, \(T = 4\) ms.</div>
+</div></details>
+<details><summary>Problem 3. Tutorial 10 problem 4: discretise \(D(s) = \dfrac{12(s+3)}{s+15}\) with Tustin at \(T = 4\) ms.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Substitute Tustin's \(s = \dfrac{2}{T}\dfrac{z-1}{z+1}\), clear fractions, then write the difference equation by dividing through by the leading coefficient of the denominator.</p>
+<div class="step"><i>1</i><div>\(2/T = 2/0.004 = 500\). \(D(z) = \dfrac{12\big(500(z-1) + 3(z+1)\big)}{500(z-1) + 15(z+1)} = \dfrac{12(503z - 497)}{515z - 485}\).</div></div>
+<div class="step"><i>2</i><div>Zero: \(497/503 = 0.9881\). Pole: \(485/515 = 0.9417\). Gain: \(12 \times 503/515 = 11.7204\).</div></div>
+<div class="step"><i>3</i><div>\(D(z) = 11.7204\,\dfrac{z - 0.9881}{z - 0.9417}\), so \((1 - 0.9417z^{-1})U = 11.7204(1 - 0.9881z^{-1})E\).</div></div>
+<div class="step"><i>4</i><div>The \(e(k-1)\) coefficient is \(12 \times 497/515 = 11.5806\): \(u(k) = 0.9417u(k-1) + 11.7204e(k) - 11.5806e(k-1)\).</div></div>
+<div class="step"><i>5</i><div>DC check: \(D(1) = 11.7204 \times \dfrac{1 - 0.9881}{1 - 0.9417} = 2.4 = D(0) = 12(3)/15\) ✓.</div></div>
+<div class="ans">\(u(k) = 0.9417u(k-1) + 11.7204e(k) - 11.5806e(k-1)\).</div>
+</div></details>
+<details><summary>Problem 4. Inverted pendulum (term summary): \(\ddot\theta + 3\dot\theta - 2\theta = u\) about upright. Is it stable? Find \(\mathbf{K}\) for poles \(-2 \pm 2j\).</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Stability is decided by the open-loop poles of \(\ddot\theta + 3\dot\theta - 2\theta = u\). Put it in state form with \(\mathbf{x} = [\theta\;\;\dot\theta]^T\) (companion form), check controllability, and match coefficients for \(\mathbf{K}\).</p>
+<div class="step"><i>1</i><div>Characteristic equation: \(s^2 + 3s - 2 = 0\), \(s = \dfrac{-3 \pm \sqrt{9 + 8}}{2} = \dfrac{-3 \pm \sqrt{17}}{2}\): 0.562 and −3.562.</div></div>
+<div class="step"><i>2</i><div>The pole at +0.562 is in the RHP: the upright pendulum is unstable, as expected.</div></div>
+<div class="step"><i>3</i><div>State form: \(\dot\theta = \omega\), \(\dot\omega = 2\theta - 3\omega + u\), so \(\mathbf{A} = \begin{bmatrix} 0 & 1 \\ 2 & -3 \end{bmatrix}\), \(\mathbf{B} = [0\;\;1]^T\).</div></div>
+<div class="step"><i>4</i><div>Controllability: \(\mathbf{A}\mathbf{B} = [1\;\;-3]^T\), \(\mathcal{C} = \begin{bmatrix} 0 & 1 \\ 1 & -3 \end{bmatrix}\), \(\det\mathcal{C} = -1 \ne 0\) ✓.</div></div>
+<div class="step"><i>5</i><div>\(\det[s\mathbf{I} - (\mathbf{A} - \mathbf{B}\mathbf{K})] = s^2 + (3 + K_2)s + (K_1 - 2)\). Target \((s+2)^2 + 4 = s^2 + 4s + 8\).</div></div>
+<div class="step"><i>6</i><div>Match: \(3 + K_2 = 4 \Rightarrow K_2 = 1\); \(K_1 - 2 = 8 \Rightarrow K_1 = 10\).</div></div>
+<div class="ans">Unstable (pole at +0.562); \(\mathbf{K} = [10\;\;1]\).</div>
+</div></details>
+<details><summary>Problem 5. Why can an alias not be removed by a digital filter after sampling?</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Look at what the samples themselves contain once an alias has formed.</p>
+<div class="step"><i>1</i><div>A component at \(f\) sampled at \(f_s\) gives exactly the same sample values as a component at \(|f - Nf_s|\): the two are indistinguishable in the sequence of numbers.</div></div>
+<div class="step"><i>2</i><div>A digital filter only sees those numbers, so it cannot tell the alias from a genuine low-frequency signal; removing one removes the other.</div></div>
+<div class="step"><i>3</i><div>The only cure is to remove the high-frequency content before it is sampled, with an analogue anti-aliasing (pre)filter ahead of the ADC.</div></div>
+<div class="ans">After sampling the alias has identical samples to a real low-frequency signal, so no digital processing can separate them; only an analogue filter before the sampler can.</div>
+</div></details>
 
 </section>
 

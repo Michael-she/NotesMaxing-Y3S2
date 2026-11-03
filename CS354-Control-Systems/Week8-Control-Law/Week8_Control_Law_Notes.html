@@ -320,10 +320,47 @@ initial(ss(A-B*K,B,C,D), x0)     % regulator response</code></pre>
 
 <section id="practice">
 <h2><span class="n">09</span>Practice problems</h2>
-<details><summary>Problem 1. Tutorial 6 problem 1: \(\mathbf{A} = \begin{bmatrix} 0 & 2 \\ -3 & -5 \end{bmatrix}\), \(\mathbf{B} = [1\;\;1]^T\), \(\mathbf{C} = [1\;\;0]\). Find the poles, \(G(s)\), \(\mathbf{x}_{ss}\) for a unit step, and test controllability and observability.</summary><div class="sol"><p>\(s^2 + 5s + 6\), poles −2, −3. \(\mathrm{adj}\,\mathbf{B} = [s+7\;\;s-3]^T\), so \(G = (s+7)/((s+2)(s+3))\), DC gain 7/6. \(\mathbf{x}_{ss} = -\mathbf{A}^{-1}\mathbf{B} = [7/6\;\;-1/2]^T\). \(\det\mathcal{C} = -10\), \(\det\mathcal{O} = 2\): both hold.</p></div></details>
-<details><summary>Problem 2. For the same plant, find \(\mathbf{K}\) for \(\zeta = 0.7\), \(\omega_n = 5\) rad/s.</summary><div class="sol"><p>\(\alpha_c = s^2 + 7s + 25\). \(\det[s\mathbf{I} - (\mathbf{A}-\mathbf{B}\mathbf{K})] = s^2 + (5 + K_1 + K_2)s + (6 + 7K_1 - 3K_2)\). So \(K_1 + K_2 = 2\) and \(7K_1 - 3K_2 = 19\), giving \(\mathbf{K} = [2.5\;\;-0.5]\). Trace −7, determinant 25 ✓.</p></div></details>
-<details><summary>Problem 3. A mass-spring-damper \(\mathbf{A} = \begin{bmatrix} 0 & 1 \\ -2 & -3 \end{bmatrix}\), \(\mathbf{B} = [0\;\;1]^T\). Find \(\mathbf{\Phi}(t)\) and \(\mathbf{K}\) for \(\zeta = 0.7\), \(\omega_n = 5\).</summary><div class="sol"><p>\(\mathbf{\Phi} = \begin{bmatrix} 2e^{-t} - e^{-2t} & e^{-t} - e^{-2t} \\ -2e^{-t} + 2e^{-2t} & -e^{-t} + 2e^{-2t} \end{bmatrix}\). Companion form: \(\det = s^2 + (3 + K_2)s + (2 + K_1) = s^2 + 7s + 25\), so \(\mathbf{K} = [23\;\;4]\): 23 N/m of synthetic stiffness and 4 N s/m of synthetic damping.</p></div></details>
-<details><summary>Problem 4. Why may a design with poles at −40 settle only slightly faster than one at −10 when a dominant pair sits at \(-3 \pm 3j\)? (Tutorial 6 problem 4.)</summary><div class="sol"><p>The dominant pair sets the settling time. Moving the third pole from −10 to −40 grows every entry of \(\mathbf{K}\) by 3.4 to 4.3 times and the initial effort fourfold, while the 1 % settling time improves only from 1.66 s to 1.58 s.</p></div></details>
+<details><summary>Problem 1. Tutorial 6 problem 1: \(\mathbf{A} = \begin{bmatrix} 0 & 2 \\ -3 & -5 \end{bmatrix}\), \(\mathbf{B} = [1\;\;1]^T\), \(\mathbf{C} = [1\;\;0]\). Find the poles, \(G(s)\), \(\mathbf{x}_{ss}\) for a unit step, and test controllability and observability.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Poles from \(\det(s\mathbf{I} - \mathbf{A})\); transfer function from the adjugate, \(G = \mathbf{C}\,\mathrm{adj}(s\mathbf{I}-\mathbf{A})\mathbf{B}/\det(s\mathbf{I}-\mathbf{A})\); steady state from \(\dot{\mathbf{x}} = 0\); controllability and observability from the determinants of \(\mathcal{C}\) and \(\mathcal{O}\).</p>
+<div class="step"><i>1</i><div>\(s\mathbf{I} - \mathbf{A} = \begin{bmatrix} s & -2 \\ 3 & s+5 \end{bmatrix}\), \(\det = s(s+5) + 6 = s^2 + 5s + 6 = (s+2)(s+3)\). Poles −2, −3.</div></div>
+<div class="step"><i>2</i><div>Adjugate (swap the diagonal, negate the off-diagonal): \(\mathrm{adj}(s\mathbf{I}-\mathbf{A}) = \begin{bmatrix} s+5 & 2 \\ -3 & s \end{bmatrix}\).</div></div>
+<div class="step"><i>3</i><div>\(\mathrm{adj}\cdot\mathbf{B} = \begin{bmatrix} s+5+2 \\ -3+s \end{bmatrix} = \begin{bmatrix} s+7 \\ s-3 \end{bmatrix}\); \(\mathbf{C}\) picks the first entry: \(G = \dfrac{s+7}{(s+2)(s+3)}\), DC gain \(7/6 = 1.167\).</div></div>
+<div class="step"><i>4</i><div>Steady state for a unit step: \(\mathbf{0} = \mathbf{A}\mathbf{x}_{ss} + \mathbf{B}\), so \(\mathbf{x}_{ss} = -\mathbf{A}^{-1}\mathbf{B}\). With \(\mathbf{A}^{-1} = \dfrac16\begin{bmatrix} -5 & -2 \\ 3 & 0 \end{bmatrix}\): \(\mathbf{x}_{ss} = -\dfrac16\begin{bmatrix} -7 \\ 3 \end{bmatrix} = \begin{bmatrix} 7/6 \\ -1/2 \end{bmatrix}\). \(y_{ss} = x_1 = 7/6\), matching the DC gain ✓.</div></div>
+<div class="step"><i>5</i><div>Controllability: \(\mathbf{A}\mathbf{B} = [2\;\;-8]^T\), \(\mathcal{C} = \begin{bmatrix} 1 & 2 \\ 1 & -8 \end{bmatrix}\), \(\det\mathcal{C} = -8 - 2 = -10 \ne 0\) ✓.</div></div>
+<div class="step"><i>6</i><div>Observability: \(\mathbf{C}\mathbf{A} = [0\;\;2]\), \(\mathcal{O} = \begin{bmatrix} 1 & 0 \\ 0 & 2 \end{bmatrix}\), \(\det\mathcal{O} = 2 \ne 0\) ✓.</div></div>
+<div class="ans">Poles −2, −3; \(G = \dfrac{s+7}{(s+2)(s+3)}\) (DC gain 7/6); \(\mathbf{x}_{ss} = [7/6\;\;-1/2]^T\); controllable and observable.</div>
+</div></details>
+<details><summary>Problem 2. For the same plant, find \(\mathbf{K}\) for \(\zeta = 0.7\), \(\omega_n = 5\) rad/s.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Turn the specification into a desired characteristic polynomial \(\alpha_c(s)\), expand \(\det[s\mathbf{I} - (\mathbf{A} - \mathbf{B}\mathbf{K})]\) with unknown gains, and equate coefficients.</p>
+<div class="step"><i>1</i><div>\(\alpha_c(s) = s^2 + 2\zeta\omega_ns + \omega_n^2 = s^2 + 2(0.7)(5)s + 25 = s^2 + 7s + 25\).</div></div>
+<div class="step"><i>2</i><div>\(\mathbf{B}\mathbf{K} = \begin{bmatrix} K_1 & K_2 \\ K_1 & K_2 \end{bmatrix}\), so \(s\mathbf{I} - (\mathbf{A} - \mathbf{B}\mathbf{K}) = \begin{bmatrix} s + K_1 & -2 + K_2 \\ 3 + K_1 & s + 5 + K_2 \end{bmatrix}\).</div></div>
+<div class="step"><i>3</i><div>Determinant: \((s + K_1)(s + 5 + K_2) - (-2 + K_2)(3 + K_1) = s^2 + (5 + K_1 + K_2)s + (6 + 7K_1 - 3K_2)\).</div></div>
+<div class="step"><i>4</i><div>Match \(s^1\): \(5 + K_1 + K_2 = 7 \Rightarrow K_1 + K_2 = 2\). Match \(s^0\): \(6 + 7K_1 - 3K_2 = 25 \Rightarrow 7K_1 - 3K_2 = 19\).</div></div>
+<div class="step"><i>5</i><div>Solve: \(K_2 = 2 - K_1\), so \(7K_1 - 6 + 3K_1 = 19\), \(K_1 = 2.5\) and \(K_2 = -0.5\).</div></div>
+<div class="step"><i>6</i><div>Check: \(\mathbf{A} - \mathbf{B}\mathbf{K} = \begin{bmatrix} -2.5 & 2.5 \\ -5.5 & -4.5 \end{bmatrix}\): trace −7 \(= -\alpha_1\) ✓, determinant \(11.25 + 13.75 = 25 = \alpha_2\) ✓.</div></div>
+<div class="ans">\(\mathbf{K} = [2.5\;\;-0.5]\).</div>
+</div></details>
+<details><summary>Problem 3. A mass-spring-damper \(\mathbf{A} = \begin{bmatrix} 0 & 1 \\ -2 & -3 \end{bmatrix}\), \(\mathbf{B} = [0\;\;1]^T\). Find \(\mathbf{\Phi}(t)\) and \(\mathbf{K}\) for \(\zeta = 0.7\), \(\omega_n = 5\).</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> The state-transition matrix is \(\mathbf{\Phi}(t) = \mathcal{L}^{-1}\{(s\mathbf{I} - \mathbf{A})^{-1}\}\): invert the matrix, then invert each entry by partial fractions. \(\mathbf{A}\) is in companion form, so the gains follow directly from \(K_i = \alpha_i - a_i\).</p>
+<div class="step"><i>1</i><div>\(s\mathbf{I} - \mathbf{A} = \begin{bmatrix} s & -1 \\ 2 & s+3 \end{bmatrix}\), \(\det = s^2 + 3s + 2 = (s+1)(s+2)\).</div></div>
+<div class="step"><i>2</i><div>\((s\mathbf{I}-\mathbf{A})^{-1} = \dfrac{1}{(s+1)(s+2)}\begin{bmatrix} s+3 & 1 \\ -2 & s \end{bmatrix}\).</div></div>
+<div class="step"><i>3</i><div>Partial fractions entry by entry: \(\dfrac{s+3}{(s+1)(s+2)} = \dfrac{2}{s+1} - \dfrac{1}{s+2}\); \(\dfrac{1}{(s+1)(s+2)} = \dfrac{1}{s+1} - \dfrac{1}{s+2}\); \(\dfrac{-2}{(s+1)(s+2)} = \dfrac{-2}{s+1} + \dfrac{2}{s+2}\); \(\dfrac{s}{(s+1)(s+2)} = \dfrac{-1}{s+1} + \dfrac{2}{s+2}\).</div></div>
+<div class="step"><i>4</i><div>Invert: \(\mathbf{\Phi}(t) = \begin{bmatrix} 2e^{-t} - e^{-2t} & e^{-t} - e^{-2t} \\ -2e^{-t} + 2e^{-2t} & -e^{-t} + 2e^{-2t} \end{bmatrix}\). Check: \(\mathbf{\Phi}(0) = \mathbf{I}\) ✓.</div></div>
+<div class="step"><i>5</i><div>Control law: \(\mathbf{A} - \mathbf{B}\mathbf{K} = \begin{bmatrix} 0 & 1 \\ -2 - K_1 & -3 - K_2 \end{bmatrix}\), so \(\det[s\mathbf{I} - (\mathbf{A}-\mathbf{B}\mathbf{K})] = s^2 + (3 + K_2)s + (2 + K_1)\).</div></div>
+<div class="step"><i>6</i><div>Target \(\alpha_c = s^2 + 7s + 25\): \(K_2 = 7 - 3 = 4\), \(K_1 = 25 - 2 = 23\).</div></div>
+<div class="step"><i>7</i><div>Physically, \(u = -23x - 4\dot x\) adds 23 N/m of stiffness and 4 N s/m of damping to the mass-spring-damper.</div></div>
+<div class="ans">\(\mathbf{\Phi}(t)\) as above; \(\mathbf{K} = [23\;\;4]\).</div>
+</div></details>
+<details><summary>Problem 4. Why may a design with poles at −40 settle only slightly faster than one at −10 when a dominant pair sits at \(-3 \pm 3j\)? (Tutorial 6 problem 4.)</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Compare the two designs of the servo drive (\(\mathbf{A} = \begin{bmatrix} 0 & 1 & 0 \\ 0 & -2 & 4 \\ 0 & 0 & -5 \end{bmatrix}\), \(\mathbf{B} = [0\;\;0\;\;5]^T\)): find \(\mathbf{K}\) for each third pole, the effort it implies, and the settling time each actually achieves.</p>
+<div class="step"><i>1</i><div>Desired polynomials: \((s^2 + 6s + 18)(s + 10) = s^3 + 16s^2 + 78s + 180\) and \((s^2 + 6s + 18)(s + 40) = s^3 + 46s^2 + 258s + 720\).</div></div>
+<div class="step"><i>2</i><div>Ackermann, \(\mathbf{K} = [0\;\;0\;\;1]\,\mathcal{C}^{-1}\alpha_c(\mathbf{A})\), gives \(\mathbf{K} = [9\;\;2.5\;\;1.8]\) for −10 and \(\mathbf{K} = [36\;\;8.5\;\;7.8]\) for −40.</div></div>
+<div class="step"><i>3</i><div>Ratios: \(36/9 = 4.0\), \(8.5/2.5 = 3.4\), \(7.8/1.8 = 4.3\): every gain grows 3.4 to 4.3 times.</div></div>
+<div class="step"><i>4</i><div>Effort: with \(\bar N = \alpha_c(0)/b(0)\) the input jumps to \(u(0^+) = \bar N r\) on a unit step: 9 for −10 against 36 for −40, four times as much.</div></div>
+<div class="step"><i>5</i><div>Settling: the pair \(-3 \pm 3j\) has \(\sigma = 3\), so \(t_s \approx 4.6/3 = 1.53\) s whatever the third pole. Simulated 1 % settling times are 1.66 s (third pole at −10, which still slows things slightly) and 1.58 s (at −40).</div></div>
+<div class="step"><i>6</i><div>So a pole already three times faster than the dominant pair hardly affects the response, and moving it further only costs gain, actuator effort and noise sensitivity.</div></div>
+<div class="ans">The dominant pair sets \(t_s\): moving the third pole from −10 to −40 improves the 1 % settling time only from 1.66 s to 1.58 s, while the gains grow 3.4 to 4.3 times and the initial effort fourfold.</div>
+</div></details>
 
 </section>
 

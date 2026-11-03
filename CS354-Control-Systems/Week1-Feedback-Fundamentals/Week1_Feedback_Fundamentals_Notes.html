@@ -515,11 +515,56 @@
 
 <section id="practice">
 <h2><span class="n">10</span>Practice problems</h2>
-<details><summary>Problem 1. Find the unit-step response of \(G(s) = \dfrac{10}{(s+1)(s+5)}\).</summary><div class="sol"><p>\(Y = \dfrac{10}{s(s+1)(s+5)} = \dfrac{2}{s} - \dfrac{2.5}{s+1} + \dfrac{0.5}{s+5}\), so \(y(t) = 2 - 2.5e^{-t} + 0.5e^{-5t}\). Final value 2 = \(G(0)\).</p></div></details>
-<details><summary>Problem 2. Reduce a loop with forward path \(G_1 = \dfrac{1}{s+1}\) in series with \(G_2 = \dfrac{4}{s}\), and feedback \(H = 0.5\). Give \(Y/R\) and its poles.</summary><div class="sol"><p>Forward \(G_1G_2 = \dfrac{4}{s(s+1)}\). \(T = \dfrac{4}{s(s+1) + 2} = \dfrac{4}{s^2+s+2}\). Poles \(-0.5 \pm j1.32\); stable. DC gain 2, which is \(1/H\).</p></div></details>
-<details><summary>Problem 3. A system has closed-loop poles at \(-2 \pm 5j\) and no zeros. Estimate \(t_r\), \(t_s\) (2 %), \(M_p\) and \(t_p\).</summary><div class="sol"><p>\(\omega_n = \sqrt{4+25} = 5.39\) rad/s, \(\zeta = 2/5.39 = 0.371\). \(t_r \approx 0.33\) s, \(t_s = 4/2 = 2\) s, \(M_p = 28.5\) %, \(t_p = \pi/5 = 0.628\) s.</p></div></details>
-<details><summary>Problem 4. Overshoot must be below 5 % and the 1 % settling time below 2 s. Give the minimum \(\zeta\) and \(\sigma\).</summary><div class="sol"><p>\(\zeta \ge 0.690\) (θ ≤ 43.6°), \(\sigma \ge 4.6/2 = 2.3\) s⁻¹.</p></div></details>
-<details><summary>Problem 5. Can the FVT be used on \(Y(s) = \dfrac{3}{s(s^2+2s-3)}\)?</summary><div class="sol"><p>No. \(s^2+2s-3 = (s+3)(s-1)\) has a pole at +1, so \(sY(s)\) has an RHP pole and the output is unbounded. The 'answer' −1 from substituting \(s = 0\) is meaningless.</p></div></details>
+<details><summary>Problem 1. Find the unit-step response of \(G(s) = \dfrac{10}{(s+1)(s+5)}\).</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> The unit-step response is the inverse Laplace transform of \(Y(s) = G(s)\cdot\tfrac1s\). Split \(Y\) into partial fractions, one per pole, and invert each term with the table pair \(\tfrac{1}{s+a} \leftrightarrow e^{-at}\).</p>
+<div class="step"><i>1</i><div>Output transform: \(Y(s) = G(s)U(s) = \dfrac{10}{(s+1)(s+5)}\cdot\dfrac1s = \dfrac{10}{s(s+1)(s+5)}\).</div></div>
+<div class="step"><i>2</i><div>Partial fractions: \(Y(s) = \dfrac{A}{s} + \dfrac{B}{s+1} + \dfrac{C}{s+5}\). Each residue is found by covering its factor and substituting the pole (the cover-up rule).</div></div>
+<div class="step"><i>3</i><div>\(A = \left.\dfrac{10}{(s+1)(s+5)}\right|_{s=0} = \dfrac{10}{(1)(5)} = 2\).</div></div>
+<div class="step"><i>4</i><div>\(B = \left.\dfrac{10}{s(s+5)}\right|_{s=-1} = \dfrac{10}{(-1)(4)} = -2.5\).</div></div>
+<div class="step"><i>5</i><div>\(C = \left.\dfrac{10}{s(s+1)}\right|_{s=-5} = \dfrac{10}{(-5)(-4)} = 0.5\).</div></div>
+<div class="step"><i>6</i><div>Invert term by term: \(\tfrac{2}{s} \to 2\), \(\tfrac{-2.5}{s+1} \to -2.5e^{-t}\), \(\tfrac{0.5}{s+5} \to 0.5e^{-5t}\).</div></div>
+<div class="step"><i>7</i><div>Checks: \(y(0) = 2 - 2.5 + 0.5 = 0\) (the response starts at rest), and \(y(\infty) = 2 = G(0)\), the DC gain, as the Final Value Theorem predicts (\(sY(s)\) has its poles at −1 and −5, in the LHP).</div></div>
+<div class="ans">\(y(t) = 2 - 2.5e^{-t} + 0.5e^{-5t}\) for \(t \ge 0\), settling at 2. The \(e^{-5t}\) term dies five times faster, so the pole at −1 dominates.</div>
+</div></details>
+<details><summary>Problem 2. Reduce a loop with forward path \(G_1 = \dfrac{1}{s+1}\) in series with \(G_2 = \dfrac{4}{s}\), and feedback \(H = 0.5\). Give \(Y/R\) and its poles.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Combine the blocks into one transfer function: series blocks multiply, and a negative-feedback loop with forward path \(G\) and feedback \(H\) gives \(\dfrac{G}{1 + GH}\). The poles are the roots of the closed-loop denominator.</p>
+<div class="step"><i>1</i><div>Series: the forward path is \(G = G_1G_2 = \dfrac{1}{s+1}\cdot\dfrac{4}{s} = \dfrac{4}{s(s+1)}\).</div></div>
+<div class="step"><i>2</i><div>Feedback formula: \(T(s) = \dfrac{Y}{R} = \dfrac{G}{1 + GH} = \dfrac{\dfrac{4}{s(s+1)}}{1 + \dfrac{4(0.5)}{s(s+1)}}\).</div></div>
+<div class="step"><i>3</i><div>Multiply top and bottom by \(s(s+1)\): \(T(s) = \dfrac{4}{s(s+1) + 2} = \dfrac{4}{s^2 + s + 2}\).</div></div>
+<div class="step"><i>4</i><div>Poles: \(s^2 + s + 2 = 0\), so \(s = \dfrac{-1 \pm \sqrt{1 - 8}}{2} = -0.5 \pm j1.32\). Both are in the LHP: stable.</div></div>
+<div class="step"><i>5</i><div>Compare with the standard form \(\dfrac{\omega_n^2}{s^2 + 2\zeta\omega_ns + \omega_n^2}\): \(\omega_n = \sqrt2 = 1.41\) rad/s and \(\zeta = 1/(2\sqrt2) = 0.354\).</div></div>
+<div class="step"><i>6</i><div>DC gain: \(T(0) = 4/2 = 2\). With a high loop gain a feedback loop tends to \(1/H\); here that is exactly \(1/0.5 = 2\) because the integrator \(4/s\) makes the DC loop gain infinite.</div></div>
+<div class="ans">\(\dfrac{Y}{R} = \dfrac{4}{s^2 + s + 2}\), poles \(-0.5 \pm j1.32\) (stable, \(\zeta = 0.354\)), DC gain 2.</div>
+</div></details>
+<details><summary>Problem 3. A system has closed-loop poles at \(-2 \pm 5j\) and no zeros. Estimate \(t_r\), \(t_s\) (2 %), \(M_p\) and \(t_p\).</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Read \(\sigma\) and \(\omega_d\) straight off the pole positions \(-\sigma \pm j\omega_d\), find \(\omega_n\) and \(\zeta\), then use the second-order specification formulas.</p>
+<div class="step"><i>1</i><div>Poles \(-2 \pm 5j\): \(\sigma = 2\) s⁻¹ and \(\omega_d = 5\) rad/s.</div></div>
+<div class="step"><i>2</i><div>\(\omega_n\) is the distance of the pole from the origin: \(\omega_n = \sqrt{\sigma^2 + \omega_d^2} = \sqrt{4 + 25} = 5.39\) rad/s.</div></div>
+<div class="step"><i>3</i><div>\(\zeta = \sigma/\omega_n = 2/5.39 = 0.371\) (equivalently \(\theta = \sin^{-1}\zeta = 21.8^\circ\) from the imaginary axis).</div></div>
+<div class="step"><i>4</i><div>Rise time: \(t_r \approx 1.8/\omega_n = 1.8/5.39 = 0.334\) s.</div></div>
+<div class="step"><i>5</i><div>Settling time (2 %): \(t_s = 4/\sigma = 4/2 = 2\) s.</div></div>
+<div class="step"><i>6</i><div>Overshoot: \(M_p = e^{-\pi\zeta/\sqrt{1 - \zeta^2}} = e^{-\pi(0.371)/\sqrt{1 - 0.138}} = e^{-1.257} = 0.285\), i.e. 28.5 %.</div></div>
+<div class="step"><i>7</i><div>Peak time: \(t_p = \pi/\omega_d = \pi/5 = 0.628\) s.</div></div>
+<div class="ans">\(t_r \approx 0.33\) s, \(t_s = 2\) s (2 %), \(M_p = 28.5\) %, \(t_p = 0.628\) s.</div>
+</div></details>
+<details><summary>Problem 4. Overshoot must be below 5 % and the 1 % settling time below 2 s. Give the minimum \(\zeta\) and \(\sigma\).</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Turn each time-domain requirement into a region of the s-plane: overshoot sets a minimum \(\zeta\) (a cone about the negative real axis), settling time sets a minimum \(\sigma\) (a vertical line).</p>
+<div class="step"><i>1</i><div>Overshoot: invert \(\ln M_p = -\pi\zeta/\sqrt{1-\zeta^2}\) to get \(\zeta = \dfrac{-\ln M_p}{\sqrt{\pi^2 + \ln^2 M_p}}\).</div></div>
+<div class="step"><i>2</i><div>With \(M_p = 0.05\): \(\ln 0.05 = -2.996\), so \(\zeta = \dfrac{2.996}{\sqrt{9.870 + 8.974}} = \dfrac{2.996}{4.341} = 0.690\).</div></div>
+<div class="step"><i>3</i><div>In the s-plane: \(\theta = \sin^{-1}\zeta = 43.6^\circ\); the poles must lie within \(90^\circ - 43.6^\circ = 46.4^\circ\) of the negative real axis.</div></div>
+<div class="step"><i>4</i><div>Settling time (1 %): \(t_s = 4.6/\sigma \le 2\) s, so \(\sigma \ge 4.6/2 = 2.3\) s⁻¹: the poles must lie to the left of \(\mathrm{Re}(s) = -2.3\).</div></div>
+<div class="step"><i>5</i><div>Both conditions must hold at once: the allowed region is the overlap of the cone and the half-plane.</div></div>
+<div class="ans">\(\zeta \ge 0.690\) (\(\theta \ge 43.6^\circ\)) and \(\sigma \ge 2.3\) s⁻¹.</div>
+</div></details>
+<details><summary>Problem 5. Can the FVT be used on \(Y(s) = \dfrac{3}{s(s^2+2s-3)}\)?</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> The Final Value Theorem only holds when \(sY(s)\) has all its poles in the left half-plane. Check that condition before substituting \(s = 0\).</p>
+<div class="step"><i>1</i><div>\(sY(s) = \dfrac{3}{s^2 + 2s - 3}\).</div></div>
+<div class="step"><i>2</i><div>Factor: \(s^2 + 2s - 3 = (s+3)(s-1)\), so the poles of \(sY\) are at −3 and \(+1\).</div></div>
+<div class="step"><i>3</i><div>The pole at \(+1\) is in the RHP: \(y(t)\) contains a term in \(e^{t}\) that grows without bound, so there is no final value.</div></div>
+<div class="step"><i>4</i><div>Substituting anyway gives \(\lim_{s\to0} sY = 3/(-3) = -1\), a number with no meaning.</div></div>
+<div class="step"><i>5</i><div>(Partial fractions confirm it: \(Y = -\tfrac1s + \tfrac{0.75}{s-1} + \tfrac{0.25}{s+3}\), so \(y = -1 + 0.75e^{t} + 0.25e^{-3t} \to \infty\).)</div></div>
+<div class="ans">No. \(sY(s)\) has a pole at \(s = +1\), the output grows like \(e^{t}\), and the FVT result of −1 is meaningless.</div>
+</div></details>
 
 </section>
 

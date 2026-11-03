@@ -584,10 +584,39 @@
 
 <section id="practice">
 <h2><span class="n">06</span>Practice problems</h2>
-<details><summary>Problem 1. Write the normal and the unity DC gain lag with zero at 0.2 rad/s, \(\alpha = 8\) and \(K = 3\). Give each one's DC and high-frequency gain.</summary><div class="sol"><p>\(T = 5\) s, \(\alpha T = 40\) s. Normal: \(24\,\dfrac{5s+1}{40s+1}\), DC 24, HF 3. Unity DC: \(3\,\dfrac{5s+1}{40s+1}\), DC 3, HF 0.375.</p></div></details>
-<details><summary>Problem 2. With \(KG\) fixed by the error constant, the required PM is reached at 2 rad/s where \(|KG| = 14\) dB. Design the unity DC gain lag.</summary><div class="sol"><p>\(\alpha = 10^{14/20} = 5.01\). Zero at 0.2 rad/s: \(T = 5\) s. Pole at \(1/(\alpha T) = 0.0399\) rad/s. \(D_c = \dfrac{5s+1}{25.1s+1}\).</p></div></details>
-<details><summary>Problem 3. Tutorial 3, lag part: for \(G = 50/(s(0.2s+1))\) the PM requirement is met at 4.2 rad/s where \(|G| = 19\) dB. Find \(K\) and \(\alpha\) for a ramp error below 0.005.</summary><div class="sol"><p>\(K = 10^{-19/20} = 0.112\). \(K_v(KG) = 50K = 5.61\). Need 200, so \(\alpha = 200/5.61 = 35.7\) (tutorial: 0.11 and 36.4). Zero a decade below 4.2 rad/s: \(T \approx 2.4\) s.</p></div></details>
-<details><summary>Problem 4. Why is the lag zero placed one decade below crossover, and not closer or further?</summary><div class="sol"><p>At \(\omega_cT = 10\) the lag left at crossover is \(\tan^{-1}10 - \tan^{-1}(10\alpha)\), between 2.8° and 5.7° for any α: small, and covered by the 5° allowance. Half a decade below, it is 15.7° (α = 10) and the margin falls short. Two decades below, it is only 0.5°, but the pole-zero pair is ten times slower, so the slow tail in the step response lasts about ten times longer and \(T\) is ten times larger.</p></div></details>
+<details><summary>Problem 1. Write the normal and the unity DC gain lag with zero at 0.2 rad/s, \(\alpha = 8\) and \(K = 3\). Give each one's DC and high-frequency gain.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> A lag has its zero at \(1/T\) and its pole \(\alpha\) times lower, at \(1/(\alpha T)\). The two forms differ only in where the gain \(\alpha\) sits: the normal form raises the low-frequency gain, the unity-DC form lowers the high-frequency gain.</p>
+<div class="step"><i>1</i><div>Zero at 0.2 rad/s: \(T = 1/0.2 = 5\) s. Pole: \(\alpha T = 8 \times 5 = 40\) s, i.e. at 0.025 rad/s.</div></div>
+<div class="step"><i>2</i><div>Normal form: \(K\alpha\dfrac{Ts+1}{\alpha Ts+1} = 3(8)\dfrac{5s+1}{40s+1} = 24\dfrac{5s+1}{40s+1}\).</div></div>
+<div class="step"><i>3</i><div>Its DC gain (\(s = 0\)): 24. High-frequency gain (\(s \to \infty\)): \(24 \times 5/40 = 3\).</div></div>
+<div class="step"><i>4</i><div>Unity DC form: \(K\dfrac{Ts+1}{\alpha Ts+1} = 3\dfrac{5s+1}{40s+1}\).</div></div>
+<div class="step"><i>5</i><div>Its DC gain: 3. High-frequency gain: \(3 \times 5/40 = 0.375\).</div></div>
+<div class="ans">Normal: \(24\dfrac{5s+1}{40s+1}\) (DC 24, HF 3). Unity DC: \(3\dfrac{5s+1}{40s+1}\) (DC 3, HF 0.375).</div>
+</div></details>
+<details><summary>Problem 2. With \(KG\) fixed by the error constant, the required PM is reached at 2 rad/s where \(|KG| = 14\) dB. Design the unity DC gain lag.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> The unity-DC lag attenuates by \(\alpha\) at high frequency. Choose \(\alpha\) to pull \(|KG|\) down to 0 dB at the frequency where the phase margin is met, then put the zero a decade below that frequency.</p>
+<div class="step"><i>1</i><div>Attenuation needed at 2 rad/s: 14 dB, so \(\alpha = 10^{14/20} = 5.01\).</div></div>
+<div class="step"><i>2</i><div>Zero a decade below the new crossover: \(1/T = 2/10 = 0.2\) rad/s, so \(T = 5\) s.</div></div>
+<div class="step"><i>3</i><div>Pole: \(1/(\alpha T) = 1/(5.01 \times 5) = 0.0399\) rad/s, so \(\alpha T = 25.1\) s.</div></div>
+<div class="step"><i>4</i><div>\(D_c = \dfrac{Ts+1}{\alpha Ts+1} = \dfrac{5s+1}{25.1s+1}\). At 2 rad/s it gives about \(1/\alpha\) (−14 dB) with only a few degrees of lag, which the usual 5° allowance covers.</div></div>
+<div class="ans">\(\alpha = 5.01\), \(D_c = \dfrac{5s+1}{25.1s+1}\) (zero 0.2 rad/s, pole 0.0399 rad/s).</div>
+</div></details>
+<details><summary>Problem 3. Tutorial 3, lag part: for \(G = 50/(s(0.2s+1))\) the PM requirement is met at 4.2 rad/s where \(|G| = 19\) dB. Find \(K\) and \(\alpha\) for a ramp error below 0.005.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> In the normal-form design, \(K\) is chosen to make the new crossover (where the PM is met) have \(|KG| = 1\). The lag then supplies the extra low-frequency gain \(\alpha\) needed for the error constant.</p>
+<div class="step"><i>1</i><div>At 4.2 rad/s \(|G| = 19\) dB, so \(K = 10^{-19/20} = 0.112\) makes \(|KG| = 0\) dB there.</div></div>
+<div class="step"><i>2</i><div>Velocity constant of \(KG\): \(K_v = 50K = 50(0.112) = 5.61\).</div></div>
+<div class="step"><i>3</i><div>Requirement: \(e_{ss} \lt 0.005\) needs \(K_v \ge 200\).</div></div>
+<div class="step"><i>4</i><div>\(\alpha = \dfrac{K_{v,req}}{K_v(KG)} = \dfrac{200}{5.61} = 35.7\).</div></div>
+<div class="step"><i>5</i><div>Zero a decade below crossover: \(1/T = 0.42\) rad/s, \(T \approx 2.4\) s; pole at \(1/(\alpha T) = 0.012\) rad/s.</div></div>
+<div class="ans">\(K = 0.112\), \(\alpha = 35.7\), \(T \approx 2.4\) s (tutorial: 0.11 and 36.4, from reading the plot).</div>
+</div></details>
+<details><summary>Problem 4. Why is the lag zero placed one decade below crossover, and not closer or further?</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Compare the phase lag the compensator leaves at crossover, and how slow its pole-zero pair is, for different zero positions. The lag at crossover is \(\tan^{-1}(\omega_cT) - \tan^{-1}(\alpha\omega_cT)\).</p>
+<div class="step"><i>1</i><div>One decade below crossover, \(\omega_cT = 10\): the lag is \(\tan^{-1}10 - \tan^{-1}10\alpha\), which is −2.8° for \(\alpha = 2\), −5.1° for \(\alpha = 10\), and at most −5.7° for any \(\alpha\). Small, and covered by the 5° allowance.</div></div>
+<div class="step"><i>2</i><div>Half a decade below, \(\omega_cT = 3.16\): −8.6° (\(\alpha = 2\)) to −15.7° (\(\alpha = 10\)). The PM falls short.</div></div>
+<div class="step"><i>3</i><div>Two decades below, \(\omega_cT = 100\): only about −0.5°, but the zero and pole are ten times lower. The near-cancelling closed-loop pole they create is ten times slower, so the step response has a slow tail that takes ten times longer to die out, and \(T\) (the component values) is ten times larger.</div></div>
+<div class="ans">One decade is the compromise: under 6° of lost phase margin, without making the slow pole-zero tail any longer than necessary.</div>
+</div></details>
 
 </section>
 

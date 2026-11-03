@@ -456,11 +456,54 @@
 
 <section id="practice">
 <h2><span class="n">08</span>Practice problems</h2>
-<details><summary>Problem 1. \(G(s) = \dfrac{2}{s(s+3)}\), unity feedback, \(D_{cl} = k_P\). Find \(k_P\) so that the error to a unit ramp is 0.05.</summary><div class="sol"><p>Type 1. \(K_v = 2k_P/3\). \(1/K_v = 0.05 \Rightarrow K_v = 20 \Rightarrow k_P = 30\).</p></div></details>
-<details><summary>Problem 2. For \(G(s) = \dfrac{10}{(s+1)(s+10)}\) in unity feedback, which of \(D_1 = k_P\) and \(D_2 = (k_Ps + k_I)/s\) can give a ramp error below 0.1? (Tutorial 2 problem 2 with β = 1.)</summary><div class="sol"><p>\(e_{ss} = \lim_{s\to0} \dfrac{(s+1)(s+10)}{(s+1)(s+10) + 10D}\cdot\dfrac{1}{s}\). With \(D_1\) the loop is Type 0 and the ramp error is infinite. With \(D_2\): \(e_{ss} = 10/(10k_I) = 1/k_I\), so \(k_I \gt 10\). Stability: substitute \(s = j\omega\) into \(s^3 + 11s^2 + (10 + 10k_P)s + 10k_I = 0\). The imaginary part gives \(\omega^2 = 10 + 10k_P\) and the real part \(11\omega^2 = 10k_I\), so poles sit on the imaginary axis when \(10k_I = 11(10 + 10k_P)\). A small \(k_I\) is stable (the poles are then close to those with \(k_I = 0\)), so the loop is stable for \(0 \lt 10k_I \lt 11(10 + 10k_P)\), that is \(k_P \gt k_I/11 - 1\).</p></div></details>
-<details><summary>Problem 3. A plant's open-loop step response gives \(L = 0.5\) s and \(R = 0.8\) s⁻¹. Find the Ziegler-Nichols PI gains as \(k_P\) and \(k_I\).</summary><div class="sol"><p>\(RL = 0.4\). \(k_P = 0.9/0.4 = 2.25\), \(T_I = 0.5/0.3 = 1.67\) s, \(k_I = k_P/T_I = 1.35\) s⁻¹.</p></div></details>
-<details><summary>Problem 4. With P control alone the lab rig starts sustained oscillation at \(k_P = 4\) with a period of 0.8 s. Give the Table 4.3 PI and PID settings.</summary><div class="sol"><p>\(K_u = 4\), \(P_u = 0.8\) s. PI: \(k_P = 1.8\), \(T_I = 0.667\) s. PID (slide table): \(k_P = 6.4\), \(T_I = 0.4\) s, \(T_D = 0.1\) s. (Original rule: \(k_P = 2.4\).)</p></div></details>
-<details><summary>Problem 5. Open-loop control of a plant with DC gain 5 is calibrated so \(T(0) = 1\). The plant gain drops 20 %. Compare with a unity-feedback loop whose DC loop gain is 50.</summary><div class="sol"><p>Open loop: \(T(0)\) drops 20 %. Closed loop: \(T(0) = 50/51 = 0.9804\) before, \(40/41 = 0.9756\) after, a drop of 0.488 % (sensitivity estimate \(20/51 = 0.392\) %).</p></div></details>
+<details><summary>Problem 1. \(G(s) = \dfrac{2}{s(s+3)}\), unity feedback, \(D_{cl} = k_P\). Find \(k_P\) so that the error to a unit ramp is 0.05.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Find the system type, then the error constant that sets the ramp error: for a Type 1 loop \(e_{ss} = 1/K_v\) with \(K_v = \lim_{s\to0} sD_{cl}G\).</p>
+<div class="step"><i>1</i><div>Loop gain: \(D_{cl}G = \dfrac{2k_P}{s(s+3)}\). One pole at the origin: Type 1, so the step error is zero and the ramp error is finite.</div></div>
+<div class="step"><i>2</i><div>Velocity constant: \(K_v = \lim_{s\to0} s\,\dfrac{2k_P}{s(s+3)} = \dfrac{2k_P}{3}\).</div></div>
+<div class="step"><i>3</i><div>Ramp error: \(e_{ss} = 1/K_v = 0.05\), so \(K_v = 20\).</div></div>
+<div class="step"><i>4</i><div>\(2k_P/3 = 20\) gives \(k_P = 30\).</div></div>
+<div class="step"><i>5</i><div>Stability check: the closed-loop characteristic equation is \(s^2 + 3s + 2k_P = s^2 + 3s + 60\), a second-order polynomial with positive coefficients, so the loop is stable and the FVT result is valid.</div></div>
+<div class="ans">\(k_P = 30\) (\(K_v = 20\), ramp error 0.05).</div>
+</div></details>
+<details><summary>Problem 2. For \(G(s) = \dfrac{10}{(s+1)(s+10)}\) in unity feedback, which of \(D_1 = k_P\) and \(D_2 = (k_Ps + k_I)/s\) can give a ramp error below 0.1? (Tutorial 2 problem 2 with β = 1.)</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Write the error transform, apply the FVT for a unit ramp \(R = 1/s^2\) for each controller, then check the closed loop is stable (otherwise the FVT does not apply).</p>
+<div class="step"><i>1</i><div>Error: \(E = \dfrac{1}{1 + GD}R\), so \(e_{ss} = \lim_{s\to0} s\cdot\dfrac{(s+1)(s+10)}{(s+1)(s+10) + 10D}\cdot\dfrac{1}{s^2}\).</div></div>
+<div class="step"><i>2</i><div>\(D_1 = k_P\): the loop has no pole at the origin (Type 0). The limit has \(1/s\) left over: \(e_{ss} \to \infty\). A P controller cannot follow a ramp here.</div></div>
+<div class="step"><i>3</i><div>\(D_2 = (k_Ps + k_I)/s\): the integrator makes the loop Type 1. Multiply through by \(s\): \(e_{ss} = \lim_{s\to0} \dfrac{(s+1)(s+10)}{s(s+1)(s+10) + 10(k_Ps + k_I)} = \dfrac{10}{10k_I} = \dfrac{1}{k_I}\).</div></div>
+<div class="step"><i>4</i><div>Requirement \(e_{ss} \lt 0.1\): \(k_I \gt 10\).</div></div>
+<div class="step"><i>5</i><div>Characteristic equation with \(D_2\): \(s(s+1)(s+10) + 10k_Ps + 10k_I = s^3 + 11s^2 + (10 + 10k_P)s + 10k_I = 0\).</div></div>
+<div class="step"><i>6</i><div>Imaginary-axis crossing: substitute \(s = j\omega\). Imaginary part: \(-\omega^3 + (10 + 10k_P)\omega = 0 \Rightarrow \omega^2 = 10 + 10k_P\). Real part: \(-11\omega^2 + 10k_I = 0 \Rightarrow 10k_I = 11\omega^2\).</div></div>
+<div class="step"><i>7</i><div>So poles reach the axis when \(10k_I = 11(10 + 10k_P)\). For small \(k_I\) the poles are near those of the stable \(k_I = 0\) loop, so the stable range is \(0 \lt 10k_I \lt 11(10 + 10k_P)\), i.e. \(k_P \gt k_I/11 - 1\).</div></div>
+<div class="step"><i>8</i><div>Combine: with \(k_I \gt 10\), stability needs \(k_P \gt 10/11 - 1 = -0.09\), which any positive \(k_P\) satisfies.</div></div>
+<div class="ans">Only the PI controller \(D_2\) works: \(e_{ss} = 1/k_I\), so \(k_I \gt 10\), with \(k_P \gt k_I/11 - 1\) for stability. P control gives an infinite ramp error.</div>
+</div></details>
+<details><summary>Problem 3. A plant's open-loop step response gives \(L = 0.5\) s and \(R = 0.8\) s⁻¹. Find the Ziegler-Nichols PI gains as \(k_P\) and \(k_I\).</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> The Ziegler–Nichols decay-ratio (reaction curve) method uses the delay \(L\) and slope \(R\) of the open-loop step response. Look up the PI row, then convert to \(k_P\), \(k_I\).</p>
+<div class="step"><i>1</i><div>Product: \(RL = (0.8)(0.5) = 0.4\).</div></div>
+<div class="step"><i>2</i><div>Table, PI row: \(k_P = \dfrac{0.9}{RL}\) and \(T_I = \dfrac{L}{0.3}\).</div></div>
+<div class="step"><i>3</i><div>\(k_P = 0.9/0.4 = 2.25\).</div></div>
+<div class="step"><i>4</i><div>\(T_I = 0.5/0.3 = 1.67\) s.</div></div>
+<div class="step"><i>5</i><div>PID parallel form: \(k_I = k_P/T_I = 2.25/1.667 = 1.35\) s⁻¹. So \(D(s) = 2.25 + 1.35/s\).</div></div>
+<div class="ans">\(k_P = 2.25\), \(k_I = 1.35\) s⁻¹ (\(T_I = 1.67\) s).</div>
+</div></details>
+<details><summary>Problem 4. With P control alone the lab rig starts sustained oscillation at \(k_P = 4\) with a period of 0.8 s. Give the Table 4.3 PI and PID settings.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> This is the ultimate-sensitivity (closed-loop) Ziegler–Nichols method: the gain \(K_u\) and period \(P_u\) of sustained oscillation are read off, then put into the table.</p>
+<div class="step"><i>1</i><div>Ultimate gain and period: \(K_u = 4\), \(P_u = 0.8\) s.</div></div>
+<div class="step"><i>2</i><div>PI row: \(k_P = 0.45K_u = 0.45(4) = 1.8\); \(T_I = P_u/1.2 = 0.8/1.2 = 0.667\) s, so \(k_I = k_P/T_I = 2.7\) s⁻¹.</div></div>
+<div class="step"><i>3</i><div>PID row (the slide table): \(k_P = 1.6K_u = 6.4\); \(T_I = 0.5P_u = 0.4\) s; \(T_D = 0.125P_u = 0.1\) s.</div></div>
+<div class="step"><i>4</i><div>In parallel form: \(k_I = k_P/T_I = 6.4/0.4 = 16\) s⁻¹ and \(k_D = k_PT_D = 6.4(0.1) = 0.64\) s.</div></div>
+<div class="step"><i>5</i><div>The original Ziegler–Nichols PID rule uses \(0.6K_u\) instead, giving \(k_P = 2.4\).</div></div>
+<div class="ans">PI: \(k_P = 1.8\), \(T_I = 0.667\) s. PID: \(k_P = 6.4\), \(T_I = 0.4\) s, \(T_D = 0.1\) s (\(k_P = 2.4\) with the original 0.6 rule).</div>
+</div></details>
+<details><summary>Problem 5. Open-loop control of a plant with DC gain 5 is calibrated so \(T(0) = 1\). The plant gain drops 20 %. Compare with a unity-feedback loop whose DC loop gain is 50.</summary><div class="sol">
+<p class="plan"><b>What is being done.</b> Compare how much the overall DC gain \(T(0)\) moves when the plant gain changes by 20 %, once without feedback and once with it. Sensitivity predicts the closed-loop change: \(\mathcal{S} = 1/(1 + GD_{cl})\).</p>
+<div class="step"><i>1</i><div>Open loop: \(T = D_{ol}G\), calibrated so \(T(0) = 1\). \(T\) is proportional to \(G\), so a 20 % drop in \(G\) gives a 20 % drop in \(T(0)\) (sensitivity 1).</div></div>
+<div class="step"><i>2</i><div>Closed loop, before: \(T(0) = \dfrac{GD(0)}{1 + GD(0)} = \dfrac{50}{51} = 0.98039\).</div></div>
+<div class="step"><i>3</i><div>After: the loop gain falls 20 % to 40, so \(T(0) = \dfrac{40}{41} = 0.97561\).</div></div>
+<div class="step"><i>4</i><div>Change: \(\dfrac{0.98039 - 0.97561}{0.98039} = 0.488\) %.</div></div>
+<div class="step"><i>5</i><div>Sensitivity estimate: \(\mathcal{S} = \dfrac{1}{1 + 50} = 0.0196\), so the predicted change is \(20\,\% \times 0.0196 = 0.392\) %. It is a first-order estimate, so it is close but not exact for a change as large as 20 %.</div></div>
+<div class="ans">Open loop: \(T(0)\) drops 20 %. Closed loop: it drops only 0.488 % (0.392 % predicted by the sensitivity), about 40 times less.</div>
+</div></details>
 
 </section>
 

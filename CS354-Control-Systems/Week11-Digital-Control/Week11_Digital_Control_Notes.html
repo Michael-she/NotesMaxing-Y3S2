@@ -655,25 +655,84 @@ void control_isr(void) {
 <h2><span class="n">10</span>Practice problems</h2>
 <p>Try each before opening the solution.</p>
 <details><summary>P1. Find \(F(z)\) for \(f(k) = 3(0.5)^k - 2\).</summary><div class="sol">
-<p>Linearity and the geometric row: \(F(z) = \dfrac{3z}{z-0.5} - \dfrac{2z}{z-1}\).</p></div></details>
+<p class="plan"><b>What is being done.</b> Use linearity: transform each term separately with the table pairs \(b^k \leftrightarrow \dfrac{z}{z-b}\) and \(1(k) \leftrightarrow \dfrac{z}{z-1}\).</p>
+<div class="step"><i>1</i><div>\(3(0.5)^k \to 3\dfrac{z}{z - 0.5}\).</div></div>
+<div class="step"><i>2</i><div>\(-2 = -2\cdot1(k) \to -2\dfrac{z}{z-1}\).</div></div>
+<div class="step"><i>3</i><div>Add: \(F(z) = \dfrac{3z}{z-0.5} - \dfrac{2z}{z-1}\).</div></div>
+<div class="step"><i>4</i><div>Check: \(f(0) = 3 - 2 = 1\), and the initial value theorem gives \(\lim_{z\to\infty}F(z) = 3 - 2 = 1\) ✓.</div></div>
+<div class="ans">\(F(z) = \dfrac{3z}{z-0.5} - \dfrac{2z}{z-1}\).</div>
+</div></details>
 <details><summary>P2. Invert \(Y(z) = \dfrac{z}{(z-0.2)(z-0.7)}\).</summary><div class="sol">
-<p>\(Y/z = \dfrac{1}{(z-0.2)(z-0.7)} = \dfrac{-2}{z-0.2} + \dfrac{2}{z-0.7}\). So \(y(k) = 2(0.7)^k - 2(0.2)^k\). Check: \(y(0) = 0\), \(y(1) = 1.4 - 0.4 = 1\), matching the long division \(z^{-1} + 0.9z^{-2} + \cdots\)</p></div></details>
+<p class="plan"><b>What is being done.</b> Divide by \(z\) first, so that after partial fractions every term can be multiplied back by \(z\) to give the table form \(\dfrac{z}{z-b} \leftrightarrow b^k\).</p>
+<div class="step"><i>1</i><div>\(\dfrac{Y(z)}{z} = \dfrac{1}{(z-0.2)(z-0.7)} = \dfrac{A}{z-0.2} + \dfrac{B}{z-0.7}\).</div></div>
+<div class="step"><i>2</i><div>Cover-up: \(A = \dfrac{1}{0.2 - 0.7} = -2\); \(B = \dfrac{1}{0.7 - 0.2} = 2\).</div></div>
+<div class="step"><i>3</i><div>Multiply back by \(z\): \(Y(z) = \dfrac{-2z}{z - 0.2} + \dfrac{2z}{z - 0.7}\).</div></div>
+<div class="step"><i>4</i><div>Invert: \(y(k) = 2(0.7)^k - 2(0.2)^k\).</div></div>
+<div class="step"><i>5</i><div>Check by long division: \(Y = \dfrac{z}{z^2 - 0.9z + 0.14} = z^{-1} + 0.9z^{-2} + \cdots\), so \(y(0) = 0\), \(y(1) = 1\), \(y(2) = 0.9\). Formula: \(y(1) = 1.4 - 0.4 = 1\), \(y(2) = 0.98 - 0.08 = 0.9\) ✓.</div></div>
+<div class="ans">\(y(k) = 2(0.7)^k - 2(0.2)^k\).</div>
+</div></details>
 <details><summary>P3. Map \(s = -1 \pm j2\) to the z-plane with \(T = 0.25\) s.</summary><div class="sol">
-<p>\(|z| = e^{-0.25} = 0.7788\), \(\angle z = 2(0.25) = 0.5\) rad \(= 28.6^\circ\). \(z = 0.6835 \pm j0.3734\).</p></div></details>
+<p class="plan"><b>What is being done.</b> Sampling maps every s-plane pole to \(z = e^{sT}\): the real part sets the radius, \(|z| = e^{\sigma T}\), and the imaginary part sets the angle, \(\angle z = \omega_dT\).</p>
+<div class="step"><i>1</i><div>\(s = -1 \pm j2\), \(T = 0.25\) s: \(\sigma T = -0.25\), \(\omega_dT = 0.5\) rad.</div></div>
+<div class="step"><i>2</i><div>Radius: \(|z| = e^{-0.25} = 0.7788\).</div></div>
+<div class="step"><i>3</i><div>Angle: \(\angle z = \pm 0.5\) rad \(= \pm 28.6^\circ\).</div></div>
+<div class="step"><i>4</i><div>Rectangular: \(z = 0.7788(\cos0.5 \pm j\sin0.5) = 0.7788(0.8776 \pm j0.4794) = 0.6835 \pm j0.3734\).</div></div>
+<div class="step"><i>5</i><div>\(|z| \lt 1\), as it must be for a stable continuous pole.</div></div>
+<div class="ans">\(z = 0.7788\angle\pm28.6^\circ = 0.6835 \pm j0.3734\).</div>
+</div></details>
 <details><summary>P4. Tustin equivalent of \(D_c(s) = \dfrac{s+3}{s+15}\) with \(T = 0.02\) s.</summary><div class="sol">
-<p>\(2/T = 100\): \(D_d = \dfrac{100(z-1) + 3(z+1)}{100(z-1) + 15(z+1)} = \dfrac{103z - 97}{115z - 85} = 0.8957\,\dfrac{z - 0.9417}{z - 0.7391}\). DC check: \(D_d(1) = 6/30 = 0.2 = D_c(0)\).</p></div></details>
+<p class="plan"><b>What is being done.</b> Tustin's method substitutes \(s = \dfrac{2}{T}\dfrac{z-1}{z+1}\). Clear the fractions, collect into gain-zero-pole form, and check the DC gain is preserved (\(z = 1\) corresponds to \(s = 0\)).</p>
+<div class="step"><i>1</i><div>\(2/T = 100\): \(D_d(z) = \dfrac{100\frac{z-1}{z+1} + 3}{100\frac{z-1}{z+1} + 15}\).</div></div>
+<div class="step"><i>2</i><div>Multiply top and bottom by \(z + 1\): \(\dfrac{100(z-1) + 3(z+1)}{100(z-1) + 15(z+1)} = \dfrac{103z - 97}{115z - 85}\).</div></div>
+<div class="step"><i>3</i><div>Gain-zero-pole form: \(\dfrac{103}{115}\cdot\dfrac{z - 97/103}{z - 85/115} = 0.8957\,\dfrac{z - 0.9417}{z - 0.7391}\).</div></div>
+<div class="step"><i>4</i><div>DC check: \(D_d(1) = \dfrac{103 - 97}{115 - 85} = \dfrac{6}{30} = 0.2 = D_c(0) = 3/15\) ✓.</div></div>
+<div class="ans">\(D_d(z) = \dfrac{103z - 97}{115z - 85} = 0.8957\,\dfrac{z - 0.9417}{z - 0.7391}\).</div>
+</div></details>
 <details><summary>P5. MPZ equivalent of the same \(D_c\) and \(T\).</summary><div class="sol">
-<p>Zero \(e^{-0.06} = 0.9418\), pole \(e^{-0.3} = 0.7408\). \(K_d = \dfrac{3}{15}\cdot\dfrac{1-0.7408}{1-0.9418} = 0.890\). \(D_d = 0.890\,\dfrac{z-0.9418}{z-0.7408}\). Note how close it is to P4.</p></div></details>
+<p class="plan"><b>What is being done.</b> Matched pole-zero (MPZ): map each pole and zero with \(z = e^{sT}\), then choose the gain so the DC gain matches, \(D_d(1) = D_c(0)\).</p>
+<div class="step"><i>1</i><div>Zero \(s = -3 \to z = e^{-3(0.02)} = e^{-0.06} = 0.9418\).</div></div>
+<div class="step"><i>2</i><div>Pole \(s = -15 \to z = e^{-15(0.02)} = e^{-0.3} = 0.7408\).</div></div>
+<div class="step"><i>3</i><div>Form: \(D_d(z) = K_d\dfrac{z - 0.9418}{z - 0.7408}\).</div></div>
+<div class="step"><i>4</i><div>Gain: \(D_c(0) = 3/15 = 0.2\), so \(K_d\dfrac{1 - 0.9418}{1 - 0.7408} = 0.2\), \(K_d = 0.2 \times \dfrac{0.2592}{0.0582} = 0.890\).</div></div>
+<div class="step"><i>5</i><div>Compare with Tustin (P4): zero 0.9417, pole 0.7391, gain 0.896. With \(T\) this short the two methods almost agree.</div></div>
+<div class="ans">\(D_d(z) = 0.890\,\dfrac{z - 0.9418}{z - 0.7408}\).</div>
+</div></details>
 <details><summary>P6. A closed loop has \(\omega_{BW} = 12\) rad/s. What is the longest sample period for "reasonable" performance?</summary><div class="sol">
-<p>\(\omega_s = 20 \times 12 = 240\) rad/s, so \(f_s = 38.2\) Hz and \(T = 2\pi/240 = 26\) ms.</p></div></details>
+<p class="plan"><b>What is being done.</b> Use the sample-rate rule of thumb: for "reasonable" performance sample at about 20 times the closed-loop bandwidth, \(\omega_s \approx 20\omega_{BW}\), then convert to a period with \(T = 2\pi/\omega_s\).</p>
+<div class="step"><i>1</i><div>\(\omega_s = 20 \times 12 = 240\) rad/s.</div></div>
+<div class="step"><i>2</i><div>In hertz: \(f_s = 240/2\pi = 38.2\) Hz.</div></div>
+<div class="step"><i>3</i><div>Period: \(T = 2\pi/\omega_s = 2\pi/240 = 0.0262\) s.</div></div>
+<div class="ans">\(T \approx 26\) ms (\(f_s \approx 38\) Hz, \(\omega_s = 240\) rad/s).</div>
+</div></details>
 <details><summary>P7. 50 Hz mains pickup is sampled at 60 Hz. What frequency appears? And at 1 kHz sampling?</summary><div class="sol">
-<p>At 60 Hz: \(|50 - 60| = 10\) Hz. At 1 kHz: 50 Hz is below Nyquist (500 Hz) so it appears as 50 Hz, unaliased, and can be filtered digitally.</p></div></details>
+<p class="plan"><b>What is being done.</b> A frequency above half the sample rate folds back: it appears at \(f_a = |f - nf_s|\), with \(n\) the integer that puts the result in \([0, f_s/2]\). Below half the sample rate it is sampled correctly.</p>
+<div class="step"><i>1</i><div>At 60 Hz sampling the Nyquist frequency is 30 Hz; 50 Hz is above it, so it aliases.</div></div>
+<div class="step"><i>2</i><div>\(f_a = |50 - 1(60)| = 10\) Hz: the mains pickup looks like a genuine 10 Hz signal.</div></div>
+<div class="step"><i>3</i><div>At 1 kHz the Nyquist frequency is 500 Hz; 50 Hz is well below it, so it appears at 50 Hz, unaliased, and a digital notch or low-pass filter can remove it.</div></div>
+<div class="ans">10 Hz at 60 Hz sampling; 50 Hz (correct, and removable digitally) at 1 kHz.</div>
+</div></details>
 <details><summary>P8. Steady-state value of \(x(k)\) for \(X(z) = \dfrac{0.3z}{(z-1)(z-0.7)}\)?</summary><div class="sol">
-<p>\((1 - z^{-1})X = \dfrac{0.3}{z-0.7}\), stable, so \(x_{ss} = 0.3/0.3 = 1\).</p></div></details>
+<p class="plan"><b>What is being done.</b> The discrete final value theorem is \(x_{ss} = \lim_{z\to1}(1 - z^{-1})X(z)\), valid only when \((1 - z^{-1})X(z)\) has all its poles inside the unit circle.</p>
+<div class="step"><i>1</i><div>\((1 - z^{-1})X(z) = \dfrac{z - 1}{z}\cdot\dfrac{0.3z}{(z-1)(z-0.7)} = \dfrac{0.3}{z - 0.7}\).</div></div>
+<div class="step"><i>2</i><div>Its only pole is 0.7, inside the unit circle: the theorem applies.</div></div>
+<div class="step"><i>3</i><div>\(x_{ss} = \dfrac{0.3}{1 - 0.7} = 1\).</div></div>
+<div class="ans">\(x_{ss} = 1\).</div>
+</div></details>
 <details><summary>P9. With \(\omega_c = 8\) rad/s and \(T = 0.04\) s, how much phase margin does the ZOH cost?</summary><div class="sol">
-<p>\(\omega_c T/2 = 0.16\) rad \(= 9.2^\circ\).</p></div></details>
+<p class="plan"><b>What is being done.</b> A zero-order hold behaves roughly like a delay of half a sample period, \(T/2\). A delay costs phase \(\omega\cdot T/2\) at frequency \(\omega\), so evaluate it at crossover.</p>
+<div class="step"><i>1</i><div>Phase lost at crossover: \(\Delta\phi = \omega_c\dfrac{T}{2} = 8 \times \dfrac{0.04}{2} = 0.16\) rad.</div></div>
+<div class="step"><i>2</i><div>In degrees: \(0.16 \times 180/\pi = 9.2^\circ\).</div></div>
+<div class="step"><i>3</i><div>So a design with, say, 50° PM in continuous time keeps only about 41° once sampled with this hold.</div></div>
+<div class="ans">About 9.2° of phase margin (0.16 rad).</div>
+</div></details>
 <details><summary>P10. Why does MPZ put zeros at \(z = -1\) rather than at \(z = 0\)?</summary><div class="sol">
-<p>A zero at infinity in \(s\) means the gain falls to zero as \(\omega \to \infty\). The highest frequency a sampled system can represent is \(\pi/T\), which maps to \(z = e^{j\pi} = -1\). A zero at \(z = 0\) would only add a pure advance \(z\), with no effect on magnitude.</p></div></details>
+<p class="plan"><b>What is being done.</b> Think about what a zero at infinity in \(s\) does, and which point on the unit circle plays that role in \(z\).</p>
+<div class="step"><i>1</i><div>A continuous transfer function with fewer zeros than poles has zeros at \(s = \infty\): its gain falls to zero as \(\omega \to \infty\).</div></div>
+<div class="step"><i>2</i><div>A sampled system cannot represent frequencies above \(\pi/T\) (the Nyquist frequency); there \(z = e^{j\omega T} = e^{j\pi} = -1\).</div></div>
+<div class="step"><i>3</i><div>So "zero gain at the highest frequency" maps to a zero at \(z = -1\).</div></div>
+<div class="step"><i>4</i><div>A zero at \(z = 0\) would only multiply by \(z\), a one-sample time advance, which changes the phase but not the magnitude at any frequency.</div></div>
+<div class="ans">Because \(z = -1\) is where the highest representable frequency \(\pi/T\) sits, so a zero there reproduces the falling gain of a zero at \(s = \infty\); a zero at \(z = 0\) only adds a time advance.</div>
+</div></details>
 </section>
 
 <section id="sheet">
