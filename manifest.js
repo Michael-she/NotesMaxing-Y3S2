@@ -464,6 +464,20 @@ window.NOTES_MANIFEST = {
      "memo": false,
      "size": 4706,
      "href": "CS245-Computer-Systems/papers/CS245_2024_A2.pdf"
+    },
+    {
+     "file": "CS245_2021_A2_Attempt.pdf",
+     "year": 2021,
+     "memo": false,
+     "size": 2778139,
+     "href": "CS245-Computer-Systems/papers/CS245_2021_A2_Attempt.pdf"
+    },
+    {
+     "file": "CS245_2020_A2_Attempt.pdf",
+     "year": 2020,
+     "memo": false,
+     "size": 861056,
+     "href": "CS245-Computer-Systems/papers/CS245_2020_A2_Attempt.pdf"
     }
    ],
    "tuts": null,
