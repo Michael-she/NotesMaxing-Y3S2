@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="exam-scope" content="A3">
+<meta name="exam-marks" content="80">
+<title>2021 A3 with memo · CS245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../module.html?m=cs245">&larr; Computer Systems</a>
+  <div class="k">CS245 · 2021 A3</div>
+  <ol>
+    <li><a href="#instructions">Instructions</a></li>
+    <li><a href="#q1">Q1. IDE and toolchain</a></li>
+    <li><a href="#q2">Q2. Assembly with errors</a></li>
+    <li><a href="#q3">Q3. Empty descending stack</a></li>
+    <li><a href="#q4">Q4. BSRR and ODR</a></li>
+    <li><a href="#q5">Q5. Flash or SRAM</a></li>
+    <li><a href="#q6">Q6. Lighthouse PWM</a></li>
+    <li><a href="#q7">Q7. Peripherals</a></li>
+    <li><a href="#program">Q8. Program set-up, MODER</a></li>
+    <li><a href="#q9">Q9. Register #define</a></li>
+    <li><a href="#q10">Q10. setleds</a></li>
+    <li><a href="#q11">Q11. fillscreen with DMA</a></li>
+    <li><a href="#q12">Q12. DMA transfer size</a></li>
+    <li><a href="#q13">Q13. Timer tick</a></li>
+    <li><a href="#q14">Q14. TIM2 interrupt handler</a></li>
+    <li><a href="#q15">Q15. starttimer and stoptimer</a></li>
+    <li><a href="#q16">Q16. EXTI handlers</a></li>
+    <li><a href="#q17">Q17. Smart meter block diagram</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 · ASSESSMENT 3 · 2021</div>
+  <h1>2021 Assessment 3, with a memo</h1>
+  <p>The 2021 A3 SunLearn quiz (80 marks), retyped from attempt reviews: the IDE and toolchain, an assembly function with planted errors, an empty descending stack, BSRR and ODR, where things live in memory, peripherals, centre-aligned PWM, an emulator program built from GPIO, DMA and timer pieces, and the smart meter block diagram. That year used the STM32F411 Discovery and the course emulator. There is no official memo; this one was written for these notes and every answer was checked. Answer each question before you open its memo.</p>
+</header>
+<section id="instructions">
+<h2><span class="n">00</span>Instructions</h2>
+<ol><li>An open-book SunLearn quiz, 3 hours, 80 marks. True/false items carry negative marks; choose Pass if unsure.</li><li>Questions 8 to 16 build one emulator program step by step from a template (led_display_timer).</li><li>The 2021 board was the STM32F411VE Discovery; later years use the STM32F407. The register addresses used here are the same on both.</li></ol>
+
+</section>
+
+<section id="q1">
+<h2><span class="n">Q1</span>IDE and toolchain<span class="mk">[6]</span></h2>
+<p>True, False or Pass.</p><div class="qp"><b>(a)</b><div>The compiler for the STM microcontroller is a cross-compiler.</div><span class="mk">(1)</span></div><div class="qp"><b>(b)</b><div>It is possible to write a program for the STM32F411VET that uses embedded peripherals without the graphical device configuration tool.</div><span class="mk">(1)</span></div><div class="qp"><b>(c)</b><div>The toolchain and the IDE are one and the same thing.</div><span class="mk">(1)</span></div><div class="qp"><b>(d)</b><div>The Step Over button (curved yellow arrow over a dot) restarts a debug session.</div><span class="mk">(1)</span></div><div class="qp"><b>(e)</b><div>One can set breakpoints in the disassembly view.</div><span class="mk">(1)</span></div><div class="qp"><b>(f)</b><div>The best way to view the value of a local variable is the Memory Browser window.</div><span class="mk">(1)</span></div>
+<details class="memo"><summary>Memo for question 1</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Know what each part of STM32CubeIDE does.</p>
+<div class="mp"><h4>Answers<span class="mk">[6]</span></h4><ol class="steps"><li><div><p>(a) <b>True.</b> It runs on the PC and produces ARM code (arm-none-eabi-gcc).</p></div><span class="mt">1</span></li><li><div><p>(b) <b>True.</b> The tool only generates initialisation code; you can write the register or HAL set-up by hand.</p></div><span class="mt">1</span></li><li><div><p>(c) <b>False.</b> The toolchain is the compiler, assembler, linker and debugger; the IDE is the editor and project front end that calls them.</p></div><span class="mt">1</span></li><li><div><p>(d) <b>False.</b> That icon is Step Over: it runs the current line, including any function it calls. Restart is a different button.</p></div><span class="mt">1</span></li><li><div><p>(e) <b>True.</b></p></div><span class="mt">1</span></li><li><div><p>(f) <b>False.</b> Use the Variables (or Expressions) view; a local lives in a register or on the stack, which is awkward to find in the Memory Browser.</p></div><span class="mt">1</span></li></ol><div class="ans">T, T, F, F, T, F</div></div>
+</div></details>
+</section>
+
+<section id="q2">
+<h2><span class="n">Q2</span>Assembly with errors<span class="mk">[6]</span></h2>
+<p>The code should be a function that receives 4 arguments (a, b, c, d) and returns \((a + b) - (c + d)\). It does not work. Give line numbers only. Thumb instruction set.</p><pre><code> 1      MOV     R4, #1000
+ 2
+ 3      MOV     R0, #1   ; a
+ 4      MOV     R1, #2   ; b
+ 5      MOV     R2, #3   ; c
+ 6      MOV     R3, #4   ; d
+ 7      BL      FUNCTION
+ 8
+ 9      STR     R0, [R4, #0]
+10
+11      B       Done
+12
+13 FUNCTION
+14      STMDB   SP!,{R1,R2,R3,R5,LR}
+15      ADD     R5, R1, R0
+16      ADD     R0, R2, R3
+17      RSB     R1, R5, R0
+18      MOV     R1, R0
+19      LDMIA   SP!,{R1,R2,R3,R5,PC}
+20      MOV     PC, LR
+21
+22 DONE</code></pre><div class="qp"><b>(a)</b><div>Which line has a syntax error? (more than one is correct)</div><span class="mk">(1.5)</span></div><div class="qp"><b>(b)</b><div>Which line has a logic error?</div><span class="mk">(1.5)</span></div><div class="qp"><b>(c)</b><div>Which line has redundant code that will never execute?</div><span class="mk">(1.5)</span></div><div class="qp"><b>(d)</b><div>Which line has memory-inefficient code?</div><span class="mk">(1.5)</span></div>
+<details class="memo"><summary>Memo for question 2</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Follow the registers line by line and compare with the intended result in R0.</p>
+<div class="mp"><h4><span class="pt">(a)</span>Syntax error<span class="mk">[1.5]</span></h4><ol class="steps"><li><div><p>Line 11 branches to <code>Done</code> but the label is <code>DONE</code>; labels are case-sensitive.</p></div><span class="mt">1.5</span></li></ol><div class="ans">11 (or 22)</div></div>
+<div class="mp"><h4><span class="pt">(b)</span>Logic error<span class="mk">[1.5]</span></h4><ol class="steps"><li><div><p>Line 15: R5 = a + b. Line 16: R0 = c + d.</p></div><span class="mt">0.5</span></li><li><div><p>Line 17: <code>RSB R1, R5, R0</code> computes R0 − R5 = (c + d) − (a + b), the wrong sign, into the wrong register. It should be <code>SUB R0, R5, R0</code>.</p></div><span class="mt">1</span></li></ol><div class="ans">17 (18 is also wrong: it copies R0 into R1 instead of the result into R0)</div></div>
+<div class="mp"><h4><span class="pt">(c)</span>Never executes<span class="mk">[1.5]</span></h4><ol class="steps"><li><div><p>Line 19 pops the saved LR straight into PC, which returns. Line 20 is never reached.</p></div><span class="mt">1.5</span></li></ol><div class="ans">20</div></div>
+<div class="mp"><h4><span class="pt">(d)</span>Memory inefficiency<span class="mk">[1.5]</span></h4><ol class="steps"><li><div><p>Line 14 saves R1, R2 and R3, which are argument registers the callee may overwrite. Only R5 and LR need saving; line 19 restores the same extra registers.</p></div><span class="mt">1.5</span></li></ol><div class="ans">14 (or 19)</div></div>
+</div></details>
+</section>
+
+<section id="q3">
+<h2><span class="n">Q3</span>Empty descending stack<span class="mk">[6]</span></h2>
+<p>Drag the snippets into place to implement an empty descending stack with a global <code>stackPointer</code>.</p><pre><code>void push( int dataValue )
+{
+    [ ]
+    [ ]
+}
+
+void pop( int *dataLocation )
+{
+    [ ]
+    [ ]
+}</code></pre>
+<details class="memo"><summary>Memo for question 3</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Descending: the stack grows towards lower addresses. Empty: the pointer points at the next free slot, so push writes first and then moves; pop moves back first and then reads.</p>
+<div class="mp"><h4>Push<span class="mk">[3]</span></h4><ol class="steps"><li><div><pre><code>void push( int dataValue )
+{
+    *stackPointer = dataValue;
+    stackPointer--;
+}</code></pre></div><span class="mt">3</span></li></ol></div>
+<div class="mp"><h4>Pop<span class="mk">[3]</span></h4><ol class="steps"><li><div><pre><code>void pop( int *dataLocation )
+{
+    stackPointer++;
+    *dataLocation = *stackPointer;
+}</code></pre></div><span class="mt">3</span></li></ol></div>
+<div class="box watch"><span class="label">Watch out</span><p>Decrement first and then write is a full descending stack (the ARM stack, where SP points at the last item). The attempt and its notes used that order and were marked wrong for this empty stack.</p></div></div></details>
+</section>
+
+<section id="q4">
+<h2><span class="n">Q4</span>BSRR and ODR<span class="mk">[5]</span></h2>
+<div class="qp"><b>(a)</b><div>To set a single GPIO output pin to 0 or 1 in the most efficient implementation: same number of instructions, BSRR more than ODR, or BSRR fewer than ODR?</div><span class="mk">(2)</span></div><div class="qp"><b>(b)</b><div>You can read GPIOA_BSRR to find the current output pin level. (negative marking)</div><span class="mk">(1)</span></div><div class="qp"><b>(c)</b><div>You can read GPIOA_ODR to find the output pin level. (negative marking)</div><span class="mk">(1)</span></div><div class="qp"><b>(d)</b><div>You can read GPIOA_ODR to find the current level of an input pin. (negative marking)</div><span class="mk">(1)</span></div>
+<details class="memo"><summary>Memo for question 4</summary><div class="sol">
+<p class="plan"><b>Approach.</b> BSRR is a write-only set/reset register; ODR is the output latch; IDR holds the input levels.</p>
+<div class="mp"><h4><span class="pt">(a)</span>Instruction count<span class="mk">[2]</span></h4><ol class="steps"><li><div><p>BSRR: one store. ODR: load, modify and store to keep the other pins.</p></div><span class="mt">2</span></li></ol><div class="ans">BSRR requires fewer instructions</div></div>
+<div class="mp"><h4><span class="pt">(b)</span>Read BSRR<span class="mk">[1]</span></h4><ol class="steps"><li><div><p>BSRR reads as 0.</p></div><span class="mt">1</span></li></ol><div class="ans">False</div></div>
+<div class="mp"><h4><span class="pt">(c)</span>Read ODR<span class="mk">[1]</span></h4><ol class="steps"><li><div><p>ODR holds what the outputs are driving.</p></div><span class="mt">1</span></li></ol><div class="ans">True</div></div>
+<div class="mp"><h4><span class="pt">(d)</span>Input via ODR<span class="mk">[1]</span></h4><ol class="steps"><li><div><p>Input levels are in IDR, not ODR.</p></div><span class="mt">1</span></li></ol><div class="ans">False</div></div>
+</div></details>
+</section>
+
+<section id="q5">
+<h2><span class="n">Q5</span>Flash or SRAM<span class="mk">[7]</span></h2>
+<p>For the STM32F411, is each of these placed in Flash or SRAM? (negative marking)</p><ol><li>Vector table</li><li>Stack</li><li>Interrupt handler function</li><li><code>static const int array1[2] = {1,2};</code></li><li><code>int array1[2] = {1,2};</code></li><li>The constant PI in <code>#define PI 3.14159</code> … <code>float angle = i*PI/10.0f;</code></li><li>A global variable</li></ol>
+<details class="memo"><summary>Memo for question 5</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Code and anything read-only goes to Flash (non-volatile). Anything the program changes at run time must be in SRAM.</p>
+<div class="mp"><h4>Placement<span class="mk">[7]</span></h4><ol class="steps"><li><div><p>Vector table: <b>Flash</b>, at address 0 so the core finds it at reset.</p></div><span class="mt">1</span></li><li><div><p>Stack: <b>SRAM</b>; it is written all the time.</p></div><span class="mt">1</span></li><li><div><p>Interrupt handler: <b>Flash</b>; it is code.</p></div><span class="mt">1</span></li><li><div><p><code>static const</code> array: <b>Flash</b>; it can never change.</p></div><span class="mt">1</span></li><li><div><p><code>int array1[2] = {1,2};</code>: <b>SRAM</b>. The initial values are stored in Flash and copied to SRAM by the start-up code.</p></div><span class="mt">1</span></li><li><div><p>PI: <b>Flash</b>. The preprocessor pastes the number into the code, so it ends up as a constant in the instruction stream or literal pool.</p></div><span class="mt">1</span></li><li><div><p>Global variable: <b>SRAM</b>.</p></div><span class="mt">1</span></li></ol><div class="ans">Flash, SRAM, Flash, Flash, SRAM, Flash, SRAM</div></div>
+</div></details>
+</section>
+
+<section id="q6">
+<h2><span class="n">Q6</span>Lighthouse PWM<span class="mk">[8]</span></h2>
+<p>A lighthouse flashes for 1 s every 4 s (off 3 s, on 1 s). Use TIM2 in PWM mode 2, centre-aligned. In each case three of the clock frequency, TIM2_PSC, TIM2_ARR and TIM2_CCR are given; find the fourth.</p><div class="qp"><b>(a)</b><div>PSC = 9999, ARR = 3000, CCR = 2250. Clock frequency (MHz)?</div><span class="mk">(2)</span></div><div class="qp"><b>(b)</b><div>Clock = 90 MHz, ARR = 36000, CCR = 27000. PSC?</div><span class="mk">(2)</span></div><div class="qp"><b>(c)</b><div>Clock = 55 MHz, PSC = 4999, CCR = 16500. ARR?</div><span class="mk">(2)</span></div><div class="qp"><b>(d)</b><div>Clock = 68 MHz, PSC = 4999, ARR = 27200. CCR?</div><span class="mk">(2)</span></div>
+<details class="memo"><summary>Memo for question 6</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Centre-aligned period \(T = 2\,ARR\,(PSC + 1)/f_{clk} = 4\) s. Mode 2 is active while CNT &gt; CCR, so the on fraction is \((ARR - CCR)/ARR = 0.25\) and \(CCR = 0.75\,ARR\).</p>
+<div class="mp"><h4><span class="pt">(a)</span>Clock<span class="mk">[2]</span></h4><ol class="steps"><li><div><p>\(f_{clk} = 2 \times 3000 \times 10\,000 / 4\).</p></div><span class="mt">1</span></li><li><div><p>= 15 000 000 Hz. Check: 2250 = 0.75 × 3000.</p></div><span class="mt">1</span></li></ol><div class="ans">15 MHz</div></div>
+<div class="mp"><h4><span class="pt">(b)</span>PSC<span class="mk">[2]</span></h4><ol class="steps"><li><div><p>\(PSC + 1 = 4 \times 90 \times 10^6 / (2 \times 36\,000) = 5000\).</p></div><span class="mt">1</span></li><li><div><p>Subtract one.</p></div><span class="mt">1</span></li></ol><div class="ans">TIM2_PSC = 4999</div></div>
+<div class="mp"><h4><span class="pt">(c)</span>ARR<span class="mk">[2]</span></h4><ol class="steps"><li><div><p>\(ARR = 4 \times 55 \times 10^6 / (2 \times 5000) = 22\,000\).</p></div><span class="mt">1</span></li><li><div><p>Check: 16 500 = 0.75 × 22 000.</p></div><span class="mt">1</span></li></ol><div class="ans">TIM2_ARR = 22000</div></div>
+<div class="mp"><h4><span class="pt">(d)</span>CCR<span class="mk">[2]</span></h4><ol class="steps"><li><div><p>Period check: \(2 \times 27\,200 \times 5000 / (68 \times 10^6) = 4\) s.</p></div><span class="mt">1</span></li><li><div><p>\(CCR = 0.75 \times 27\,200 = 20\,400\).</p></div><span class="mt">1</span></li></ol><div class="ans">TIM2_CCR = 20400</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>The attempt gave PSC = 9999 for (b): it left out the factor 2 of centre-aligned counting. In mode 1 the light would be on while CNT &lt; CCR and CCR would be 0.25 ARR instead.</p></div></div></details>
+</section>
+
+<section id="q7">
+<h2><span class="n">Q7</span>Peripherals<span class="mk">[7]</span></h2>
+<p>True, False or Pass (negative marking).</p><div class="qp"><b>(a)</b><div>A timer/counter can be used to measure the rotation rate of a motor by counting pulses from an optical encoder.</div><span class="mk">(1)</span></div><div class="qp"><b>(b)</b><div>An ADC can measure temperature from a sensor that outputs a varying number of pulses proportional to temperature.</div><span class="mk">(1)</span></div><div class="qp"><b>(c)</b><div>An SPI link can obtain measurements from an external ADC with two signals labelled SCL and SDA.</div><span class="mk">(1)</span></div><div class="qp"><b>(d)</b><div>The UART sends and receives serial data where the other device uses TX and RX with no clock signal.</div><span class="mk">(1)</span></div><div class="qp"><b>(e)</b><div>The ADC is used to generate an analog audio signal from an MP3 file.</div><span class="mk">(1)</span></div><div class="qp"><b>(f)</b><div>DMA can transfer data from flash memory to SRAM.</div><span class="mk">(1)</span></div><div class="qp"><b>(g)</b><div>A microcontroller can be damaged by configuring a pin as a GPIO input and connecting it to GND.</div><span class="mk">(1)</span></div>
+<details class="memo"><summary>Memo for question 7</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Match each job to the peripheral built for it.</p>
+<div class="mp"><h4>Answers<span class="mk">[7]</span></h4><ol class="steps"><li><div><p>(a) <b>True</b>: a timer in counter or encoder mode counts the pulses.</p></div><span class="mt">1</span></li><li><div><p>(b) <b>False</b>: a pulse output is counted with a timer; an ADC measures a voltage.</p></div><span class="mt">1</span></li><li><div><p>(c) <b>False</b>: SCL and SDA are I2C signals.</p></div><span class="mt">1</span></li><li><div><p>(d) <b>True</b>: UART is asynchronous.</p></div><span class="mt">1</span></li><li><div><p>(e) <b>False</b>: generating an analog signal needs a DAC.</p></div><span class="mt">1</span></li><li><div><p>(f) <b>True</b>: memory-to-memory DMA (DMA2 on the STM32F4) can read flash over the bus matrix.</p></div><span class="mt">1</span></li><li><div><p>(g) <b>False</b>: an input draws almost no current, so 0 V on it is safe.</p></div><span class="mt">1</span></li></ol><div class="ans">T, F, F, T, F, T, F</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>The student attempt answered the DMA item False. Memory-to-memory DMA from flash to SRAM is allowed on the STM32F4.</p></div></div></details>
+</section>
+
+<section id="program">
+<h2><span class="n">Q8</span>Emulator program and register values<span class="mk">[2]</span></h2>
+<p>Questions 8 to 16 build a program on the STM32F4 emulator from a template. Buttons 1 to 4 (PA0 to PA3, EXTI on the rising edge) turn on the matching LED (PD12 to PD15) and fill the screen with a colour; after a time the LED turns off and the screen goes black. A new press restarts the timer.</p><div class="tbl"><table><thead><tr><th>Button</th><th>LED</th><th>Colour index</th><th>Time active</th></tr></thead><tbody><tr><td>1</td><td>1 (green, PD12)</td><td>2</td><td>500 ms</td></tr><tr><td>2</td><td>2 (orange, PD13)</td><td>42</td><td>1 s</td></tr><tr><td>3</td><td>3 (red, PD14)</td><td>4</td><td>2 s</td></tr><tr><td>4</td><td>4 (blue, PD15)</td><td>1</td><td>4 s</td></tr></tbody></table></div><p>Template set-up: PD12 to PD15 GPIO outputs; PA0 to PA3 EXTI inputs; TIM2 on the 16 MHz internal clock with prescaler 15999 and its interrupt on; DMA2 stream 0 memory-to-memory, word transfers, destination incrementing, source fixed. <code>setstate</code> calls <code>setleds</code>, <code>fillscreen</code> and the timer start/stop functions, which you write.</p><div class="qp"><b>()</b><div>Given this set-up (other pins at reset), give all eight hex digits of GPIOA_MODER and GPIOD_MODER.</div><span class="mk">(2)</span></div>
+<details class="memo"><summary>Memo for question 8</summary><div class="sol">
+<p class="plan"><b>Approach.</b> MODER has two bits per pin: 00 input, 01 output, 10 alternate function, 11 analog. Start from the reset value and change only the configured pins.</p>
+<div class="mp"><h4>MODER values<span class="mk">[2]</span></h4><ol class="steps"><li><div><p>GPIOA: PA0 to PA3 as EXTI are inputs (00), the same as their reset value, so GPIOA_MODER keeps its reset value. RM0383 (STM32F411) gives 0x0C00 0000 for port A.</p></div><span class="mt">1</span></li><li><div><p>GPIOD: PD12 to PD15 are outputs, 01 in bit pairs 24 to 31: <code>0101 0101</code> in the top byte.</p></div><span class="mt">1</span></li></ol><div class="ans">GPIOA_MODER = 0x0C000000, GPIOD_MODER = 0x55000000</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>The A2 attempt changed its first answer (0x0C000000) to 0x00000000, and the A3 attempt entered the port base addresses. The STM32F407 manual (RM0090) gives 0xA800 0000 for port A, because PA13 to PA15 start as debug pins. Either way, bits 7 to 0 are 0.</p></div></div></details>
+</section>
+
+<section id="q9">
+<h2><span class="n">Q9</span>Register #define<span class="mk">[3]</span></h2>
+<p>Complete <code>#define GPIOD_ODR *( (uint32_t*) 0x________ )</code> so that <code>uint32_t ledstate = GPIOD_ODR;</code> and <code>GPIOD_ODR = 0x1000;</code> work.</p>
+<details class="memo"><summary>Memo for question 9</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Port D base plus the ODR offset; the leading * dereferences the cast pointer so the name reads and writes the register.</p>
+<div class="mp"><h4>Address<span class="mk">[3]</span></h4><ol class="steps"><li><div><p>GPIOD base = 0x4002 0C00.</p></div><span class="mt">1</span></li><li><div><p>ODR offset = 0x14.</p></div><span class="mt">1</span></li><li><div><p>0x4002 0C00 + 0x14 = 0x4002 0C14.</p></div><span class="mt">1</span></li></ol><div class="ans">#define GPIOD_ODR *((uint32_t*) 0x40020C14)</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>0x40020C00 (the A3 attempt) is MODER, not ODR. In real code add <code>volatile</code>: <code>*((volatile uint32_t*)0x40020C14)</code>.</p></div></div></details>
+</section>
+
+<section id="q10">
+<h2><span class="n">Q10</span>setleds<span class="mk">[4]</span></h2>
+<p>Write <code>void setleds(int state)</code>: state 0 turns all LEDs off; state 1 to 4 turns on only that LED. Use <code>GPIOD_ODR</code>; no HAL, no BSRR and no ODR in the struct. Keep the other port D pins unchanged.</p>
+<details class="memo"><summary>Memo for question 10</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Clear the four LED bits with a mask, then set the one bit for the state, in one read-modify-write.</p>
+<div class="mp"><h4>Code<span class="mk">[4]</span></h4><ol class="steps"><li><div><pre><code>void setleds(int state)
+{
+    uint32_t v = GPIOD_ODR &amp; ~(0xFu &lt;&lt; 12);   /* PD12..PD15 off, others kept */
+    if (state &gt;= 1 &amp;&amp; state &lt;= 4)
+        v |= 1u &lt;&lt; (11 + state);               /* LED1 = PD12 ... LED4 = PD15 */
+    GPIOD_ODR = v;
+}</code></pre></div><span class="mt">4</span></li></ol></div>
+<div class="box watch"><span class="label">Watch out</span><p>The attempt read the buttons (GPIOA-&gt;IDR) inside setleds and used <code>if (state = 1)</code>, which assigns instead of comparing. setleds must depend only on <code>state</code>.</p></div></div></details>
+</section>
+
+<section id="q11">
+<h2><span class="n">Q11</span>fillscreen with DMA<span class="mk">[5]</span></h2>
+<p>Write <code>void fillscreen(int state)</code>: put the colour for the state into the global <code>src_fill</code> and start the memory-to-memory DMA (<code>hdma_memtomem_dma2_stream0</code>) with <code>HAL_DMA_Start_IT</code>. The destination is the start of the screen and the number of transfers is the number of pixels divided by four.</p>
+<details class="memo"><summary>Memo for question 11</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Each transfer is one 32-bit word = four 8-bit pixels, so put the colour index in all four bytes of src_fill. The source address stays fixed and the destination increments.</p>
+<div class="mp"><h4>Code<span class="mk">[5]</span></h4><ol class="steps"><li><div><p>Colour per state: 0 → 0 (black), 1 → 2, 2 → 42, 3 → 4, 4 → 1. Multiplying by 0x01010101 copies the byte into all four bytes.</p></div><span class="mt">2</span></li><li><div><pre><code>void fillscreen(int state)
+{
+    static const uint8_t colour[5] = {0, 2, 42, 4, 1};
+    if (state &lt; 0 || state &gt; 4) state = 0;
+    src_fill = colour[state] * 0x01010101u;
+    HAL_DMA_Start_IT(&amp;hdma_memtomem_dma2_stream0,
+                     (uint32_t)&amp;src_fill,          /* source: fixed */
+                     SCREEN_ADDR,                  /* destination: screen start */
+                     SCREEN_PIXELS / 4);           /* 64000 / 4 = 16000 words */
+}</code></pre></div><span class="mt">3</span></li></ol></div>
+<div class="box watch"><span class="label">Watch out</span><p>The screen's start address comes from the emulator template, which is not in the sources, so it is written <code>SCREEN_ADDR</code> here. The 64 000 pixels (320 × 200, one byte each) follow from the transfer lengths in Question 12.</p></div></div></details>
+</section>
+
+<section id="q12">
+<h2><span class="n">Q12</span>DMA transfer size<span class="mk">[4]</span></h2>
+<div class="qp"><b>(a)</b><div>The fill uses word transfers. Which combinations would also fill the whole screen? Byte, half-word or word width with transfer lengths 16000, 32000 or 64000.</div><span class="mk">(2)</span></div><div class="qp"><b>(b)</b><div>What is the benefit of transferring a word at a time?</div><span class="mk">(2)</span></div>
+<details class="memo"><summary>Memo for question 12</summary><div class="sol">
+<p class="plan"><b>Approach.</b> The bytes moved must stay the same: width × length = 64 000 bytes.</p>
+<div class="mp"><h4><span class="pt">(a)</span>Combinations<span class="mk">[2]</span></h4><ol class="steps"><li><div><p>Word × 16 000 = 64 000 bytes (the original).</p></div><span class="mt">0.5</span></li><li><div><p>Half-word × 32 000 = 64 000 bytes.</p></div><span class="mt">0.5</span></li><li><div><p>Byte × 64 000 = 64 000 bytes.</p></div><span class="mt">1</span></li></ol><div class="ans">byte 64000, half-word 32000, word 16000</div></div>
+<div class="mp"><h4><span class="pt">(b)</span>Benefit<span class="mk">[2]</span></h4><ol class="steps"><li><div><p>Four pixels per bus transfer: a quarter of the transfers, so the fill takes fewer clock cycles.</p></div><span class="mt">2</span></li></ol><div class="ans">The transfer takes fewer clock cycles</div></div>
+</div></details>
+</section>
+
+<section id="q13">
+<h2><span class="n">Q13</span>Timer tick<span class="mk">[1]</span></h2>
+<p>With the TIM2 prescaler given (15999, 16 MHz clock), what is the time between counter increments, in ms?</p>
+<details class="memo"><summary>Memo for question 13</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Divide by PSC + 1.</p>
+<div class="mp"><h4>Tick<span class="mk">[1]</span></h4><ol class="steps"><li><div><p>\(16 \times 10^6 / 16\,000 = 1000\) Hz, so one count per 1 ms.</p></div><span class="mt">1</span></li></ol><div class="ans">1 ms</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>The attempts gave 500 and 0.040. 500 ms is LED 1's on time, not the tick.</p></div></div></details>
+</section>
+
+<section id="q14">
+<h2><span class="n">Q14</span>TIM2 interrupt handler<span class="mk">[1]</span></h2>
+<p>Add <code>setstate(0);</code> to the TIM2 interrupt handler in stm32f4xx_it.c and give the handler.</p>
+<details class="memo"><summary>Memo for question 14</summary><div class="sol">
+<p class="plan"><b>Approach.</b> User code goes between the USER CODE markers so code generation keeps it.</p>
+<div class="mp"><h4>Code<span class="mk">[1]</span></h4><ol class="steps"><li><div><pre><code>void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+  setstate(0);
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&amp;htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+
+  /* USER CODE END TIM2_IRQn 1 */
+}</code></pre></div><span class="mt">1</span></li></ol></div>
+</div></details>
+</section>
+
+<section id="q15">
+<h2><span class="n">Q15</span>starttimer and stoptimer<span class="mk">[5]</span></h2>
+<p>Write <code>void starttimer(int state)</code>, which sets <code>htim2.Instance-&gt;ARR</code> for the state's time and starts TIM2 with its interrupt (<code>HAL_TIM_Base_Start_IT</code>), and <code>void stoptimer()</code>, which stops it (<code>HAL_TIM_Base_Stop_IT</code>).</p>
+<details class="memo"><summary>Memo for question 15</summary><div class="sol">
+<p class="plan"><b>Approach.</b> One count is 1 ms, and the interrupt comes ARR + 1 counts after the counter starts at 0, so ARR = time in ms − 1.</p>
+<div class="mp"><h4>Reload values<span class="mk">[2]</span></h4><ol class="steps"><li><div><p>500 ms → 499, 1 s → 999, 2 s → 1999, 4 s → 3999.</p></div><span class="mt">2</span></li></ol></div>
+<div class="mp"><h4>Code<span class="mk">[3]</span></h4><ol class="steps"><li><div><pre><code>void starttimer(int state)
+{
+    static const uint32_t ms[5] = {0, 500, 1000, 2000, 4000};
+    if (state &lt; 1 || state &gt; 4) return;
+    HAL_TIM_Base_Stop_IT(&amp;htim2);              /* a new press restarts the time */
+    htim2.Instance-&gt;ARR = ms[state] - 1;
+    htim2.Instance-&gt;CNT = 0;
+    __HAL_TIM_CLEAR_FLAG(&amp;htim2, TIM_FLAG_UPDATE);  /* no stale interrupt */
+    HAL_TIM_Base_Start_IT(&amp;htim2);
+}
+
+void stoptimer()
+{
+    HAL_TIM_Base_Stop_IT(&amp;htim2);
+}</code></pre></div><span class="mt">3</span></li></ol></div>
+</div></details>
+</section>
+
+<section id="q16">
+<h2><span class="n">Q16</span>EXTI handlers<span class="mk">[2]</span></h2>
+<p>Call <code>setstate(1)</code> from EXTI0, <code>setstate(2)</code> from EXTI1, and so on. Give all the EXTI handlers.</p>
+<details class="memo"><summary>Memo for question 16</summary><div class="sol">
+<p class="plan"><b>Approach.</b> One handler per line; keep the HAL call that clears the pending bit.</p>
+<div class="mp"><h4>Code<span class="mk">[2]</span></h4><ol class="steps"><li><div><pre><code>void EXTI0_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI0_IRQn 0 */
+  setstate(1);
+  /* USER CODE END EXTI0_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+}
+
+void EXTI1_IRQHandler(void)
+{
+  setstate(2);
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
+}
+
+void EXTI2_IRQHandler(void)
+{
+  setstate(3);
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
+}
+
+void EXTI3_IRQHandler(void)
+{
+  setstate(4);
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
+}</code></pre></div><span class="mt">2</span></li></ol></div>
+</div></details>
+</section>
+
+<section id="q17">
+<h2><span class="n">Q17</span>Smart meter block diagram<span class="mk">[8]</span></h2>
+<p>A smart power meter on the 220 V mains measures current: STM32F411VE; a current transformer gives ±10 mV p-p for ±13 A; RMS from samples at 1000 Hz taken in a timer interrupt; mains powered; a wireless modem with a UART; 3.3 V for MCU and modem; a flashing status LED. Place the labels: Timer, Analog 0-3V, Analog 10mV p-p, GPIO Output, AC-&gt;DC conversion, ADC, Wireless modem, UART.</p>
+<details class="memo"><summary>Memo for question 17</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Each label is either a block or the signal on a line. Follow the power, measurement, data and status paths.</p>
+<div class="mp"><h4>Placement<span class="mk">[8]</span></h4><ol class="steps"><li><div><p><b>AC-&gt;DC conversion</b>: the block between the 220 V mains and the 3.3 V lines.</p></div><span class="mt">1</span></li><li><div><p><b>Analog 10mV p-p</b>: the line from the current transformer to the signal conditioning.</p></div><span class="mt">1</span></li><li><div><p><b>Analog 0-3V</b>: the line from the signal conditioning into the MCU.</p></div><span class="mt">1</span></li><li><div><p><b>ADC</b>: the MCU block that receives that line.</p></div><span class="mt">1</span></li><li><div><p><b>Timer</b>: the MCU block that triggers the ADC.</p></div><span class="mt">1</span></li><li><div><p><b>UART</b>: the MCU block connected to the modem.</p></div><span class="mt">1</span></li><li><div><p><b>Wireless modem</b>: the external block on TX/RX.</p></div><span class="mt">1</span></li><li><div><p><b>GPIO Output</b>: the MCU block that drives the status LED.</p></div><span class="mt">1</span></li></ol></div>
+<figure><svg viewBox="0 0 640 292" class="fig" role="img" aria-label="Smart power meter block diagram: mains feeds an AC to DC converter that supplies 3.3 V to the modem and microcontroller; a current transformer gives a ±10 mV signal to a signal-conditioning stage whose 0 to 3 V output goes to the ADC; a timer triggers the ADC; the UART talks to the wireless modem over TX and RX; a GPIO output drives the status LED."><rect class="cell" x="10" y="20" width="120" height="40"/><text class="lab" x="70.0" y="44.5" text-anchor="middle">220 V AC mains</text><rect class="cell" x="170" y="20" width="150" height="40"/><text class="lab" x="245.0" y="44.5" text-anchor="middle">AC→DC conversion</text><rect class="cell" x="390" y="20" width="140" height="40"/><text class="lab" x="460.0" y="44.5" text-anchor="middle">Wireless modem</text><rect class="cell" x="555" y="20" width="75" height="40"/><text class="lab" x="592.5" y="44.5" text-anchor="middle">Status LED</text><rect class="cell" x="10" y="112" width="120" height="44"/><text class="lab" x="70.0" y="131.0" text-anchor="middle">Current</text><text class="lab" x="70.0" y="146.0" text-anchor="middle">transformer</text><rect class="cell" x="10" y="214" width="120" height="44"/><text class="lab" x="70.0" y="233.0" text-anchor="middle">Signal</text><text class="lab" x="70.0" y="248.0" text-anchor="middle">conditioning</text><rect class="cell" x="200" y="104" width="430" height="176"/><text class="b" x="415" y="272" text-anchor="middle">STM32F411 microcontroller</text><rect class="cell" x="220" y="216" width="80" height="34"/><text class="lab" x="260.0" y="237.5" text-anchor="middle">ADC</text><rect class="cell" x="340" y="216" width="80" height="34"/><text class="lab" x="380.0" y="237.5" text-anchor="middle">Timer</text><rect class="cell" x="400" y="120" width="80" height="34"/><text class="lab" x="440.0" y="141.5" text-anchor="middle">UART</text><rect class="cell" x="540" y="120" width="80" height="34"/><text class="lab" x="580.0" y="141.5" text-anchor="middle">GPIO output</text><line class="ln c4" x1="130" y1="40" x2="170" y2="40"/><line class="ln c4" x1="320" y1="40" x2="390" y2="40"/><polygon class="c4f" points="390,40 382,36 382,44"/><text class="lab" x="355" y="33" text-anchor="middle">3.3 V</text><line class="ln c4" x1="245" y1="60" x2="245" y2="104"/><polygon class="c4f" points="245,104 241,96 249,96"/><text class="lab" x="252" y="88" text-anchor="start">3.3 V</text><line class="ln c4" x1="70" y1="60" x2="70" y2="112"/><text class="lab" x="77" y="90" text-anchor="start">line current</text><line class="ln c4" x1="70" y1="156" x2="70" y2="214"/><polygon class="c4f" points="70,214 66,206 74,206"/><text class="lab" x="77" y="190" text-anchor="start">±10 mV p-p analog</text><line class="ln c4" x1="130" y1="236" x2="220" y2="236"/><polygon class="c4f" points="220,236 212,232 212,240"/><text class="lab" x="140" y="228" text-anchor="start">0–3 V analog</text><line class="ln c4" x1="340" y1="233" x2="300" y2="233"/><polygon class="c4f" points="300,233 308,229 308,237"/><text class="lab" x="320" y="210" text-anchor="middle">trigger</text><line class="ln c4" x1="440" y1="60" x2="440" y2="120"/><text class="lab" x="447" y="94" text-anchor="start">TX / RX</text><line class="ln c4" x1="592" y1="120" x2="592" y2="60"/><polygon class="c4f" points="592,60 588,68 596,68"/></svg><figcaption>Figure 1. Smart power meter: where each block and signal label goes.</figcaption></figure></div></details>
+</section>
+
+<footer>
+<p>Sources: A3_ Attempt review 2021.pdf and CS 2021 A3 STUDENT MEMO.pdf (two copies of one student's attempt, the second with a student's notes). The attempts show the questions and that student's answers, many marked wrong; no official answers were shown. The emulator template, its screen address and the demonstration video were not in the sources. Marks per part are split evenly where the quiz only gave a mark per question.</p>
+</footer>
+</main>
+</div>
+<script src="../../assets/ask-gemini.js" data-store="cs245-2021-a3" data-course="CS245 Computer Systems"
+        data-topic="2021 Assessment A3 paper with memo: STM32CubeIDE and toolchain, assembly errors and AAPCS, empty descending stack, BSRR vs ODR, Flash vs SRAM placement, peripherals, centre-aligned PWM mode 2, GPIO MODER values, register #define, setleds, DMA screen fill, timer prescaler, TIM2 and EXTI interrupt handlers, smart meter block diagram"></script>
+</body>
+</html>

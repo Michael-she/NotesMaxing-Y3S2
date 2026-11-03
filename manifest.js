@@ -406,14 +406,64 @@ window.NOTES_MANIFEST = {
      "href": "CS245-Computer-Systems/theory/week5.html"
     }
    ],
-   "exams": [],
+   "exams": [
+    {
+     "title": "2020 Assessment 2, with a memo",
+     "scope": "A2",
+     "marks": 90,
+     "questions": null,
+     "href": "CS245-Computer-Systems/exam-prep/CS245_2020_A2.html"
+    },
+    {
+     "title": "2021 Assessment 2, with a memo",
+     "scope": "A2",
+     "marks": 80,
+     "questions": null,
+     "href": "CS245-Computer-Systems/exam-prep/CS245_2021_A2.html"
+    },
+    {
+     "title": "2021 Assessment 3, with a memo",
+     "scope": "A3",
+     "marks": 80,
+     "questions": null,
+     "href": "CS245-Computer-Systems/exam-prep/CS245_2021_A3.html"
+    },
+    {
+     "title": "2024 Assessment 2, with a memo",
+     "scope": "A2",
+     "marks": null,
+     "questions": null,
+     "href": "CS245-Computer-Systems/exam-prep/CS245_2024_A2.html"
+    },
+    {
+     "title": "2025 Assessment 2, with a memo",
+     "scope": "A2",
+     "marks": null,
+     "questions": null,
+     "href": "CS245-Computer-Systems/exam-prep/CS245_2025_A2.html"
+    }
+   ],
    "papers": [
+    {
+     "file": "CS245_2025_A2.pdf",
+     "year": 2025,
+     "memo": false,
+     "size": 175901,
+     "href": "CS245-Computer-Systems/papers/CS245_2025_A2.pdf"
+    },
     {
      "file": "CS245_A1_2025_Practice_Paper.pdf",
      "year": 2025,
      "memo": false,
      "size": 241886,
      "href": "CS245-Computer-Systems/papers/CS245_A1_2025_Practice_Paper.pdf"
+    },
+    {
+     "file": "CS245_2024_A2.pdf",
+     "year": 2024,
+     "memo": false,
+     "size": 4706,
+     "href": "CS245-Computer-Systems/papers/CS245_2024_A2.pdf"
     }
    ],
    "tuts": null,

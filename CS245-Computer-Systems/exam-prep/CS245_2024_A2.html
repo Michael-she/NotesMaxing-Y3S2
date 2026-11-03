@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="exam-scope" content="A2">
+<title>2024 A2 with memo · CS245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../module.html?m=cs245">&larr; Computer Systems</a>
+  <div class="k">CS245 · 2024 A2</div>
+  <ol>
+    <li><a href="#instructions">Instructions</a></li>
+    <li><a href="#q4">Q4. Timer auto-reload</a></li>
+    <li><a href="#q5">Q5. Timer frequency</a></li>
+    <li><a href="#q6">Q6. Single pulse</a></li>
+    <li><a href="#q7">Q7. Serial versus parallel</a></li>
+    <li><a href="#q8">Q8. Speed ranking</a></li>
+    <li><a href="#q9">Q9. UART 4800-8-N-2</a></li>
+    <li><a href="#q10">Q10. SPI facts</a></li>
+    <li><a href="#q11">Q11. SD card over SPI</a></li>
+    <li><a href="#q12">Q12. LIS3DSH driver</a></li>
+    <li><a href="#q13">Q13. I2C facts</a></li>
+    <li><a href="#q14">Q14. Minimum pull-up</a></li>
+    <li><a href="#q15">Q15. ADC resolution</a></li>
+    <li><a href="#q16">Q16. ADC conversion result</a></li>
+    <li><a href="#q17">Q17. Flash ADC</a></li>
+    <li><a href="#q18">Q18. 8-bit conversion time</a></li>
+    <li><a href="#q19">Q19. SAR ADC timing</a></li>
+    <li><a href="#q20">Q20. DAC output</a></li>
+    <li><a href="#q21">Q21. Motors and relays</a></li>
+    <li><a href="#q22">Q22. Memory types</a></li>
+    <li><a href="#q23">Q23. Smart meter block diagram</a></li>
+    <li><a href="#q24">Q24. Assembly: read PA0</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 · ASSESSMENT 2 · 2024</div>
+  <h1>2024 Assessment 2, with a memo</h1>
+  <p>Questions 4 to 24 of the 2024 A2 SunLearn quiz, retyped: timers, UART, SPI and the SD card, the LIS3DSH driver, I2C, ADC and DAC, motors, memory, a block diagram and an assembly function. The memo was written for these notes from a student's handwritten memo, with every answer checked and two of them corrected. Answer each question before you open its memo.</p>
+</header>
+<section id="instructions">
+<h2><span class="n">00</span>Instructions</h2>
+<ol><li>A SunLearn quiz: 3 hours, 90 marks. True/false items carry negative marks.</li><li>Questions 1 to 3 are missing from the source copy; the 2025 paper's Questions 1 to 3 (board facts, a bit-pattern function, BSRR and ODR) show the likely style.</li><li>Where the two student memos disagree, the memo below says which is right and why.</li></ol>
+
+</section>
+
+<section id="q4">
+<h2><span class="n">Q4</span>Timer auto-reload</h2>
+<p>The timer input clock is 10 MHz and <code>TIMx_PSC</code> = 999. What must <code>TIMx_ARR</code> be for an interrupt every 0.5 s?</p><div class="eq"><span class="tag">Timer period (revision lecture)</span>\[ f_{timer} = \frac{f_{clk}}{PSC + 1}, \qquad T = \frac{ARR + 1}{f_{timer}} \]<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label><dl class="terms"><dt>\(f_{timer}\)</dt><dd>Counter clock after the prescaler (Hz).</dd><dt>\(f_{clk}\)</dt><dd>Timer input clock (Hz).</dd><dt>\(PSC\)</dt><dd>Value in TIMx_PSC.</dd><dt>\(T\)</dt><dd>Interrupt interval when counting up from 0 to ARR (s).</dd><dt>\(ARR\)</dt><dd>Value in TIMx_ARR.</dd></dl></div>
+<details class="memo"><summary>Memo for question 4</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Counter clock, then counts per interval, minus one.</p>
+<div class="mp"><h4>ARR</h4><ol class="steps"><li><div><p>\(f_{timer} = 10\ \text{MHz} / 1000 = 10\ \text{kHz}\).</p></div><span class="mt"></span></li><li><div><p>Counts in 0.5 s: \(0.5 \times 10\,000 = 5000\), so \(ARR = 5000 - 1\).</p></div><span class="mt"></span></li></ol><div class="ans">TIMx_ARR = 4999</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>The student memo also lists ARR = 2500 from \(T = 2\,ARR / f_{timer}\). That formula is for centre-aligned mode, where the counter goes up and back down. The question describes a plain up-counting interrupt, so 4999 is the answer.</p></div></div></details>
+</section>
+
+<section id="q5">
+<h2><span class="n">Q5</span>Timer frequency</h2>
+<p>The timer input clock is 8 MHz and <code>TIMx_PSC</code> = 1023. What is the timer frequency?</p>
+<details class="memo"><summary>Memo for question 5</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Divide by PSC + 1.</p>
+<div class="mp"><h4>Timer frequency</h4><ol class="steps"><li><div><p>\(8 \times 10^6 / 1024 = 7812.5\) Hz.</p></div><span class="mt"></span></li></ol><div class="ans">7812.5 Hz</div></div>
+</div></details>
+</section>
+
+<section id="q6">
+<h2><span class="n">Q6</span>Single pulse</h2>
+<p>Which timer mode can generate a single pulse in response to an external event?</p>
+<details class="memo"><summary>Memo for question 6</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Recall the timer modes.</p>
+<div class="mp"><h4>Answer</h4><ol class="steps"><li><div><p>One-pulse mode starts the counter on a trigger and outputs one pulse of set delay and width.</p></div><span class="mt"></span></li></ol><div class="ans">One-pulse mode</div></div>
+</div></details>
+</section>
+
+<section id="q7">
+<h2><span class="n">Q7</span>Serial versus parallel</h2>
+<p>True or False: serial communication is transmitting and receiving data in parallel over a communications channel.</p>
+<details class="memo"><summary>Memo for question 7</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Definition.</p>
+<div class="mp"><h4>Answer</h4><ol class="steps"><li><div><p>Serial sends the bits one after another over one line; parallel sends several bits at once on several lines.</p></div><span class="mt"></span></li></ol><div class="ans">False</div></div>
+</div></details>
+</section>
+
+<section id="q8">
+<h2><span class="n">Q8</span>Speed ranking</h2>
+<p>Arrange the serial standards (SPI, I2C, UART) from fastest to slowest possible throughput.</p>
+<details class="memo"><summary>Memo for question 8</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Compare typical maximum rates.</p>
+<div class="mp"><h4>Ranking</h4><ol class="steps"><li><div><p>SPI: push-pull lines, no address or ACK overhead, tens of Mbit/s.</p></div><span class="mt"></span></li><li><div><p>I2C: up to 3.4 Mbit/s (high-speed mode), usually 100 or 400 kbit/s.</p></div><span class="mt"></span></li><li><div><p>UART: standard rates up to 115 200 bit/s here, with framing bits on every byte.</p></div><span class="mt"></span></li></ol><div class="ans">SPI → I2C → UART</div></div>
+</div></details>
+</section>
+
+<section id="q9">
+<h2><span class="n">Q9</span>UART 4800-8-N-2</h2>
+<p>A UART COM port is set to 4800-8-N-2.</p><div class="qp"><b>(a)</b><div>What is the baud rate?</div></div><div class="qp"><b>(b)</b><div>How many parity bits are in a frame?</div></div><div class="qp"><b>(c)</b><div>How many start bits are in a frame?</div></div><div class="qp"><b>(d)</b><div>How many stop bits are in a frame?</div></div><div class="qp"><b>(e)</b><div>What is the data throughput in bytes per second?</div></div>
+<details class="memo"><summary>Memo for question 9</summary><div class="sol">
+<p class="plan"><b>Approach.</b> The notation is baud-data bits-parity-stop bits. Every frame also has one start bit.</p>
+<div class="mp"><h4><span class="pt">(a)</span>Baud rate</h4><ol class="steps"><li><div><p>The first number.</p></div><span class="mt"></span></li></ol><div class="ans">4800 baud</div></div>
+<div class="mp"><h4><span class="pt">(b)</span>Parity bits</h4><ol class="steps"><li><div><p>N means no parity.</p></div><span class="mt"></span></li></ol><div class="ans">0</div></div>
+<div class="mp"><h4><span class="pt">(c)</span>Start bits</h4><ol class="steps"><li><div><p>A UART frame always has one start bit.</p></div><span class="mt"></span></li></ol><div class="ans">1</div></div>
+<div class="mp"><h4><span class="pt">(d)</span>Stop bits</h4><ol class="steps"><li><div><p>The last number.</p></div><span class="mt"></span></li></ol><div class="ans">2</div></div>
+<div class="mp"><h4><span class="pt">(e)</span>Throughput</h4><ol class="steps"><li><div><p>Bits per frame: 1 + 8 + 0 + 2 = 11.</p></div><span class="mt"></span></li><li><div><p>\(4800 / 11 = 436.36\) bytes/s.</p></div><span class="mt"></span></li></ol><div class="ans">436.36 bytes/s</div></div>
+</div></details>
+</section>
+
+<section id="q10">
+<h2><span class="n">Q10</span>SPI facts</h2>
+<p>Choose the correct answers (negative marking).</p><div class="qp"><b>(a)</b><div>SPI supports multiple masters?</div></div><div class="qp"><b>(b)</b><div>SPI only supports 8-bit transfers?</div></div><div class="qp"><b>(c)</b><div>SPI hardware controllers can also be used for transmitting [A] data.</div></div>
+<details class="memo"><summary>Memo for question 10</summary><div class="sol">
+<p class="plan"><b>Approach.</b> These follow the SPI feature list in the STM32F4 reference manual.</p>
+<div class="mp"><h4>Answers</h4><ol class="steps"><li><div><p>(a) <b>True.</b> The reference manual lists multimaster mode capability (NSS pin and mode-fault detection).</p></div><span class="mt"></span></li><li><div><p>(b) <b>False.</b> 8-bit or 16-bit frames.</p></div><span class="mt"></span></li><li><div><p>(c) <b>I²S.</b> SPI2 and SPI3 can run as I²S audio interfaces.</p></div><span class="mt"></span></li></ol><div class="ans">True, False, I²S</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>The student memo answers (c) with "SD cards". In the 2025 paper the options for this blank are I²S, I²C and UART, and the revision lecture says ST lets the SPI hardware be used for I²S. "SD" was most likely a misreading of I²S.</p></div></div></details>
+</section>
+
+<section id="q11">
+<h2><span class="n">Q11</span>SD card over SPI</h2>
+<p>A microcontroller must read and write an SD card over SPI. Which SPI controller signal goes to each SD pin?</p><p>SD pins: CS (pin 1, shown as SC), CMD, VSS1, VDD, CLK, VSS2, DAT0, DAT1, DAT2. Options: GPIO, MOSI, MISO, SCLK.</p>
+<details class="memo"><summary>Memo for question 11</summary><div class="sol">
+<p class="plan"><b>Approach.</b> In SPI mode the card's CMD pin is its data input, DAT0 its data output and pin 1 its chip select.</p>
+<div class="mp"><h4>Connections</h4><ol class="steps"><li><div><p>CS (pin 1) ← <b>GPIO</b>: the master drives chip select from an ordinary output pin.</p></div><span class="mt"></span></li><li><div><p>CMD ← <b>MOSI</b>.</p></div><span class="mt"></span></li><li><div><p>DAT0 → <b>MISO</b>.</p></div><span class="mt"></span></li><li><div><p>CLK ← <b>SCLK</b>.</p></div><span class="mt"></span></li><li><div><p>VSS1, VSS2 and VDD are power; DAT1 and DAT2 are unused in SPI mode.</p></div><span class="mt"></span></li></ol><div class="ans">GPIO → CS, MOSI → CMD, MISO → DAT0, SCLK → CLK</div></div>
+</div></details>
+</section>
+
+<section id="q12">
+<h2><span class="n">Q12</span>LIS3DSH driver</h2>
+<p>Fix <code>LIS3DSH_Init</code> and <code>LIS3DSH_ReadXYZ</code>; the symptom is that it does not work. The chip select is PE3.</p><pre><code>void LIS3DSH_Init(void)
+{
+    HAL_StatusTypeDef res;
+    uint8_t TxBuf[10] = {0};
+    TxBuf[0] = 0x20 | 0x80;
+    TxBuf[1] = 0x13;
+    res = HAL_SPI_Transmit(&amp;hspi1, TxBuf, 2, 100);
+}
+
+void LIS3DSH_ReadXYZ(int16_t *pData){
+    HAL_StatusTypeDef res;
+    uint8_t TxBuf[10] = {0};
+    uint8_t RxBuf[10] = {0};
+    TxBuf[0] = 0x18 ;
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
+    res = HAL_SPI_Transmit(&amp;hspi1, RxBuf, 1, 100);
+    res = HAL_SPI_Receive(&amp;hspi1, TxBuf, 3, 100);
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
+    pData[0] = RxBuf[0];
+    pData[1] = RxBuf[2];
+    pData[2] = RxBuf[4];
+}</code></pre>
+<details class="memo"><summary>Memo for question 12</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Same driver as 2025 Question 13. First byte = register address, bit 7 = 1 to read. CS (PE3) is active low for the whole transfer. CTRL_REG4 (0x20) = ODR[3:0] BDU Zen Yen Xen. Outputs: OUT_X_L at 0x28 to OUT_Z_H at 0x2D, low byte first.</p>
+<div class="mp"><h4>Errors</h4><ol class="steps"><li><div><p>Init: <code>0x20 | 0x80</code> is a read; write with <code>0x20</code>.</p></div><span class="mt"></span></li><li><div><p>Init: <code>0x13</code> sets ODR = 3.125 Hz with Z disabled. Use ODR for the rate asked plus <code>0x07</code> for all three axes (50 Hz → <code>0x57</code>, 100 Hz → <code>0x67</code>).</p></div><span class="mt"></span></li><li><div><p>Init: CS is never pulled low.</p></div><span class="mt"></span></li><li><div><p>Read: register 0x18 is wrong and the read bit is missing; use <code>0x28 | 0x80</code>.</p></div><span class="mt"></span></li><li><div><p>Read: CS levels are swapped, the Tx and Rx buffers are swapped, and 3 bytes are read where 6 are needed.</p></div><span class="mt"></span></li><li><div><p>Read: each axis is two bytes, low byte first; combine them into a 16-bit value.</p></div><span class="mt"></span></li></ol></div>
+<div class="mp"><h4>Corrected code</h4><ol class="steps"><li><div><pre><code>void LIS3DSH_Init(void)
+{
+    HAL_StatusTypeDef res;
+    uint8_t TxBuf[10] = {0};
+    TxBuf[0] = 0x20;              /* CTRL_REG4, write */
+    TxBuf[1] = 0x67;              /* ODR 100 Hz, X Y Z enabled (0x57 for 50 Hz) */
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
+    res = HAL_SPI_Transmit(&amp;hspi1, TxBuf, 2, 100);
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
+}
+
+void LIS3DSH_ReadXYZ(int16_t *pData){
+    HAL_StatusTypeDef res;
+    uint8_t TxBuf[10] = {0};
+    uint8_t RxBuf[10] = {0};
+    TxBuf[0] = 0x28 | 0x80;       /* OUT_X_L, read */
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
+    res = HAL_SPI_Transmit(&amp;hspi1, TxBuf, 1, 100);
+    res = HAL_SPI_Receive(&amp;hspi1, RxBuf, 6, 100);
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
+    pData[0] = (int16_t)((RxBuf[1] &lt;&lt; 8) | RxBuf[0]);
+    pData[1] = (int16_t)((RxBuf[3] &lt;&lt; 8) | RxBuf[2]);
+    pData[2] = (int16_t)((RxBuf[5] &lt;&lt; 8) | RxBuf[4]);
+}</code></pre></div><span class="mt"></span></li></ol></div>
+<div class="box watch"><span class="label">Watch out</span><p>The retyped 2024 paper leaves out the required output data rate. The student memo uses 0x67 (100 Hz); the 2025 version of the question asks for 50 Hz (0x57). Use the rate your paper states. The student memo's <code>*((int16_t*)(RxBuf+2))</code> casts give the same values on the little-endian Cortex-M4; the shifts above do not depend on byte order or alignment.</p></div></div></details>
+</section>
+
+<section id="q13">
+<h2><span class="n">Q13</span>I2C facts</h2>
+<div class="qp"><b>(a)</b><div>Pull-up resistors are required on which signals?</div></div><div class="qp"><b>(b)</b><div>I2C is a full-duplex bus. (True/False)</div></div><div class="qp"><b>(c)</b><div>Clock stretching speeds up transaction throughput. (True/False)</div></div><div class="qp"><b>(d)</b><div>Which of 10 Ω, 100 Ω, 10 kΩ or 100 kΩ is a good first choice for the pull-ups?</div></div>
+<details class="memo"><summary>Memo for question 13</summary><div class="sol">
+<p class="plan"><b>Approach.</b> I2C uses two open-drain lines shared by every device.</p>
+<div class="mp"><h4>Answers</h4><ol class="steps"><li><div><p>(a) <b>SDA and SCL</b>: open-drain outputs can only pull low, so each line needs a pull-up.</p></div><span class="mt"></span></li><li><div><p>(b) <b>False.</b> One data line, so it is half-duplex.</p></div><span class="mt"></span></li><li><div><p>(c) <b>False.</b> A slave holds SCL low to make the master wait; it slows the transfer down.</p></div><span class="mt"></span></li><li><div><p>(d) <b>10 kΩ.</b> 10 Ω and 100 Ω draw more than an I/O pin can sink; 100 kΩ makes the rise time too slow.</p></div><span class="mt"></span></li></ol><div class="ans">SDA and SCL; False; False; 10 kΩ</div></div>
+</div></details>
+</section>
+
+<section id="q14">
+<h2><span class="n">Q14</span>Minimum pull-up</h2>
+<p>For an I/O drive strength of 6 mA and \(V_{DD}\) = 3.3 V, calculate the minimum pull-up resistor (Ω) for an I2C bus.</p><div class="eq"><span class="tag">Minimum pull-up</span>\[ R_{P(min)} = \frac{V_{DD} - V_{OL(max)}}{I_{OL}} \]<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label><dl class="terms"><dt>\(R_{P(min)}\)</dt><dd>Smallest allowed pull-up (Ω).</dd><dt>\(V_{DD}\)</dt><dd>Supply (V).</dd><dt>\(V_{OL(max)}\)</dt><dd>Guaranteed low output level at that current (V).</dd><dt>\(I_{OL}\)</dt><dd>Sink current of the pin (A).</dd></dl></div>
+<details class="memo"><summary>Memo for question 14</summary><div class="sol">
+<p class="plan"><b>Approach.</b> The pin must sink the full pull-up current while holding the line at or below \(V_{OL(max)}\).</p>
+<div class="mp"><h4>Rp(min)</h4><ol class="steps"><li><div><p>\(V_{OL(max)}\) = 0.4 V from the STM32F407 datasheet output table.</p></div><span class="mt"></span></li><li><div><p>\(R_{P(min)} = (3.3 - 0.4) / 0.006 = 483.3\ \Omega\).</p></div><span class="mt"></span></li></ol><div class="ans">483.33 Ω</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>The second set of handwritten answers took \(V_{OL} = 0\) ("not specified, assume zero") and got 550 Ω. The student memo, ticked, uses 0.4 V and gets 483.33 Ω, which matches the formula and the datasheet.</p></div></div></details>
+</section>
+
+<section id="q15">
+<h2><span class="n">Q15</span>ADC resolution</h2>
+<p>For a 0 to 10 V ADC, choose the minimum resolution for a quantisation error of less than 1 mV.</p>
+<details class="memo"><summary>Memo for question 15</summary><div class="sol">
+<p class="plan"><b>Approach.</b> A rounding ADC has a maximum quantisation error of half an LSB.</p>
+<div class="mp"><h4>Resolution</h4><ol class="steps"><li><div><p>\(\tfrac{1}{2}\,\text{LSB} = \dfrac{10}{2 \cdot 2^N} \lt 0.001\) gives \(2^N \gt 5000\).</p></div><span class="mt"></span></li><li><div><p>\(N \gt \log_2 5000 = 12.29\), so N = 13.</p></div><span class="mt"></span></li></ol><div class="ans">13 bits</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>The two student answers disagree. The memo sets the error equal to a full LSB (\(10 / (2^N - 1) \lt 0.001\), N = 13.29) and gets 14 bits; the other set uses half an LSB and gets 13 bits. Quantisation error is ±½ LSB for a converter that rounds, so 13 bits. If your lecturer defines it as one full LSB (a truncating converter), the answer becomes 14 bits.</p></div></div></details>
+</section>
+
+<section id="q16">
+<h2><span class="n">Q16</span>ADC conversion result</h2>
+<p>For a 0 to 10 V 16-bit ADC, calculate the conversion result for a 1.1011 V DC input.</p><div class="eq"><span class="tag">Ideal ADC (revision lecture)</span>\[ R = (2^N - 1)\,\frac{V_{IN} - V_{REF-}}{V_{REF+} - V_{REF-}} \]<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label><dl class="terms"><dt>\(R\)</dt><dd>Digital result.</dd><dt>\(N\)</dt><dd>Resolution (bits).</dd><dt>\(V_{IN}\)</dt><dd>Input voltage (V).</dd><dt>\(V_{REF-}\)</dt><dd>Lower reference (V).</dd><dt>\(V_{REF+}\)</dt><dd>Upper reference (V).</dd></dl></div>
+<details class="memo"><summary>Memo for question 16</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Use the ideal ADC line and round to a whole code.</p>
+<div class="mp"><h4>Result</h4><ol class="steps"><li><div><p>\(R = 65\,535 \times 1.1011 / 10 = 7216.06\).</p></div><span class="mt"></span></li><li><div><p>Round to the nearest code.</p></div><span class="mt"></span></li></ol><div class="ans">7216</div></div>
+</div></details>
+</section>
+
+<section id="q17">
+<h2><span class="n">Q17</span>Flash ADC</h2>
+<p>True or False: the STM32F407 uses a Flash ADC.</p>
+<details class="memo"><summary>Memo for question 17</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Converter type.</p>
+<div class="mp"><h4>Answer</h4><ol class="steps"><li><div><p>Its ADCs are successive approximation (SAR).</p></div><span class="mt"></span></li></ol><div class="ans">False</div></div>
+</div></details>
+</section>
+
+<section id="q18">
+<h2><span class="n">Q18</span>8-bit conversion time</h2>
+<p>In the STM32F407 ADC, how many clock cycles are needed for an 8-bit conversion?</p>
+<details class="memo"><summary>Memo for question 18</summary><div class="sol">
+<p class="plan"><b>Approach.</b> The reference manual gives total conversion time = sampling time + one cycle per bit.</p>
+<div class="mp"><h4>Cycles</h4><ol class="steps"><li><div><p>Minimum sampling time: 3 ADCCLK cycles.</p></div><span class="mt"></span></li><li><div><p>8-bit successive approximation: 8 cycles.</p></div><span class="mt"></span></li><li><div><p>\(3 + 8 = 11\) cycles (12-bit takes 15, 10-bit 13, 6-bit 9).</p></div><span class="mt"></span></li></ol><div class="ans">11 cycles</div></div>
+</div></details>
+</section>
+
+<section id="q19">
+<h2><span class="n">Q19</span>SAR ADC timing</h2>
+<p>True or False: for a SAR ADC, the conversion result is decoded instantly.</p>
+<details class="memo"><summary>Memo for question 19</summary><div class="sol">
+<p class="plan"><b>Approach.</b> How a SAR works.</p>
+<div class="mp"><h4>Answer</h4><ol class="steps"><li><div><p>A SAR finds one bit per clock with a binary search; only a Flash ADC decodes in one step.</p></div><span class="mt"></span></li></ol><div class="ans">False</div></div>
+</div></details>
+</section>
+
+<section id="q20">
+<h2><span class="n">Q20</span>DAC output</h2>
+<p>For a 0 to 5 V 12-bit DAC, calculate the analog output for the digital value 0xF7. Round to 4 decimal places.</p>
+<details class="memo"><summary>Memo for question 20</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Hex to decimal, then the ideal DAC line \(V_{OUT} = R\,V_{REF} / (2^N - 1)\).</p>
+<div class="mp"><h4>Output</h4><ol class="steps"><li><div><p>0xF7 = 247.</p></div><span class="mt"></span></li><li><div><p>\(V_{OUT} = 247 \times 5 / 4095 = 0.30159\) V.</p></div><span class="mt"></span></li></ol><div class="ans">0.3016 V</div></div>
+</div></details>
+</section>
+
+<section id="q21">
+<h2><span class="n">Q21</span>Motors and relays</h2>
+<p>Fill in: for small discrete movements use a [A] motor. When switching relays include a [B] in parallel with the [C]. For efficient DC motor speed control use an [E] to drive an [F].</p>
+<details class="memo"><summary>Memo for question 21</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Same item as 2025 Question 21.</p>
+<div class="mp"><h4>Answers</h4><ol class="steps"><li><div><p>[A] <b>stepper</b>.</p></div><span class="mt"></span></li><li><div><p>[B] <b>flyback diode</b> in parallel with [C] the relay <b>coil</b>.</p></div><span class="mt"></span></li><li><div><p>[E] a <b>PWM signal</b> to drive [F] an <b>H-bridge</b>, which switches the motor.</p></div><span class="mt"></span></li></ol><div class="ans">stepper; flyback diode, coil; PWM signal, H-bridge</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>The student memo has [E] = H-bridge and [F] = DC motor. In the 2025 version the options for [E] and [F] are DMA, GPIO, PWM signal, H-Bridge and relay, and the motor is already named in the sentence, so [E] is the PWM signal and [F] the H-bridge.</p></div></div></details>
+</section>
+
+<section id="q22">
+<h2><span class="n">Q22</span>Memory types</h2>
+<p>[A] flash is used for program code. [B] flash is used for mass storage. A [C] interface has separate strobe signals for column and row addresses. [D] information is stored as charge in a capacitor.</p>
+<details class="memo"><summary>Memo for question 22</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Revision lecture, flash memory comparison.</p>
+<div class="mp"><h4>Answers</h4><ol class="steps"><li><div><p>[A] NOR, [B] NAND, [C] SDRAM (RAS and CAS strobes), [D] SDRAM (dynamic RAM, refreshed).</p></div><span class="mt"></span></li></ol><div class="ans">NOR, NAND, SDRAM, SDRAM</div></div>
+</div></details>
+</section>
+
+<section id="q23">
+<h2><span class="n">Q23</span>Smart meter block diagram</h2>
+<p>A smart power meter connects to a house's 220 V line and measures current. It uses an STM32F407VG; a current transformer gives ±10 mV for ±13 A; it calculates the RMS current from 1000 Hz samples taken in a timer interrupt; it runs from mains; it sends data through a UART to a wireless modem; the MCU and modem use 3.3 V; a flashing LED shows the status. Complete the block diagram.</p>
+<details class="memo"><summary>Memo for question 23</summary><div class="sol">
+<p class="plan"><b>Approach.</b> Trace power, measurement, data and status paths. The student memo's diagram (marked as the 2021 memo) matches this.</p>
+<div class="mp"><h4>Placement</h4><ol class="steps"><li><div><p>220 V → AC→DC conversion → 3.3 V to the MCU and the modem.</p></div><span class="mt"></span></li><li><div><p>Current transformer → 10 mV p-p analog → signal conditioning → 0 to 3 V analog → ADC.</p></div><span class="mt"></span></li><li><div><p>Timer → triggers the ADC at 1000 Hz.</p></div><span class="mt"></span></li><li><div><p>UART ↔ modem (TX, RX). GPIO output → status LED.</p></div><span class="mt"></span></li></ol></div>
+<figure><svg viewBox="0 0 640 292" class="fig" role="img" aria-label="Smart power meter block diagram: mains feeds an AC to DC converter that supplies 3.3 V to the modem and microcontroller; a current transformer gives a ±10 mV signal to a signal-conditioning stage whose 0 to 3 V output goes to the ADC; a timer triggers the ADC; the UART talks to the wireless modem over TX and RX; a GPIO output drives the status LED."><rect class="cell" x="10" y="20" width="120" height="40"/><text class="lab" x="70.0" y="44.5" text-anchor="middle">220 V AC mains</text><rect class="cell" x="170" y="20" width="150" height="40"/><text class="lab" x="245.0" y="44.5" text-anchor="middle">AC→DC conversion</text><rect class="cell" x="390" y="20" width="140" height="40"/><text class="lab" x="460.0" y="44.5" text-anchor="middle">Wireless modem</text><rect class="cell" x="555" y="20" width="75" height="40"/><text class="lab" x="592.5" y="44.5" text-anchor="middle">Status LED</text><rect class="cell" x="10" y="112" width="120" height="44"/><text class="lab" x="70.0" y="131.0" text-anchor="middle">Current</text><text class="lab" x="70.0" y="146.0" text-anchor="middle">transformer</text><rect class="cell" x="10" y="214" width="120" height="44"/><text class="lab" x="70.0" y="233.0" text-anchor="middle">Signal</text><text class="lab" x="70.0" y="248.0" text-anchor="middle">conditioning</text><rect class="cell" x="200" y="104" width="430" height="176"/><text class="b" x="415" y="272" text-anchor="middle">STM32F4 microcontroller</text><rect class="cell" x="220" y="216" width="80" height="34"/><text class="lab" x="260.0" y="237.5" text-anchor="middle">ADC</text><rect class="cell" x="340" y="216" width="80" height="34"/><text class="lab" x="380.0" y="237.5" text-anchor="middle">Timer</text><rect class="cell" x="400" y="120" width="80" height="34"/><text class="lab" x="440.0" y="141.5" text-anchor="middle">UART</text><rect class="cell" x="540" y="120" width="80" height="34"/><text class="lab" x="580.0" y="141.5" text-anchor="middle">GPIO output</text><line class="ln c4" x1="130" y1="40" x2="170" y2="40"/><line class="ln c4" x1="320" y1="40" x2="390" y2="40"/><polygon class="c4f" points="390,40 382,36 382,44"/><text class="lab" x="355" y="33" text-anchor="middle">3.3 V</text><line class="ln c4" x1="245" y1="60" x2="245" y2="104"/><polygon class="c4f" points="245,104 241,96 249,96"/><text class="lab" x="252" y="88" text-anchor="start">3.3 V</text><line class="ln c4" x1="70" y1="60" x2="70" y2="112"/><text class="lab" x="77" y="90" text-anchor="start">line current</text><line class="ln c4" x1="70" y1="156" x2="70" y2="214"/><polygon class="c4f" points="70,214 66,206 74,206"/><text class="lab" x="77" y="190" text-anchor="start">±10 mV p-p analog</text><line class="ln c4" x1="130" y1="236" x2="220" y2="236"/><polygon class="c4f" points="220,236 212,232 212,240"/><text class="lab" x="140" y="228" text-anchor="start">0–3 V analog</text><line class="ln c4" x1="340" y1="233" x2="300" y2="233"/><polygon class="c4f" points="300,233 308,229 308,237"/><text class="lab" x="320" y="210" text-anchor="middle">trigger</text><line class="ln c4" x1="440" y1="60" x2="440" y2="120"/><text class="lab" x="447" y="94" text-anchor="start">TX / RX</text><line class="ln c4" x1="592" y1="120" x2="592" y2="60"/><polygon class="c4f" points="592,60 588,68 596,68"/></svg><figcaption>Figure 1. Smart power meter: where each block and signal label goes.</figcaption></figure></div></details>
+</section>
+
+<section id="q24">
+<h2><span class="n">Q24</span>Assembly: read PA0</h2>
+<p>Write the assembly function <code>readUserPin</code> to read PA0 on the STM32F4DISCOVERY. C prototype: <code>uint32_t readUserPin();</code> Use only the input data register; initialisation is done.</p>
+<details class="memo"><summary>Memo for question 24</summary><div class="sol">
+<p class="plan"><b>Approach.</b> GPIOA_IDR is at 0x4002 0000 + 0x10. Return in R0.</p>
+<div class="mp"><h4>Code</h4><ol class="steps"><li><div><pre><code>readUserPin:
+    ldr  r1, =0x40020010    @ GPIOA_IDR
+    ldr  r2, [r1]
+    and  r0, r2, #1         @ PA0 only
+    bx   lr</code></pre></div><span class="mt"></span></li></ol><div class="ans">Matches the student memo</div></div>
+</div></details>
+</section>
+
+<footer>
+<p>Sources: the retyped 2024 paper (2024 Past Paper Computer Systems 245.pdf, which starts at Question 4), a student's handwritten memo (2024A2_StudentMemo.1.jpg to .3.jpg), a second student's handwritten answers (Alleged 2024 A2.pdf) and the CS245 A2 revision lecture. Questions 1 to 3 and all pictures are missing from the retyped paper. Marks per question were not in the source.</p>
+</footer>
+</main>
+</div>
+<script src="../../assets/ask-gemini.js" data-store="cs245-2024-a2" data-course="CS245 Computer Systems"
+        data-topic="2024 Assessment 2 paper with memo: timer prescaler and auto-reload, one-pulse mode, serial speed ranking, UART 4800-8-N-2 framing and throughput, SPI facts, SD card over SPI, LIS3DSH SPI driver, I2C pull-ups and clock stretching, ADC resolution and conversion, SAR and Flash ADCs, DAC output, motors and relays, NOR/NAND/SDRAM, smart meter block diagram, assembly read of PA0"></script>
+</body>
+</html>
