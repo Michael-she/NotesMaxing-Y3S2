@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 8: SPI, SD cards and DMA · CS245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../module.html?m=cs245">&larr; Computer Systems</a>
+  <div class="k">CS245 · Week 8</div>
+  <ol>
+    <li><a href="#spi">1. SPI</a></li>
+    <li class="sub"><a href="#spi-topology">Multiple slaves and daisy chains</a></li>
+    <li class="sub"><a href="#spi-hw">Implementation and speed</a></li>
+    <li class="sub"><a href="#spi-modes">Clock polarity and phase</a></li>
+    <li class="sub"><a href="#spi-prog">Programming SPI</a></li>
+    <li><a href="#sd">2. SD cards</a></li>
+    <li class="sub"><a href="#sd-fs">Blocks and file systems</a></li>
+    <li><a href="#dma">3. Direct memory access</a></li>
+    <li class="sub"><a href="#dma-regs">How a DMA transfer works</a></li>
+    <li class="sub"><a href="#dma-f4">DMA on the STM32F4</a></li>
+    <li class="sub"><a href="#dma-hal">DMA with HAL and double buffering</a></li>
+    <li><a href="#prac6">4. Practical 6: UART with HAL</a></li>
+    <li><a href="#practice">5. Practice problems</a></li>
+    <li><a href="#sheet">6. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 · LECTURES 19 AND 20 · PRACTICAL 6</div>
+  <h1>SPI, SD cards and direct memory access</h1>
+  <p class="lede">The third standard serial link, SPI, from its shift-register core to clock modes and slave selection; how an SD card is driven over SPI and organised into a file system; and how the DMA controller moves data between peripherals and memory so the CPU does not have to.</p>
+</header>
+
+<section id="spi">
+<h2><span class="n">01</span>SPI</h2>
+<p class="reading"><b>Reading</b> Lecture 19, slides 3 to 12</p>
+<p>The <strong>Serial Peripheral Interface (SPI)</strong> is a four-wire, full-duplex, synchronous serial bus designed by Motorola in the 1980s. It is built from simple shift registers.</p>
+<div class="tbl"><table><thead><tr><th>Signal</th><th>Name</th><th>Driven by</th></tr></thead><tbody>
+<tr><td>SCK</td><td>Serial clock</td><td>Master</td></tr>
+<tr><td>MOSI</td><td>Master Out, Slave In</td><td>Master</td></tr>
+<tr><td>MISO</td><td>Master In, Slave Out</td><td>Selected slave</td></tr>
+<tr><td>SS (or CS)</td><td>Slave Select, active low</td><td>Master</td></tr>
+</tbody></table></div>
+<p>The master controls the clock. To write, it puts data on MOSI. If the slave must reply, the master keeps clocking and the slave puts data on MISO. Every clock moves one bit each way at the same time, so SPI is <strong>full-duplex</strong>: after 8 clocks the master and slave have <em>exchanged</em> a byte.</p>
+<figure>
+<svg viewBox="0 0 640 235" class="fig" role="img" aria-label="SPI master and slave: two 8-bit shift registers joined in a ring by MOSI and MISO, clocked by the master's SCK, with slave select">
+<rect class="blk" x="40" y="50" width="230" height="130" rx="3"/>
+<text class="lab b" x="155" y="42" text-anchor="middle">Master</text>
+<rect class="blk" x="370" y="50" width="230" height="130" rx="3"/>
+<text class="lab b" x="485" y="42" text-anchor="middle">Slave</text>
+<rect class="cell" x="60" y="80" width="24" height="28"/>
+<rect class="cell" x="390" y="80" width="24" height="28"/>
+<rect class="cell" x="84" y="80" width="24" height="28"/>
+<rect class="cell" x="414" y="80" width="24" height="28"/>
+<rect class="cell" x="108" y="80" width="24" height="28"/>
+<rect class="cell" x="438" y="80" width="24" height="28"/>
+<rect class="cell" x="132" y="80" width="24" height="28"/>
+<rect class="cell" x="462" y="80" width="24" height="28"/>
+<rect class="cell" x="156" y="80" width="24" height="28"/>
+<rect class="cell" x="486" y="80" width="24" height="28"/>
+<rect class="cell" x="180" y="80" width="24" height="28"/>
+<rect class="cell" x="510" y="80" width="24" height="28"/>
+<rect class="cell" x="204" y="80" width="24" height="28"/>
+<rect class="cell" x="534" y="80" width="24" height="28"/>
+<rect class="cell" x="228" y="80" width="24" height="28"/>
+<rect class="cell" x="558" y="80" width="24" height="28"/>
+<text class="tk" x="155" y="125" text-anchor="middle">shift register</text>
+<text class="tk" x="485" y="125" text-anchor="middle">shift register</text>
+<rect class="blk" x="80" y="140" width="150" height="28" rx="3"/>
+<text class="lab" x="155" y="158" text-anchor="middle">clock generator</text>
+<polyline class="ln c1" points="252,94 390,94"/>
+<polygon class="c1f" points="390,94 383,97.2 383,90.8"/>
+<text class="tk" x="320" y="88" text-anchor="middle">MOSI</text>
+<polyline class="ln c3" points="582,94 615,94 615,215 25,215 25,94 60,94"/>
+<polygon class="c3f" points="60,94 53,97.2 53,90.8"/>
+<text class="tk" x="320" y="210" text-anchor="middle">MISO</text>
+<polyline class="ln c4" points="230,154 390,154"/>
+<polygon class="c4f" points="390,154 383,157.2 383,150.8"/>
+<text class="tk" x="320" y="148" text-anchor="middle">SCK</text>
+<polyline class="ln c4 thin" points="230,170 390,170"/>
+<polygon class="c4f" points="390,170 383,173.2 383,166.8"/>
+<text class="tk" x="320" y="184" text-anchor="middle">SS (active low)</text>
+</svg>
+<figcaption><b>Figure 1.1</b> SPI is two shift registers joined in a ring.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> On each clock the master shifts one bit out on MOSI (teal) into the slave, and the slave shifts one bit out on MISO (amber) into the master. After eight clocks the two registers have swapped contents. To read only, the master sends dummy bytes; to write only, it ignores what comes back.</p>
+
+<h3 id="spi-topology">Multiple slaves and daisy chains</h3>
+<p>Each slave has its own <strong>SS</strong> line, which acts as its enable. SS is active low (0 V = selected). SCK, MOSI and MISO are shared. The SS lines can come from the SPI peripheral or from ordinary GPIO pins.</p>
+<figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="SPI with three independent slaves: shared SCK, MOSI and MISO, and one active-low slave select line per slave">
+<rect class="blk" x="30" y="60" width="110" height="180" rx="3"/>
+<text class="lab" x="85" y="154" text-anchor="middle">Master</text>
+<polyline class="ln c4" points="140,80 600,80"/>
+<text class="tk" x="146" y="76" text-anchor="start">SCK</text>
+<polyline class="ln c4" points="140,102 600,102"/>
+<text class="tk" x="146" y="98" text-anchor="start">MOSI</text>
+<polyline class="ln c3" points="140,124 600,124"/>
+<text class="tk" x="146" y="120" text-anchor="start">MISO</text>
+<rect class="blkd" x="260" y="150" width="80" height="50" rx="3"/>
+<text class="lab" x="300" y="179" text-anchor="middle">Slave 1</text>
+<circle class="c4f" cx="275" cy="80" r="2.6"/>
+<polyline class="ln c4 thin" points="275,80 275,150"/>
+<circle class="c4f" cx="300" cy="102" r="2.6"/>
+<polyline class="ln c4 thin" points="300,102 300,150"/>
+<circle class="c4f" cx="325" cy="124" r="2.6"/>
+<polyline class="ln c3 thin" points="325,124 325,150"/>
+<rect class="blkd" x="380" y="150" width="80" height="50" rx="3"/>
+<text class="lab" x="420" y="179" text-anchor="middle">Slave 2</text>
+<circle class="c4f" cx="395" cy="80" r="2.6"/>
+<polyline class="ln c4 thin" points="395,80 395,150"/>
+<circle class="c4f" cx="420" cy="102" r="2.6"/>
+<polyline class="ln c4 thin" points="420,102 420,150"/>
+<circle class="c4f" cx="445" cy="124" r="2.6"/>
+<polyline class="ln c3 thin" points="445,124 445,150"/>
+<rect class="blkd" x="500" y="150" width="80" height="50" rx="3"/>
+<text class="lab" x="540" y="179" text-anchor="middle">Slave 3</text>
+<circle class="c4f" cx="515" cy="80" r="2.6"/>
+<polyline class="ln c4 thin" points="515,80 515,150"/>
+<circle class="c4f" cx="540" cy="102" r="2.6"/>
+<polyline class="ln c4 thin" points="540,102 540,150"/>
+<circle class="c4f" cx="565" cy="124" r="2.6"/>
+<polyline class="ln c3 thin" points="565,124 565,150"/>
+<polyline class="ln c1 thin" points="140,212 300,212 300,200"/>
+<text class="tk" x="146" y="210" text-anchor="start">SS1</text>
+<polyline class="ln c1 thin" points="140,224 420,224 420,200"/>
+<text class="tk" x="146" y="222" text-anchor="start">SS2</text>
+<polyline class="ln c1 thin" points="140,236 540,236 540,200"/>
+<text class="tk" x="146" y="234" text-anchor="start">SS3</text>
+</svg>
+<figcaption><b>Figure 1.2</b> Three slaves sharing the bus with separate slave selects.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.2:</b> Every slave sees the clock and MOSI, but only the selected one drives MISO (amber). Selecting two at once is <strong>bus contention</strong>: both drive MISO. With \(n\) slaves the master needs \(3 + n\) signals.</p>
+<div class="eq"><span class="tag">SPI signal count</span>\[ N_{signals} = 3 + n \qquad N_{signals,\,decoder} = 3 + \lceil \log_2 n \rceil \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(N_{signals}\)</dt><dd>Number of master pins used by the bus.</dd>
+  <dt>\(n\)</dt><dd>Number of slaves.</dd>
+  <dt>\(N_{signals,\,decoder}\)</dt><dd>Pins needed when a decoder drives the SS lines from a binary slave number.</dd>
+</dl>
+</div>
+<p>For many slaves a <strong>decoder</strong> (for example 3-to-8) turns a few pins into many SS lines, and also guarantees only one slave is selected at a time. The decoder form is not on the slides as a formula; it follows from a \(k\)-to-\(2^k\) decoder.</p>
+<p>In a <strong>daisy chain</strong>, each slave's data out (DOUT) goes to the next slave's data in (DIN). One SS and one clock go to all of them. Data ripples through: the first byte sent ends up in the <em>last</em> slave. With 3 slaves the master clocks 24 times to get a byte to the last one. The slaves must support this, and it is mostly used for output-only chains such as addressable LED strips.</p>
+<figure>
+<svg viewBox="0 0 640 200" class="fig" role="img" aria-label="SPI daisy chain: master MOSI into slave 1 DIN, each DOUT to the next DIN; one slave select and clock shared by all">
+<rect class="blk" x="20" y="60" width="100" height="100" rx="3"/>
+<text class="lab" x="70" y="114" text-anchor="middle">Master</text>
+<rect class="blkd" x="190" y="70" width="100" height="80" rx="3"/>
+<text class="lab" x="240" y="114" text-anchor="middle">Slave 1</text>
+<text class="tk" x="196" y="100" text-anchor="start">DIN</text>
+<text class="tk" x="284" y="100" text-anchor="end">DOUT</text>
+<rect class="blkd" x="340" y="70" width="100" height="80" rx="3"/>
+<text class="lab" x="390" y="114" text-anchor="middle">Slave 2</text>
+<text class="tk" x="346" y="100" text-anchor="start">DIN</text>
+<text class="tk" x="434" y="100" text-anchor="end">DOUT</text>
+<rect class="blkd" x="490" y="70" width="100" height="80" rx="3"/>
+<text class="lab" x="540" y="114" text-anchor="middle">Slave 3</text>
+<text class="tk" x="496" y="100" text-anchor="start">DIN</text>
+<text class="tk" x="584" y="100" text-anchor="end">DOUT</text>
+<polyline class="ln c1" points="120,96 190,96"/>
+<polygon class="c1f" points="190,96 183,99.2 183,92.8"/>
+<text class="tk" x="150" y="90" text-anchor="middle">MOSI</text>
+<polyline class="ln c1" points="290,96 340,96"/>
+<polygon class="c1f" points="340,96 333,99.2 333,92.8"/>
+<polyline class="ln c1" points="440,96 490,96"/>
+<polygon class="c1f" points="490,96 483,99.2 483,92.8"/>
+<polyline class="ln c4" points="120,40 590,40"/>
+<text class="tk" x="126" y="34" text-anchor="start">SCK</text>
+<polyline class="ln c4 thin" points="120,52 590,52"/>
+<text class="tk" x="126" y="64" text-anchor="start">SS</text>
+<circle class="c4f" cx="230" cy="40" r="2.6"/>
+<polyline class="ln c4 thin" points="230,40 230,70"/>
+<circle class="c4f" cx="250" cy="52" r="2.6"/>
+<polyline class="ln c4 thin" points="250,52 250,70"/>
+<circle class="c4f" cx="380" cy="40" r="2.6"/>
+<polyline class="ln c4 thin" points="380,40 380,70"/>
+<circle class="c4f" cx="400" cy="52" r="2.6"/>
+<polyline class="ln c4 thin" points="400,52 400,70"/>
+<circle class="c4f" cx="530" cy="40" r="2.6"/>
+<polyline class="ln c4 thin" points="530,40 530,70"/>
+<circle class="c4f" cx="550" cy="52" r="2.6"/>
+<polyline class="ln c4 thin" points="550,52 550,70"/>
+<text class="tk" x="320" y="185" text-anchor="middle">first byte sent ends up in slave 3 after 3 × 8 clocks</text>
+</svg>
+<figcaption><b>Figure 1.3</b> A three-slave daisy chain.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.3:</b> The chain behaves as one long shift register of 24 bits. When SS rises, each slave latches the byte now sitting in it.</p>
+
+<h3 id="spi-hw">Implementation and speed</h3>
+<ul>
+<li>No frame overhead: no start or stop bits, just a continuous bit stream, always in multiples of 8 bits.</li>
+<li>The shift register may be 8, 16 or 32 bits; how many bytes are sent depends on the application.</li>
+<li>Bit order (MSB or LSB first) is configurable: check the slave's datasheet.</li>
+<li>Voltage levels depend on the device, typically TTL levels.</li>
+<li>Speeds up to 100 MHz are possible; 16 MHz is typical. The master sets the speed; the slave usually states a maximum clock rate, not one fixed value.</li>
+<li>At high rates, transmission-line effects matter (Week 11).</li>
+</ul>
+
+<h3 id="spi-modes">Clock polarity and phase</h3>
+<p><strong>CPOL</strong> (clock polarity) sets the level of SCK when idle. <strong>CPHA</strong> (clock phase) sets which edge samples the data: CPHA = 0 samples on the first edge after SS falls, CPHA = 1 on the second. The slave's datasheet decides the mode, and the master's SPI peripheral is set to match.</p>
+<div class="tbl"><table><thead><tr><th>Mode</th><th>CPOL</th><th>CPHA</th><th>Idle clock</th><th>Sample on</th><th>Shift out on</th></tr></thead><tbody>
+<tr><td>0</td><td>0</td><td>0</td><td>Low</td><td>Rising edge</td><td>Falling edge</td></tr>
+<tr><td>1</td><td>0</td><td>1</td><td>Low</td><td>Falling edge</td><td>Rising edge</td></tr>
+<tr><td>2</td><td>1</td><td>0</td><td>High</td><td>Falling edge</td><td>Rising edge</td></tr>
+<tr><td>3</td><td>1</td><td>1</td><td>High</td><td>Rising edge</td><td>Falling edge</td></tr>
+</tbody></table></div>
+<div class="box watch"><span class="label">Watch out</span><p>The table on slide 8 lists mode 2 as CPOL = 1, CPHA = 1 and mode 3 as CPOL = 1, CPHA = 0, while its edge descriptions match the usual numbering above. The table here uses the standard numbering (also used by STM32 and most datasheets): mode = 2·CPOL + CPHA. If an exam question gives CPOL and CPHA, work from those two bits rather than the mode number.</p></div>
+<figure>
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="SPI mode 0 transfer: nCS low, eight clock pulses idle low, master sends 0x3C on MOSI while the slave sends 0xD2 on MISO, sampled on rising edges">
+<polyline class="ln c4" points="82,30 138,30 138,50 194,50 250,50 306,50 362,50 418,50 474,50 530,50 586,50 642,50 642,30 698,30"/>
+<text class="lab" x="80" y="44" text-anchor="end">nCS</text>
+<polyline class="ln c4" points="82,95 110,95 138,95 138,70 166,70 166,95 194,95 194,70 222,70 222,95 250,95 250,70 278,70 278,95 306,95 306,70 334,70 334,95 362,95 362,70 390,70 390,95 418,95 418,70 446,70 446,95 474,95 474,70 502,70 502,95 530,95 530,70 558,70 558,95 586,95 614,95 642,95"/>
+<text class="lab" x="80" y="86.5" text-anchor="end">SCK</text>
+<polyline class="ln c1" points="82,127.5 138,127.5 138,140 194,140 250,140 250,115 306,115 362,115 418,115 474,115 474,140 530,140 586,140 586,127.5 642,127.5"/>
+<text class="lab" x="80" y="131.5" text-anchor="end">MOSI</text>
+<polyline class="ln c3" points="82,177.5 138,177.5 138,165 194,165 250,165 250,190 306,190 306,165 362,165 362,190 418,190 474,190 474,165 530,165 530,190 586,190 586,177.5 642,177.5"/>
+<text class="lab" x="80" y="181.5" text-anchor="end">MISO</text>
+<polyline class="ln c1 thin dash" points="166,62 166,200"/>
+<text class="tk" x="150" y="112" text-anchor="middle">0</text>
+<text class="tk" x="150" y="162" text-anchor="middle">1</text>
+<polyline class="ln c1 thin dash" points="222,62 222,200"/>
+<text class="tk" x="206" y="112" text-anchor="middle">0</text>
+<text class="tk" x="206" y="162" text-anchor="middle">1</text>
+<polyline class="ln c1 thin dash" points="278,62 278,200"/>
+<text class="tk" x="262" y="112" text-anchor="middle">1</text>
+<text class="tk" x="262" y="162" text-anchor="middle">0</text>
+<polyline class="ln c1 thin dash" points="334,62 334,200"/>
+<text class="tk" x="318" y="112" text-anchor="middle">1</text>
+<text class="tk" x="318" y="162" text-anchor="middle">1</text>
+<polyline class="ln c1 thin dash" points="390,62 390,200"/>
+<text class="tk" x="374" y="112" text-anchor="middle">1</text>
+<text class="tk" x="374" y="162" text-anchor="middle">0</text>
+<polyline class="ln c1 thin dash" points="446,62 446,200"/>
+<text class="tk" x="430" y="112" text-anchor="middle">1</text>
+<text class="tk" x="430" y="162" text-anchor="middle">0</text>
+<polyline class="ln c1 thin dash" points="502,62 502,200"/>
+<text class="tk" x="486" y="112" text-anchor="middle">0</text>
+<text class="tk" x="486" y="162" text-anchor="middle">1</text>
+<polyline class="ln c1 thin dash" points="558,62 558,200"/>
+<text class="tk" x="542" y="112" text-anchor="middle">0</text>
+<text class="tk" x="542" y="162" text-anchor="middle">0</text>
+<text class="tk" x="362" y="220" text-anchor="middle">dashed: rising edges, where both sides sample (bits change on falling edges)</text>
+</svg>
+<figcaption><b>Figure 1.4</b> A mode 0 transfer exchanging 0x3C and 0xD2.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.4:</b> nCS falls to select the slave. The clock idles low (CPOL = 0). Data is set up on the falling edges and sampled on the rising edges (CPHA = 0, dashed lines). MOSI carries 0x3C = 0011 1100 and MISO 0xD2 = 1101 0010, both MSB first. Outside the transfer, MISO is high-impedance.</p>
+
+<h3 id="spi-prog">Programming SPI</h3>
+<ul>
+<li><strong>RXNE interrupt</strong>: data has arrived in the receive data register; read DR to get it.</li>
+<li><strong>TXE interrupt</strong>: DR has moved into the output shift register; it is safe to write more.</li>
+<li><strong>SS control</strong>: software (configure a GPIO output and drive it low yourself) or hardware (the SPI peripheral drives SS).</li>
+<li><strong>DMA</strong> removes the per-byte interrupts entirely (section 3).</li>
+</ul>
+<p>As with I2C, STM32CubeMX configures pins and mode, and HAL offers blocking, interrupt and DMA functions. The ST LIS3DSH 3-axis accelerometer on the Discovery board is an example slave; on that board it can only be used in SPI mode.</p>
+</section>
+
+<section id="sd">
+<h2><span class="n">02</span>SD cards</h2>
+<p class="reading"><b>Reading</b> Lecture 19, slides 13 to 28</p>
+<p>An <strong>SD (Secure Digital)</strong> card is non-volatile flash memory, standardised by the SD Association since January 2000 in standard, mini and micro sizes.</p>
+<div class="two"><div>
+<div class="tbl"><table><thead><tr><th>Capacity class</th><th>Size</th></tr></thead><tbody>
+<tr><td>SDSC (Standard)</td><td>up to 2 GB</td></tr>
+<tr><td>SDHC (High)</td><td>over 2 GB to 32 GB</td></tr>
+<tr><td>SDXC (Extended)</td><td>over 32 GB to 2 TB</td></tr>
+<tr><td>SDUC (Ultra)</td><td>over 2 TB to 128 TB</td></tr>
+</tbody></table></div>
+</div><div>
+<div class="tbl"><table><thead><tr><th>Bus speed</th><th>Rate</th></tr></thead><tbody>
+<tr><td>Standard</td><td>12.5 MB/s</td></tr>
+<tr><td>High-speed</td><td>25 MB/s</td></tr>
+<tr><td>UHS-I</td><td>50 or 104 MB/s</td></tr>
+<tr><td>UHS-II</td><td>156 MB/s full-duplex, 312 MB/s half</td></tr>
+<tr><td>UHS-III</td><td>312 MB/s full-duplex, 624 MB/s half</td></tr>
+<tr><td>Express</td><td>≥ 985 MB/s full-duplex</td></tr>
+</tbody></table></div>
+</div></div>
+<p>A card can be used through its <strong>native SD interface</strong> (4 parallel bidirectional data lines, faster, needs a dedicated host peripheral) or through <strong>SPI</strong>, which every card supports. The SPI signals share pins with the native interface, and commands put the card in one mode or the other. SPI is slower but works with any microcontroller that has SPI, which matters because not every microcontroller has an SD host controller. The command set and read/write sequences are fairly complicated (ST application note AN5595 covers SPI mode).</p>
+<p>Besides its memory, a card has registers that can be queried: the <strong>CSD</strong> (Card Specific Data) and the <strong>CID</strong> (Card Identification Data, with manufacturer information). Others exist, but the card can be used without them.</p>
+
+<h3 id="sd-fs">Blocks and file systems</h3>
+<p>The card's memory is a flat array of <strong>512-byte blocks</strong>. Low-level reads and writes just name an address and a length: "read 512 bytes from address 1024" or "write 1024 bytes from address 2048". Files and folders are a <strong>file system</strong> built on top of this.</p>
+<p>A file spans several blocks, so a structure is needed to say where each file starts and ends, plus its name and date. The slides' example record:</p>
+<pre><code>uint32_t Date_created;   // 4 bytes
+char     Filename[12];   // 12 bytes
+uint32_t Start_address;  // 4 bytes
+uint32_t Size;           // 4 bytes</code></pre>
+<p>These records are kept in a reserved area at the start of the card, the <strong>File Allocation Table (FAT)</strong>. FAT16 and FAT32 are common on SD cards. ST provides the <strong>FatFs</strong> library to handle it.</p>
+<figure>
+<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="Software stack for files on an SD card: main program, FatFs, SD card SPI library, HAL SPI driver, SPI hardware, SD card">
+<rect class="blk" x="60" y="12" width="250" height="36" rx="3"/>
+<text class="lab" x="185" y="34" text-anchor="middle">Main program</text>
+<polyline class="ln c4" points="185,48 185,59"/>
+<polygon class="c4f" points="185,59 181.8,52 188.2,52"/>
+<text class="tk" x="330" y="58" text-anchor="start">f_open(), f_read(), f_write()</text>
+<rect class="blkd" x="60" y="59" width="250" height="36" rx="3"/>
+<text class="lab" x="185" y="81" text-anchor="middle">FatFs (FAT file system library)</text>
+<polyline class="ln c4" points="185,95 185,106"/>
+<polygon class="c4f" points="185,106 181.8,99 188.2,99"/>
+<text class="tk" x="330" y="105" text-anchor="start">SD_Init(), SD_Read(), SD_Write()</text>
+<rect class="blkd" x="60" y="106" width="250" height="36" rx="3"/>
+<text class="lab" x="185" y="128" text-anchor="middle">SD card SPI library</text>
+<polyline class="ln c4" points="185,142 185,153"/>
+<polygon class="c4f" points="185,153 181.8,146 188.2,146"/>
+<text class="tk" x="330" y="152" text-anchor="start">HAL_SPI_Transmit/Receive/TransmitReceive()</text>
+<rect class="blk" x="60" y="153" width="250" height="36" rx="3"/>
+<text class="lab" x="185" y="175" text-anchor="middle">SPI interface (HAL)</text>
+<polyline class="ln c4" points="185,189 185,200"/>
+<polygon class="c4f" points="185,200 181.8,193 188.2,193"/>
+<text class="tk" x="330" y="199" text-anchor="start">registers</text>
+<rect class="blk" x="60" y="200" width="250" height="36" rx="3"/>
+<text class="lab" x="185" y="222" text-anchor="middle">SPI hardware</text>
+<polyline class="ln c4" points="185,236 185,247"/>
+<polygon class="c4f" points="185,247 181.8,240 188.2,240"/>
+<text class="tk" x="330" y="246" text-anchor="start">MOSI, SCK, MISO, CS</text>
+<rect class="blk" x="60" y="247" width="250" height="36" rx="3"/>
+<text class="lab" x="185" y="269" text-anchor="middle">SD card</text>
+</svg>
+<figcaption><b>Figure 2.1</b> The layers between your program and the card.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> The program only calls FatFs (<code>f_open</code>, <code>f_read</code>, <code>f_write</code>). FatFs calls a small SD-card library that turns block reads and writes into SD commands, which in turn calls the HAL SPI functions. Each layer hides the one below.</p>
+
+<div class="ex"><div class="hd">Worked example 2.1 <span>block arithmetic</span></div><div class="bd">
+<p>Using the record above: how many records fit in one block, how many blocks does a 1300-byte file occupy, and how many blocks does a 32 GB SDHC card have (taking 1 GB = 2<sup>30</sup> bytes)?</p>
+<div class="step"><i>1</i><div>Record size \(4 + 12 + 4 + 4 = 24\) bytes; \(\lfloor 512/24 \rfloor = 21\) records per block.</div></div>
+<div class="step"><i>2</i><div>\(\lceil 1300/512 \rceil = 3\) blocks (the last one partly empty).</div></div>
+<div class="step"><i>3</i><div>\(32 \times 2^{30} / 512 = 67\,108\,864\) blocks.</div></div>
+<div class="ans">21 records per block, 3 blocks for the file, 67 108 864 blocks on the card.</div>
+</div></div>
+<div class="ex"><div class="hd">Worked example 2.2 <span>time to write a block over SPI</span></div><div class="bd">
+<p>How long does the data of one block take at a 16 MHz SPI clock?</p>
+<div class="step"><i>1</i><div>\(512 \times 8 = 4096\) bits.</div></div>
+<div class="step"><i>2</i><div>\(4096 / 16 \times 10^{6} = 256\) µs.</div></div>
+<div class="ans">256 µs for the data alone, plus command and response bytes and the card's internal write time.</div>
+</div></div>
+</section>
+
+<section id="dma">
+<h2><span class="n">03</span>Direct memory access</h2>
+<p class="reading"><b>Reading</b> Lecture 20</p>
+<p>Microcontroller programs spend much of their time moving data: sampling an accelerometer or ADC into an array in SRAM, then writing that array to an SD card. The loop is always the same: read from address A0 (a peripheral register is just a memory address), write to address A1, maybe increment A0 or A1, repeat until the buffer is full.</p>
+<p>The HAL call <code>HAL_SPI_Transmit(&amp;hspi1, buff, 512, 10)</code> is such a loop: for each of 512 bytes it waits for TXE, then writes <code>buffer[i]</code> to DR. The source address increments; the destination (DR) stays fixed. It is a <strong>blocking</strong> function: it only returns once every byte has gone, and the waiting time is set by the data rate.</p>
+<div class="key"><span class="tag">Key idea</span><p>A <strong>DMA controller</strong> is a unit in the MCU that moves data without the CPU. The CPU only sets the transfer up; during the transfer it is free for other work. Interrupts help a little (the CPU runs other code between bytes) but still need the CPU for every byte; DMA does not.</p></div>
+<div class="box watch"><span class="label">Watch out</span><p>Slide 4 says 100 kB at 11 520 B/s takes 8.9 s and at 1 000 000 B/s takes 102 ms. Both use 1 kB = 1024 bytes (102 400 bytes). With 100 000 bytes the UART time is 8.68 s.</p></div>
+
+<h3 id="dma-regs">How a DMA transfer works</h3>
+<p>The CPU programs the DMA controller through memory-mapped registers:</p>
+<div class="tbl"><table><thead><tr><th>Register</th><th>Holds</th></tr></thead><tbody>
+<tr><td>PAR</td><td>Peripheral address (for example a UART's DR)</td></tr>
+<tr><td>M0AR</td><td>Memory address (the buffer)</td></tr>
+<tr><td>NDTR</td><td>Number of data items still to transfer</td></tr>
+<tr><td>CR</td><td>Control: DIR (00 peripheral-to-memory, 01 memory-to-peripheral, 10 memory-to-memory, where PAR is also a memory address), PSIZE and MSIZE (item size), PINC and MINC (increment the address after each item), circular mode, CHSEL, and EN to start</td></tr>
+</tbody></table></div>
+<p>For each item the controller loads from the source and stores to the destination (direction from DIR), decrements NDTR, and optionally increments PAR and M0AR. The transfer stops when NDTR reaches zero, or in <strong>circular mode</strong> restarts with the original settings.</p>
+<figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="DMA controller between a peripheral and SRAM: the CPU only sets PAR, M0AR, NDTR and CR; the peripheral's DMA request triggers each transfer">
+<rect class="blk" x="30" y="20" width="130" height="60" rx="3"/>
+<text class="lab" x="95" y="46.5" text-anchor="middle">CPU</text>
+<text class="lab" x="95" y="61.5" text-anchor="middle">(sets up, then free)</text>
+<rect class="blkd" x="240" y="20" width="160" height="210" rx="3"/>
+<text class="lab b" x="320" y="42" text-anchor="middle">DMA stream</text>
+<rect class="blk" x="255" y="55" width="130" height="36" rx="3"/>
+<text class="lab b" x="320" y="70" text-anchor="middle">PAR</text>
+<text class="tk" x="320" y="85" text-anchor="middle">peripheral address</text>
+<rect class="blk" x="255" y="97" width="130" height="36" rx="3"/>
+<text class="lab b" x="320" y="112" text-anchor="middle">M0AR</text>
+<text class="tk" x="320" y="127" text-anchor="middle">memory address</text>
+<rect class="blk" x="255" y="139" width="130" height="36" rx="3"/>
+<text class="lab b" x="320" y="154" text-anchor="middle">NDTR</text>
+<text class="tk" x="320" y="169" text-anchor="middle">items left</text>
+<rect class="blk" x="255" y="181" width="130" height="36" rx="3"/>
+<text class="lab b" x="320" y="196" text-anchor="middle">CR</text>
+<text class="tk" x="320" y="211" text-anchor="middle">DIR, INC, size, EN</text>
+<rect class="blk" x="30" y="150" width="130" height="60" rx="3"/>
+<text class="lab" x="95" y="176.5" text-anchor="middle">Peripheral</text>
+<text class="lab" x="95" y="191.5" text-anchor="middle">data register</text>
+<rect class="blk" x="480" y="120" width="130" height="60" rx="3"/>
+<text class="lab" x="545" y="146.5" text-anchor="middle">SRAM</text>
+<text class="lab" x="545" y="161.5" text-anchor="middle">buffer[ ]</text>
+<polyline class="ln c4 thin dash" points="160,50 240,50"/>
+<polygon class="c4f" points="240,50 233,53.1 233,46.9"/>
+<text class="tk" x="200" y="44" text-anchor="middle">setup</text>
+<polyline class="ln c3" points="160,200 240,200"/>
+<polygon class="c3f" points="240,200 233,203.2 233,196.8"/>
+<text class="tk" x="200" y="222" text-anchor="middle">DMA request</text>
+<polyline class="ln c1" points="160,165 240,165"/>
+<polygon class="c1f" points="240,165 233,168.2 233,161.8"/>
+<polygon class="c1f" points="160,165 167,161.8 167,168.2"/>
+<polyline class="ln c1" points="400,150 480,150"/>
+<polygon class="c1f" points="480,150 473,153.2 473,146.8"/>
+<polygon class="c1f" points="400,150 407,146.8 407,153.2"/>
+<text class="tk" x="440" y="140" text-anchor="middle">data</text>
+<polyline class="ln c3 thin" points="240,70 160,70"/>
+<polygon class="c3f" points="160,70 167,66.8 167,73.2"/>
+<text class="tk" x="200" y="92" text-anchor="middle">interrupt</text>
+</svg>
+<figcaption><b>Figure 3.1</b> The CPU sets up a DMA stream, then the peripheral paces it.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> After setup (dashed) the CPU is free. Each DMA request from the peripheral (amber) moves one item between the peripheral's data register and the buffer in SRAM (teal). When NDTR reaches half or zero the stream interrupts the CPU.</p>
+
+<h3 id="dma-f4">DMA on the STM32F4</h3>
+<ul>
+<li><strong>Two DMA controllers</strong>, each with <strong>8 streams</strong>, so up to 8 active transfers per controller.</li>
+<li>Each controller's memory and peripheral ports (AHB master ports) do one transfer at a time; an <strong>arbiter</strong> shares them between streams by priority.</li>
+<li><strong>DMA1 cannot do memory-to-memory</strong>: its peripheral port is not connected to flash or SRAM through the bus matrix. Use DMA2 for that.</li>
+<li>Each stream has a FIFO; transfers can be <strong>bursts</strong> of 4, 8 or 16 beats, during which the AHB bus is locked.</li>
+<li><strong>Double-buffer mode</strong>: in circular mode the stream switches between M0AR and M1AR.</li>
+</ul>
+<p><strong>DMA requests.</strong> Without the CPU, what replaces "wait for TXE"? Each transfer is throttled by a <strong>DMA request</strong> from a peripheral event. The CHSEL bits in CR choose which request drives the stream; the reference manual has the mapping table. For example DMA1, stream 3, CHSEL = 000<sub>2</sub> is SPI2 receive: one item moves when DMA is enabled in SPI2 <em>and</em> RXNE becomes 1. Timer events can also be requests. You could map a stream reading USART1's DR to the I2C1_TX request, but it would make no sense.</p>
+<p><strong>Memory-to-memory</strong> transfers need no request and run as fast as possible: a non-blocking <code>memcpy</code>.</p>
+
+<h3 id="dma-hal">DMA with HAL and double buffering</h3>
+<p>Rather than writing DMA registers, use the <code>_DMA</code> version of a peripheral's HAL function, after enabling DMA for that peripheral in the device configuration tool:</p>
+<pre><code>HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size);
+HAL_UART_Transmit_DMA(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
+HAL_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);</code></pre>
+<p>The program learns about progress through interrupts: <strong>half-complete</strong> (NDTR at half its initial value) and <strong>complete</strong> (NDTR zero), plus error and FIFO interrupts. HAL turns these into callbacks you write, such as <code>HAL_SPI_RxHalfCpltCallback</code> and <code>HAL_SPI_RxCpltCallback</code> (and the Tx versions).</p>
+<p><strong>Double buffering</strong> uses a circular transfer over an array twice the block size (or the DMA's own double-buffer feature). While DMA fills one half, the CPU works on the other.</p>
+<figure>
+<svg viewBox="0 0 640 170" class="fig" role="img" aria-label="Circular DMA into a 2048-element buffer: half-complete callback when the first half is full, complete callback when the second half is full">
+<rect class="area" x="60" y="60" width="260" height="40"/>
+<rect class="cell" x="320" y="60" width="260" height="40"/>
+<text class="tk" x="190" y="85" text-anchor="middle">half A: elements 0 to 1023</text>
+<text class="tk" x="450" y="85" text-anchor="middle">half B: 1024 to 2047</text>
+<polyline class="ln c3" points="320,130 320,104"/>
+<polygon class="c3f" points="320,104 323.1,111 316.9,111"/>
+<text class="tk" x="320" y="146" text-anchor="middle">half-complete callback: process A</text>
+<polyline class="ln c3" points="580,130 580,104"/>
+<polygon class="c3f" points="580,104 583.1,111 576.9,111"/>
+<text class="tk" x="580" y="160" text-anchor="end">complete: process B</text>
+<polyline class="ln c1" points="70,40 310,40"/>
+<polygon class="c1f" points="310,40 303,43.1 303,36.9"/>
+<text class="tk" x="190" y="32" text-anchor="middle">DMA writing</text>
+<text class="tk" x="580" y="44" text-anchor="end">then wraps back to 0</text>
+</svg>
+<figcaption><b>Figure 3.2</b> A circular buffer split into two halves.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.2:</b> For input (slide scenario 1, averaging ADC samples): at half-complete the first half is full and safe to read while DMA writes the second. For output (scenario 2, a synthesiser feeding I2S): at half-complete the first half has been sent and the CPU refills it while DMA reads the second. Either way the CPU's work on one half must finish before DMA comes back round to it.</p>
+
+<div class="ex"><div class="hd">Worked example 3.1 <span>deadline for double buffering</span></div><div class="bd">
+<p>An ADC samples at 10 kHz into a circular DMA buffer of 2048 elements. How often do callbacks arrive, and how long does the CPU have to process each half?</p>
+<div class="step"><i>1</i><div>Each half is 1024 samples: \(1024 / 10\,000 = 102.4\) ms to fill.</div></div>
+<div class="step"><i>2</i><div>Callbacks alternate half-complete, complete, every 102.4 ms.</div></div>
+<div class="ans">A callback every 102.4 ms; processing a half must take less than 102.4 ms or DMA overwrites data still in use.</div>
+</div></div>
+<div class="box exam"><span class="label">Exam</span><p>Know the four registers (PAR, M0AR, NDTR, CR) and the DIR codes, what a DMA request is and why it is needed, the STM32F4 limits (2 controllers, 8 streams, DMA1 no memory-to-memory), and the double-buffering procedure with half and full callbacks.</p></div>
+</section>
+
+<section id="prac6">
+<h2><span class="n">04</span>Practical 6: UART with HAL</h2>
+<p class="reading"><b>Reading</b> Practical 6 lecture</p>
+<p>Practical 6 sends and receives UART data with the blocking HAL calls, looks at the TX pin on an oscilloscope, and then talks to a PC through the Discovery board's USB Virtual COM Port and the Termite terminal (Tera Term is used in Practical 9). The UART background is on the Week 7 page.</p>
+<pre><code>HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, const uint8_t *pData, uint16_t Size, uint32_t Timeout);
+HAL_StatusTypeDef HAL_UART_Receive (UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);</code></pre>
+<p><code>Size</code> is in bytes and <code>Timeout</code> in milliseconds. Both block until done or timed out; the <code>_IT</code> and <code>_DMA</code> versions return at once.</p>
+</section>
+
+<section id="practice">
+<h2><span class="n">05</span>Practice problems</h2>
+
+<div class="ex"><div class="hd">Problem 5.1 <span>pin count</span></div><div class="bd">
+<p>A master drives 5 SPI slaves with separate SS lines. How many pins does it need? How many with a 3-to-8 decoder for the selects?</p>
+<div class="step"><i>1</i><div>\(3 + 5 = 8\) pins.</div></div>
+<div class="step"><i>2</i><div>A 3-to-8 decoder needs 3 select inputs: \(3 + 3 = 6\) pins, for up to 8 slaves.</div></div>
+<div class="ans">8 pins direct, 6 with the decoder (which also stops two slaves being selected at once).</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 5.2 <span>daisy chain clocks</span></div><div class="bd">
+<p>Four 8-bit LED drivers are daisy-chained. How many clocks load all four, and which byte ends up in the first driver?</p>
+<div class="step"><i>1</i><div>The chain is \(4 \times 8 = 32\) bits long: 32 clocks.</div></div>
+<div class="step"><i>2</i><div>The first byte sent travels furthest, to driver 4; the last byte sent stays in driver 1.</div></div>
+<div class="ans">32 clocks; the fourth (last) byte sent is in driver 1.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 5.3 <span>blocking cost</span></div><div class="bd">
+<p>A 168 MHz program sends 32 KiB (32 768 bytes) with blocking calls. How long does it block at 921 600 baud 8N1 UART, and at a 21 MHz SPI clock? How many CPU cycles are lost in the UART case?</p>
+<div class="step"><i>1</i><div>UART: \(921\,600/10 = 92\,160\) B/s; \(32\,768/92\,160 = 0.356\) s.</div></div>
+<div class="step"><i>2</i><div>SPI: \(32\,768 \times 8/21 \times 10^6 = 12.48\) ms.</div></div>
+<div class="step"><i>3</i><div>Cycles: \(0.356 \times 168 \times 10^6 = 59.7\) million.</div></div>
+<div class="ans">0.356 s (UART), 12.48 ms (SPI); about 59.7 million wasted cycles that DMA would give back.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 5.4 <span>setting up a DMA stream</span></div><div class="bd">
+<p>Received SPI2 bytes must go into <code>uint8_t rx[256]</code>. Give DIR, PAR, M0AR, NDTR, PINC, MINC and the request, and the value of NDTR at the half-complete interrupt.</p>
+<div class="step"><i>1</i><div>Peripheral to memory: DIR = 00. PAR = address of SPI2's DR; M0AR = address of <code>rx</code>.</div></div>
+<div class="step"><i>2</i><div>NDTR = 256, byte sizes. PINC = 0 (DR is fixed), MINC = 1 (step through the array).</div></div>
+<div class="step"><i>3</i><div>Request: SPI2 RX (DMA1 stream 3, CHSEL = 000<sub>2</sub>), with DMA enabled in SPI2.</div></div>
+<div class="ans">DIR 00, PAR = &amp;SPI2-&gt;DR, M0AR = rx, NDTR = 256, PINC 0, MINC 1; half-complete fires at NDTR = 128.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 5.5 <span>SPI exchange</span></div><div class="bd">
+<p>In mode 0, the master's shift register holds 0x3C and the slave's 0xD2. What does each hold after 8 clocks, and what level is on MOSI and MISO for the first bit (MSB first)?</p>
+<div class="step"><i>1</i><div>The registers swap: master 0xD2, slave 0x3C.</div></div>
+<div class="step"><i>2</i><div>MSBs: 0x3C = 0011 1100 gives MOSI = 0; 0xD2 = 1101 0010 gives MISO = 1.</div></div>
+<div class="ans">Master 0xD2, slave 0x3C; first bit MOSI 0, MISO 1.</div>
+</div></div>
+</section>
+
+<section id="sheet">
+<h2><span class="n">06</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>SPI</h4>
+<p>SCK, MOSI, MISO, SS (active low)</p>
+<p>Signals = \(3 + n\)</p>
+<p>Daisy chain: \(8 \times\) slaves clocks per byte each</p>
+<p>Mode = 2·CPOL + CPHA; CPOL = idle level; CPHA 0 = sample first edge</p>
+<p>\(t = 8 \times \text{bytes}/f_{SCK}\)</p>
+</div>
+<div><h4>SD card</h4>
+<p>512-byte blocks, flat address space</p>
+<p>SDSC ≤ 2 GB, SDHC ≤ 32 GB, SDXC ≤ 2 TB, SDUC ≤ 128 TB</p>
+<p>CSD, CID registers; FAT16/FAT32 via FatFs</p>
+</div>
+<div><h4>DMA registers</h4>
+<p>PAR, M0AR, NDTR, CR</p>
+<p>DIR: 00 P→M, 01 M→P, 10 M→M</p>
+<p>PINC, MINC, PSIZE, MSIZE, CHSEL, EN, circular</p>
+<p>Half-complete at NDTR = N/2; complete at 0</p>
+</div>
+<div><h4>STM32F4 DMA</h4>
+<p>2 controllers × 8 streams</p>
+<p>DMA1: no memory-to-memory</p>
+<p>Double buffer: process half while DMA fills other; deadline = half / sample rate</p>
+</div>
+</div>
+</section>
+
+<footer>
+<p>Sources: CS245 Lecture19 Serial Communication - SPI.pdf, CS245 Lecture20 Direct Memory Access.pdf, CS245-Practical 6 UART.pdf. The SPI mode table and timing diagram (Lecture 19 slide 8), the reference-manual DMA diagrams and request-mapping tables (Lecture 20 slides 7 to 15), and the Practical 6 photographs were read from the images. The SD card specification extracts and FatFs manual pages on Lecture 19 slides 18 to 27 were used only for the points stated here.</p>
+</footer>
+</main>
+</div>
+
+<script src="../../assets/ask-gemini.js" data-store="cs245-w8-theory" data-course="CS245 Computer Systems"
+        data-topic="Week 8: SPI signals, multiple slaves, daisy chain, CPOL/CPHA modes, SD cards and FAT file systems, DMA registers, STM32F4 streams and requests, double buffering, HAL UART calls"></script>
+</body>
+</html>

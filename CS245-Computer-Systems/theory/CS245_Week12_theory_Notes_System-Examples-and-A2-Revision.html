@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 12: System examples and A2 revision · CS245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../module.html?m=cs245">&larr; Computer Systems</a>
+  <div class="k">CS245 · Week 12</div>
+  <ol>
+    <li><a href="#geyser">1. Example: smart geyser controller</a></li>
+    <li class="sub"><a href="#geyser-sense">Temperature, current and flow</a></li>
+    <li class="sub"><a href="#geyser-act">Modem, relay, valve and OTA updates</a></li>
+    <li><a href="#sun">2. Example: horizon and sun sensor</a></li>
+    <li><a href="#revision">3. A2 revision: bits, pointers and interrupts</a></li>
+    <li class="sub"><a href="#bits">Bitwise operations</a></li>
+    <li class="sub"><a href="#pointers">Pointers, arrays and volatile</a></li>
+    <li class="sub"><a href="#stack">Stack and exceptions</a></li>
+    <li class="sub"><a href="#map">Where the rest is covered</a></li>
+    <li><a href="#practice">4. Practice problems</a></li>
+    <li><a href="#sheet">5. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 · LECTURE 28 · REVISION LECTURE A2</div>
+  <h1>System examples and A2 revision</h1>
+  <p class="lede">Two real microcontroller systems that combine everything in the course (a remotely controlled geyser and a satellite horizon/sun sensor), worked through number by number, followed by the A2 revision topics from the first half of the module: bit manipulation, pointers, the stack, interrupts and volatile, with a map of where the rest is covered.</p>
+</header>
+
+<section id="geyser">
+<h2><span class="n">01</span>Example: smart geyser controller</h2>
+<p class="reading"><b>Reading</b> Lecture 28, slides 2 to 11</p>
+<p>A normal geyser (hot water cylinder, HWC) switches its element on whenever the water falls below a set temperature. The smart controller adds remote control of the temperature and heating schedule, and an internet portal showing power and water use.</p>
+<figure>
+<svg viewBox="0 0 640 330" class="fig" role="img" aria-label="Smart geyser controller: microcontroller with ADC inputs for two temperature sensors and a current transformer, GPIO for the flow meter, drip detector, relay and valve H-bridge, and UART to a 3G modem">
+<rect class="blkd" x="250" y="130" width="140" height="70" rx="3"/>
+<text class="lab b" x="320" y="160" text-anchor="middle">Microcontroller</text>
+<text class="tk" x="320" y="178" text-anchor="middle">ATxmega128A4U</text>
+<rect class="blk" x="20" y="30" width="150" height="34" rx="3"/>
+<text class="lab" x="95" y="51" text-anchor="middle">Temp sensor (hot)</text>
+<polyline class="ln c1 thin" points="170,47 250,135"/>
+<polygon class="c1f" points="250,135 243,131.9 247.6,127.7"/>
+<rect class="blk" x="20" y="80" width="150" height="34" rx="3"/>
+<text class="lab" x="95" y="101" text-anchor="middle">Temp sensor (ambient)</text>
+<polyline class="ln c1 thin" points="170,97 250,150"/>
+<polygon class="c1f" points="250,150 242.4,148.8 245.9,143.5"/>
+<rect class="blk" x="20" y="130" width="150" height="34" rx="3"/>
+<text class="lab" x="95" y="151" text-anchor="middle">Current transformer</text>
+<polyline class="ln c1 thin" points="170,147 250,165"/>
+<polygon class="c1f" points="250,165 242.5,166.5 243.9,160.4"/>
+<rect class="blk" x="20" y="180" width="150" height="34" rx="3"/>
+<text class="lab" x="95" y="201" text-anchor="middle">Flow meter</text>
+<polyline class="ln c1 thin" points="170,197 250,180"/>
+<polygon class="c1f" points="250,180 243.8,184.5 242.5,178.4"/>
+<rect class="blk" x="20" y="230" width="150" height="34" rx="3"/>
+<text class="lab" x="95" y="251" text-anchor="middle">Drip detect</text>
+<polyline class="ln c1 thin" points="170,247 250,195"/>
+<polygon class="c1f" points="250,195 245.8,201.5 242.4,196.2"/>
+<rect class="blk" x="470" y="20" width="150" height="34" rx="3"/>
+<text class="lab" x="545" y="41" text-anchor="middle">Heating element</text>
+<rect class="blk" x="470" y="70" width="150" height="34" rx="3"/>
+<text class="lab" x="545" y="91" text-anchor="middle">Latching relay</text>
+<rect class="blk" x="470" y="130" width="150" height="34" rx="3"/>
+<text class="lab" x="545" y="151" text-anchor="middle">Valve (H-bridge)</text>
+<rect class="blk" x="470" y="200" width="150" height="34" rx="3"/>
+<text class="lab" x="545" y="221" text-anchor="middle">3G modem (uBlox)</text>
+<rect class="blk" x="470" y="270" width="150" height="34" rx="3"/>
+<text class="lab" x="545" y="291" text-anchor="middle">Antenna, SIM</text>
+<polyline class="ln c3 thin" points="390,145 470,87"/>
+<polygon class="c3f" points="470,87 466.2,93.7 462.5,88.6"/>
+<text class="tk" x="430" y="106" text-anchor="middle">GPIO</text>
+<polyline class="ln c3 thin" points="390,155 470,147"/>
+<polygon class="c3f" points="470,147 463.3,150.8 462.7,144.6"/>
+<text class="tk" x="430" y="142" text-anchor="middle">GPIO</text>
+<polyline class="ln c1" points="390,185 470,217"/>
+<polygon class="c1f" points="470,217 462.3,217.3 464.7,211.5"/>
+<polygon class="c1f" points="390,185 397.7,184.7 395.3,190.5"/>
+<text class="tk" x="426" y="214" text-anchor="middle">UART</text>
+<polyline class="ln c4 thin" points="545,70 545,54"/>
+<polygon class="c4f" points="545,54 548.1,61 541.9,61"/>
+<polyline class="ln c4 thin" points="545,234 545,270"/>
+<text class="tk" x="545" y="66" text-anchor="middle"></text>
+<rect class="blk" x="250" y="260" width="140" height="34" rx="3"/>
+<text class="lab" x="320" y="281" text-anchor="middle">Power, 3.3 V</text>
+<polyline class="ln c4 thin" points="320,260 320,200"/>
+<polygon class="c4f" points="320,200 323.1,207 316.9,207"/>
+<text class="tk" x="320" y="320" text-anchor="middle">220 V AC in; CT on the element supply</text>
+</svg>
+<figcaption><b>Figure 1.1</b> Block diagram of the smart geyser controller.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> Analog inputs (teal) are the two MCP9700A temperature sensors and the current transformer through power conditioning; the flow meter feeds a timer input and the drip detector a GPIO. GPIO outputs (amber) drive the latching relay that switches the 220 V element and the H-bridge for the water valve. The 3G modem with its SIM and antenna is the only link to the outside world, over UART.</p>
+<p><strong>Software requirements</strong> (the "shall" list of Week 11):</p>
+<ul>
+<li>Talk to the server only through the 3G modem, over UART. Every minute send water flow, temperatures and power.</li>
+<li>The server replies with the set-point (0 °C when the schedule says not to heat, otherwise the user's value), and may send other commands: close the valve, start an over-the-air (OTA) update. The MCU must be able to reprogram itself in the field.</li>
+<li>Control the temperature with <strong>hysteresis</strong>: element on if temperature &lt; set-point − threshold, off if temperature &gt; set-point + threshold.</li>
+<li>Read temperatures with the ADC, flow with GPIO (a timer), element current with a current transformer and the ADC; detect drips (leaks or bursts) and close the valve.</li>
+</ul>
+<p>The MCU is an <strong>Atmel ATxmega128A4U</strong>: 16-bit, 128 KB flash, 8 KB SRAM, 2 KB EEPROM, 32 MHz internal RC oscillator, 5 UARTs and 5 16-bit timers; developed in Atmel Studio and programmed with an Atmel-ICE.</p>
+<figure>
+<svg viewBox="0 0 640 280" class="fig" role="img" aria-label="Hysteresis control of geyser temperature: element switches on below 57 °C and off above 63 °C">
+<line class="grid" x1="70" y1="15" x2="70" y2="230"/>
+<text class="tk" x="70" y="246" text-anchor="middle">0</text>
+<line class="grid" x1="206.2" y1="15" x2="206.2" y2="230"/>
+<text class="tk" x="206.2" y="246" text-anchor="middle">60</text>
+<line class="grid" x1="342.5" y1="15" x2="342.5" y2="230"/>
+<text class="tk" x="342.5" y="246" text-anchor="middle">120</text>
+<line class="grid" x1="478.8" y1="15" x2="478.8" y2="230"/>
+<text class="tk" x="478.8" y="246" text-anchor="middle">180</text>
+<line class="grid" x1="615" y1="15" x2="615" y2="230"/>
+<text class="tk" x="615" y="246" text-anchor="middle">240</text>
+<line class="grid" x1="70" y1="230" x2="615" y2="230"/>
+<text class="tk" x="64" y="234" text-anchor="end">50</text>
+<line class="grid" x1="70" y1="176.2" x2="615" y2="176.2"/>
+<text class="tk" x="64" y="180.2" text-anchor="end">55</text>
+<line class="grid" x1="70" y1="154.8" x2="615" y2="154.8"/>
+<text class="tk" x="64" y="158.8" text-anchor="end">57</text>
+<line class="grid" x1="70" y1="122.5" x2="615" y2="122.5"/>
+<text class="tk" x="64" y="126.5" text-anchor="end">60</text>
+<line class="grid" x1="70" y1="90.2" x2="615" y2="90.2"/>
+<text class="tk" x="64" y="94.2" text-anchor="end">63</text>
+<line class="grid" x1="70" y1="68.8" x2="615" y2="68.8"/>
+<text class="tk" x="64" y="72.8" text-anchor="end">65</text>
+<line class="grid" x1="70" y1="15" x2="615" y2="15"/>
+<text class="tk" x="64" y="19" text-anchor="end">70</text>
+<rect class="frame" x="70" y="15" width="545" height="215"/>
+<text class="lab" x="342.5" y="266" text-anchor="middle">time (min)</text>
+<text class="lab" x="16" y="122.5" text-anchor="middle" transform="rotate(-90 16 122.5)">temperature (°C)</text>
+<polyline class="ln c3 thin dash" points="70,154.8 615,154.8"/>
+<polyline class="ln c3 thin dash" points="70,90.2 615,90.2"/>
+<polyline class="ln c4 thin dash" points="70,122.5 615,122.5"/>
+<polyline class="ln c1" points="70,176.2 72.3,172 74.5,167.7 76.8,163.4 79.1,159.1 81.4,154.8 83.6,150.5 85.9,146.2 88.2,141.9 90.4,137.6 92.7,133.3 95,129 97.2,124.7 99.5,120.4 101.8,116.1 104.1,111.8 106.3,107.5 108.6,103.2 110.9,98.9 113.1,94.6 115.4,90.3 117.7,86 120,87.2 122.2,88.5 124.5,89.8 126.8,91.1 129,92.4 131.3,93.7 133.6,95 135.9,96.3 138.1,97.6 140.4,98.9 142.7,100.1 144.9,101.4 147.2,102.7 149.5,104 151.8,105.3 154,106.6 156.3,107.9 158.6,109.2 160.8,110.5 163.1,111.7 165.4,113 167.6,114.3 169.9,115.6 172.2,116.9 174.5,118.2 176.7,119.5 179,120.8 181.3,122.1 183.5,123.4 185.8,124.6 188.1,125.9 190.4,127.2 192.6,128.5 194.9,129.8 197.2,131.1 199.4,132.4 201.7,133.7 204,135 206.2,136.3 208.5,137.5 210.8,138.8 213.1,140.1 215.3,141.4 217.6,142.7 219.9,144 222.1,145.3 224.4,146.6 226.7,147.9 229,149.2 231.2,150.4 233.5,151.7 235.8,153 238,154.3 240.3,155.6 242.6,151.3 244.9,147 247.1,142.7 249.4,138.4 251.7,134.1 253.9,129.8 256.2,125.5 258.5,121.2 260.8,116.9 263,112.6 265.3,108.3 267.6,104 269.8,99.7 272.1,95.4 274.4,91.1 276.6,86.8 278.9,88.1 281.2,89.4 283.5,90.7 285.7,92 288,93.3 290.3,94.5 292.5,95.8 294.8,97.1 297.1,98.4 299.4,99.7 301.6,101 303.9,102.3 306.2,103.6 308.4,104.9 310.7,106.2 313,107.4 315.2,108.7 317.5,110 319.8,111.3 322.1,112.6 324.3,113.9 326.6,115.2 328.9,116.5 331.1,117.8 333.4,119.1 335.7,120.3 338,121.6 340.2,122.9 342.5,124.2 344.8,125.5 347,126.8 349.3,128.1 351.6,129.4 353.9,130.7 356.1,132 358.4,133.2 360.7,134.5 362.9,135.8 365.2,137.1 367.5,138.4 369.8,139.7 372,141 374.3,142.3 376.6,143.6 378.8,144.9 381.1,146.1 383.4,147.4 385.6,148.7 387.9,150 390.2,151.3 392.5,152.6 394.7,153.9 397,155.2 399.3,150.9 401.5,146.6 403.8,142.3 406.1,138 408.4,133.7 410.6,129.4 412.9,125.1 415.2,120.8 417.4,116.5 419.7,112.2 422,107.9 424.2,103.6 426.5,99.3 428.8,95 431.1,90.7 433.3,86.4 435.6,87.7 437.9,89 440.1,90.2 442.4,91.5 444.7,92.8 447,94.1 449.2,95.4 451.5,96.7 453.8,98 456,99.3 458.3,100.6 460.6,101.9 462.9,103.1 465.1,104.4 467.4,105.7 469.7,107 471.9,108.3 474.2,109.6 476.5,110.9 478.8,112.2 481,113.5 483.3,114.8 485.6,116 487.8,117.3 490.1,118.6 492.4,119.9 494.6,121.2 496.9,122.5 499.2,123.8 501.5,125.1 503.7,126.4 506,127.7 508.3,128.9 510.5,130.2 512.8,131.5 515.1,132.8 517.4,134.1 519.6,135.4 521.9,136.7 524.2,138 526.4,139.3 528.7,140.6 531,141.8 533.2,143.1 535.5,144.4 537.8,145.7 540.1,147 542.3,148.3 544.6,149.6 546.9,150.9 549.1,152.2 551.4,153.5 553.7,154.7 556,156 558.2,151.7 560.5,147.4 562.8,143.1 565,138.8 567.3,134.5 569.6,130.2 571.9,125.9 574.1,121.6 576.4,117.3 578.7,113 580.9,108.7 583.2,104.4 585.5,100.1 587.8,95.8 590,91.5 592.3,87.2 594.6,88.5 596.8,89.8 599.1,91.1 601.4,92.4 603.6,93.7 605.9,95 608.2,96.3 610.5,97.6 612.7,98.8"/>
+<polyline class="ln c4" points="70,208.5 72.3,208.5 74.5,208.5 76.8,208.5 79.1,208.5 81.4,208.5 83.6,208.5 85.9,208.5 88.2,208.5 90.4,208.5 92.7,208.5 95,208.5 97.2,208.5 99.5,208.5 101.8,208.5 104.1,208.5 106.3,208.5 108.6,208.5 110.9,208.5 113.1,208.5 115.4,208.5 117.7,208.5 120,208.5 120,219.2 122.2,219.2 124.5,219.2 126.8,219.2 129,219.2 131.3,219.2 133.6,219.2 135.9,219.2 138.1,219.2 140.4,219.2 142.7,219.2 144.9,219.2 147.2,219.2 149.5,219.2 151.8,219.2 154,219.2 156.3,219.2 158.6,219.2 160.8,219.2 163.1,219.2 165.4,219.2 167.6,219.2 169.9,219.2 172.2,219.2 174.5,219.2 176.7,219.2 179,219.2 181.3,219.2 183.5,219.2 185.8,219.2 188.1,219.2 190.4,219.2 192.6,219.2 194.9,219.2 197.2,219.2 199.4,219.2 201.7,219.2 204,219.2 206.2,219.2 208.5,219.2 210.8,219.2 213.1,219.2 215.3,219.2 217.6,219.2 219.9,219.2 222.1,219.2 224.4,219.2 226.7,219.2 229,219.2 231.2,219.2 233.5,219.2 235.8,219.2 238,219.2 240.3,219.2 242.6,219.2 242.6,208.5 244.9,208.5 247.1,208.5 249.4,208.5 251.7,208.5 253.9,208.5 256.2,208.5 258.5,208.5 260.8,208.5 263,208.5 265.3,208.5 267.6,208.5 269.8,208.5 272.1,208.5 274.4,208.5 276.6,208.5 278.9,208.5 278.9,219.2 281.2,219.2 283.5,219.2 285.7,219.2 288,219.2 290.3,219.2 292.5,219.2 294.8,219.2 297.1,219.2 299.4,219.2 301.6,219.2 303.9,219.2 306.2,219.2 308.4,219.2 310.7,219.2 313,219.2 315.2,219.2 317.5,219.2 319.8,219.2 322.1,219.2 324.3,219.2 326.6,219.2 328.9,219.2 331.1,219.2 333.4,219.2 335.7,219.2 338,219.2 340.2,219.2 342.5,219.2 344.8,219.2 347,219.2 349.3,219.2 351.6,219.2 353.9,219.2 356.1,219.2 358.4,219.2 360.7,219.2 362.9,219.2 365.2,219.2 367.5,219.2 369.8,219.2 372,219.2 374.3,219.2 376.6,219.2 378.8,219.2 381.1,219.2 383.4,219.2 385.6,219.2 387.9,219.2 390.2,219.2 392.5,219.2 394.7,219.2 397,219.2 399.3,219.2 399.3,208.5 401.5,208.5 403.8,208.5 406.1,208.5 408.4,208.5 410.6,208.5 412.9,208.5 415.2,208.5 417.4,208.5 419.7,208.5 422,208.5 424.2,208.5 426.5,208.5 428.8,208.5 431.1,208.5 433.3,208.5 435.6,208.5 435.6,219.2 437.9,219.2 440.1,219.2 442.4,219.2 444.7,219.2 447,219.2 449.2,219.2 451.5,219.2 453.8,219.2 456,219.2 458.3,219.2 460.6,219.2 462.9,219.2 465.1,219.2 467.4,219.2 469.7,219.2 471.9,219.2 474.2,219.2 476.5,219.2 478.8,219.2 481,219.2 483.3,219.2 485.6,219.2 487.8,219.2 490.1,219.2 492.4,219.2 494.6,219.2 496.9,219.2 499.2,219.2 501.5,219.2 503.7,219.2 506,219.2 508.3,219.2 510.5,219.2 512.8,219.2 515.1,219.2 517.4,219.2 519.6,219.2 521.9,219.2 524.2,219.2 526.4,219.2 528.7,219.2 531,219.2 533.2,219.2 535.5,219.2 537.8,219.2 540.1,219.2 542.3,219.2 544.6,219.2 546.9,219.2 549.1,219.2 551.4,219.2 553.7,219.2 556,219.2 558.2,219.2 558.2,208.5 560.5,208.5 562.8,208.5 565,208.5 567.3,208.5 569.6,208.5 571.9,208.5 574.1,208.5 576.4,208.5 578.7,208.5 580.9,208.5 583.2,208.5 585.5,208.5 587.8,208.5 590,208.5 592.3,208.5 594.6,208.5 594.6,219.2 596.8,219.2 599.1,219.2 601.4,219.2 603.6,219.2 605.9,219.2 608.2,219.2 610.5,219.2 612.7,219.2"/>
+<text class="tk" x="605.9" y="202.3" text-anchor="end">element on/off</text>
+<text class="tk" x="79.1" y="85.2" text-anchor="start">set-point + threshold</text>
+<text class="tk" x="138.1" y="167.8" text-anchor="start">set-point − threshold</text>
+</svg>
+<figcaption><b>Figure 1.2</b> Hysteresis keeps the element from chattering around the set-point.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.2:</b> Set-point 60 °C, threshold 3 °C, with illustrative heating (0.4 °C/min) and cooling (0.12 °C/min) rates. The element (ink trace at the bottom) turns on only below 57 °C and off only above 63 °C, so it switches a few times an hour instead of every time the temperature crosses 60 °C. That matters for a relay that wears out (Week 10).</p>
+
+<h3 id="geyser-sense">Temperature, current and flow</h3>
+<p><strong>Temperature.</strong> The MCP9700A gives \(V_{temperature} = T_c T + V_{0°C}\) with \(T_c = 0.01\) V/°C and \(V_{0°C} = 0.5\) V. The 12-bit ADC's reference is \(V_{ref} = V_{CC}/1.6\) with \(V_{CC} = 3.4\) V, so \(V_{ref} = 2.125\) V, and the ADC has a positive offset \(\Delta V \approx 0.05V_{ref}\):</p>
+<div class="eq"><span class="tag">Geyser temperature from the ADC</span>\[ R = 4095\,\frac{V_{temperature} + \Delta V}{V_{ref}} \qquad T = \frac{V_{ref}}{4095\,T_c}\left(R - \frac{4095\,\Delta V}{V_{ref}}\right) - \frac{V_{0°C}}{T_c} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(R\)</dt><dd>12-bit ADC reading.</dd>
+  <dt>\(V_{temperature}\)</dt><dd>Sensor output (V).</dd>
+  <dt>\(\Delta V\)</dt><dd>ADC positive offset, about \(0.05V_{ref}\) (V).</dd>
+  <dt>\(V_{ref}\)</dt><dd>ADC reference, \(V_{CC}/1.6 = 2.125\) V.</dd>
+  <dt>\(T\)</dt><dd>Water temperature (°C).</dd>
+  <dt>\(T_c\)</dt><dd>0.01 V/°C.</dd>
+  <dt>\(V_{0°C}\)</dt><dd>0.5 V.</dd>
+</dl>
+</div>
+<p>Numerically \(V_{ref}/(4095 T_c) = 0.05189\) and \(4095\,\Delta V/V_{ref} = 0.05 \times 4095 = 204.75\) counts, giving the uncalibrated \(T = 0.05189(R - 204.75) - 50\). Calibration (Week 9) changed the offset to 185 counts: \(T = 0.05189(R - 185) - 50\).</p>
+<div class="ex"><div class="hd">Worked example 1.1 <span>reading the geyser temperature</span></div><div class="bd">
+<p>(a) The ADC reads 1500. What temperature do the two equations give? (b) What reading corresponds to 60 °C (uncalibrated model)?</p>
+<div class="step"><i>1</i><div>(a) Uncalibrated: \(0.05189 \times (1500 - 204.75) - 50 = 17.21\) °C. Calibrated: \(0.05189 \times 1315 - 50 = 18.24\) °C.</div></div>
+<div class="step"><i>2</i><div>(b) \(V_{temperature} = 0.5 + 0.6 = 1.1\) V; \(R = 4095 \times (1.1 + 0.10625)/2.125 = 2324.5\), so 2324.</div></div>
+<div class="step"><i>3</i><div>Check: \(0.05189 \times (2324 - 204.75) - 50 = 59.97\) °C.</div></div>
+<div class="ans">17.21 °C uncalibrated, 18.24 °C calibrated; 60 °C reads as about 2324.</div>
+</div></div>
+<p><strong>Current and energy.</strong> A current transformer (CT) around the element's supply gives a voltage proportional to the 50 Hz AC current. It is sampled every 2 ms (500 Hz), each sample converted with \(I = 0.50366R\) mA, and the RMS taken over 80 samples (160 ms, exactly 8 mains cycles):</p>
+<div class="eq"><span class="tag">RMS current and energy</span>\[ I_{RMS} = \sqrt{\frac{\sum_{i=1}^{80} I_i^2}{80}} \qquad E\,[\text{Wh}] \leftarrow E + \frac{T_{sample}\, V\, I_{RMS}}{3600} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(I_{RMS}\)</dt><dd>RMS element current (A).</dd>
+  <dt>\(I_i\)</dt><dd>Calibrated current samples (A).</dd>
+  <dt>\(E\)</dt><dd>Running energy total (Wh), updated each interval.</dd>
+  <dt>\(T_{sample}\)</dt><dd>Time covered by one RMS value, here 80 × 2 ms = 0.16 s.</dd>
+  <dt>\(V\)</dt><dd>Mains voltage, 220 V (V).</dd>
+  <dt>3600</dt><dd>Seconds per hour, converting J to Wh.</dd>
+</dl>
+</div>
+<div class="box watch"><span class="label">Watch out</span><p>As printed, \(I = 0.50366R\) mA gives only 2.06 A at full scale (\(R = 4095\)), while a 3 kW element on 220 V draws 13.6 A. A one-sided reading also cannot represent the negative half of an AC current without an offset. Treat the constant as an example of a per-sample calibration, not a design value.</p></div>
+<p><strong>Flow.</strong> The Hall-effect flow meter outputs 380 pulses per litre, wired straight to a timer's trigger input so the timer counts pulses in hardware. Every 60 s: flow [l/min] = pulses in 60 s / 380.</p>
+
+<h3 id="geyser-act">Modem, relay, valve and OTA updates</h3>
+<ul>
+<li><strong>Modem</strong>: UART at 9600 baud, 8N1, with a complicated AT-command interface: register on the network, activate the packet data protocol (PDP), connect to the server over TCP/IP, subscribe to a "mailbox" on the MQTT message bus.</li>
+<li><strong>Relay</strong>: a <em>latching</em> relay switches the element. A pulse sets or resets it and it keeps its state. Set and reset are driven by GPIOs through transistors, and an opto-isolator read on a GPIO confirms the actual state.</li>
+<li><strong>Valve</strong>: driven by an H-bridge from GPIO outputs: positive voltage opens, negative closes (Week 10).</li>
+</ul>
+<div class="box watch"><span class="label">Watch out</span><p>Slide 10 gives the relay as "12 V supply and 1.25 W to switch (2.5 A at 5 V for at least 10 ms)". 2.5 A at 5 V is 12.5 W, and 1.25 W at 12 V is 104 mA; the figures do not agree with each other, so one of them is a typo. Either way a transistor drives the coil, never the GPIO pin.</p></div>
+<p><strong>Bootloader and OTA update.</strong> To fix problems or add features after installation, the server sends "initiate OTA update". The application tells the modem to download the new binary, then resets. The MCU always starts in the <strong>bootloader</strong>, a separate program that checks the modem's memory for new firmware, writes it to a staging area in flash, then copies it over the application.</p>
+<figure>
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="Flash memory map of the geyser controller: application, new application staging area, application info and bootloader">
+<rect class="blkd" x="200" y="20" width="260" height="70" rx="3"/>
+<text class="lab" x="330" y="59" text-anchor="middle">Application</text>
+<text class="tk" x="190" y="32" text-anchor="end">0x00000</text>
+<text class="tk" x="190" y="88" text-anchor="end">0x0EFFF</text>
+<text class="tk" x="470" y="59" text-anchor="start">61 440 B</text>
+<rect class="blk" x="200" y="90" width="260" height="70" rx="3"/>
+<text class="lab" x="330" y="129" text-anchor="middle">New application staging area</text>
+<text class="tk" x="190" y="102" text-anchor="end">0x0F000</text>
+<text class="tk" x="190" y="158" text-anchor="end">0x1DFFF</text>
+<text class="tk" x="470" y="129" text-anchor="start">61 440 B</text>
+<rect class="blk" x="200" y="160" width="260" height="30" rx="3"/>
+<text class="lab" x="330" y="179" text-anchor="middle">Application info</text>
+<text class="tk" x="190" y="172" text-anchor="end">0x1E000</text>
+<text class="tk" x="190" y="188" text-anchor="end">0x1FFFF</text>
+<text class="tk" x="470" y="179" text-anchor="start">8192 B</text>
+<rect class="blkd" x="200" y="190" width="260" height="30" rx="3"/>
+<text class="lab" x="330" y="209" text-anchor="middle">Bootloader</text>
+<text class="tk" x="190" y="202" text-anchor="end">0x20000</text>
+<text class="tk" x="190" y="218" text-anchor="end">0x21FFF</text>
+<text class="tk" x="470" y="209" text-anchor="start">8192 B</text>
+</svg>
+<figcaption><b>Figure 1.3</b> The controller's flash memory map.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.3:</b> Application and staging area are each 61 440 bytes (60 KiB), so a complete new image fits before the old one is overwritten. The application info and bootloader areas are 8 KiB each, the bootloader sitting in the ATxmega's separate boot section above 128 KiB. Total 139 264 bytes.</p>
+<div class="box watch"><span class="label">Watch out</span><p>Slide 11 lists the application area as 0x00000 to 0x0DFFF, but its decimal end, 61 439, is 0x0EFFF, and the next area starts at 0x0F000. The hex end address 0x0DFFF is the typo.</p></div>
+</section>
+
+<section id="sun">
+<h2><span class="n">02</span>Example: horizon and sun sensor</h2>
+<p class="reading"><b>Reading</b> Lecture 28, slides 12 to 22</p>
+<p>A satellite's control system needs its orientation, the <strong>attitude</strong>. It can be estimated by comparing a known or modelled direction (where the sun is now, or the direction to the centre of the Earth, the <strong>nadir</strong> vector) with a measurement of the same direction in the satellite's frame. Both can be measured with a CMOS camera and image processing: same electronics, different optics.</p>
+<div class="tbl"><table><thead><tr><th></th><th>Horizon sensor</th><th>Sun sensor</th></tr></thead><tbody>
+<tr><td>Optics</td><td>Regular CCTV-type lens</td><td>Pin-hole lens with a neutral-density filter that blocks everything but the sun</td></tr>
+<tr><td>Processing</td><td>Detect edge points between space and the Earth, fit a circle; its centre gives the nadir vector</td><td>Find the cluster of pixels above a threshold; its centroid gives the sun vector</td></tr>
+</tbody></table></div>
+<p><strong>Requirements</strong>: talk to the rest of the satellite over a <strong>CAN bus</strong> (commands such as take photo and detect, telemetry requests, image downloads); configure the image sensor over <strong>I2C</strong> (exposure, gain); store images in <strong>external SRAM</strong>, with an <strong>FPGA</strong> clocking the image out of the sensor into SRAM and then letting the MCU read it; do the image processing; measure current. Lens distortion, worse at wide fields of view, is removed by calibration.</p>
+<p>The MCU is an 8-bit <strong>C8051F050</strong> (8051 core): 8-bit data bus, 16-bit address bus, 64 KB flash, 4.25 KB RAM, 5 timers, 12-bit ADC and built-in CAN. The image sensor is a 1288 × 1032 SXGA monochrome sensor with I2C address 1010101<sub>2</sub> (0x55) or 0110011<sub>2</sub> (0x33), selectable in case of a clash. A setting is written with an I2C write of address, register number and value; it is read with a write of address and register number followed by a read (Week 7).</p>
+<p><strong>Paged SRAM.</strong> Images are stored as 1024 × 1024 × 8 bits (brightness only): 1 MiB. A 16-bit address bus reaches only 0 to 65 535, so the SRAM is accessed in 32 KiB (32 768-byte) pages. Writing the page register (held in the FPGA) chooses which page appears at MCU addresses 0x8000 to 0xFFFF.</p>
+<figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="Paged SRAM: the 1 MiB image memory is divided into 32 pages of 32 KiB; the FPGA's page register maps one page into the microcontroller's addresses 0x8000 to 0xFFFF">
+<rect class="blk" x="40" y="30" width="170" height="190" rx="3"/>
+<text class="tk" x="125" y="22" text-anchor="middle">MCU 16-bit address space</text>
+<rect class="blk" x="40" y="30" width="170" height="95" rx="3"/>
+<text class="lab" x="125" y="74" text-anchor="middle">0x0000–0x7FFF</text>
+<text class="lab" x="125" y="89" text-anchor="middle">internal</text>
+<rect class="blkd" x="40" y="125" width="170" height="95" rx="3"/>
+<text class="lab" x="125" y="169" text-anchor="middle">0x8000–0xFFFF</text>
+<text class="lab" x="125" y="184" text-anchor="middle">SRAM window</text>
+<rect class="cell" x="440" y="30" width="160" height="24"/>
+<text class="tk" x="520" y="46" text-anchor="middle">page 0</text>
+<rect class="cell" x="440" y="54" width="160" height="24"/>
+<text class="tk" x="520" y="70" text-anchor="middle">page 1</text>
+<rect class="cell" x="440" y="78" width="160" height="24"/>
+<text class="tk" x="520" y="94" text-anchor="middle">page 2</text>
+<rect class="cell" x="440" y="102" width="160" height="24"/>
+<text class="tk" x="520" y="118" text-anchor="middle">page 3</text>
+<rect class="cell" x="440" y="126" width="160" height="24"/>
+<text class="tk" x="520" y="142" text-anchor="middle">page 4</text>
+<rect class="cell" x="440" y="150" width="160" height="24"/>
+<text class="tk" x="520" y="166" text-anchor="middle">…</text>
+<rect class="cell" x="440" y="174" width="160" height="24"/>
+<text class="tk" x="520" y="190" text-anchor="middle">page 15</text>
+<rect class="cell" x="440" y="198" width="160" height="24"/>
+<text class="tk" x="520" y="214" text-anchor="middle">… page 31</text>
+<text class="tk" x="520" y="22" text-anchor="middle">1 MiB SRAM (32 × 32 KiB)</text>
+<rect class="blkd" x="440" y="174" width="160" height="24"/>
+<text class="tk" x="520" y="190" text-anchor="middle">page 15</text>
+<polyline class="ln c1" points="440,186 330,186 330,172 210,172"/>
+<polygon class="c1f" points="210,172 217,168.8 217,175.2"/>
+<polygon class="c1f" points="440,186 433,189.2 433,182.8"/>
+<text class="tk" x="325" y="200" text-anchor="middle">page register = 15</text>
+</svg>
+<figcaption><b>Figure 2.1</b> One 32 KiB SRAM page mapped into the upper half of the 8051's address space.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> The 1 MiB image needs \(2^{20}/2^{15} = 32\) pages. To read a pixel, compute its linear address, write the page number to the page register, then read 0x8000 plus the offset within the page.</p>
+<div class="eq"><span class="tag">Paged address of a pixel</span>\[ a = 1024\,r + c \qquad \text{page} = \left\lfloor \frac{a}{32\,768} \right\rfloor \qquad \text{address} = \text{0x8000} + (a \bmod 32\,768) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(a\)</dt><dd>Linear byte address of the pixel in SRAM.</dd>
+  <dt>\(r, c\)</dt><dd>Pixel row and column (0 to 1023).</dd>
+  <dt>page</dt><dd>Value to write to the page register (0 to 31).</dd>
+  <dt>address</dt><dd>MCU address to read.</dd>
+</dl>
+</div>
+<div class="ex"><div class="hd">Worked example 2.1 <span>reading one pixel</span></div><div class="bd">
+<p>Which page and MCU address hold pixel row 500, column 300?</p>
+<div class="step"><i>1</i><div>\(a = 1024 \times 500 + 300 = 512\,300\).</div></div>
+<div class="step"><i>2</i><div>Page \(= \lfloor 512\,300/32\,768 \rfloor = 15\); offset \(= 512\,300 - 15 \times 32\,768 = 20\,780\) = 0x512C.</div></div>
+<div class="step"><i>3</i><div>Address \(= \) 0x8000 + 0x512C = 0xD12C.</div></div>
+<div class="ans">Write 15 to the page register, then read address 0xD12C. Each page holds 32 complete rows.</div>
+</div></div>
+</section>
+
+<section id="revision">
+<h2><span class="n">03</span>A2 revision: bits, pointers and interrupts</h2>
+<p class="reading"><b>Reading</b> Revision lecture A2</p>
+<div class="key"><span class="tag">About A2</span><p>A SUNLearn quiz, very like the practicals and A1: a 3-hour paper of 90 marks, 30 from the third quarter and 60 from the fourth. STM32CubeIDE is not needed; prescribed calculators (or the Windows calculator) are allowed. Final mark: FM = 10 % × SM + 40 % × A1 + 50 % × A2, where SM is the average of the practicals after dropping the lowest two (a missed practical counts as 0).</p></div>
+<p>Inside the microcontroller are the processor core, memory (flash for the program, SRAM for data) and peripherals (timers, GPIO, serial ports, ADC), all reached through memory-mapped registers.</p>
+
+<h3 id="bits">Bitwise operations</h3>
+<div class="tbl"><table><thead><tr><th>Operation</th><th>Rule</th><th>Use</th><th>C</th></tr></thead><tbody>
+<tr><td>AND with a mask</td><td>bit & 0 = 0, bit & 1 = bit</td><td>Keep or test chosen bits</td><td><code>a &amp; mask</code></td></tr>
+<tr><td>OR</td><td>bit | 1 = 1, bit | 0 = bit</td><td>Force bits to 1</td><td><code>a | mask</code></td></tr>
+<tr><td>BIC (bit clear)</td><td>BIC with 1 clears, with 0 keeps</td><td>Force bits to 0</td><td><code>a &amp; ~mask</code></td></tr>
+<tr><td>Shift left</td><td>× \(2^n\) (LSL)</td><td>Build masks</td><td><code>b &lt;&lt; n</code></td></tr>
+<tr><td>Shift right</td><td>÷ \(2^n\) (ASR keeps the sign bit)</td><td>Extract fields</td><td><code>b &gt;&gt; n</code></td></tr>
+</tbody></table></div>
+<ul>
+<li>Mask: 1100 1010 AND 0110 0110 = 0100 0010.</li>
+<li>OR: 0x12345678 | 0x0000FFFF = 0x1234FFFF. BIC: 0x12345678 BIC 0x0000FFFF = 0x12340000.</li>
+<li>Set bit \(n\): <code>a = b | (1 &lt;&lt; n)</code>; with b = 1010 1010 and n = 6: 1110 1010.</li>
+<li>Clear bit \(n\): <code>a = b &amp; ~(1 &lt;&lt; n)</code>; with n = 5: 1000 1010.</li>
+<li>Match a pattern: <code>if ((input &amp; 0b00001001) == 0b00000001)</code> tests "bit 0 is 1 and bit 3 is 0" (pattern XXXX 0XX1).</li>
+</ul>
+<div class="box watch"><span class="label">Watch out</span><p>The slide shifts 1010 1010 right to 1101 0101: that is the <em>arithmetic</em> shift ASR, which copies the sign bit. In C, <code>&gt;&gt;</code> on an <code>unsigned</code> value shifts in zeros (giving 0101 0101); on a negative signed value the result is implementation-defined (ARM compilers use ASR). Use unsigned types such as <code>uint32_t</code> for registers.</p></div>
+<figure>
+<svg viewBox="0 0 640 150" class="fig" role="img" aria-label="GPIOD MODER bits 31 to 24: MODER13 occupies bits 27 and 26 and must be set to 01 for output without disturbing the other bits">
+<rect class="cell" x="120" y="40" width="50" height="36"/>
+<text class="tk" x="145" y="32" text-anchor="middle">31</text>
+<text class="lab" x="145" y="63" text-anchor="middle">x</text>
+<rect class="cell" x="170" y="40" width="50" height="36"/>
+<text class="tk" x="195" y="32" text-anchor="middle">30</text>
+<text class="lab" x="195" y="63" text-anchor="middle">x</text>
+<rect class="cell" x="220" y="40" width="50" height="36"/>
+<text class="tk" x="245" y="32" text-anchor="middle">29</text>
+<text class="lab" x="245" y="63" text-anchor="middle">x</text>
+<rect class="cell" x="270" y="40" width="50" height="36"/>
+<text class="tk" x="295" y="32" text-anchor="middle">28</text>
+<text class="lab" x="295" y="63" text-anchor="middle">x</text>
+<rect class="blkd" x="320" y="40" width="50" height="36"/>
+<text class="tk" x="345" y="32" text-anchor="middle">27</text>
+<text class="lab" x="345" y="63" text-anchor="middle">0</text>
+<rect class="blkd" x="370" y="40" width="50" height="36"/>
+<text class="tk" x="395" y="32" text-anchor="middle">26</text>
+<text class="lab" x="395" y="63" text-anchor="middle">1</text>
+<rect class="cell" x="420" y="40" width="50" height="36"/>
+<text class="tk" x="445" y="32" text-anchor="middle">25</text>
+<text class="lab" x="445" y="63" text-anchor="middle">x</text>
+<rect class="cell" x="470" y="40" width="50" height="36"/>
+<text class="tk" x="495" y="32" text-anchor="middle">24</text>
+<text class="lab" x="495" y="63" text-anchor="middle">x</text>
+<text class="tk" x="170" y="96" text-anchor="middle">MODER15</text>
+<text class="tk" x="270" y="96" text-anchor="middle">MODER14</text>
+<text class="tk" x="370" y="96" text-anchor="middle">MODER13</text>
+<text class="tk" x="470" y="96" text-anchor="middle">MODER12</text>
+<text class="tk" x="320" y="130" text-anchor="middle">(x &amp; 0xF3FFFFFF) clears bits 27:26; | 0x04000000 sets bit 26</text>
+</svg>
+<figcaption><b>Figure 3.1</b> Setting PD13 to output in GPIOD_MODER.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> Each pin has two MODER bits; pin 13 uses bits 27 and 26, and output mode is 01. GPIOD starts at 0x40020C00 and MODER is at offset 0. Clear the two bits with an AND mask, then set bit 26 with OR, leaving every other pin unchanged.</p>
+<pre><code>uint32_t *GPIOD_MODER = (uint32_t *) 0x40020C00;
+*GPIOD_MODER = (*GPIOD_MODER &amp; 0xF3FFFFFF) | 0x04000000;</code></pre>
+<p>In assembly the same is LDR (address), LDR (value), BIC #0x0C000000, ORR #0x04000000, STR.</p>
+
+<h3 id="pointers">Pointers, arrays and volatile</h3>
+<ul>
+<li>A <strong>pointer</strong> is a variable holding an address, with a type giving the size and kind of data there (<code>int* my_ptr;</code>). On the Cortex-M4 a pointer is always 32 bits whatever it points to.</li>
+<li><code>&amp;</code> takes an address (<code>my_ptr = &amp;my_var;</code>); <code>*</code> dereferences it (<code>*my_ptr = *my_ptr + 1;</code> reads, increments and writes back).</li>
+<li>Uses: specific memory locations (peripheral registers), arrays, and passing by reference.</li>
+<li>A constant address must be cast so the compiler knows the data size: <code>*((uint32_t*)0x40020000)</code>, usually wrapped in a <code>#define</code> (no spaces needed, no semicolon at the end).</li>
+<li>An array name acts as a pointer: <code>scores[3]</code> is <code>*(scores + 3)</code>, where +3 means 3 elements, not 3 bytes (12 bytes for <code>int</code>). But an array name is not a variable: <code>data++</code> is illegal, while <code>dataPtr++</code> on a pointer is legal. <code>int scores[4]</code> reserves 16 bytes; <code>int* ptr</code> reserves only the pointer.</li>
+<li><code>volatile</code> tells the compiler the value can change at any time without nearby code changing it (an ISR, or hardware), so it must re-read it every time. <code>volatile uint16_t x;</code> and <code>uint16_t volatile y;</code> are the same; pointers to memory-mapped registers are declared <code>volatile uint8_t *p_reg;</code>.</li>
+</ul>
+<div class="box watch"><span class="label">Watch out</span><p>Revision slide 11's final example writes the mask as <code>0xffffff3</code> (seven hex digits), which is 0x0FFFFFF3 and would also clear the top four bits of MODER. The intended mask is 0xFFFFFFF3. Count the digits in every 32-bit mask.</p></div>
+
+<h3 id="stack">Stack and exceptions</h3>
+<p>The <strong>stack pointer</strong> SP (R13) holds the address of the top of the stack. The stack starts at a high address and grows <em>down</em>: pushing two words decrements SP by 8 (in the slide's example from 0xBEFFFAE8 to 0xBEFFFAE0).</p>
+<p>Interrupts raise four questions: which function to run and where it is (the vector table), how to keep the interrupted program's registers and flags intact (automatic stacking), which interrupt wins if two occur together (priorities), and how to protect critical code (masking). On the Cortex-M4 an exception <strong>returns</strong> when handler-mode code loads the PC with LDM, POP, LDR or BX, which acts like <code>BX LR</code>. On entry LR was loaded with an <strong>EXC_RETURN</strong> value (0xFFFFFFE1 to 0xFFFFFFFD) whose low 5 bits say which stack to return to and in which mode; LR does not hold the return address, which was saved on the stack.</p>
+
+<h3 id="map">Where the rest is covered</h3>
+<div class="tbl"><table><thead><tr><th>Revision topic</th><th>Page</th></tr></thead><tbody>
+<tr><td>Timers, PSC and ARR, PWM mode 1; clock distribution (84 MHz)</td><td>Week 6</td></tr>
+<tr><td>Serial comparison table, UART, I2C speeds</td><td>Week 7</td></tr>
+<tr><td>SPI, LIS3DSH, DMA streams</td><td>Week 8</td></tr>
+<tr><td>ADC and DAC formulas, I2S</td><td>Week 9</td></tr>
+<tr><td>Low-side and high-side switches, servos and steppers, LCD-TFT architectures, NOR vs NAND</td><td>Week 10</td></tr>
+<tr><td>Pull-ups, transmission lines, system life cycle</td><td>Week 11</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="practice">
+<h2><span class="n">04</span>Practice problems</h2>
+<div class="ex"><div class="hd">Problem 4.1 <span>flow and modem time</span></div><div class="bd">
+<p>The flow meter gives 5700 pulses in a minute. What is the flow? How long does a 200-byte status message take on the 9600 baud 8N1 modem link?</p>
+<div class="step"><i>1</i><div>\(5700/380 = 15\) l/min.</div></div>
+<div class="step"><i>2</i><div>\(200 \times 10/9600 = 208.3\) ms.</div></div>
+<div class="ans">15 l/min; 208.3 ms per message.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 4.2 <span>RMS and energy</span></div><div class="bd">
+<p>The 80 current samples follow a 50 Hz sine of peak 1000 mA. Find \(I_{RMS}\), the energy added per 160 ms at 220 V, and the energy per hour.</p>
+<div class="step"><i>1</i><div>80 samples span exactly 8 cycles, so \(I_{RMS} = 1000/\sqrt{2} = 707.1\) mA.</div></div>
+<div class="step"><i>2</i><div>\(\Delta E = 0.16 \times 220 \times 0.7071/3600 = 0.006914\) Wh.</div></div>
+<div class="step"><i>3</i><div>Per hour: \(220 \times 0.7071 = 155.6\) Wh.</div></div>
+<div class="ans">707.1 mA, 0.006914 Wh per update, 155.6 Wh per hour.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 4.3 <span>I2C address bytes</span></div><div class="bd">
+<p>Give the write and read address bytes for both possible image-sensor addresses.</p>
+<div class="step"><i>1</i><div>0x55: write 0xAA, read 0xAB.</div></div>
+<div class="step"><i>2</i><div>0x33: write 0x66, read 0x67.</div></div>
+<div class="ans">0xAA/0xAB and 0x66/0x67.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 4.4 <span>PD12 as output</span></div><div class="bd">
+<p>Write the C statement that makes PD12 an output without touching other pins.</p>
+<div class="step"><i>1</i><div>PD12 uses MODER bits 25:24. Clear mask \(\sim(3 \ll 24)\) = 0xFCFFFFFF; set value \(1 \ll 24\) = 0x01000000.</div></div>
+<div class="ans"><code>*GPIOD_MODER = (*GPIOD_MODER &amp; 0xFCFFFFFF) | 0x01000000;</code></div>
+</div></div>
+<div class="ex"><div class="hd">Problem 4.5 <span>pattern match</span></div><div class="bd">
+<p>Does <code>(input &amp; 0x09) == 0x01</code> hold for input 0x5A? For 0x53?</p>
+<div class="step"><i>1</i><div>0x5A = 0101 1010: bit 0 is 0, so the result is 0x08 ≠ 0x01. False.</div></div>
+<div class="step"><i>2</i><div>0x53 = 0101 0011: bit 0 is 1, bit 3 is 0, so the result is 0x01. True.</div></div>
+<div class="ans">0x5A: false. 0x53: true.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 4.6 <span>mark needed</span></div><div class="bd">
+<p>With SM = 75 and A1 = 60, what A2 mark (in %) gives a final mark of 50?</p>
+<div class="step"><i>1</i><div>\(0.1 \times 75 + 0.4 \times 60 = 31.5\); \(0.5 \times A2 = 18.5\).</div></div>
+<div class="ans">A2 = 37 %.</div>
+</div></div>
+</section>
+
+<section id="sheet">
+<h2><span class="n">05</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>Geyser</h4>
+<p>\(T = 0.05189(R - 204.75) - 50\) (calibrated: 185)</p>
+<p>Hysteresis: on below SP − th, off above SP + th</p>
+<p>\(I_{RMS} = \sqrt{\sum I_i^2/80}\); \(E \mathrel{+}= T_{sample} V I_{RMS}/3600\)</p>
+<p>Flow = pulses per 60 s / 380 l/min</p>
+</div>
+<div><h4>Sun sensor</h4>
+<p>Image \(1024^2\) bytes = 1 MiB = 32 pages × 32 KiB</p>
+<p>page = \(\lfloor a/32768 \rfloor\); address = 0x8000 + \(a \bmod 32768\)</p>
+<p>I2C 0x55 or 0x33; CAN to the satellite</p>
+</div>
+<div><h4>Bits</h4>
+<p>Set: <code>b | (1&lt;&lt;n)</code>; clear: <code>b &amp; ~(1&lt;&lt;n)</code></p>
+<p>Test: <code>(x &amp; mask) == pattern</code></p>
+<p>MODERn: bits 2n+1:2n, output = 01</p>
+</div>
+<div><h4>C and Cortex-M4</h4>
+<p><code>&amp;</code> address, <code>*</code> dereference; cast constants</p>
+<p><code>a[i] == *(a + i)</code>; array name not a variable</p>
+<p><code>volatile</code> for ISR-shared and register data</p>
+<p>Stack grows down; return via EXC_RETURN in LR</p>
+<p>FM = 0.1 SM + 0.4 A1 + 0.5 A2</p>
+</div>
+</div>
+</section>
+
+<footer>
+<p>Sources: CS245 Lecture28 Microcontroller System Examples Updated.pdf, CS245 RevisionLectureA2.pdf. The block diagrams, flash memory map, temperature and CT equations, sun-sensor block diagram and the revision lecture's code, register and stack figures were read from the slide images. Slides 21 and 22 of Lecture 28 (lens calibration) are images only and carry no stated method. The revision slides that repeat Weeks 6 to 11 are mapped to those pages rather than repeated. The heating and cooling rates in Figure 1.2 are illustrative.</p>
+</footer>
+</main>
+</div>
+
+<script src="../../assets/ask-gemini.js" data-store="cs245-w12-theory" data-course="CS245 Computer Systems"
+        data-topic="Week 12: smart geyser controller (ADC temperature, CT RMS current and energy, flow meter, modem, latching relay, H-bridge valve, bootloader and OTA), horizon/sun sensor (CAN, I2C sensor, FPGA, paged SRAM), A2 revision: bitwise operations, pointers, arrays, volatile, stack, exceptions"></script>
+</body>
+</html>

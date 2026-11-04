@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 10: Actuation, displays and external memory · CS245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../module.html?m=cs245">&larr; Computer Systems</a>
+  <div class="k">CS245 · Week 10</div>
+  <ol>
+    <li><a href="#switches">1. Switching loads</a></li>
+    <li class="sub"><a href="#bjt">BJT switches</a></li>
+    <li class="sub"><a href="#mosfet">MOSFET switches</a></li>
+    <li class="sub"><a href="#relay">Relays</a></li>
+    <li><a href="#motors">2. H-bridges and motors</a></li>
+    <li class="sub"><a href="#brushed">Brushed DC motors</a></li>
+    <li class="sub"><a href="#bldc">Brushless, servo and stepper motors</a></li>
+    <li><a href="#displays">3. Displays</a></li>
+    <li class="sub"><a href="#tft">LCD-TFT and frame buffers</a></li>
+    <li><a href="#extmem">4. External memory</a></li>
+    <li class="sub"><a href="#flash">NOR and NAND flash</a></li>
+    <li class="sub"><a href="#sdram">SDRAM</a></li>
+    <li><a href="#prac8">5. Practical 8: audio synthesiser</a></li>
+    <li><a href="#practice">6. Practice problems</a></li>
+    <li><a href="#sheet">7. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 · LECTURES 24 AND 25 · PRACTICAL 8</div>
+  <h1>Actuation, displays and external memory</h1>
+  <p class="lede">How a low-current microcontroller switches real loads (transistors, relays, H-bridges) and drives motors; how displays from a single LED to an LCD-TFT panel are connected and refreshed; and how parallel NOR, NAND and SDRAM memories extend the microcontroller's memory. Lecture 23 (DAC) is also in this week's folder; it is covered on the Week 9 page.</p>
+</header>
+
+<section id="switches">
+<h2><span class="n">01</span>Switching loads</h2>
+<p class="reading"><b>Reading</b> Lecture 24, slides 2 to 8</p>
+<p>Microcontrollers move robot arms, switch fans and heaters, control the speed of quadcopter motors and drive electromagnetic locks, usually with some feedback (position, speed, temperature). These loads need high current, and often a higher voltage, than a GPIO pin can supply. So the microcontroller outputs only on/off GPIO or PWM signals, and a power switch, motor driver or H-bridge does the work.</p>
+<ul>
+<li><strong>Low-side switch</strong>: between the load and ground.</li>
+<li><strong>High-side switch</strong>: between the supply \(V_{CC}\) and the load.</li>
+</ul>
+<figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="Low-side switch between the load and ground compared with a high-side switch between the supply and the load">
+<text class="lab b" x="150" y="20" text-anchor="middle">Low-side switch</text>
+<polyline class="ln c4" points="178,45 202,45"/>
+<text class="lab" x="190" y="38" text-anchor="middle">V<tspan dy="3" font-size="75%">CC</tspan><tspan dy="-3"> </tspan></text>
+<rect class="blk" x="165" y="45" width="50" height="50" rx="3"/>
+<text class="lab" x="190" y="74" text-anchor="middle">Load</text>
+<polyline class="ln c4" points="190,95 190,133.5"/>
+<polyline class="ln c4" points="190,166.5 190,205"/>
+<circle class="hollow ln c4" cx="190" cy="133.5" r="2.5"/>
+<circle class="hollow ln c4" cx="190" cy="166.5" r="2.5"/>
+<polyline class="ln c4" points="190,166.5 178,135.5"/>
+<text class="lab" x="174" y="154" text-anchor="end">switch</text>
+<polyline class="ln c4" points="190,205 190,211"/>
+<polyline class="ln c4" points="181,211 199,211"/>
+<polyline class="ln c4" points="185,215 195,215"/>
+<polyline class="ln c4" points="188,219 192,219"/>
+<rect class="blk" x="30" y="115" width="70" height="40" rx="3"/>
+<text class="lab" x="65" y="139" text-anchor="middle">MCU</text>
+<polyline class="ln c1 thin dash" points="100,135 170,135"/>
+<polygon class="c1f" points="170,135 163,138.2 163,131.8"/>
+<text class="tk" x="135" y="128" text-anchor="middle">GPIO</text>
+<text class="lab b" x="460" y="20" text-anchor="middle">High-side switch</text>
+<polyline class="ln c4" points="488,45 512,45"/>
+<text class="lab" x="500" y="38" text-anchor="middle">V<tspan dy="3" font-size="75%">CC</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="500,45 500,67.8"/>
+<polyline class="ln c4" points="500,87.2 500,110"/>
+<circle class="hollow ln c4" cx="500" cy="67.8" r="2.5"/>
+<circle class="hollow ln c4" cx="500" cy="87.2" r="2.5"/>
+<polyline class="ln c4" points="500,87.2 488,69.8"/>
+<text class="lab" x="484" y="81.5" text-anchor="end">switch</text>
+<rect class="blk" x="475" y="110" width="50" height="50" rx="3"/>
+<text class="lab" x="500" y="139" text-anchor="middle">Load</text>
+<polyline class="ln c4" points="500,160 500,205"/>
+<polyline class="ln c4" points="500,205 500,211"/>
+<polyline class="ln c4" points="491,211 509,211"/>
+<polyline class="ln c4" points="495,215 505,215"/>
+<polyline class="ln c4" points="498,219 502,219"/>
+<rect class="blk" x="340" y="115" width="70" height="40" rx="3"/>
+<text class="lab" x="375" y="139" text-anchor="middle">MCU</text>
+<polyline class="ln c1 thin dash" points="410,135 480,135"/>
+<polygon class="c1f" points="480,135 473,138.2 473,131.8"/>
+<text class="tk" x="445" y="128" text-anchor="middle">GPIO</text>
+<text class="tk" x="320" y="240" text-anchor="middle">GPIO 0 V = off, V<tspan dy="3" font-size="75%">DD</tspan><tspan dy="-3"> </tspan> = on (inverted for a p-channel high-side switch)</text>
+</svg>
+<figcaption><b>Figure 1.1</b> Low-side and high-side switches.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> In both, the GPIO only controls the switch; the load current flows from \(V_{CC}\), not from the microcontroller. The low-side switch is easiest to build, but leaves the load's low end slightly above 0 V.</p>
+
+<h3 id="bjt">BJT switches</h3>
+<p>A BJT switch runs only in cut-off (off) and saturation (on). A low-side switch uses an NPN transistor; a high-side switch uses a PNP. To saturate it, the collector current must reach the load current and the base current must be at least \(I_{LOAD}/\beta\):</p>
+<div class="eq"><span class="tag">BJT switch design</span>\[ I_{LOAD} = \frac{V_{CC}}{R_{LOAD}} \qquad I_B \ge \frac{I_{LOAD}}{\beta} \qquad R_B \lt \frac{V_{DD}\,\beta}{I_{LOAD}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(I_{LOAD}\)</dt><dd>Load current when on, equal to the collector current (A).</dd>
+  <dt>\(V_{CC}\)</dt><dd>Load supply voltage (V).</dd>
+  <dt>\(R_{LOAD}\)</dt><dd>Load resistance (Ω).</dd>
+  <dt>\(I_B\)</dt><dd>Base current from the GPIO pin (A).</dd>
+  <dt>\(\beta\)</dt><dd>Current gain of the transistor.</dd>
+  <dt>\(R_B\)</dt><dd>Base resistor (Ω).</dd>
+  <dt>\(V_{DD}\)</dt><dd>GPIO high voltage (V).</dd>
+</dl>
+</div>
+<p>The slides' example: 1 A load (10 V, 10 Ω), \(\beta = 100\): \(I_B \ge 10\) mA and, with 3.3 V, \(R_B \lt 330\) Ω. Power BJTs rarely have \(\beta\) above 50, so with a 20 mA GPIO limit the largest switchable load is about 1 A. For more, use a <strong>Darlington pair</strong>. BJTs also dissipate power because of \(V_{CE(sat)}\).</p>
+<div class="box watch"><span class="label">Watch out</span><p>The slide formula \(I_B = V_{DD}/R_B\) ignores the 0.7 V base-emitter drop. Including it, \(I_B = (V_{DD} - V_{BE})/R_B\), which gives a smaller limit on \(R_B\) (260 Ω instead of 330 Ω for 10 mA from 3.3 V). Design with the drop included and leave margin, since \(\beta\) varies between transistors.</p></div>
+
+<h3 id="mosfet">MOSFET switches</h3>
+<ul>
+<li>Switched by the gate-source voltage \(V_{GS}\), not by current: almost no current flows from the GPIO pin, so much larger currents can be switched.</li>
+<li>Low-side uses an n-channel, high-side a p-channel MOSFET.</li>
+<li>Instead of a saturation voltage they have an on-resistance \(R_{DS}\) that depends on \(V_{GS}\); power MOSFETs dissipate far less than BJTs.</li>
+<li>The gate-source capacitance must be charged by the small GPIO current, so switching takes time. This can be a problem with fast PWM.</li>
+</ul>
+<div class="box watch"><span class="label">Watch out</span><p>Slide 6 says the MOSFET's "switching time is lower than with BJT". The point being made is the opposite: the gate charges slowly from a GPIO pin, so switching is <em>slower</em> (the switching time is longer). Read it as "switching speed is lower".</p></div>
+<p><strong>Low-side or high-side?</strong> A low-side switch leaves \(V_{CE(sat)}\) or \(V_{DS}\) across the transistor, so the load's low terminal is not at 0 V. If that matters, use a high-side switch (PNP or p-channel). The logic is inverted for a high-side p-channel switch, and the load supply cannot be higher than the GPIO voltage, or the switch never turns off: then an extra driver stage is needed.</p>
+
+<h3 id="relay">Relays</h3>
+<p>A relay has physical contacts moved by an electromagnet, so it can switch almost any current and voltage, for example 220 V AC. The microcontroller controls the coil, still through a transistor switch. A <strong>flyback diode</strong> across the coil is essential: switching off an inductor's current causes a voltage spike that can arc or create EM noise, and the diode gives the coil current a path to die away. Latching relays only need current to change state. Relays wear out and cannot be used with PWM.</p>
+<figure>
+<svg viewBox="0 0 640 290" class="fig" role="img" aria-label="Low-side NPN switch driving a relay coil from a GPIO pin through RB, with a flyback diode across the coil">
+<polyline class="ln c4" points="318,30 342,30"/>
+<text class="lab" x="330" y="23" text-anchor="middle">V<tspan dy="3" font-size="75%">CC</tspan><tspan dy="-3"> </tspan> = 12 V</text>
+<polyline class="ln c4" points="330,30 330,50 270,50 270,70"/>
+<polyline class="ln c4" points="330,50 390,50 390,70"/>
+<rect class="blk" x="255" y="70" width="30" height="70" rx="3"/>
+<text class="lab" x="245" y="110" text-anchor="end">relay coil</text>
+<polyline class="ln c4" points="270,140 270,165 390,165"/>
+<polyline class="ln c4" points="390,70 390,96"/>
+<polyline class="ln c4" points="390,114 390,140"/>
+<polygon class="ln c4" points="380,114 400,114 390,96"/>
+<polyline class="ln c4" points="380,96 400,96"/>
+<polyline class="ln c4" points="390,140 390,165"/>
+<text class="tk" x="402" y="108" text-anchor="start">flyback diode</text>
+<polyline class="ln c4" points="230,210 250,210"/>
+<polyline class="ln c4" points="250,196 250,224"/>
+<polyline class="ln c4" points="250,204 270,192 270,184"/>
+<polyline class="ln c4" points="250,216 270,228 270,236"/>
+<polygon class="c4f" points="270,228 262.4,227.1 265.6,221.7"/>
+<polyline class="ln c4" points="270,184 270,165"/>
+<circle class="c4f" cx="270" cy="165" r="2.6"/>
+<polyline class="ln c4" points="270,236 270,242"/>
+<polyline class="ln c4" points="261,242 279,242"/>
+<polyline class="ln c4" points="265,246 275,246"/>
+<polyline class="ln c4" points="268,250 272,250"/>
+<polyline class="ln c4" points="90,210 123,210 126.7,203 134,217 141.3,203 148.7,217 156,203 163.3,217 167,210 200,210"/>
+<text class="lab" x="145" y="198" text-anchor="middle">R<tspan dy="3" font-size="75%">B</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="200,210 230,210"/>
+<circle class="hollow ln c4" cx="90" cy="210" r="3.5"/>
+<text class="lab" x="82" y="214" text-anchor="end">GPIO</text>
+<text class="tk" x="140" y="270" text-anchor="start">GPIO high: base current saturates the NPN, coil energised</text>
+<polyline class="ln c4" points="270,165 270,165"/>
+</svg>
+<figcaption><b>Figure 1.2</b> A GPIO pin switching a relay coil through an NPN transistor.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.2:</b> The diode is reverse biased while the coil is on. When the transistor turns off, the coil's current continues through the diode instead of forcing the collector voltage far above 12 V.</p>
+
+<div class="ex"><div class="hd">Worked example 1.1 <span>BJT or MOSFET for a 0.5 A load</span></div><div class="bd">
+<p>A 24 Ω heater on 12 V is switched from a 3.3 V GPIO. (a) With a BJT of \(\beta = 50\), find \(I_B\) and \(R_B\). (b) Compare the switch dissipation for \(V_{CE(sat)} = 0.2\) V with a MOSFET of \(R_{DS(on)} = 0.05\) Ω.</p>
+<div class="step"><i>1</i><div>\(I_{LOAD} = 12/24 = 0.5\) A; \(I_B \ge 0.5/50 = 10\) mA.</div></div>
+<div class="step"><i>2</i><div>Slide formula: \(R_B \lt 3.3/0.01 = 330\) Ω. With \(V_{BE}\): \(R_B \lt 2.6/0.01 = 260\) Ω. Choose 220 Ω: \(I_B = 2.6/220 = 11.8\) mA, below the 20 mA pin limit.</div></div>
+<div class="step"><i>3</i><div>BJT: \(P = 0.2 \times 0.5 = 0.1\) W. MOSFET: \(P = 0.5^2 \times 0.05 = 0.0125\) W.</div></div>
+<div class="ans">\(R_B = 220\) Ω gives 11.8 mA. The MOSFET dissipates 12.5 mW against 100 mW for the BJT, and draws no steady gate current.</div>
+</div></div>
+</section>
+
+<section id="motors">
+<h2><span class="n">02</span>H-bridges and motors</h2>
+<p class="reading"><b>Reading</b> Lecture 24, slides 9 to 19</p>
+<p>An <strong>H-bridge</strong> is four switches around a load so current can flow through it in either direction, which motor control needs. It is built from BJTs or MOSFETs (NPN with PNP, or n- with p-channel), and is available as ICs, either just the transistors and diodes or a full motor driver.</p>
+<figure>
+<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="H-bridge with switches A and C at the top and B and D at the bottom; closing A and D drives current left to right through the motor">
+<polyline class="ln c4" points="308,25 332,25"/>
+<text class="lab" x="320" y="18" text-anchor="middle">V<tspan dy="3" font-size="75%">motor</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="320,25 320,40 200,40"/>
+<polyline class="ln c4" points="320,40 440,40"/>
+<polyline class="ln c4" points="200,40 200,71.5"/>
+<polyline class="ln c4" points="200,98.5 200,130"/>
+<circle class="hollow ln c4" cx="200" cy="71.5" r="2.5"/>
+<circle class="hollow ln c4" cx="200" cy="98.5" r="2.5"/>
+<polyline class="ln c1" points="200,71.5 200,98.5"/>
+<text class="lab" x="184" y="89" text-anchor="end">A</text>
+<polyline class="ln c4" points="440,40 440,71.5"/>
+<polyline class="ln c4" points="440,98.5 440,130"/>
+<circle class="hollow ln c4" cx="440" cy="71.5" r="2.5"/>
+<circle class="hollow ln c4" cx="440" cy="98.5" r="2.5"/>
+<polyline class="ln c4" points="440,98.5 428,73.5"/>
+<text class="lab" x="456" y="89" text-anchor="start">C</text>
+<polyline class="ln c4" points="200,130 200,161.5"/>
+<polyline class="ln c4" points="200,188.5 200,220"/>
+<circle class="hollow ln c4" cx="200" cy="161.5" r="2.5"/>
+<circle class="hollow ln c4" cx="200" cy="188.5" r="2.5"/>
+<polyline class="ln c4" points="200,188.5 188,163.5"/>
+<text class="lab" x="184" y="179" text-anchor="end">B</text>
+<polyline class="ln c4" points="440,130 440,161.5"/>
+<polyline class="ln c4" points="440,188.5 440,220"/>
+<circle class="hollow ln c4" cx="440" cy="161.5" r="2.5"/>
+<circle class="hollow ln c4" cx="440" cy="188.5" r="2.5"/>
+<polyline class="ln c1" points="440,161.5 440,188.5"/>
+<text class="lab" x="456" y="179" text-anchor="start">D</text>
+<polyline class="ln c4" points="200,220 440,220"/>
+<polyline class="ln c4" points="320,220 320,226"/>
+<polyline class="ln c4" points="311,226 329,226"/>
+<polyline class="ln c4" points="315,230 325,230"/>
+<polyline class="ln c4" points="318,234 322,234"/>
+<circle class="c4f" cx="200" cy="130" r="2.6"/>
+<circle class="c4f" cx="440" cy="130" r="2.6"/>
+<polyline class="ln c4" points="200,130 290,130"/>
+<polyline class="ln c4" points="350,130 440,130"/>
+<circle class="ln c4 hollow" cx="320" cy="130" r="22"/>
+<text class="lab b" x="320" y="135" text-anchor="middle">M</text>
+<polyline class="ln c4" points="298,130 290,130"/>
+<polyline class="ln c4" points="342,130 350,130"/>
+<polyline class="ln c3 thin" points="212,60 212,118 290,118"/>
+<polygon class="c3f" points="290,118 283,121.2 283,114.8"/>
+<polyline class="ln c3 thin" points="352,118 428,118 428,205"/>
+<polygon class="c3f" points="428,205 424.9,198 431.1,198"/>
+<text class="tk" x="560" y="120" text-anchor="middle">A, D closed:</text>
+<text class="tk" x="560" y="136" text-anchor="middle">current →</text>
+</svg>
+<figcaption><b>Figure 2.1</b> An H-bridge with A and D closed.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> A and C connect the motor's ends to \(V_{motor}\); B and D connect them to ground. Closing A and D drives current left to right (amber); closing B and C reverses it. Closing both switches of one side (A with B, or C with D) shorts the supply: "smoke comes out".</p>
+
+<h3 id="brushed">Brushed DC motors</h3>
+<p>Permanent magnets in the housing form the <strong>stator</strong>; the <strong>rotor</strong> (armature) carries windings and turns the shaft. The terminals connect to stationary <strong>brushes</strong> that touch the <strong>commutator</strong> on the rotor. Current in the windings makes a field that turns the rotor towards alignment; just before it gets there, the commutator switches to the next winding and reverses the field, so the rotor keeps turning. Voltage sets speed or torque; reversing the voltage reverses the direction.</p>
+<div class="tbl"><table><thead><tr><th>A</th><th>B</th><th>C</th><th>D</th><th>Result</th></tr></thead><tbody>
+<tr><td>Closed</td><td>Open</td><td>Open</td><td>Closed</td><td>Spin in one direction</td></tr>
+<tr><td>Open</td><td>Closed</td><td>Closed</td><td>Open</td><td>Spin in the opposite direction</td></tr>
+<tr><td>Open</td><td>Open</td><td>Open</td><td>Open</td><td>Rotor coasts</td></tr>
+<tr><td>Closed</td><td>Open</td><td>Closed</td><td>Open</td><td>Active brake (both ends to \(V_{motor}\))</td></tr>
+<tr><td>Open</td><td>Closed</td><td>Open</td><td>Closed</td><td>Active brake (both ends to ground)</td></tr>
+</tbody></table></div>
+<div class="box watch"><span class="label">Watch out</span><p>On slide 14 the first braking row reads A, C and D closed. With C and D both closed the right-hand leg shorts the supply. The highlighted cells (A and C only) show the intended state: A and C closed, B and D open, as in the table above.</p></div>
+<p>Protection diodes across each switch do the job of a flyback diode when the current is switched off or reversed. The microcontroller drives A to D through GPIO, PWM or a motor driver IC. PWM gives variable speed, acceleration and torque: the motor's coils are inductors and smooth the pulses. Motors need their own supply so that their noise, glitches and back EMF do not disturb the microcontroller, and they usually run at a higher voltage.</p>
+
+<h3 id="bldc">Brushless, servo and stepper motors</h3>
+<ul>
+<li><strong>Brushless DC (BLDC)</strong>: magnets on the rotor, coils on the stator, and commutation done electronically. The driver must know the rotor's position, from <strong>Hall-effect sensors</strong>, to know which coil to power next. More efficient but harder to drive: one half-bridge per phase (switches SW1 to SW6), GPIO/PWM outputs and Hall-sensor inputs with interrupts. It is timing-intensive, so often a dedicated microcontroller or BLDC driver IC does it.</li>
+<li><strong>Feedback</strong>: Hall sensors give coarse speed, which can be integrated to estimate angle. For accurate angle and rate use an <strong>optical encoder</strong> read through GPIO external interrupts (linear encoder strips do the same for linear motion).</li>
+<li><strong>Servo</strong>: DC motor, driver electronics, gearbox and shaft encoder in one unit, often with limited rotation (RC aircraft flaps, RC car steering).</li>
+<li><strong>Stepper</strong>: a brushless motor that moves in discrete steps as pulses are applied to alternate inputs. Precise position control and high torque; driving two phases at once increases torque. Driven through H-bridges (probably without PWM) or a dedicated stepper controller, often with a gearbox.</li>
+</ul>
+<p>Servo signal timing with a timer is worked on the Week 6 page (Problem 4.4).</p>
+</section>
+
+<section id="displays">
+<h2><span class="n">03</span>Displays</h2>
+<p class="reading"><b>Reading</b> Lecture 25, slides 2 to 14</p>
+<div class="tbl"><table><thead><tr><th>Display</th><th>How the MCU drives it</th></tr></thead><tbody>
+<tr><td>Low-power LED</td><td>Push-pull GPIO output with a series resistor to limit the LED and pin current. One colour.</td></tr>
+<tr><td>7-segment LED</td><td>7 GPIO outputs, one per segment. Multi-digit displays share the segment lines and add one enable output per digit; the code lights each digit in turn.</td></tr>
+<tr><td>High-power RGB LED</td><td>Three LEDs in one package. PWM on each sets the brightness and so the colour; transistors supply the current. The PWM must be fast enough not to flicker.</td></tr>
+<tr><td>RGB strip</td><td>LEDs with built-in controllers, daisy-chained DOUT to DIN on one "PWM" serial line. 24 bits per LED (8 each for R, G, B); a pulse with duty under 50 % is a 0, over 50 % a 1. A timer in PWM mode with DMA loads the next compare value from an array for each bit.</td></tr>
+<tr><td>LCD character display</td><td>The MCU sends ASCII characters, not pixels, over a parallel GPIO interface, bit-banged. LCDs do not emit light, so there is usually a backlight.</td></tr>
+<tr><td>LCD-TFT</td><td>A matrix of RGB pixels: far too many signals for GPIO. Needs a frame buffer and display controller.</td></tr>
+</tbody></table></div>
+<div class="note"><span class="tag">Strip LEDs</span><p>The slide names the part WS2818B; the common 24-bit strip LED is the WS2812B. The bit encoding described is the same.</p></div>
+
+<h3 id="tft">LCD-TFT and frame buffers</h3>
+<p>An "LED TV" is still an LCD with an LED backlight; OLED is different, with each pixel an organic LED and no backlight. For an LCD-TFT the MCU computes the image (text, sprites, background) and writes it into a <strong>frame buffer</strong> (graphics RAM, GRAM). A <strong>display controller</strong> continuously refreshes the panel from the frame buffer. The frame buffer and controller can be in the display, both in the MCU, or the controller in the MCU with the frame buffer in external RAM (a GPU makes it more complex still).</p>
+<div class="eq"><span class="tag">Frame buffer size and colours</span>\[ \text{size} \ge \frac{W \times H \times \text{bpp}}{8} \text{ bytes} \qquad n_{colours} = 2^{\text{bpp}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>size</dt><dd>Frame buffer memory for one frame (bytes).</dd>
+  <dt>\(W, H\)</dt><dd>Horizontal and vertical resolution (pixels).</dd>
+  <dt>bpp</dt><dd>Colour depth, bits per pixel. 24 bpp is 8 bits each of R, G, B.</dd>
+  <dt>\(n_{colours}\)</dt><dd>Number of colours a pixel can show; 16 777 216 at 24 bpp.</dd>
+</dl>
+</div>
+<p>The <strong>refresh rate</strong> is usually 60 Hz or more; slower and the display flickers.</p>
+<p>ST's <strong>LTDC</strong> (LCD-TFT Display Controller) peripheral works like a DMA: it fetches pixel data from memory over AHB in the background and writes it to a parallel display interface. It can fetch two rectangular layers and blend them. Its signals:</p>
+<ul>
+<li><strong>VSYNC</strong>: pulses once per frame. <strong>HSYNC</strong>: once per line.</li>
+<li><strong>PCLK</strong> (DOTCLK): one cycle per pixel.</li>
+<li><strong>DE</strong> (data enable): high when RGB data is valid. The clock periods with DE low around each line are the <strong>back porch</strong> and <strong>front porch</strong>.</li>
+</ul>
+<figure>
+<svg viewBox="0 0 640 200" class="fig" role="img" aria-label="One display line: HSYNC pulse, back porch, active pixels while DE is high, front porch; the pixel clock runs throughout">
+<polyline class="ln c4 thin" points="90,40 96,40 96,22 102,22 102,40 108,40 108,22 114,22 114,40 120,40 120,22 126,22 126,40 132,40 132,22 138,22 138,40 144,40 144,22 150,22 150,40 156,40 156,22 162,22 162,40 168,40 168,22 174,22 174,40 180,40 180,22 186,22 186,40 192,40 192,22 198,22 198,40 204,40 204,22 210,22 210,40 216,40 216,22 222,22 222,40 228,40 228,22 234,22 234,40 240,40 240,22 246,22 246,40 252,40 252,22 258,22 258,40 264,40 264,22 270,22 270,40 276,40 276,22 282,22 282,40 288,40 288,22 294,22 294,40 300,40 300,22 306,22 306,40 312,40 312,22 318,22 318,40 324,40 324,22 330,22 330,40 336,40 336,22 342,22 342,40 348,40 348,22 354,22 354,40 360,40 360,22 366,22 366,40 372,40 372,22 378,22 378,40 384,40 384,22 390,22 390,40 396,40 396,22 402,22 402,40 408,40 408,22 414,22 414,40 420,40 420,22 426,22 426,40 432,40 432,22 438,22 438,40 444,40 444,22 450,22 450,40 456,40 456,22 462,22 462,40 468,40 468,22 474,22 474,40 480,40 480,22 486,22 486,40 492,40 492,22 498,22 498,40 504,40 504,22 510,22 510,40 516,40 516,22 522,22 522,40 528,40 528,22 534,22 534,40 540,40 540,22 546,22 546,40 552,40 552,22 558,22 558,40 564,40 564,22 570,22 570,40 576,40 576,22 582,22 582,40 588,40 588,22 594,22 594,40 600,40 600,22 606,22 606,40 612,40 612,22 618,22"/>
+<text class="lab" x="82" y="35" text-anchor="end">PCLK</text>
+<polyline class="ln c3" points="90,70 102,70 114,70 126,70 126,90 138,90 150,90 162,90 174,90 186,90 198,90 210,90 222,90 234,90 246,90 258,90 270,90 282,90 294,90 306,90 318,90 330,90 342,90 354,90 366,90 378,90 390,90 402,90 414,90 426,90 438,90 450,90 462,90 474,90 486,90 498,90 510,90 522,90 534,90 546,90 558,90 570,90 582,90 594,90 606,90 618,90"/>
+<text class="lab" x="82" y="84" text-anchor="end">HSYNC</text>
+<polyline class="ln c1" points="90,140 102,140 114,140 126,140 138,140 150,140 162,140 174,140 186,140 198,140 198,120 210,120 222,120 234,120 246,120 258,120 270,120 282,120 294,120 306,120 318,120 330,120 342,120 354,120 366,120 378,120 390,120 402,120 414,120 426,120 438,120 450,120 462,120 474,120 486,120 498,120 510,120 522,120 534,120 534,140 546,140 558,140 570,140 582,140 594,140 606,140 618,140"/>
+<text class="lab" x="82" y="134" text-anchor="end">DE</text>
+<polyline class="grid" points="90,15 90,165"/>
+<text class="tk" x="108" y="160" text-anchor="middle">sync</text>
+<polyline class="grid" points="126,15 126,165"/>
+<text class="tk" x="162" y="160" text-anchor="middle">back porch</text>
+<polyline class="grid" points="198,15 198,165"/>
+<text class="tk" x="366" y="160" text-anchor="middle">active pixels (RGB valid)</text>
+<polyline class="grid" points="534,15 534,165"/>
+<text class="tk" x="576" y="160" text-anchor="middle">front porch</text>
+<polyline class="grid" points="618,15 618,165"/>
+<text class="tk" x="90" y="190" text-anchor="start">VSYNC does the same once per frame; the line repeats for every row</text>
+</svg>
+<figcaption><b>Figure 3.1</b> Timing of one display line.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> After the HSYNC pulse the pixel clock keeps running through the back porch, then DE goes high for the active pixels, then low again for the front porch. Porches are why the pixel clock must be a little faster than \(W \times H \times f_{refresh}\).</p>
+<p><strong>Double buffering</strong>: tearing and flicker happen when the CPU draws into the memory that is being displayed. One fix is to wait for VSYNC and draw only on parts already refreshed. The usual fix is two frame buffers: the controller displays the front buffer while the CPU (or the DMA2D graphics accelerator) draws the back buffer, and at the end of a refresh they swap. Other display signals: a reset line (GPIO), I2C or SPI for touch, brightness and contrast, and a backlight enable (GPIO).</p>
+<div class="note"><span class="tag">Which STM32</span><p>The LTDC and DMA2D are on larger STM32 parts such as the F429; the course board's STM32F407 does not have them, but has the FSMC memory controller (section 4). The slides cite ST application note AN4861.</p></div>
+<div class="ex"><div class="hd">Worked example 3.1 <span>frame buffer for a small TFT</span></div><div class="bd">
+<p>A 480 × 272 panel uses 16 bpp at 60 Hz. Find the frame buffer size, the double-buffered size, the number of colours and the minimum pixel rate.</p>
+<div class="step"><i>1</i><div>\(480 \times 272 \times 16/8 = 261\,120\) bytes (255 KiB).</div></div>
+<div class="step"><i>2</i><div>Double buffered: \(522\,240\) bytes.</div></div>
+<div class="step"><i>3</i><div>\(2^{16} = 65\,536\) colours.</div></div>
+<div class="step"><i>4</i><div>Active pixels per second: \(480 \times 272 \times 60 = 7.83\) MHz; porches push the pixel clock higher.</div></div>
+<div class="ans">261 120 B per frame, 522 240 B double-buffered: more than the STM32F407's on-chip SRAM, which is exactly the case for an external SDRAM frame buffer.</div>
+</div></div>
+</section>
+
+<section id="extmem">
+<h2><span class="n">04</span>External memory</h2>
+<p class="reading"><b>Reading</b> Lecture 25, slides 15 to 27</p>
+<p>Usually the MCU's own SRAM and flash are enough (choose a variant that has enough). External memory is needed for data files that will not fit in flash, data logging, an SDRAM frame buffer for double buffering, camera images or video, programs or data that must be erased and written separately from the main program, and FPGAs connected through a memory-mapped interface. SD cards and USB use serial interfaces (Week 8); this lecture covers permanent parallel memories: <strong>NOR flash</strong>, <strong>NAND flash</strong> and <strong>SDRAM</strong>. They need an external memory controller peripheral (ST's FSMC/FMC, Silicon Labs' EBI), found mostly on larger devices because the parallel buses need many pins.</p>
+
+<h3 id="flash">NOR and NAND flash</h3>
+<p>Flash stores bits in floating-gate transistor cells.</p>
+<div class="tbl"><table><thead><tr><th></th><th>NOR flash</th><th>NAND flash</th></tr></thead><tbody>
+<tr><td>Cell arrangement</td><td>Cells in parallel, each between the source line and a bit line, like a NOR gate</td><td>About 8 cells in series, like a NAND gate</td></tr>
+<tr><td>Access</td><td>Random access through parallel address lines</td><td>No random access; I/O-mapped (indirect) interface</td></tr>
+<tr><td>Speed</td><td>Fast read</td><td>Slower read, faster write and erase</td></tr>
+<tr><td>Density</td><td>Lower</td><td>Higher; made with imperfections, so needs ECC</td></tr>
+<tr><td>Used for</td><td>Program code</td><td>Mass storage</td></tr>
+</tbody></table></div>
+<p><strong>NAND interface</strong> (legacy, asynchronous): an 8-bit bidirectional data bus DQ[7:0] carries commands, addresses and data. CE# selects the chip; ALE and CLE say whether a bus cycle is an address or a command; RE# and WE# strobe reads and writes (on their rising edges); WP# blocks programming and erasing; RY/BY# shows the device is busy. ONFI and Toggle NAND add signals for more throughput.</p>
+<p><strong>NOR interface</strong>: the same as asynchronous SRAM, with parallel address and data buses (8, 16 or 32 bits wide) so any word can be read directly. Some parts multiplex the low address bits onto the data bus and need an address-latch signal.</p>
+<div class="eq"><span class="tag">NOR address lines</span>\[ 2^N = \frac{\text{capacity (bits)}}{\text{data bus width (bits)}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(N\)</dt><dd>Number of address lines.</dd>
+  <dt>capacity</dt><dd>Total memory size in bits.</dd>
+  <dt>data bus width</dt><dd>Bits per word, 8, 16 or 32.</dd>
+</dl>
+</div>
+<figure>
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="Microcontroller memory controller connected to a parallel NOR flash: address bus, data bus and the control lines CE#, OE#, WE# and RY/BY#">
+<rect class="blkd" x="40" y="30" width="150" height="170" rx="3"/>
+<text class="lab" x="115" y="104" text-anchor="middle">MCU</text>
+<text class="lab" x="115" y="119" text-anchor="middle">memory controller</text>
+<text class="lab" x="115" y="134" text-anchor="middle">(FSMC/FMC)</text>
+<rect class="blk" x="450" y="30" width="150" height="170" rx="3"/>
+<text class="lab" x="525" y="111.5" text-anchor="middle">Parallel</text>
+<text class="lab" x="525" y="126.5" text-anchor="middle">NOR flash</text>
+<polyline class="ln c3" points="190,50 450,50"/>
+<polygon class="c3f" points="450,50 443,53.1 443,46.9"/>
+<text class="tk" x="320" y="45" text-anchor="middle">A[N−1:0]  address</text>
+<polyline class="ln c1" points="190,77 450,77"/>
+<polygon class="c1f" points="450,77 443,80.2 443,73.8"/>
+<polygon class="c1f" points="190,77 197,73.8 197,80.2"/>
+<text class="tk" x="320" y="72" text-anchor="middle">DQ[15:0]  data</text>
+<polyline class="ln c4" points="190,104 450,104"/>
+<polygon class="c4f" points="450,104 443,107.2 443,100.8"/>
+<text class="tk" x="320" y="99" text-anchor="middle">CE#</text>
+<polyline class="ln c4" points="190,131 450,131"/>
+<polygon class="c4f" points="450,131 443,134.2 443,127.8"/>
+<text class="tk" x="320" y="126" text-anchor="middle">OE#</text>
+<polyline class="ln c4" points="190,158 450,158"/>
+<polygon class="c4f" points="450,158 443,161.2 443,154.8"/>
+<text class="tk" x="320" y="153" text-anchor="middle">WE#</text>
+<polyline class="ln c4 thin" points="450,185 190,185"/>
+<polygon class="c4f" points="190,185 197,181.8 197,188.2"/>
+<text class="tk" x="320" y="180" text-anchor="middle">RY/BY#</text>
+</svg>
+<figcaption><b>Figure 4.1</b> A parallel NOR flash on the memory controller.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> The address bus (amber) and control lines go out from the MCU; the data bus (teal) goes both ways; RY/BY# comes back. To read: MCU drives the address, CE# and OE# active, WE# inactive, and the memory drives the data. To write: address out, CE# and WE# active, OE# inactive, and the MCU drives the data. No clock is passed to the memory. RESET#, WP# and BYTE# (8 or 16-bit mode) complete the interface.</p>
+
+<h3 id="sdram">SDRAM</h3>
+<p>SDRAM stores each bit as charge on a capacitor, in a matrix of rows and columns, sometimes in several banks. To save pins, row and column addresses share the same address lines: <strong>RAS</strong> (Row Address Strobe) and <strong>CAS</strong> (Column Address Strobe) say which is on the lines. Opening a row takes time, but once open, many columns in it can be read quickly, so <strong>burst</strong> accesses keep the row and step the column. SDRAM is synchronous (it has a clock), and timing is crucial: <strong>CAS latency</strong> is the clock cycles from column address to data, and the <strong>read cycle time</strong> is the time between successive reads to an open row. All of these are set in the memory controller's registers from the datasheet.</p>
+<p><strong>Programming</strong>: set up the FMC registers (memory type, number of address and data lines, timings, device commands), using HAL and the device configuration tool. After that the external memory is used through ordinary memory reads and writes at its mapped addresses.</p>
+</section>
+
+<section id="prac8">
+<h2><span class="n">05</span>Practical 8: audio synthesiser</h2>
+<p class="reading"><b>Reading</b> CS245-P8.pdf</p>
+<p>The Discovery board's CS43L22 audio DAC is connected to the I2S3 peripheral (shared with SPI3) for samples, and set up over I2C for data format (16, 24 or 32-bit), volume, bass, treble and filtering; ST's libraries do the setup. The practical uses 16-bit, 44.1 kHz audio (audio, PCM and I2S are on the Week 9 page). Its goal: generate a 1 kHz tone and view it on a scope, amplitude-modulate it with the accelerometer, then step the tone up in 1 kHz increments with the push button.</p>
+<figure>
+<svg viewBox="0 0 640 240" class="fig" role="img" aria-label="One millisecond of a 1 kHz sine sampled at 44.1 kHz: 44.1 samples per period, so 441 samples hold exactly ten periods">
+<line class="grid" x1="70" y1="15" x2="70" y2="195"/>
+<text class="tk" x="70" y="211" text-anchor="middle">0</text>
+<line class="grid" x1="206.2" y1="15" x2="206.2" y2="195"/>
+<text class="tk" x="206.2" y="211" text-anchor="middle">0.25</text>
+<line class="grid" x1="342.5" y1="15" x2="342.5" y2="195"/>
+<text class="tk" x="342.5" y="211" text-anchor="middle">0.5</text>
+<line class="grid" x1="478.8" y1="15" x2="478.8" y2="195"/>
+<text class="tk" x="478.8" y="211" text-anchor="middle">0.75</text>
+<line class="grid" x1="615" y1="15" x2="615" y2="195"/>
+<text class="tk" x="615" y="211" text-anchor="middle">1</text>
+<line class="grid" x1="70" y1="183.3" x2="615" y2="183.3"/>
+<text class="tk" x="64" y="187.3" text-anchor="end">-1</text>
+<line class="grid" x1="70" y1="105" x2="615" y2="105"/>
+<text class="tk" x="64" y="109" text-anchor="end">0</text>
+<line class="grid" x1="70" y1="26.7" x2="615" y2="26.7"/>
+<text class="tk" x="64" y="30.7" text-anchor="end">1</text>
+<rect class="frame" x="70" y="15" width="545" height="180"/>
+<text class="lab" x="342.5" y="231" text-anchor="middle">time (ms)</text>
+<text class="lab" x="16" y="105" text-anchor="middle" transform="rotate(-90 16 105)">amplitude</text>
+<polyline class="ln c1 thin" points="70,105 71.8,103.4 73.6,101.7 75.5,100.1 77.3,98.5 79.1,96.8 80.9,95.2 82.7,93.6 84.5,91.9 86.3,90.3 88.2,88.7 90,87.1 91.8,85.5 93.6,84 95.4,82.4 97.2,80.8 99.1,79.3 100.9,77.7 102.7,76.2 104.5,74.7 106.3,73.2 108.2,71.7 110,70.2 111.8,68.7 113.6,67.3 115.4,65.9 117.2,64.5 119,63.1 120.9,61.7 122.7,60.3 124.5,59 126.3,57.7 128.1,56.4 129.9,55.1 131.8,53.9 133.6,52.6 135.4,51.4 137.2,50.2 139,49.1 140.9,48 142.7,46.8 144.5,45.8 146.3,44.7 148.1,43.7 149.9,42.7 151.8,41.7 153.6,40.7 155.4,39.8 157.2,38.9 159,38.1 160.8,37.2 162.7,36.4 164.5,35.6 166.3,34.9 168.1,34.2 169.9,33.5 171.7,32.9 173.6,32.2 175.4,31.6 177.2,31.1 179,30.6 180.8,30.1 182.6,29.6 184.4,29.2 186.3,28.8 188.1,28.4 189.9,28.1 191.7,27.8 193.5,27.6 195.4,27.4 197.2,27.2 199,27 200.8,26.9 202.6,26.8 204.4,26.8 206.2,26.7 208.1,26.8 209.9,26.8 211.7,26.9 213.5,27 215.3,27.2 217.2,27.4 219,27.6 220.8,27.8 222.6,28.1 224.4,28.4 226.2,28.8 228,29.2 229.9,29.6 231.7,30.1 233.5,30.6 235.3,31.1 237.1,31.6 238.9,32.2 240.8,32.9 242.6,33.5 244.4,34.2 246.2,34.9 248,35.6 249.8,36.4 251.7,37.2 253.5,38.1 255.3,38.9 257.1,39.8 258.9,40.7 260.8,41.7 262.6,42.7 264.4,43.7 266.2,44.7 268,45.8 269.8,46.8 271.6,48 273.5,49.1 275.3,50.2 277.1,51.4 278.9,52.6 280.7,53.9 282.6,55.1 284.4,56.4 286.2,57.7 288,59 289.8,60.3 291.6,61.7 293.4,63.1 295.3,64.5 297.1,65.9 298.9,67.3 300.7,68.7 302.5,70.2 304.4,71.7 306.2,73.2 308,74.7 309.8,76.2 311.6,77.7 313.4,79.3 315.2,80.8 317.1,82.4 318.9,84 320.7,85.5 322.5,87.1 324.3,88.7 326.1,90.3 328,91.9 329.8,93.6 331.6,95.2 333.4,96.8 335.2,98.5 337.1,100.1 338.9,101.7 340.7,103.4 342.5,105 344.3,106.6 346.1,108.3 347.9,109.9 349.8,111.5 351.6,113.2 353.4,114.8 355.2,116.4 357,118.1 358.9,119.7 360.7,121.3 362.5,122.9 364.3,124.5 366.1,126 367.9,127.6 369.8,129.2 371.6,130.7 373.4,132.3 375.2,133.8 377,135.3 378.8,136.8 380.6,138.3 382.5,139.8 384.3,141.3 386.1,142.7 387.9,144.1 389.7,145.5 391.6,146.9 393.4,148.3 395.2,149.7 397,151 398.8,152.3 400.6,153.6 402.4,154.9 404.3,156.1 406.1,157.4 407.9,158.6 409.7,159.8 411.5,160.9 413.4,162 415.2,163.2 417,164.2 418.8,165.3 420.6,166.3 422.4,167.3 424.2,168.3 426.1,169.3 427.9,170.2 429.7,171.1 431.5,171.9 433.3,172.8 435.2,173.6 437,174.4 438.8,175.1 440.6,175.8 442.4,176.5 444.2,177.1 446,177.8 447.9,178.4 449.7,178.9 451.5,179.4 453.3,179.9 455.1,180.4 456.9,180.8 458.8,181.2 460.6,181.6 462.4,181.9 464.2,182.2 466,182.4 467.8,182.6 469.7,182.8 471.5,183 473.3,183.1 475.1,183.2 476.9,183.2 478.8,183.3 480.6,183.2 482.4,183.2 484.2,183.1 486,183 487.8,182.8 489.7,182.6 491.5,182.4 493.3,182.2 495.1,181.9 496.9,181.6 498.7,181.2 500.6,180.8 502.4,180.4 504.2,179.9 506,179.4 507.8,178.9 509.6,178.4 511.5,177.8 513.3,177.1 515.1,176.5 516.9,175.8 518.7,175.1 520.5,174.4 522.3,173.6 524.2,172.8 526,171.9 527.8,171.1 529.6,170.2 531.4,169.3 533.2,168.3 535.1,167.3 536.9,166.3 538.7,165.3 540.5,164.2 542.3,163.2 544.1,162 546,160.9 547.8,159.8 549.6,158.6 551.4,157.4 553.2,156.1 555,154.9 556.9,153.6 558.7,152.3 560.5,151 562.3,149.7 564.1,148.3 566,146.9 567.8,145.5 569.6,144.1 571.4,142.7 573.2,141.3 575,139.8 576.9,138.3 578.7,136.8 580.5,135.3 582.3,133.8 584.1,132.3 585.9,130.7 587.8,129.2 589.6,127.6 591.4,126 593.2,124.5 595,122.9 596.8,121.3 598.6,119.7 600.5,118.1 602.3,116.4 604.1,114.8 605.9,113.2 607.7,111.5 609.5,109.9 611.4,108.3 613.2,106.6 615,105"/>
+<circle class="c3f" cx="70" cy="105" r="2.5"/>
+<circle class="c3f" cx="82.4" cy="93.9" r="2.5"/>
+<circle class="c3f" cx="94.7" cy="83" r="2.5"/>
+<circle class="c3f" cx="107.1" cy="72.6" r="2.5"/>
+<circle class="c3f" cx="119.4" cy="62.8" r="2.5"/>
+<circle class="c3f" cx="131.8" cy="53.8" r="2.5"/>
+<circle class="c3f" cx="144.1" cy="46" r="2.5"/>
+<circle class="c3f" cx="156.5" cy="39.3" r="2.5"/>
+<circle class="c3f" cx="168.9" cy="33.9" r="2.5"/>
+<circle class="c3f" cx="181.2" cy="30" r="2.5"/>
+<circle class="c3f" cx="193.6" cy="27.6" r="2.5"/>
+<circle class="c3f" cx="205.9" cy="26.7" r="2.5"/>
+<circle class="c3f" cx="218.3" cy="27.5" r="2.5"/>
+<circle class="c3f" cx="230.7" cy="29.8" r="2.5"/>
+<circle class="c3f" cx="243" cy="33.7" r="2.5"/>
+<circle class="c3f" cx="255.4" cy="39" r="2.5"/>
+<circle class="c3f" cx="267.7" cy="45.6" r="2.5"/>
+<circle class="c3f" cx="280.1" cy="53.4" r="2.5"/>
+<circle class="c3f" cx="292.4" cy="62.3" r="2.5"/>
+<circle class="c3f" cx="304.8" cy="72.1" r="2.5"/>
+<circle class="c3f" cx="317.2" cy="82.5" r="2.5"/>
+<circle class="c3f" cx="329.5" cy="93.3" r="2.5"/>
+<circle class="c3f" cx="341.9" cy="104.4" r="2.5"/>
+<circle class="c3f" cx="354.2" cy="115.6" r="2.5"/>
+<circle class="c3f" cx="366.6" cy="126.5" r="2.5"/>
+<circle class="c3f" cx="379" cy="136.9" r="2.5"/>
+<circle class="c3f" cx="391.3" cy="146.8" r="2.5"/>
+<circle class="c3f" cx="403.7" cy="155.7" r="2.5"/>
+<circle class="c3f" cx="416" cy="163.7" r="2.5"/>
+<circle class="c3f" cx="428.4" cy="170.4" r="2.5"/>
+<circle class="c3f" cx="440.7" cy="175.9" r="2.5"/>
+<circle class="c3f" cx="453.1" cy="179.9" r="2.5"/>
+<circle class="c3f" cx="465.5" cy="182.3" r="2.5"/>
+<circle class="c3f" cx="477.8" cy="183.3" r="2.5"/>
+<circle class="c3f" cx="490.2" cy="182.6" r="2.5"/>
+<circle class="c3f" cx="502.5" cy="180.3" r="2.5"/>
+<circle class="c3f" cx="514.9" cy="176.6" r="2.5"/>
+<circle class="c3f" cx="527.3" cy="171.3" r="2.5"/>
+<circle class="c3f" cx="539.6" cy="164.8" r="2.5"/>
+<circle class="c3f" cx="552" cy="157" r="2.5"/>
+<circle class="c3f" cx="564.3" cy="148.2" r="2.5"/>
+<circle class="c3f" cx="576.7" cy="138.5" r="2.5"/>
+<circle class="c3f" cx="589" cy="128.1" r="2.5"/>
+<circle class="c3f" cx="601.4" cy="117.2" r="2.5"/>
+<circle class="c3f" cx="613.8" cy="106.1" r="2.5"/>
+</svg>
+<figcaption><b>Figure 5.1</b> A 1 kHz tone sampled at 44.1 kHz.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.1:</b> One period needs 44.1 samples, which is not a whole number, so the look-up table uses 441 samples: exactly 10 periods of 1 kHz, and a whole number of periods of every harmonic (2 kHz gives 20, 3 kHz 30). With left and right interleaved the buffer is 441 × 2 = 882 16-bit values (1764 bytes), and circular DMA sends it 100 times a second, paced by the I2S requests.</p>
+</section>
+
+<section id="practice">
+<h2><span class="n">06</span>Practice problems</h2>
+<div class="ex"><div class="hd">Problem 6.1 <span>multiplexed 7-segment display</span></div><div class="bd">
+<p>A 4-digit 7-segment display is multiplexed. How many GPIO pins, against driving each segment directly? If the whole display refreshes at 100 Hz, how long is each digit on per cycle?</p>
+<div class="step"><i>1</i><div>Multiplexed: 7 segment lines + 4 digit enables = 11 pins. Direct: \(4 \times 7 = 28\).</div></div>
+<div class="step"><i>2</i><div>Period 10 ms shared by 4 digits: 2.5 ms each.</div></div>
+<div class="ans">11 pins instead of 28; each digit lit for 2.5 ms of every 10 ms.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 6.2 <span>RGB strip data</span></div><div class="bd">
+<p>A strip has 60 LEDs. How many PWM periods (compare values in the DMA array) does one update need? If each bit takes 1.25 µs (a typical figure; check the datasheet), how long does the update take?</p>
+<div class="step"><i>1</i><div>\(60 \times 24 = 1440\) bits, one PWM period each.</div></div>
+<div class="step"><i>2</i><div>\(1440 \times 1.25\) µs \(= 1.8\) ms.</div></div>
+<div class="ans">1440 compare values; 1.8 ms per update.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 6.3 <span>address lines</span></div><div class="bd">
+<p>How many address lines do a 16 Mbit NOR flash with a 16-bit bus and a 64 Mbit one with an 8-bit bus need?</p>
+<div class="step"><i>1</i><div>\(16 \times 2^{20}/16 = 2^{20}\) words: \(N = 20\).</div></div>
+<div class="step"><i>2</i><div>\(64 \times 2^{20}/8 = 2^{23}\): \(N = 23\).</div></div>
+<div class="ans">20 and 23 address lines.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 6.4 <span>24-bit display</span></div><div class="bd">
+<p>An 800 × 480 display uses 24 bpp. How big is one frame, and how many colours?</p>
+<div class="step"><i>1</i><div>\(800 \times 480 \times 3 = 1\,152\,000\) bytes.</div></div>
+<div class="step"><i>2</i><div>\(2^{24} = 16\,777\,216\) colours.</div></div>
+<div class="ans">1 152 000 bytes per frame; 16 777 216 colours.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 6.5 <span>H-bridge states</span></div><div class="bd">
+<p>The motor spins forward with A and D closed. Which switches give reverse, coast and brake, and which combination must never happen?</p>
+<div class="step"><i>1</i><div>Reverse: B and C. Coast: all open. Brake: A and C, or B and D.</div></div>
+<div class="step"><i>2</i><div>Never A with B, or C with D: that shorts \(V_{motor}\) to ground.</div></div>
+<div class="ans">Reverse B+C; coast none; brake A+C or B+D; never A+B or C+D. Add a dead time between turning one switch off and its partner on (Week 6, advanced timers).</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 6.6 <span>stepper positioning</span></div><div class="bd">
+<p>A stepper has 200 steps per revolution. How many steps turn it 90°, and what speed does 400 steps/s give?</p>
+<div class="step"><i>1</i><div>Step angle \(360/200 = 1.8°\); \(90/1.8 = 50\) steps.</div></div>
+<div class="step"><i>2</i><div>\(400/200 = 2\) rev/s = 120 rpm.</div></div>
+<div class="ans">50 steps; 120 rpm.</div>
+</div></div>
+</section>
+
+<section id="sheet">
+<h2><span class="n">07</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>Switches</h4>
+<p>\(I_B \ge I_{LOAD}/\beta\)</p>
+<p>\(R_B \lt (V_{DD} - V_{BE})\beta/I_{LOAD}\) (slides: \(V_{DD}\beta/I_{LOAD}\))</p>
+<p>\(P_{BJT} = V_{CE(sat)} I\); \(P_{MOS} = I^2 R_{DS(on)}\)</p>
+<p>Low side: NPN / n-ch. High side: PNP / p-ch</p>
+<p>Relay coil: flyback diode, no PWM</p>
+</div>
+<div><h4>H-bridge (A, C top; B, D bottom)</h4>
+<p>A+D forward, B+C reverse, none coast</p>
+<p>A+C or B+D brake; A+B or C+D short</p>
+</div>
+<div><h4>Displays</h4>
+<p>Frame buffer \(= W H\,\text{bpp}/8\) bytes</p>
+<p>Colours \(= 2^{\text{bpp}}\); refresh ≥ 60 Hz</p>
+<p>VSYNC per frame, HSYNC per line, PCLK per pixel, DE = data valid</p>
+<p>Strip: 24 bits/LED, duty &lt; 50 % = 0, &gt; 50 % = 1</p>
+</div>
+<div><h4>Memory</h4>
+<p>NOR: \(2^N\) = capacity / bus width; random access, code</p>
+<p>NAND: 8-bit bus, ALE/CLE, mass storage, ECC</p>
+<p>SDRAM: RAS/CAS, burst, CAS latency</p>
+</div>
+</div>
+</section>
+
+<footer>
+<p>Sources: CS245 Lecture24 Microcontroller Actuation.pdf, CS245 Lecture25 Displays and External Memory Interfacing.pdf, CS245-P8.pdf. CS245 Lecture23 DAC.pdf is also in this week's folder and is covered on the Week 9 page. Circuit diagrams, the H-bridge table and figure, display block diagrams, LTDC timing and the NOR, NAND and SDRAM timing diagrams were read from the slide images. Photographs and reference-manual extracts carry no examinable detail beyond what is stated. The 1.25 µs strip bit time and the 200-step motor are illustrative values, not from the slides.</p>
+</footer>
+</main>
+</div>
+
+<script src="../../assets/ask-gemini.js" data-store="cs245-w10-theory" data-course="CS245 Computer Systems"
+        data-topic="Week 10: low-side and high-side switches, BJT and MOSFET switches, relays and flyback diodes, H-bridge, brushed DC, BLDC, servo and stepper motors, LED, 7-segment, RGB strip, LCD and TFT displays, frame buffers, LTDC, NOR and NAND flash, SDRAM, Practical 8 audio"></script>
+</body>
+</html>

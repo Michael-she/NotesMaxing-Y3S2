@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 6: Timers, output compare and PWM · CS245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../module.html?m=cs245">&larr; Computer Systems</a>
+  <div class="k">CS245 · Week 6</div>
+  <ol>
+    <li><a href="#timers">1. Timer/counters</a></li>
+    <li class="sub"><a href="#timing">Counter frequency and update period</a></li>
+    <li class="sub"><a href="#registers">Set-up registers and channels</a></li>
+    <li><a href="#oc">2. Output compare</a></li>
+    <li class="sub"><a href="#hal">Starting the timer in HAL</a></li>
+    <li><a href="#pwm">3. Pulse-width modulation</a></li>
+    <li class="sub"><a href="#mode1">PWM mode 1</a></li>
+    <li><a href="#practice">4. Practice problems</a></li>
+    <li><a href="#sheet">5. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 · PRACTICAL 5 LECTURE</div>
+  <h1>Timers, output compare and PWM</h1>
+  <p class="lede">How an STM32 timer turns a clock into a counter, how the prescaler and auto-reload register set the interrupt period, and how output compare and PWM drive a pin from the timer without the processor. After this page you can choose PSC, ARR and CCR values for a required period or duty cycle.</p>
+</header>
+
+<section id="timers">
+<h2><span class="n">01</span>Timer/counters</h2>
+<p class="reading"><b>Reading</b> Practical 5 lecture, slides 2 to 4, 6 and 9</p>
+<p>A <strong>timer/counter</strong> is a register that counts clock edges. Fed with a fixed-frequency clock it measures time; fed with an external signal it counts events. The STM32F407 has several, each set up through memory-mapped registers.</p>
+<figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="Timer block diagram: clock source, prescaler, counter, auto-reload register and capture/compare register driving an output">
+<text class="lab" x="20" y="108" text-anchor="start">f<tspan dy="3" font-size="75%">clk</tspan><tspan dy="-3"> </tspan></text>
+<text class="lab" x="20" y="152" text-anchor="start">external</text>
+<rect class="blk" x="90" y="92" width="20" height="76" rx="3"/>
+<text class="tk" x="100" y="112" text-anchor="middle">0</text>
+<text class="tk" x="100" y="152" text-anchor="middle">1</text>
+<polyline class="ln c4" points="60,104 90,104"/>
+<polygon class="c4f" points="90,104 83,107.2 83,100.8"/>
+<polyline class="ln c4" points="76,148 90,148"/>
+<polygon class="c4f" points="90,148 83,151.2 83,144.8"/>
+<rect class="blkd" x="140" y="105" width="120" height="50" rx="3"/>
+<text class="lab" x="200" y="126.5" text-anchor="middle">Prescaler ÷N</text>
+<text class="lab" x="200" y="141.5" text-anchor="middle">TIMx_PSC</text>
+<polyline class="ln c4" points="110,130 140,130"/>
+<polygon class="c4f" points="140,130 133,133.2 133,126.8"/>
+<text class="tk" x="125" y="84" text-anchor="middle">CK_PSC</text>
+<rect class="blkd" x="310" y="105" width="130" height="50" rx="3"/>
+<text class="lab" x="375" y="126.5" text-anchor="middle">Counter</text>
+<text class="lab" x="375" y="141.5" text-anchor="middle">TIMx_CNT</text>
+<polyline class="ln c4" points="260,130 310,130"/>
+<polygon class="c4f" points="310,130 303,133.2 303,126.8"/>
+<text class="tk" x="285" y="122" text-anchor="middle">f<tspan dy="3" font-size="75%">timer</tspan><tspan dy="-3"> </tspan></text>
+<rect class="blk" x="310" y="20" width="130" height="46" rx="3"/>
+<text class="lab" x="375" y="39.5" text-anchor="middle">Auto-reload</text>
+<text class="lab" x="375" y="54.5" text-anchor="middle">TIMx_ARR</text>
+<polyline class="ln c4" points="375,66 375,105"/>
+<polygon class="c4f" points="375,105 371.9,98 378.1,98"/>
+<rect class="blk" x="310" y="190" width="130" height="46" rx="3"/>
+<text class="lab" x="375" y="209.5" text-anchor="middle">Capture/compare</text>
+<text class="lab" x="375" y="224.5" text-anchor="middle">TIMx_CCRx</text>
+<rect class="blk" x="480" y="150" width="30" height="40" rx="3"/>
+<text class="lab" x="495" y="175" text-anchor="middle">=</text>
+<polyline class="ln c4" points="440,140 480,160"/>
+<polygon class="c4f" points="480,160 472.3,159.7 475.1,154.1"/>
+<polyline class="ln c4" points="440,213 480,180"/>
+<polygon class="c4f" points="480,180 476.6,186.9 472.6,182"/>
+<polyline class="ln c4" points="510,170 560,170"/>
+<polygon class="c4f" points="560,170 553,173.2 553,166.8"/>
+<text class="lab" x="565" y="166" text-anchor="start">OCxREF</text>
+<text class="tk" x="565" y="182" text-anchor="start">output</text>
+<polyline class="ln c3 thin" points="440,118 520,90"/>
+<polygon class="c3f" points="520,90 514.4,95.3 512.4,89.3"/>
+<text class="lab" x="525" y="86" text-anchor="start">update event</text>
+<text class="tk" x="525" y="102" text-anchor="start">(UEV, interrupt)</text>
+</svg>
+<figcaption><b>Figure 1.1</b> The parts of a general-purpose timer.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> A multiplexer picks the clock: the internal clock \(f_{clk}\) or an external source. The prescaler divides it by \(N\) to give the counter clock \(f_{timer}\) (CK_CNT). The counter TIMx_CNT counts up to the auto-reload value in TIMx_ARR, then restarts and raises an update event. The comparator checks TIMx_CNT against TIMx_CCRx and drives the channel output.</p>
+
+<div class="box def"><span class="label">Definitions</span><p><b>TIMx_CNT</b>: the count register, 16 or 32 bits wide. More bits give a longer counting range. <b>TIMx_PSC</b>: the 16-bit prescaler, dividing the clock by any factor from 1 to 65 536. <b>TIMx_ARR</b>: the auto-reload register, the same width as the count register. <b>Update event (UEV)</b>: the counter overflowing (up-counting) or underflowing (down-counting); it can raise an interrupt.</p></div>
+
+<p>In <strong>up-counting</strong> mode the counter runs 0, 1, …, ARR, then resets to 0. In <strong>down-counting</strong> mode it runs ARR, ARR−1, …, 0, then reloads ARR. Either way, one update event happens per pass.</p>
+
+<h3 id="timing">Counter frequency and update period</h3>
+<div class="eq"><span class="tag">Timer clock and update period</span>\[ f_{timer} = \frac{f_{clk}}{N}, \quad N = \text{TIMx\_PSC} + 1 \qquad T = \frac{R + 1}{f_{timer}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(f_{timer}\)</dt><dd>Counter clock frequency, CK_CNT (Hz).</dd>
+  <dt>\(f_{clk}\)</dt><dd>Clock into the prescaler, CK_PSC (Hz).</dd>
+  <dt>\(N\)</dt><dd>Division factor. The register holds \(N - 1\), so a value of 0 divides by 1 and a divide by zero is impossible.</dd>
+  <dt>\(T\)</dt><dd>Time between update events, the interrupt interval (s).</dd>
+  <dt>\(R\)</dt><dd>Auto-reload value in TIMx_ARR. The count includes both 0 and \(R\), so one pass is \(R + 1\) ticks.</dd>
+</dl>
+</div>
+
+<div class="box watch"><span class="label">Watch out</span><p>Both registers are "minus one" values. To divide by 84 write PSC = 83; to count 1000 ticks write ARR = 999. Forgetting the +1 in either gives a period that is slightly off, which shows up as drift in anything timed over many periods.</p></div>
+
+<div class="ex"><div class="hd">Worked example 1.1 <span>a 1 ms interrupt</span></div><div class="bd">
+<p>The timer clock is \(f_{clk} = 84\) MHz. Choose PSC and ARR for an update interrupt every 1 ms.</p>
+<div class="step"><i>1</i><div>Pick a convenient counter clock. Dividing by 84 gives \(f_{timer} = 84\text{ MHz}/84 = 1\) MHz, so PSC = 83.</div></div>
+<div class="step"><i>2</i><div>At 1 MHz one tick is 1 µs, so 1 ms needs \(R + 1 = 1000\) ticks: ARR = 999.</div></div>
+<div class="step"><i>3</i><div>Check: \(T = 1000 / 10^6 = 0.001\) s.</div></div>
+<div class="ans">PSC = 83, ARR = 999 gives an update interrupt every 1 ms. Many other pairs work; any with \((\text{PSC}+1)(\text{ARR}+1) = 84\,000\) gives the same period.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Worked example 1.2 <span>longest period of a 16-bit timer</span></div><div class="bd">
+<p>With \(f_{clk} = 84\) MHz, a 16-bit counter and a 16-bit prescaler, what is the longest possible update period?</p>
+<div class="step"><i>1</i><div>The largest division is \(N = 65\,536\) (PSC = 65 535), and the longest count is \(R + 1 = 65\,536\) (ARR = 65 535).</div></div>
+<div class="step"><i>2</i><div>\(T_{max} = \dfrac{65\,536 \times 65\,536}{84 \times 10^{6}} = 51.13\) s.</div></div>
+<div class="ans">About 51.13 s. A 32-bit counter with no prescaling reaches the same \(2^{32}/84\text{ MHz} = 51.13\) s, but with 12 ns resolution instead of 780 µs.</div>
+</div></div>
+
+<h3 id="registers">Set-up registers and channels</h3>
+<p>A timer is configured through its registers (in STM32CubeIDE, on the device configuration's Configuration tab, which also holds the NVIC interrupt and GPIO settings; the Pinout view shows which pins the timer uses):</p>
+<ul>
+<li>clock source selection and up/down direction;</li>
+<li>prescale value and auto-reload value;</li>
+<li>interrupt enable, and whether it runs once (one-shot) or repeats (periodic).</li>
+</ul>
+<p>Most timers have <strong>4 independent channels</strong>, each usable for output compare, input capture, PWM generation or one-pulse output. Interrupts can come from an update (overflow, underflow or initialisation), a trigger (counter start, stop or count by trigger), an output compare, an input capture, or the break input.</p>
+<p>Timers also clock other peripherals: they set the conversion rate of the ADC (Week 9) and the bit rate of serial links (Week 7). The clock reaching each timer is set in the Clock Configuration tab, so read \(f_{clk}\) from there before calculating PSC and ARR.</p>
+</section>
+
+<section id="oc">
+<h2><span class="n">02</span>Output compare</h2>
+<p class="reading"><b>Reading</b> Practical 5 lecture, slides 5, 7 and 10; reference manual p. 517</p>
+<p><strong>Output compare</strong> changes an output pin from the timer itself, without interrupting the processor. The counter is compared continuously with the capture/compare register TIMx_CCRx. On a match the output is set high, cleared low or toggled, and an interrupt can also be raised. It is used to make an output waveform or to mark that a time has passed.</p>
+<figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="Output compare toggle mode: counter ramps 0 to ARR; the output toggles each time the counter equals CCR">
+<line class="grid" x1="70" y1="15" x2="70" y2="205"/>
+<text class="tk" x="70" y="221" text-anchor="middle">0</text>
+<line class="grid" x1="200" y1="15" x2="200" y2="205"/>
+<text class="tk" x="200" y="221" text-anchor="middle">1</text>
+<line class="grid" x1="330" y1="15" x2="330" y2="205"/>
+<text class="tk" x="330" y="221" text-anchor="middle">2</text>
+<line class="grid" x1="460" y1="15" x2="460" y2="205"/>
+<text class="tk" x="460" y="221" text-anchor="middle">3</text>
+<line class="grid" x1="590" y1="15" x2="590" y2="205"/>
+<text class="tk" x="590" y="221" text-anchor="middle">4</text>
+<rect class="frame" x="70" y="15" width="520" height="190"/>
+<text class="lab" x="330" y="241" text-anchor="middle">time (counter periods, (ARR+1)/f<tspan dy="3" font-size="75%">timer</tspan><tspan dy="-3"> </tspan>)</text>
+<text class="lab" x="16" y="110" text-anchor="middle" transform="rotate(-90 16 110)"></text>
+<polyline class="ln c1" points="70,94.5 200,25.4"/>
+<polyline class="ln c1 thin" points="200,25.4 200,94.5"/>
+<polyline class="ln c1" points="200,94.5 330,25.4"/>
+<polyline class="ln c1 thin" points="330,25.4 330,94.5"/>
+<polyline class="ln c1" points="330,94.5 460,25.4"/>
+<polyline class="ln c1 thin" points="460,25.4 460,94.5"/>
+<polyline class="ln c1" points="460,94.5 590,25.4"/>
+<polyline class="ln c1 thin" points="590,25.4 590,94.5"/>
+<polyline class="ln c3 thin dash" points="70,53 590,53"/>
+<text class="tk" x="596" y="57" text-anchor="start">CCR</text>
+<text class="tk" x="596" y="29.4" text-anchor="start">ARR</text>
+<polyline class="ln c3" points="70,191.2 148,191.2 148,135.9 278,135.9 278,191.2 408,191.2 408,135.9 538,135.9 538,191.2 590,191.2"/>
+<polyline class="ln c4 thin dash" points="148,53 148,129"/>
+<polyline class="ln c4 thin dash" points="278,53 278,129"/>
+<polyline class="ln c4 thin dash" points="408,53 408,129"/>
+<polyline class="ln c4 thin dash" points="538,53 538,129"/>
+<text class="tk" x="64" y="63.9" text-anchor="end">CNT</text>
+<text class="tk" x="64" y="167.5" text-anchor="end">OCx</text>
+</svg>
+<figcaption><b>Figure 2.1</b> Toggle on match: the output changes state once per counter period.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> The counter (teal) ramps from 0 to ARR and restarts. Every time it passes the CCR level (amber dashed) the output toggles. Two toggles make one output cycle, so a toggled output has half the update frequency and a 50 % duty cycle. CCR only shifts where in the period the edge falls.</p>
+
+<div class="ex"><div class="hd">Worked example 2.1 <span>a 1 Hz square wave by toggling</span></div><div class="bd">
+<p>A timer with \(f_{clk} = 16\) MHz has PSC = 1599, ARR = 4999, and channel 1 in toggle mode. Find the output frequency.</p>
+<div class="step"><i>1</i><div>\(f_{timer} = 16\text{ MHz} / 1600 = 10\) kHz.</div></div>
+<div class="step"><i>2</i><div>\(T = 5000 / 10\,000 = 0.5\) s between matches.</div></div>
+<div class="step"><i>3</i><div>The pin toggles every 0.5 s, so one full cycle takes 1 s.</div></div>
+<div class="ans">A 1 Hz square wave with 50 % duty cycle, produced with no processor time at all.</div>
+</div></div>
+
+<p>Advanced timers (TIM1 and TIM8) add <strong>dead-time generation</strong> between complementary outputs, shown in the reference manual block diagram. This stops both switches of a half bridge being on at once.</p>
+
+<h3 id="hal">Starting the timer in HAL</h3>
+<p>STM32CubeIDE generates the timer's set-up code and a handle for it. The output compare must still be started once, before the <code>while(1)</code> loop:</p>
+<pre><code>HAL_TIM_OC_Start(&amp;htim4, TIM_CHANNEL_1);</code></pre>
+<p><code>htim4</code> is the handle generated for timer 4 and must match the timer the output pin belongs to. The channel must match the channel that pin was set up to use. The PWM equivalent is <code>HAL_TIM_PWM_Start</code>, and the update interrupt version is <code>HAL_TIM_Base_Start_IT</code>.</p>
+<div class="box watch"><span class="label">Watch out</span><p>A timer that is configured but never started does nothing, and no error is reported. If the pin stays still, check the start call, the handle and the channel first.</p></div>
+</section>
+
+<section id="pwm">
+<h2><span class="n">03</span>Pulse-width modulation</h2>
+<p class="reading"><b>Reading</b> Practical 5 lecture, slides 11 and 12</p>
+<p><strong>Pulse-width modulation (PWM)</strong> is a square wave whose pulse width, and so duty cycle, is programmable. Averaged by a slow load (a motor, an LED seen by the eye, or an RC filter) it behaves like a DC voltage set by the duty cycle.</p>
+<div class="eq"><span class="tag">Duty cycle and average voltage</span>\[ D = \frac{t}{T} \qquad V_{avg} = D\, V_{high} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(D\)</dt><dd>Duty cycle, the fraction of each period the output is high (no unit, often given in %).</dd>
+  <dt>\(t\)</dt><dd>Pulse width (s).</dd>
+  <dt>\(T\)</dt><dd>Pulse period (s).</dd>
+  <dt>\(V_{avg}\)</dt><dd>Average output voltage (V).</dd>
+  <dt>\(V_{high}\)</dt><dd>Voltage of the high level (V).</dd>
+</dl>
+</div>
+<figure>
+<svg viewBox="0 0 640 240" class="fig" role="img" aria-label="PWM at 25, 50 and 75 percent duty cycle from 3.3 V, with the average voltage of each drawn dashed">
+<polyline class="ln c1" points="110,70 110,70 110,22 140,22 140,70 230,70 230,70 230,22 260,22 260,70 350,70 350,70 350,22 380,22 380,70 470,70 470,70 470,22 500,22 500,70 590,70"/>
+<polyline class="ln c3 dash" points="110,58 590,58"/>
+<text class="lab" x="100" y="50" text-anchor="end">D = 25%</text>
+<text class="tk" x="596" y="62" text-anchor="start">0.825 V</text>
+<polyline class="ln c1" points="110,142 110,142 110,94 170,94 170,142 230,142 230,142 230,94 290,94 290,142 350,142 350,142 350,94 410,94 410,142 470,142 470,142 470,94 530,94 530,142 590,142"/>
+<polyline class="ln c3 dash" points="110,118 590,118"/>
+<text class="lab" x="100" y="122" text-anchor="end">D = 50%</text>
+<text class="tk" x="596" y="122" text-anchor="start">1.65 V</text>
+<polyline class="ln c1" points="110,214 110,214 110,166 200,166 200,214 230,214 230,214 230,166 320,166 320,214 350,214 350,214 350,166 440,166 440,214 470,214 470,214 470,166 560,166 560,214 590,214"/>
+<polyline class="ln c3 dash" points="110,178 590,178"/>
+<text class="lab" x="100" y="194" text-anchor="end">D = 75%</text>
+<text class="tk" x="596" y="182" text-anchor="start">2.475 V</text>
+</svg>
+<figcaption><b>Figure 3.1</b> Three duty cycles at the same frequency and their averages.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> From a 3.3 V output, duty cycles of 25 %, 50 % and 75 % average to 0.825 V, 1.65 V and 2.475 V. The frequency does not change, only the pulse width. (The slide shows the same idea from 5 V: 1.25 V, 2.5 V and 3.75 V.)</p>
+
+<h3 id="mode1">PWM mode 1</h3>
+<p>PWM is output compare with a level rule instead of a toggle. In <strong>PWM mode 1</strong>, up-counting, the reference output OCxREF is high while the counter is below CCR and low from CCR up to ARR.</p>
+<div class="eq"><span class="tag">PWM mode 1, up-counting</span>\[ \text{OCxREF} = \begin{cases} 1 & \text{CNT} \lt \text{CCR} \\ 0 & \text{CNT} \ge \text{CCR} \end{cases} \qquad D = \frac{\text{CCR}}{\text{ARR} + 1} \qquad T_{PWM} = \frac{\text{ARR} + 1}{f_{timer}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\text{OCxREF}\)</dt><dd>Channel reference output (logic level).</dd>
+  <dt>\(\text{CNT}\)</dt><dd>Counter value.</dd>
+  <dt>\(\text{CCR}\)</dt><dd>Value in the capture/compare register: the number of high ticks per period.</dd>
+  <dt>\(D\)</dt><dd>Duty cycle.</dd>
+  <dt>\(\text{ARR}\)</dt><dd>Auto-reload value; one PWM period is ARR + 1 ticks.</dd>
+  <dt>\(T_{PWM}\)</dt><dd>PWM period (s).</dd>
+  <dt>\(f_{timer}\)</dt><dd>Counter clock frequency (Hz).</dd>
+</dl>
+</div>
+<figure>
+<svg viewBox="0 0 640 250" class="fig" role="img" aria-label="PWM mode 1 timing with ARR = 4 and CCR = 3: counter steps 0 to 4 and the output is high while the counter is below 3">
+<polyline class="ln c4 thin" points="90,22 102,22 102,40 114,40 114,22 126,22 126,40 138,40 138,22 150,22 150,40 162,40 162,22 174,22 174,40 186,40 186,22 198,22 198,40 210,40 210,22 222,22 222,40 234,40 234,22 246,22 246,40 258,40 258,22 270,22 270,40 282,40 282,22 294,22 294,40 306,40 306,22 318,22 318,40 330,40 330,22 342,22 342,40 354,40 354,22 366,22 366,40 378,40 378,22 390,22 390,40 402,40 402,22 414,22 414,40 426,40 426,22 438,22 438,40 450,40 450,22 462,22 462,40 474,40 474,22 486,22 486,40 498,40 498,22 510,22 510,40 522,40 522,22 534,22 534,40 546,40 546,22 558,22 558,40 570,40"/>
+<text class="lab" x="82" y="35" text-anchor="end">clock</text>
+<text class="tk" x="102" y="146" text-anchor="middle">0</text>
+<text class="tk" x="126" y="128" text-anchor="middle">1</text>
+<text class="tk" x="150" y="110" text-anchor="middle">2</text>
+<text class="tk" x="174" y="92" text-anchor="middle">3</text>
+<text class="tk" x="198" y="74" text-anchor="middle">4</text>
+<text class="tk" x="222" y="146" text-anchor="middle">0</text>
+<text class="tk" x="246" y="128" text-anchor="middle">1</text>
+<text class="tk" x="270" y="110" text-anchor="middle">2</text>
+<text class="tk" x="294" y="92" text-anchor="middle">3</text>
+<text class="tk" x="318" y="74" text-anchor="middle">4</text>
+<text class="tk" x="342" y="146" text-anchor="middle">0</text>
+<text class="tk" x="366" y="128" text-anchor="middle">1</text>
+<text class="tk" x="390" y="110" text-anchor="middle">2</text>
+<text class="tk" x="414" y="92" text-anchor="middle">3</text>
+<text class="tk" x="438" y="74" text-anchor="middle">4</text>
+<text class="tk" x="462" y="146" text-anchor="middle">0</text>
+<text class="tk" x="486" y="128" text-anchor="middle">1</text>
+<text class="tk" x="510" y="110" text-anchor="middle">2</text>
+<text class="tk" x="534" y="92" text-anchor="middle">3</text>
+<text class="tk" x="558" y="74" text-anchor="middle">4</text>
+<polyline class="ln c1" points="90,150 114,150 114,132 138,132 138,114 162,114 162,96 186,96 186,78 210,78 210,150 234,150 234,132 258,132 258,114 282,114 282,96 306,96 306,78 330,78 330,150 354,150 354,132 378,132 378,114 402,114 402,96 426,96 426,78 450,78 450,150 474,150 474,132 498,132 498,114 522,114 522,96 546,96 546,78 570,78"/>
+<text class="lab" x="82" y="120" text-anchor="end">counter</text>
+<polyline class="ln c3 thin dash" points="90,96 570,96"/>
+<text class="tk" x="574" y="100" text-anchor="start">CCR = 3</text>
+<polyline class="ln c3" points="90,185 114,185 138,185 162,185 162,215 186,215 210,215 210,185 234,185 258,185 282,185 282,215 306,215 330,215 330,185 354,185 378,185 402,185 402,215 426,215 450,215 450,185 474,185 498,185 522,185 522,215 546,215 570,215"/>
+<text class="lab" x="82" y="204" text-anchor="end">OCxREF</text>
+<polyline class="ln c4 thin dash" points="90,60 90,225"/>
+<polyline class="ln c4 thin dash" points="210,60 210,225"/>
+<polyline class="ln c4 thin dash" points="330,60 330,225"/>
+<polyline class="ln c4 thin dash" points="450,60 450,225"/>
+<polyline class="ln c4 thin dash" points="570,60 570,225"/>
+<text class="tk" x="150" y="240" text-anchor="middle">period = (ARR+1) ticks</text>
+</svg>
+<figcaption><b>Figure 3.2</b> PWM mode 1 with ARR = 4 and CCR = 3.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.2:</b> The counter (teal) steps 0 to 4, five ticks per period. The output (amber) is high for counts 0, 1 and 2 (below CCR = 3) and low for 3 and 4, so \(D = 3/5 = 60\) %. The slide's example (ARR = 6, CCR = 3) gives \(3/7\) and a period of 7 clock periods in the same way.</p>
+
+<div class="box watch"><span class="label">Watch out</span><p>The slide titles this "PWM Mode 1 (Low-True)" while its rule and waveform are high while CNT &lt; CCR. Go by the rule: in mode 1 the output is active (high with default polarity) while the counter is below CCR. PWM mode 2 is the inverse. CCR = 0 gives 0 % and CCR ≥ ARR + 1 gives 100 %.</p></div>
+
+<div class="ex"><div class="hd">Worked example 3.1 <span>a 20 kHz motor PWM</span></div><div class="bd">
+<p>\(f_{clk} = 84\) MHz. Set up a 20 kHz PWM in mode 1 with 70 % duty cycle from a 3.3 V pin, and find the pulse width and average voltage.</p>
+<div class="step"><i>1</i><div>PSC = 83 gives \(f_{timer} = 1\) MHz.</div></div>
+<div class="step"><i>2</i><div>\(T_{PWM} = 1/20\text{ kHz} = 50\) µs = 50 ticks, so ARR = 49.</div></div>
+<div class="step"><i>3</i><div>\(\text{CCR} = D(\text{ARR}+1) = 0.7 \times 50 = 35\).</div></div>
+<div class="step"><i>4</i><div>Pulse width \(= 35\) ticks \(= 35\) µs; \(V_{avg} = 0.7 \times 3.3 = 2.31\) V.</div></div>
+<div class="ans">PSC = 83, ARR = 49, CCR = 35: a 35 µs pulse every 50 µs, averaging 2.31 V. With ARR + 1 = 50 the duty cycle can only change in 2 % steps; a smaller PSC and larger ARR give finer steps at the same frequency.</div>
+</div></div>
+<div class="box exam"><span class="label">Exam</span><p>Expect to be given \(f_{clk}\) and a required period or duty cycle and asked for PSC, ARR and CCR, or the reverse. Write \(N = \text{PSC} + 1\) and \(R + 1\) explicitly before substituting.</p></div>
+</section>
+
+<section id="practice">
+<h2><span class="n">04</span>Practice problems</h2>
+
+<div class="ex"><div class="hd">Problem 4.1 <span>a 250 ms tick</span></div><div class="bd">
+<p>Choose PSC and ARR for an update interrupt every 250 ms from an 84 MHz timer clock, with a 10 kHz counter clock.</p>
+<div class="step"><i>1</i><div>\(N = 84\text{ MHz}/10\text{ kHz} = 8400\), so PSC = 8399.</div></div>
+<div class="step"><i>2</i><div>\(R + 1 = 0.25 \times 10\,000 = 2500\), so ARR = 2499.</div></div>
+<div class="ans">PSC = 8399, ARR = 2499.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 4.2 <span>reading a PWM set-up</span></div><div class="bd">
+<p>A timer runs at \(f_{timer} = 2\) MHz with ARR = 399 and CCR = 100 in PWM mode 1, output high 3.3 V. Find the frequency, duty cycle, pulse width and average voltage.</p>
+<div class="step"><i>1</i><div>\(f_{PWM} = 2\text{ MHz}/400 = 5\) kHz.</div></div>
+<div class="step"><i>2</i><div>\(D = 100/400 = 25\) %; pulse width \(= 100/2\text{ MHz} = 50\) µs.</div></div>
+<div class="step"><i>3</i><div>\(V_{avg} = 0.25 \times 3.3 = 0.825\) V.</div></div>
+<div class="ans">5 kHz, 25 %, 50 µs, 0.825 V.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 4.3 <span>toggle frequency</span></div><div class="bd">
+<p>A channel in output compare toggle mode runs with \(f_{timer} = 1\) MHz and ARR = 499. What frequency appears on the pin?</p>
+<div class="step"><i>1</i><div>\(T = 500/10^6 = 0.5\) ms between matches.</div></div>
+<div class="step"><i>2</i><div>Two toggles per output cycle: period 1 ms.</div></div>
+<div class="ans">1 kHz, 50 % duty cycle.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 4.4 <span>a servo signal</span></div><div class="bd">
+<p>A hobby servo needs a 50 Hz signal with a 1 ms to 2 ms pulse (1.5 ms centred). Set up TIM4 from 84 MHz, PWM mode 1.</p>
+<div class="step"><i>1</i><div>PSC = 83 gives 1 µs ticks.</div></div>
+<div class="step"><i>2</i><div>20 ms period = 20 000 ticks: ARR = 19 999.</div></div>
+<div class="step"><i>3</i><div>CCR equals the pulse width in µs: 1000 to 2000, centre 1500 (\(D = 7.5\) %).</div></div>
+<div class="ans">PSC = 83, ARR = 19 999, CCR from 1000 to 2000 (1500 centred). Start it with <code>HAL_TIM_PWM_Start(&amp;htim4, TIM_CHANNEL_x)</code>.</div>
+</div></div>
+</section>
+
+<section id="sheet">
+<h2><span class="n">05</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>Timer</h4>
+<p>\(f_{timer} = f_{clk}/N\), \(N = \text{PSC} + 1\)</p>
+<p>\(T = (\text{ARR} + 1)/f_{timer}\)</p>
+<p>PSC is 16 bits: \(N\) from 1 to 65 536</p>
+</div>
+<div><h4>Output compare</h4>
+<p>Match when CNT = CCR: set, clear or toggle</p>
+<p>Toggle output: \(f_{out} = 1/(2T)\), 50 % duty</p>
+</div>
+<div><h4>PWM mode 1 (up-counting)</h4>
+<p>High while CNT &lt; CCR</p>
+<p>\(D = \text{CCR}/(\text{ARR}+1)\)</p>
+<p>\(T_{PWM} = (\text{ARR}+1)/f_{timer}\)</p>
+<p>\(V_{avg} = D\,V_{high}\)</p>
+</div>
+<div><h4>HAL</h4>
+<p><code>HAL_TIM_OC_Start(&amp;htimX, TIM_CHANNEL_n)</code> before <code>while(1)</code></p>
+</div>
+</div>
+</section>
+
+<footer>
+<p>Sources: CS245-P5-Lecture.pdf (Practical 5 lecture, 12 slides). The clock configuration and CubeIDE screenshots (slides 3 and 8) and the reference-manual block diagram (slide 7) were read from the images. Slide 12 links a YouTube video, which was not used.</p>
+</footer>
+</main>
+</div>
+
+<script src="../../assets/ask-gemini.js" data-store="cs245-w6-theory" data-course="CS245 Computer Systems"
+        data-topic="Week 6: timer/counters, prescaler and auto-reload, output compare, PWM mode 1, HAL timer start"></script>
+</body>
+</html>

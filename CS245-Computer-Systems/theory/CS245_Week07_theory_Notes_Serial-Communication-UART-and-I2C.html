@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 7: Serial communication, UART and I2C · CS245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../module.html?m=cs245">&larr; Computer Systems</a>
+  <div class="k">CS245 · Week 7</div>
+  <ol>
+    <li><a href="#serial">1. Serial communication</a></li>
+    <li class="sub"><a href="#sync">Synchronous and asynchronous</a></li>
+    <li class="sub"><a href="#duplex">Direction, buses and contention</a></li>
+    <li class="sub"><a href="#hardware">Dedicated hardware</a></li>
+    <li><a href="#uart">2. UART</a></li>
+    <li class="sub"><a href="#frame">The UART frame</a></li>
+    <li><a href="#stm-uart">3. USART on the STM32F407</a></li>
+    <li class="sub"><a href="#tx">Transmission: TXE and TC</a></li>
+    <li class="sub"><a href="#rx">Reception: oversampling and RXNE</a></li>
+    <li class="sub"><a href="#baud">Baud rate register</a></li>
+    <li><a href="#standards">4. UART applications and standards</a></li>
+    <li><a href="#i2c">5. I2C</a></li>
+    <li class="sub"><a href="#opendrain">Open-drain bus</a></li>
+    <li class="sub"><a href="#i2c-frames">Start, stop, address and ACK</a></li>
+    <li class="sub"><a href="#i2c-rw">Master write and master read</a></li>
+    <li class="sub"><a href="#i2c-adv">Repeated start and clock stretching</a></li>
+    <li><a href="#practice">6. Practice problems</a></li>
+    <li><a href="#sheet">7. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 · LECTURES 16 TO 18</div>
+  <h1>Serial communication: UART and I2C</h1>
+  <p class="lede">Why devices talk one bit at a time, how synchronisation and direction are handled, and how the two most common links work: the asynchronous point-to-point UART and the synchronous two-wire I2C bus. Includes the STM32F407 USART flags and baud rate register, and the I2C transaction sequence bit by bit.</p>
+</header>
+
+<section id="serial">
+<h2><span class="n">01</span>Serial communication</h2>
+<p class="reading"><b>Reading</b> Lecture 16, slides 5 to 20</p>
+<p><strong>Serial communication</strong> sends data one bit at a time over one channel, usually a wire or a PCB track. The voltage on the line changes over time to carry the bits. At its simplest one device, the transmitter (TX), drives the line and another, the receiver (RX), senses it.</p>
+<p>Start from GPIO: a pin set as an output on device 1 drives a 0 or 1, a pin set as an input on device 2 (through its Schmitt trigger) senses it. Wire the two together and one bit passes. Change the output over time and many bits pass. Two questions follow: how does device 2 know when the next bit is valid (<strong>synchronisation</strong>), and how does it reply (<strong>direction</strong>)?</p>
+
+<div class="tbl"><table><thead><tr><th></th><th>Parallel</th><th>Serial</th></tr></thead><tbody>
+<tr><td>Lines</td><td>Many, several bits at one instant</td><td>One, bits one after another</td></tr>
+<tr><td>Speed for the same clock</td><td>Faster</td><td>Slower</td></tr>
+<tr><td>Cost</td><td>More wires, pins and cable</td><td>Fewer</td></tr>
+<tr><td>Where used</td><td>Inside the microcontroller (system bus), PCB tracks to external memory or cameras, old IDE drives</td><td>Cables between devices: SATA, USB, HDMI</td></tr>
+</tbody></table></div>
+
+<h3 id="sync">Synchronous and asynchronous</h3>
+<p><strong>Synchronisation</strong> is how the receiver finds where each bit starts and ends in the stream.</p>
+<ul>
+<li><strong>Synchronous</strong>: a separate clock line tells the receiver when to read the next bit. Simple and fast, but needs one more wire.</li>
+<li><strong>Asynchronous</strong>: no clock. The receiver works it out from the agreed bit rate, the transitions in the data and special markers (start and stop bits). Only one signal, but more complex hardware and lower speeds.</li>
+</ul>
+<figure>
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="Synchronous link with separate clock and data lines compared with an asynchronous link with data only, framed by start and stop bits">
+<text class="lab b" x="20" y="24" text-anchor="start">Synchronous</text>
+<polyline class="ln c4" points="150,70 172,70 172,44 194,44 194,70 216,70 216,44 238,44 238,70 260,70 260,44 282,44 282,70 304,70 304,44 326,44 326,70 348,70 348,44 370,44 370,70 392,70 392,44 414,44 414,70 436,70 436,44 458,44 458,70 480,70 480,44 502,44"/>
+<text class="lab" x="142" y="61" text-anchor="end">clock</text>
+<polyline class="ln c1" points="150,86 194,86 194,112 238,112 238,86 282,86 326,86 326,112 370,112 414,112 414,86 458,86 458,112 502,112"/>
+<text class="lab" x="142" y="103" text-anchor="end">data</text>
+<polyline class="ln c3 thin dash" points="172,40 172,116"/>
+<polyline class="ln c3 thin dash" points="216,40 216,116"/>
+<polyline class="ln c3 thin dash" points="260,40 260,116"/>
+<polyline class="ln c3 thin dash" points="304,40 304,116"/>
+<polyline class="ln c3 thin dash" points="348,40 348,116"/>
+<polyline class="ln c3 thin dash" points="392,40 392,116"/>
+<polyline class="ln c3 thin dash" points="436,40 436,116"/>
+<polyline class="ln c3 thin dash" points="480,40 480,116"/>
+<text class="lab b" x="20" y="140" text-anchor="start">Asynchronous</text>
+<polyline class="ln c1" points="106,184 150,184 150,210 194,210 194,184 238,184 238,210 282,210 282,184 326,184 370,184 370,210 414,210 458,210 458,184 502,184 502,210 546,210 546,184 590,184 634,184"/>
+<text class="lab" x="98" y="201" text-anchor="end">data</text>
+<text class="tk" x="172" y="178" text-anchor="middle">start</text>
+<text class="tk" x="568" y="178" text-anchor="middle">stop</text>
+</svg>
+<figcaption><b>Figure 1.1</b> The same byte sent synchronously and asynchronously.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> Top: the receiver samples data (teal) on each clock edge (dashed amber lines), so the bit rate can change freely. Bottom: there is no clock, so the line idles high, a low start bit marks the beginning and the receiver times each bit from the agreed rate until the high stop bit.</p>
+
+<h3 id="duplex">Direction, buses and contention</h3>
+<div class="tbl"><table><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>Simplex</td><td>One direction only.</td></tr>
+<tr><td>Half-duplex</td><td>Both directions, one at a time.</td></tr>
+<tr><td>Full-duplex</td><td>Both directions at the same time.</td></tr>
+<tr><td>Point-to-point</td><td>Two devices on a dedicated channel.</td></tr>
+<tr><td>Bus</td><td>One channel shared by several devices.</td></tr>
+</tbody></table></div>
+<p><strong>Option 1</strong> uses two signals, one each way: a full-duplex point-to-point link. Signals are labelled TX and RX, but relative to which device? Check the datasheet. A common ground is also needed as the voltage reference.</p>
+<figure>
+<svg viewBox="0 0 640 200" class="fig" role="img" aria-label="Full-duplex point-to-point link: TX of each device wired to RX of the other, with a common ground">
+<rect class="blk" x="120" y="30" width="120" height="140" rx="3"/>
+<text class="lab" x="180" y="104" text-anchor="middle">Device 1</text>
+<rect class="blk" x="400" y="30" width="120" height="140" rx="3"/>
+<text class="lab" x="460" y="104" text-anchor="middle">Device 2</text>
+<text class="tk" x="230" y="74" text-anchor="end">TX</text>
+<text class="tk" x="410" y="74" text-anchor="start">RX</text>
+<text class="tk" x="230" y="114" text-anchor="end">RX</text>
+<text class="tk" x="410" y="114" text-anchor="start">TX</text>
+<text class="tk" x="230" y="154" text-anchor="end">GND</text>
+<text class="tk" x="410" y="154" text-anchor="start">GND</text>
+<polyline class="ln c1" points="240,70 400,70"/>
+<polygon class="c1f" points="400,70 393,73.2 393,66.8"/>
+<polyline class="ln c3" points="400,110 240,110"/>
+<polygon class="c3f" points="240,110 247,106.8 247,113.2"/>
+<polyline class="ln c4" points="240,150 400,150"/>
+<text class="tk" x="320" y="62" text-anchor="middle">data D1 → D2</text>
+<text class="tk" x="320" y="102" text-anchor="middle">data D2 → D1</text>
+</svg>
+<figcaption><b>Figure 1.2</b> Two-wire full-duplex link with crossed TX and RX.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.2:</b> Each device's TX goes to the other's RX, so both can send at once. Without the ground wire the two devices have no shared 0 V and the levels mean nothing.</p>
+<p><strong>Option 2</strong> uses one wire and swaps each device between input and output whenever the direction changes. This extends to a <strong>bus</strong> with many devices. One device, the <strong>master</strong>, controls synchronisation and the <strong>slaves</strong> only talk when the master allows it.</p>
+<div class="box watch"><span class="label">Watch out: bus contention</span><p><strong>Bus contention</strong> is two devices using the bus at the same time. If both pins are push-pull outputs and one drives 3.3 V while the other drives 0 V, the only resistance between the rails is the on-resistance of the output MOSFETs (\(R \approx 0\)), so \(I = V/R\) is very large and the GPIO port is damaged. A bus scheme must make this impossible (I2C does it with open-drain outputs, section 5).</p></div>
+
+<h3 id="hardware">Dedicated hardware</h3>
+<p>Doing serial communication in software with GPIO means constant writes to port registers, timers and interrupts. At 1 Mbps that is one million interrupts per second; with a 10 MHz clock and one instruction per cycle the ISR has only 10 instructions. So microcontrollers have dedicated hardware that handles the low-level work (synchronisation, timing, data format, signal levels) and interrupts the CPU only at a higher level, for example when a byte has arrived or a transmission has ended. DMA (Week 8) can remove the CPU from the transfer completely.</p>
+<p>Both ends must follow the same rules, which is why interfaces are standardised: UART, I2C, SPI, CAN, Ethernet, SATA, USB. The first three are built into most microcontrollers.</p>
+<div class="tbl"><table><thead><tr><th>Interface</th><th>Duplex</th><th>Topology</th><th>Timing</th></tr></thead><tbody>
+<tr><td>UART (Universal Asynchronous Receiver/Transmitter)</td><td>Full</td><td>Point-to-point</td><td>Asynchronous</td></tr>
+<tr><td>I2C (Inter-Integrated Circuit)</td><td>Half</td><td>Bus</td><td>Synchronous</td></tr>
+<tr><td>SPI (Serial Peripheral Interface)</td><td>Full</td><td>Bus</td><td>Synchronous</td></tr>
+</tbody></table></div>
+<div class="box exam"><span class="label">Exam</span><p>This table is a favourite short question. Be able to justify each entry: UART has no clock (asynchronous) and separate TX and RX (full-duplex); I2C shares one data line (half-duplex) with a clock; SPI has a clock and separate data lines each way.</p></div>
+</section>
+
+<section id="uart">
+<h2><span class="n">02</span>UART</h2>
+<p class="reading"><b>Reading</b> Lecture 17, slides 3 to 5</p>
+<p>A <strong>UART</strong> is asynchronous (no clock) and connects exactly two devices in a full-duplex point-to-point link. It uses three signals: TX, RX and ground. Microcontroller levels are 0 V for logic 0 and 3.3 V or 5 V for logic 1.</p>
+<p>Both ends must use the same bit rate, the <strong>baud rate</strong>, within a tolerance given in the datasheet. Standard rates include 1200, 9600, 19 200 and 115 200 bps.</p>
+
+<h3 id="frame">The UART frame</h3>
+<p>The line idles <strong>high</strong>. Each byte is sent as a <strong>frame</strong>:</p>
+<ol>
+<li>a <strong>start bit</strong> (low), whose falling edge tells the receiver a frame has begun;</li>
+<li>the <strong>data bits</strong>, usually 8 (configurable), <strong>least significant bit first</strong>;</li>
+<li>an optional <strong>parity bit</strong>, even or odd;</li>
+<li>one or two <strong>stop bits</strong> (high).</li>
+</ol>
+<p>The settings are written as data bits, parity, stop bits: <strong>8N1</strong> is 8 data bits, no parity, 1 stop bit, the common configuration. With even parity the parity bit makes the total number of 1s (data plus parity) even; with odd parity, odd.</p>
+<figure>
+<svg viewBox="0 0 640 200" class="fig" role="img" aria-label="UART frame for 0x43 in 8E1: idle high, start bit low, data bits least significant first, even parity bit, stop bit high">
+<polyline class="ln c1" points="50,70 93,70 93,120 136,120 136,70 179,70 222,70 222,120 265,120 308,120 351,120 394,120 394,70 437,70 437,120 480,120 480,70 523,70 566,70 609,70"/>
+<text class="tk" x="71.5" y="150" text-anchor="middle">idle</text>
+<polyline class="grid" points="50,62 50,135"/>
+<text class="tk" x="114.5" y="150" text-anchor="middle">start</text>
+<polyline class="grid" points="93,62 93,135"/>
+<text class="tk" x="157.5" y="150" text-anchor="middle">b0</text>
+<text class="tk" x="157.5" y="58" text-anchor="middle">1</text>
+<polyline class="grid" points="136,62 136,135"/>
+<text class="tk" x="200.5" y="150" text-anchor="middle">b1</text>
+<text class="tk" x="200.5" y="58" text-anchor="middle">1</text>
+<polyline class="grid" points="179,62 179,135"/>
+<text class="tk" x="243.5" y="150" text-anchor="middle">b2</text>
+<text class="tk" x="243.5" y="58" text-anchor="middle">0</text>
+<polyline class="grid" points="222,62 222,135"/>
+<text class="tk" x="286.5" y="150" text-anchor="middle">b3</text>
+<text class="tk" x="286.5" y="58" text-anchor="middle">0</text>
+<polyline class="grid" points="265,62 265,135"/>
+<text class="tk" x="329.5" y="150" text-anchor="middle">b4</text>
+<text class="tk" x="329.5" y="58" text-anchor="middle">0</text>
+<polyline class="grid" points="308,62 308,135"/>
+<text class="tk" x="372.5" y="150" text-anchor="middle">b5</text>
+<text class="tk" x="372.5" y="58" text-anchor="middle">0</text>
+<polyline class="grid" points="351,62 351,135"/>
+<text class="tk" x="415.5" y="150" text-anchor="middle">b6</text>
+<text class="tk" x="415.5" y="58" text-anchor="middle">1</text>
+<polyline class="grid" points="394,62 394,135"/>
+<text class="tk" x="458.5" y="150" text-anchor="middle">b7</text>
+<text class="tk" x="458.5" y="58" text-anchor="middle">0</text>
+<polyline class="grid" points="437,62 437,135"/>
+<text class="tk" x="501.5" y="150" text-anchor="middle">P</text>
+<polyline class="grid" points="480,62 480,135"/>
+<text class="tk" x="544.5" y="150" text-anchor="middle">stop</text>
+<polyline class="grid" points="523,62 523,135"/>
+<text class="tk" x="587.5" y="150" text-anchor="middle">idle</text>
+<polyline class="grid" points="566,62 566,135"/>
+<polyline class="grid" points="609,62 609,135"/>
+<text class="tk" x="136" y="185" text-anchor="start">one bit time = 1/baud</text>
+<text class="tk" x="501.5" y="58" text-anchor="middle">1</text>
+</svg>
+<figcaption><b>Figure 2.1</b> The byte 0x43 sent as an 8E1 frame.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> 0x43 is 0100 0011 in binary. Sent LSB first the data bits are b0 to b7 = 1, 1, 0, 0, 0, 0, 1, 0. The byte has three 1s, so even parity adds a 1 to make four. The stop bit returns the line to idle.</p>
+
+<div class="eq"><span class="tag">Frame length and data rate</span>\[ n_{frame} = 1 + n_{data} + n_{parity} + n_{stop} \qquad \text{byte rate} = \frac{\text{baud rate}}{n_{frame}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(n_{frame}\)</dt><dd>Bits per frame (bits), including the start bit.</dd>
+  <dt>\(n_{data}\)</dt><dd>Data bits per frame (usually 8).</dd>
+  <dt>\(n_{parity}\)</dt><dd>0 or 1.</dd>
+  <dt>\(n_{stop}\)</dt><dd>1 or 2.</dd>
+  <dt>byte rate</dt><dd>Useful bytes per second (B/s), with frames sent back to back.</dd>
+  <dt>baud rate</dt><dd>Bits per second on the line (bps).</dd>
+</dl>
+</div>
+<p>8N1 sends 10 bits to carry 8, so 115 200 bps gives 11 520 bytes per second, an efficiency of 80 %.</p>
+
+<div class="ex"><div class="hd">Worked example 2.1 <span>a GPS sentence</span></div><div class="bd">
+<p>A GNSS receiver outputs a 70-character NMEA sentence at its default 9600 baud, 8N1. How long does it take to arrive? How many bytes per second would 8E1 give?</p>
+<div class="step"><i>1</i><div>8N1: \(n_{frame} = 1 + 8 + 0 + 1 = 10\) bits per character.</div></div>
+<div class="step"><i>2</i><div>\(t = 70 \times 10 / 9600 = 72.9\) ms.</div></div>
+<div class="step"><i>3</i><div>8E1: \(n_{frame} = 11\), byte rate \(= 9600/11 = 872.7\) B/s (73 % efficient), against 960 B/s for 8N1.</div></div>
+<div class="ans">72.9 ms per sentence. At a 10 Hz update rate (ten sentences a second) 9600 baud is not enough, which is why receivers are reconfigured to higher baud rates.</div>
+</div></div>
+
+<p><strong>Hardware flow control</strong> adds two signals from the modem interface: <strong>CTS</strong> (Clear To Send) blocks transmission at the end of the current frame, and <strong>RTS</strong> (Request To Send) says the UART is ready to receive. A <strong>USART</strong> (Universal Synchronous Asynchronous Receiver/Transmitter) can also output a clock, if wanted.</p>
+</section>
+
+<section id="stm-uart">
+<h2><span class="n">03</span>USART on the STM32F407</h2>
+<p class="reading"><b>Reading</b> Lecture 17, slides 6 to 13</p>
+<p>As with every peripheral, the USART is used through memory-mapped registers. Transmit and receive each use a shift register behind the data register.</p>
+<div class="tbl"><table><thead><tr><th>Register</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>USART_SR</td><td>Status register: the flags TXE, TC, RXNE, ORE and others.</td></tr>
+<tr><td>USART_DR</td><td>Data register: write to send, read to receive.</td></tr>
+<tr><td>USART_BRR</td><td>Baud rate register: holds USARTDIV.</td></tr>
+<tr><td>USART_CRx</td><td>Configuration registers: word length, parity, stop bits, enables, interrupt enables.</td></tr>
+</tbody></table></div>
+
+<h3 id="tx">Transmission: TXE and TC</h3>
+<ol>
+<li>Software writes a frame to DR.</li>
+<li>The hardware moves it into the transmit shift register and sets <strong>TXE</strong> (Transmit data register Empty): DR may now take the next frame, even though the first is still being shifted out.</li>
+<li>Software writes the next frame to DR, which clears TXE. That frame waits in DR until the shift register is empty, then moves across and TXE goes high again.</li>
+<li>When the last frame has fully left the shift register and nothing is waiting in DR (TXE still set), <strong>TC</strong> (Transmission Complete) goes high.</li>
+</ol>
+<figure>
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="Transmit flags: TXE goes high when the data register moves into the shift register; TC goes high only after the last frame has left">
+<polyline class="ln c1" points="110,34 130,34 150,34 150,60 170,60 170,34 190,34 190,60 210,60 210,34 230,34 250,34 250,60 270,60 270,34 290,34 290,60 310,60 330,60 330,34 350,34 350,60 370,60 390,60 390,34 410,34 430,34 430,60 450,60 450,34 470,34 470,60 490,60 490,34 510,34 530,34 550,34 570,34 590,34 610,34 630,34 650,34"/>
+<text class="lab" x="102" y="51" text-anchor="end">TX line</text>
+<text class="tk" x="250" y="26" text-anchor="middle">frame 1</text>
+<text class="tk" x="450" y="26" text-anchor="middle">frame 2</text>
+<polyline class="ln c3" points="110,94 130,94 130,120 150,120 150,94 170,94 190,94 190,120 210,120 230,120 250,120 270,120 290,120 310,120 330,120 350,120 350,94 370,94 390,94 410,94 430,94 450,94 470,94 490,94 510,94 530,94 550,94 570,94 590,94 610,94 630,94 650,94"/>
+<text class="lab" x="102" y="111" text-anchor="end">TXE</text>
+<polyline class="ln c4" points="110,180 130,180 150,180 170,180 190,180 210,180 230,180 250,180 270,180 290,180 310,180 330,180 350,180 370,180 390,180 410,180 430,180 450,180 470,180 490,180 510,180 530,180 550,180 550,154 570,154 590,154 610,154 630,154 650,154"/>
+<text class="lab" x="102" y="171" text-anchor="end">TC</text>
+<polyline class="ln c4 thin" points="130,140 130,122"/>
+<polygon class="c4f" points="130,122 133.2,129 126.8,129"/>
+<text class="tk" x="130" y="154" text-anchor="middle"></text>
+<polyline class="ln c4 thin" points="190,140 190,122"/>
+<polygon class="c4f" points="190,122 193.2,129 186.8,129"/>
+<text class="tk" x="190" y="154" text-anchor="middle"></text>
+<text class="tk" x="202" y="148" text-anchor="start">writes to DR: F1, then F2 (each clears TXE)</text>
+<polyline class="ln c4 thin dash" points="550,30 550,185"/>
+<text class="tk" x="554" y="205" text-anchor="start">last stop bit sent</text>
+</svg>
+<figcaption><b>Figure 3.1</b> TXE and TC while two frames are sent.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> TXE (amber) drops when a frame is written and rises as soon as DR is copied into the shift register, so the next write can happen while the current frame is on the line. TC (ink) only rises after the final stop bit. Wait for TXE before writing more data; wait for TC before switching off the USART or turning an RS-485 driver round.</p>
+<div class="box watch"><span class="label">Watch out</span><p>Slide 8 says to "clear the TXE flag in software". On the STM32F407 TXE is cleared by the write to USART_DR itself; there is no separate clear step. The effect is the same: writing the next frame is what clears it.</p></div>
+
+<h3 id="rx">Reception: oversampling and RXNE</h3>
+<p>The receiver <strong>oversamples</strong> the line at 8× or 16× the baud rate. This rejects noise and tolerates a small mismatch between the two clocks. The start bit is detected from the oversampled signal, then the following bits are clocked into the receive shift register.</p>
+<ul>
+<li>When a whole frame is in, it is copied to DR and <strong>RXNE</strong> (Receive data register Not Empty) goes high.</li>
+<li>Software reading DR clears RXNE.</li>
+<li>If another frame finishes while RXNE is still high, the old one has not been read: an <strong>overrun error</strong> sets <strong>ORE</strong>.</li>
+</ul>
+
+<h3 id="baud">Baud rate register</h3>
+<p>The same baud rate is used for transmit and receive, set by USARTDIV in USART_BRR. The clock \(f_{ck}\) for USART1 and USART6 comes from APB2; for USART2 it comes from APB1.</p>
+<div class="eq"><span class="tag">USART baud rate</span>\[ \text{Baud rate} = \frac{f_{ck}}{8 \times \text{USARTDIV}} \;(8\times \text{ oversampling}) \qquad \text{Baud rate} = \frac{f_{ck}}{16 \times \text{USARTDIV}} \;(16\times) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>Baud rate</dt><dd>Bits per second on the line (bps).</dd>
+  <dt>\(f_{ck}\)</dt><dd>Peripheral clock of the USART, from APB1 or APB2 (Hz).</dd>
+  <dt>USARTDIV</dt><dd>Unsigned fixed-point divider in USART_BRR. With 16× oversampling: a 12-bit integer part (mantissa) and a 4-bit fraction in sixteenths.</dd>
+</dl>
+</div>
+
+<div class="ex"><div class="hd">Worked example 3.1 <span>BRR for 115 200 baud</span></div><div class="bd">
+<p>USART1 runs from APB2 at \(f_{ck} = 84\) MHz with 16× oversampling. Find BRR for 115 200 baud and the error.</p>
+<div class="step"><i>1</i><div>\(\text{USARTDIV} = 84 \times 10^6 / (16 \times 115\,200) = 45.573\).</div></div>
+<div class="step"><i>2</i><div>Mantissa 45 = 0x2D. Fraction \(0.573 \times 16 = 9.17\), rounded to 9.</div></div>
+<div class="step"><i>3</i><div>BRR = (45 &lt;&lt; 4) | 9 = 0x2D9, so USARTDIV = 45 + 9/16 = 45.5625.</div></div>
+<div class="step"><i>4</i><div>Actual rate \(= 84 \times 10^6 / (16 \times 45.5625) = 115\,226\) bps, an error of +0.02 %.</div></div>
+<div class="ans">BRR = 0x2D9, giving 115 226 bps (+0.02 %), well inside UART tolerance.</div>
+</div></div>
+<p>The USART can interrupt on these events, each with its own enable bit in a CR register:</p>
+<div class="tbl"><table><thead><tr><th>Interrupt event</th><th>Flag</th><th>Enable bit</th></tr></thead><tbody>
+<tr><td>Transmit data register empty</td><td>TXE</td><td>TXEIE</td></tr>
+<tr><td>CTS flag</td><td>CTS</td><td>CTSIE</td></tr>
+<tr><td>Transmission complete</td><td>TC</td><td>TCIE</td></tr>
+<tr><td>Received data ready to be read</td><td>RXNE</td><td rowspan="2">RXNEIE</td></tr>
+<tr><td>Overrun error detected</td><td>ORE</td></tr>
+<tr><td>Idle line detected</td><td>IDLE</td><td>IDLEIE</td></tr>
+<tr><td>Parity error</td><td>PE</td><td>PEIE</td></tr>
+<tr><td>Break flag</td><td>LBD</td><td>LBDIE</td></tr>
+<tr><td>Noise flag, overrun or framing error in multibuffer communication</td><td>NF, ORE or FE</td><td>EIE</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="standards">
+<h2><span class="n">04</span>UART applications and standards</h2>
+<p class="reading"><b>Reading</b> Lecture 17, slides 14 to 21</p>
+<p><strong>GNSS (GPS) receivers</strong> do the whole job of receiving satellites and computing position, velocity and time, and send periodic NMEA messages over UART (the Adafruit v3 module: 9600 baud by default, 1 to 10 Hz update). The microcontroller can also reconfigure the receiver. <strong>GSM (cellular) modems</strong> send data or SMSs over the cellular network for IoT applications, with a complicated command protocol over UART.</p>
+<div class="tbl"><table><thead><tr><th>Standard</th><th>Signalling</th><th>Cable length</th><th>Notes</th></tr></thead><tbody>
+<tr><td>RS-232</td><td>Single-ended, ±12 V for noise immunity</td><td>15 m</td><td>1960s, DTE (terminal) to DCE (modem). Needs a driver IC. DB9 or DB25 connectors.</td></tr>
+<tr><td>RS-422</td><td>Differential: Tx+, Tx− and Rx+, Rx−</td><td>1200 m</td><td>Driver IC; two twisted pairs.</td></tr>
+<tr><td>RS-485</td><td>Differential, one data channel</td><td>not given on the slide</td><td>Driver IC; many devices on one twisted pair because transmitters can be tri-stated. You write your own addressing protocol.</td></tr>
+</tbody></table></div>
+<p>RS-232 was a standard PC port (a COM port in Windows, a TTY device in Linux) and was replaced by USB, so USB-to-RS-232 cables exist for legacy hardware. Development kits now either route a UART through the embedded ST-Link programmer (STM32 Nucleo) or use a USB-UART bridge IC (FTDI FT23x, Silicon Labs CP210x). The STM32F407 Discovery board instead runs a USB stack and appears as a <strong>Virtual COM Port</strong>, but only once its firmware is running. On the PC side the port is used through a terminal emulator; the course uses Termite and Tera Term.</p>
+</section>
+
+<section id="i2c">
+<h2><span class="n">05</span>I2C</h2>
+<p class="reading"><b>Reading</b> Lecture 18</p>
+<p><strong>I2C</strong> (Inter-Integrated Circuit) is a bidirectional two-wire bus for control between ICs, developed by Philips (now NXP) and used in over 1000 ICs. The wires are the serial clock <strong>SCL</strong> and serial data <strong>SDA</strong>. It is half-duplex, a bus, and synchronous.</p>
+<div class="tbl"><table><thead><tr><th>Mode</th><th>Up to</th></tr></thead><tbody>
+<tr><td>Standard-mode</td><td>100 kbit/s</td></tr>
+<tr><td>Fast-mode</td><td>400 kbit/s</td></tr>
+<tr><td>Fast-mode Plus</td><td>1 Mbit/s</td></tr>
+<tr><td>High-speed mode</td><td>3.4 Mbit/s</td></tr>
+</tbody></table></div>
+<p>Several masters are allowed, but normally there is one. Only the master drives SCL. Any device may change the level of the bus lines, so contention must be prevented.</p>
+
+<h3 id="opendrain">Open-drain bus</h3>
+<p>SCL and SDA use <strong>open-drain</strong> outputs: the p-MOS of the output stage is never switched on. Writing 0 turns the n-MOS on and pulls the pin to 0 V; writing 1 turns it off and leaves the pin floating. A <strong>pull-up resistor</strong> on each line pulls it high when nobody is pulling it low.</p>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Open-drain bus: a pull-up resistor holds the line high and any device can pull it low through its n-MOS transistor">
+<polyline class="ln c4" points="68,40 92,40"/>
+<text class="lab" x="80" y="33" text-anchor="middle">V<tspan dy="3" font-size="75%">DD</tspan><tspan dy="-3"> </tspan> = 3.3 V</text>
+<polyline class="ln c4" points="80,40 80,58 87,60 73,64 87,68 73,72 87,76 73,80 80,82 80,100"/>
+<text class="lab" x="92" y="74" text-anchor="start">R<tspan dy="3" font-size="75%">p</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="80,100 80,120 600,120"/>
+<text class="lab" x="605" y="124" text-anchor="start">SDA</text>
+<circle class="c4f" cx="200" cy="120" r="2.6"/>
+<polyline class="ln c4" points="151,170 171,170"/>
+<polyline class="ln c4" points="171,154 171,186"/>
+<polyline class="ln c4" points="178,152 178,162"/>
+<polyline class="ln c4" points="178,165 178,175"/>
+<polyline class="ln c4" points="178,178 178,188"/>
+<polyline class="ln c4" points="178,158 200,158 200,138"/>
+<polyline class="ln c4" points="178,182 200,182 200,202"/>
+<polyline class="ln c4" points="178,170 200,170 200,182"/>
+<polygon class="c4f" points="196,182 190,184.7 190,179.3"/>
+<polyline class="ln c4" points="200,120 200,138"/>
+<polyline class="ln c4" points="200,202 200,208"/>
+<polyline class="ln c4" points="191,208 209,208"/>
+<polyline class="ln c4" points="195,212 205,212"/>
+<polyline class="ln c4" points="198,216 202,216"/>
+<text class="tk" x="148" y="174" text-anchor="end">out</text>
+<text class="tk" x="210" y="150" text-anchor="start">device 1</text>
+<circle class="c4f" cx="340" cy="120" r="2.6"/>
+<polyline class="ln c4" points="291,170 311,170"/>
+<polyline class="ln c4" points="311,154 311,186"/>
+<polyline class="ln c4" points="318,152 318,162"/>
+<polyline class="ln c4" points="318,165 318,175"/>
+<polyline class="ln c4" points="318,178 318,188"/>
+<polyline class="ln c4" points="318,158 340,158 340,138"/>
+<polyline class="ln c4" points="318,182 340,182 340,202"/>
+<polyline class="ln c4" points="318,170 340,170 340,182"/>
+<polygon class="c4f" points="336,182 330,184.7 330,179.3"/>
+<polyline class="ln c4" points="340,120 340,138"/>
+<polyline class="ln c4" points="340,202 340,208"/>
+<polyline class="ln c4" points="331,208 349,208"/>
+<polyline class="ln c4" points="335,212 345,212"/>
+<polyline class="ln c4" points="338,216 342,216"/>
+<text class="tk" x="288" y="174" text-anchor="end">out</text>
+<text class="tk" x="350" y="150" text-anchor="start">device 2</text>
+<circle class="c4f" cx="480" cy="120" r="2.6"/>
+<polyline class="ln c4" points="431,170 451,170"/>
+<polyline class="ln c4" points="451,154 451,186"/>
+<polyline class="ln c4" points="458,152 458,162"/>
+<polyline class="ln c4" points="458,165 458,175"/>
+<polyline class="ln c4" points="458,178 458,188"/>
+<polyline class="ln c4" points="458,158 480,158 480,138"/>
+<polyline class="ln c4" points="458,182 480,182 480,202"/>
+<polyline class="ln c4" points="458,170 480,170 480,182"/>
+<polygon class="c4f" points="476,182 470,184.7 470,179.3"/>
+<polyline class="ln c4" points="480,120 480,138"/>
+<polyline class="ln c4" points="480,202 480,208"/>
+<polyline class="ln c4" points="471,208 489,208"/>
+<polyline class="ln c4" points="475,212 485,212"/>
+<polyline class="ln c4" points="478,216 482,216"/>
+<text class="tk" x="428" y="174" text-anchor="end">out</text>
+<text class="tk" x="490" y="150" text-anchor="start">device 3</text>
+<text class="tk" x="80" y="245" text-anchor="start">transistor on = line pulled to 0 V; all off = R<tspan dy="3" font-size="75%">p</tspan><tspan dy="-3"> </tspan> pulls it to 3.3 V</text>
+</svg>
+<figcaption><b>Figure 5.1</b> An open-drain line with one pull-up and three devices.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.1:</b> Each device can only connect the line to ground. If one device "outputs 1" (transistor off) while another outputs 0, the line is simply low and the current is limited by \(R_p\): no short circuit is possible. The line is a wired-AND: it is high only if every device releases it. Choosing \(R_p\) is a trade-off covered in Week 11.</p>
+
+<h3 id="i2c-frames">Start, stop, address and ACK</h3>
+<p>Data goes in <strong>bytes</strong> (8 bits per frame), <strong>most significant bit first</strong>, and any number of bytes may follow. SDA may only change while SCL is low; a change while SCL is high is a control condition:</p>
+<ul>
+<li><strong>START</strong>: SDA goes high to low while SCL is high.</li>
+<li><strong>STOP</strong>: SDA goes low to high while SCL is high.</li>
+</ul>
+<p>Only the controller (master) generates START and STOP. The bus is busy after a START and free again a short time after a STOP.</p>
+<figure>
+<svg viewBox="0 0 640 170" class="fig" role="img" aria-label="I2C start and stop conditions: SDA falls while SCL is high for start, SDA rises while SCL is high for stop">
+<polyline class="ln c4" points="110,40 230,40 240,70 270,70"/>
+<text class="lab" x="100" y="58" text-anchor="end">SCL</text>
+<polyline class="ln c1" points="110,100 170,100 180,130 270,130"/>
+<text class="lab" x="100" y="118" text-anchor="end">SDA</text>
+<rect class="area" x="160" y="30" width="30" height="110"/>
+<text class="lab b" x="175" y="160" text-anchor="middle">START</text>
+<polyline class="ln c4" points="400,70 430,70 440,40 570,40"/>
+<polyline class="ln c1" points="400,130 490,130 500,100 570,100"/>
+<rect class="area" x="480" y="30" width="30" height="110"/>
+<text class="lab b" x="495" y="160" text-anchor="middle">STOP</text>
+</svg>
+<figcaption><b>Figure 5.2</b> START and STOP conditions.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.2:</b> In the shaded windows SCL (ink) is high and SDA (teal) changes, which never happens during normal data bits. That is how every slave recognises the start and end of a transaction.</p>
+<p><strong>Addressing</strong>: every slave has a unique address, usually 7 bits (\(2^7 = 128\) addresses), sometimes 10 bits (\(2^{10} = 1024\)). After START the master sends the address and one <strong>R/W bit</strong>: 0 for a master write (send to the slave), 1 for a master read (the slave returns data).</p>
+<p><strong>Acknowledge</strong>: after every byte comes a ninth clock pulse, generated by the master. The transmitter releases SDA and the receiver pulls it low and holds it low while SCL is high: that is an <strong>ACK</strong> (byte received, send another). If SDA stays high on the ninth pulse, that is a <strong>NACK</strong>.</p>
+<div class="box watch"><span class="label">Watch out</span><p>UART sends LSB first; I2C sends MSB first. And on I2C the address byte is the 7-bit address shifted left with R/W in bit 0: address 0x68 gives 0xD0 for a write and 0xD1 for a read. The STM32 HAL functions expect this shifted form (<code>0x68 &lt;&lt; 1</code>).</p></div>
+
+<h3 id="i2c-rw">Master write and master read</h3>
+<div class="tbl"><table><thead><tr><th>Step</th><th>Master write: master</th><th>Slave</th></tr></thead><tbody>
+<tr><td>1</td><td>Keep SCL high, pull SDA low: START</td><td>All slaves detect START</td></tr>
+<tr><td>2</td><td>Send 7 clocks with the slave address on SDA</td><td>All slaves read the address</td></tr>
+<tr><td>3</td><td>Output the write bit (0)</td><td>All slaves read R/W</td></tr>
+<tr><td>4</td><td>Release SDA and sense ACK</td><td>Matching slave pulls SDA low (ACK)</td></tr>
+<tr><td>5</td><td>Send 8 clocks with 8 data bits</td><td>Matching slave reads the data</td></tr>
+<tr><td>6</td><td>Release SDA and sense ACK</td><td>Matching slave ACKs</td></tr>
+<tr><td>7</td><td>Release SCL, then SDA: STOP</td><td>All slaves detect STOP</td></tr>
+</tbody></table></div>
+<p>A <strong>master read</strong> starts the same way but with R/W = 1. In step 5 the master still clocks, but the slave drives the 8 data bits and the master senses them. In step 6 the <em>master</em> answers: ACK to ask for another byte, NACK when it is done. Then STOP.</p>
+<figure>
+<svg viewBox="0 0 640 210" class="fig" role="img" aria-label="I2C master write of 0x6B to slave 0x68: start, seven address bits, write bit, slave ACK, eight data bits, slave ACK, stop">
+<polyline class="ln c4" points="60,36 73,36 86,36 86,60 99,60 99,36 112,36 112,60 125,60 125,36 138,36 138,60 151,60 151,36 164,36 164,60 177,60 177,36 190,36 190,60 203,60 203,36 216,36 216,60 229,60 229,36 242,36 242,60 255,60 255,36 268,36 268,60 281,60 281,36 294,36 294,60 307,60 307,36 320,36 320,60 333,60 333,36 346,36 346,60 359,60 359,36 372,36 372,60 385,60 385,36 398,36 398,60 411,60 411,36 424,36 424,60 437,60 437,36 450,36 450,60 463,60 463,36 476,36 476,60 489,60 489,36 502,36 502,60 515,60 515,36 528,36 528,60 541,60 541,36 554,36 567,36 580,36"/>
+<text class="lab" x="52" y="52" text-anchor="end">SCL</text>
+<rect class="blkd" x="87" y="80" width="24" height="26"/>
+<text class="tk" x="99" y="97" text-anchor="middle">1</text>
+<rect class="blkd" x="113" y="80" width="24" height="26"/>
+<text class="tk" x="125" y="97" text-anchor="middle">1</text>
+<rect class="blkd" x="139" y="80" width="24" height="26"/>
+<text class="tk" x="151" y="97" text-anchor="middle">0</text>
+<rect class="blkd" x="165" y="80" width="24" height="26"/>
+<text class="tk" x="177" y="97" text-anchor="middle">1</text>
+<rect class="blkd" x="191" y="80" width="24" height="26"/>
+<text class="tk" x="203" y="97" text-anchor="middle">0</text>
+<rect class="blkd" x="217" y="80" width="24" height="26"/>
+<text class="tk" x="229" y="97" text-anchor="middle">0</text>
+<rect class="blkd" x="243" y="80" width="24" height="26"/>
+<text class="tk" x="255" y="97" text-anchor="middle">0</text>
+<rect class="blkd" x="269" y="80" width="24" height="26"/>
+<text class="tk" x="281" y="97" text-anchor="middle">0</text>
+<rect class="blk" x="295" y="80" width="24" height="26"/>
+<text class="tk" x="307" y="97" text-anchor="middle">0</text>
+<rect class="blkd" x="321" y="80" width="24" height="26"/>
+<text class="tk" x="333" y="97" text-anchor="middle">0</text>
+<rect class="blkd" x="347" y="80" width="24" height="26"/>
+<text class="tk" x="359" y="97" text-anchor="middle">1</text>
+<rect class="blkd" x="373" y="80" width="24" height="26"/>
+<text class="tk" x="385" y="97" text-anchor="middle">1</text>
+<rect class="blkd" x="399" y="80" width="24" height="26"/>
+<text class="tk" x="411" y="97" text-anchor="middle">0</text>
+<rect class="blkd" x="425" y="80" width="24" height="26"/>
+<text class="tk" x="437" y="97" text-anchor="middle">1</text>
+<rect class="blkd" x="451" y="80" width="24" height="26"/>
+<text class="tk" x="463" y="97" text-anchor="middle">0</text>
+<rect class="blkd" x="477" y="80" width="24" height="26"/>
+<text class="tk" x="489" y="97" text-anchor="middle">1</text>
+<rect class="blkd" x="503" y="80" width="24" height="26"/>
+<text class="tk" x="515" y="97" text-anchor="middle">1</text>
+<rect class="blk" x="529" y="80" width="24" height="26"/>
+<text class="tk" x="541" y="97" text-anchor="middle">0</text>
+<text class="lab" x="52" y="98" text-anchor="end">SDA</text>
+<text class="lab b" x="73" y="97" text-anchor="middle">S</text>
+<text class="lab b" x="567" y="97" text-anchor="middle">P</text>
+<polyline class="ln c4 thin" points="88,124 88,130 266,130 266,124"/>
+<text class="tk" x="177" y="146" text-anchor="middle">address 0x68 (MSB first)</text>
+<polyline class="ln c4 thin" points="270,124 270,130 292,130 292,124"/>
+<text class="tk" x="281" y="146" text-anchor="middle">R/W</text>
+<polyline class="ln c4 thin" points="296,154 296,160 318,160 318,154"/>
+<text class="tk" x="307" y="176" text-anchor="middle">ACK</text>
+<polyline class="ln c4 thin" points="322,124 322,130 526,130 526,124"/>
+<text class="tk" x="424" y="146" text-anchor="middle">data 0x6B</text>
+<polyline class="ln c4 thin" points="530,154 530,160 552,160 552,154"/>
+<text class="tk" x="541" y="176" text-anchor="middle">ACK</text>
+<rect class="blkd" x="60" y="182" width="14" height="14" rx="3"/>
+<text class="tk" x="80" y="194" text-anchor="start">master drives SDA</text>
+<rect class="blk" x="230" y="182" width="14" height="14" rx="3"/>
+<text class="tk" x="250" y="194" text-anchor="start">slave pulls SDA low (ACK)</text>
+</svg>
+<figcaption><b>Figure 5.3</b> A master write of one data byte, bit by bit.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.3:</b> The address 0x68 = 110 1000 goes out MSB first, then W = 0. The slave answers ACK (low) on the ninth clock. The data byte 0x6B = 0110 1011 follows, then a second ACK and the STOP. One byte of payload costs 18 clock periods plus START and STOP.</p>
+
+<h3 id="i2c-adv">Repeated start and clock stretching</h3>
+<ul>
+<li><strong>Repeated START</strong>: the master issues a new START without a STOP, to run several transactions (read or write) without releasing the bus. Typical use: write a register address, then repeated START and read from it.</li>
+<li><strong>Clock stretching</strong>: after an address or data byte the master releases SCL, and a slave that needs time (to answer a read, or to service an internal interrupt) holds SCL low. The master must wait until SCL is released.</li>
+</ul>
+<p>The hardware handles START and STOP detection, address matching, read and write transfers and ACK/NACK. What the bytes <em>mean</em> is up to software and the IC maker: high-level commands, reading or writing a register at an internal address, or bulk reads and writes of consecutive registers. In STM32CubeMX the pins and mode are configured graphically, and the HAL driver offers blocking, interrupt and DMA versions of each transfer. A <strong>logic analyser</strong> that decodes I2C is the most useful debugging tool.</p>
+
+<div class="ex"><div class="hd">Worked example 5.1 <span>reading six sensor registers</span></div><div class="bd">
+<p>A master at 400 kHz reads 6 bytes starting at register 0x3B of the slave at address 0x68: START, address+W, register address, repeated START, address+R, 6 data bytes, STOP. Find the address bytes and the number of clock pulses, and estimate the time.</p>
+<div class="step"><i>1</i><div>Address bytes: write \(0x68 \ll 1 = \) 0xD0; read 0xD1.</div></div>
+<div class="step"><i>2</i><div>Bytes on the bus: address+W, 0x3B, address+R and 6 data: 9 bytes, each 8 bits plus an ACK/NACK: \(9 \times 9 = 81\) clocks.</div></div>
+<div class="step"><i>3</i><div>\(t \approx 81 / 400\,000 = 202.5\) µs, plus the START, repeated START and STOP.</div></div>
+<div class="ans">0xD0 and 0xD1, 81 clock pulses, about 203 µs. The master ACKs the first five data bytes and NACKs the sixth.</div>
+</div></div>
+</section>
+
+<section id="practice">
+<h2><span class="n">06</span>Practice problems</h2>
+
+<div class="ex"><div class="hd">Problem 6.1 <span>an exact baud rate</span></div><div class="bd">
+<p>USART2 is clocked from APB1 at 42 MHz with 16× oversampling. Find BRR for 9600 baud and the error.</p>
+<div class="step"><i>1</i><div>USARTDIV \(= 42 \times 10^6/(16 \times 9600) = 273.4375\).</div></div>
+<div class="step"><i>2</i><div>Mantissa 273 = 0x111; fraction \(0.4375 \times 16 = 7\) exactly.</div></div>
+<div class="ans">BRR = 0x1117, exactly 9600 bps (0 % error).</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 6.2 <span>a coarser divider</span></div><div class="bd">
+<p>Same USART2 (42 MHz, 16×), now at 115 200 baud.</p>
+<div class="step"><i>1</i><div>USARTDIV \(= 42 \times 10^6/(16 \times 115\,200) = 22.786\); fraction \(0.786 \times 16 = 12.58 \to 13\).</div></div>
+<div class="step"><i>2</i><div>BRR = (22 &lt;&lt; 4) | 13 = 0x16D; actual \(42 \times 10^6/(16 \times 22.8125) = 115\,068\) bps.</div></div>
+<div class="ans">0x16D, 115 068 bps, −0.11 %. Smaller USARTDIV values give coarser steps and bigger errors.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 6.3 <span>decoding a frame</span></div><div class="bd">
+<p>A UART in 8E1 receives, after the start bit: 1, 1, 0, 0, 0, 0, 1, 0, then 1, then 1. What byte arrived and is the parity correct?</p>
+<div class="step"><i>1</i><div>The first eight are b0 to b7 (LSB first): b7…b0 = 0100 0011 = 0x43, the ASCII letter 'C'.</div></div>
+<div class="step"><i>2</i><div>Data has three 1s; with the parity bit (1) there are four: even, so correct. The last 1 is the stop bit.</div></div>
+<div class="ans">0x43 ('C'), parity good.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 6.4 <span>bit-banging versus hardware</span></div><div class="bd">
+<p>A 168 MHz core bit-bangs a 115 200 bps UART with one timer interrupt per bit. How many clock cycles are available per bit, and what is the byte rate in 8N1?</p>
+<div class="step"><i>1</i><div>\(168 \times 10^6/115\,200 = 1458\) cycles per bit, all spent waiting for or servicing interrupts.</div></div>
+<div class="step"><i>2</i><div>Byte rate \(= 115\,200/10 = 11\,520\) B/s.</div></div>
+<div class="ans">About 1458 cycles per bit and 11 520 B/s; the USART hardware gives the same rate with one interrupt per byte (RXNE or TXE) instead of ten per byte.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 6.5 <span>I2C register write</span></div><div class="bd">
+<p>At 400 kHz, write the value 0x00 to register 0x6B of slave 0x68. List the bytes and estimate the time.</p>
+<div class="step"><i>1</i><div>START, 0xD0 (ACK), 0x6B (ACK), 0x00 (ACK), STOP.</div></div>
+<div class="step"><i>2</i><div>\(3 \times 9 = 27\) clocks: \(27/400\,000 = 67.5\) µs plus START and STOP.</div></div>
+<div class="ans">0xD0, 0x6B, 0x00; about 67.5 µs.</div>
+</div></div>
+</section>
+
+<section id="sheet">
+<h2><span class="n">07</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>UART frame</h4>
+<p>Idle high, start low, data LSB first, parity, stop high</p>
+<p>\(n_{frame} = 1 + n_{data} + n_{parity} + n_{stop}\)</p>
+<p>Byte rate = baud / \(n_{frame}\) (8N1: baud/10)</p>
+</div>
+<div><h4>STM32 baud rate</h4>
+<p>\(\text{Baud} = f_{ck}/(16 \times \text{USARTDIV})\) (16×)</p>
+<p>\(\text{Baud} = f_{ck}/(8 \times \text{USARTDIV})\) (8×)</p>
+<p>BRR = mantissa &lt;&lt; 4 | round(fraction × 16)</p>
+<p>USART1, 6: APB2. USART2: APB1</p>
+</div>
+<div><h4>USART flags</h4>
+<p>TXE: DR empty, write next</p>
+<p>TC: last frame fully sent</p>
+<p>RXNE: frame in DR, read it</p>
+<p>ORE: new frame before DR read</p>
+</div>
+<div><h4>I2C</h4>
+<p>SCL, SDA, open drain with pull-ups</p>
+<p>START: SDA ↓ while SCL high. STOP: SDA ↑ while SCL high</p>
+<p>Address byte = addr7 &lt;&lt; 1 | R/W (W = 0, R = 1)</p>
+<p>9 clocks per byte (8 data + ACK), MSB first</p>
+<p>100 k, 400 k, 1 M, 3.4 Mbit/s</p>
+</div>
+</div>
+</section>
+
+<footer>
+<p>Sources: CS245 Lecture16 Serial Communication.pdf, CS245 Lecture17 Serial Communication - UART.pdf, CS245 Lecture18 Serial Communication - I2C.pdf. Reference-manual timing diagrams (Lecture 17 slides 6 to 10, 13) and the I2C bus diagrams (Lecture 18) were read from the slide images; the CubeIDE, terminal and logic-analyser screenshots carry no examinable detail beyond what is stated here. The 84 MHz and 42 MHz APB clocks in the examples are the usual STM32F407 settings at 168 MHz; check the Clock Configuration tab of your own project.</p>
+</footer>
+</main>
+</div>
+
+<script src="../../assets/ask-gemini.js" data-store="cs245-w7-theory" data-course="CS245 Computer Systems"
+        data-topic="Week 7: serial vs parallel, synchronous vs asynchronous, duplex and buses, UART frame, STM32 USART flags and baud rate, RS-232/422/485, I2C bus, start/stop, addressing, ACK, read and write transactions"></script>
+</body>
+</html>

@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 9: ADC, DAC, audio and calibration · CS245 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../../module.html?m=cs245">&larr; Computer Systems</a>
+  <div class="k">CS245 · Week 9</div>
+  <ol>
+    <li><a href="#s-adc">1. Analog-to-digital conversion</a></li>
+    <li class="sub"><a href="#s-adc-formula">The conversion formula</a></li>
+    <li class="sub"><a href="#s-adc-errors">Resolution and errors</a></li>
+    <li class="sub"><a href="#s-adc-types">Types of ADC</a></li>
+    <li class="sub"><a href="#s-adc-sampling">Sampling modes and specifications</a></li>
+    <li><a href="#stm-adc">2. The STM32F407 ADC</a></li>
+    <li><a href="#s-dac">3. Digital-to-analog conversion</a></li>
+    <li class="sub"><a href="#s-dac-bw">Binary-weighted and R-2R</a></li>
+    <li class="sub"><a href="#s-dac-pwm">PWM DAC</a></li>
+    <li><a href="#audio">4. Audio, I2S and PCM</a></li>
+    <li><a href="#cond">5. Signal conditioning</a></li>
+    <li><a href="#cal">6. ADC calibration</a></li>
+    <li><a href="#prac7">7. Practical 7: SPI accelerometer</a></li>
+    <li><a href="#practice">8. Practice problems</a></li>
+    <li><a href="#sheet">9. Formula sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">COMPUTER SYSTEMS 245 · LECTURES 22 AND 23 · PRACTICAL 7</div>
+  <h1>ADC, DAC, audio and calibration</h1>
+  <p class="lede">How a microcontroller reads and produces analog voltages: the ADC and DAC conversion formulas, quantisation and the error sources, the main converter types, the STM32F407 ADC's modes, audio over I2S, op-amp gain and offset, and calibrating a sensor reading against measurements.</p>
+</header>
+
+<section id="s-adc">
+<h2><span class="n">01</span>Analog-to-digital conversion</h2>
+<p class="reading"><b>Reading</b> Lecture 22, slides 2 to 17</p>
+<p>Most sensors produce an analog voltage: thermocouples, magnetic field sensors, MEMS accelerometers and gyros, current sensors, touch screens. (A sensor with an I2C or SPI output has already done the conversion inside itself.) To use such a voltage as a number rather than as a 0 or 1, the microcontroller needs an <strong>analog-to-digital converter (ADC)</strong>.</p>
+<p>Example: the MCP9700 temperature sensor has three pins (\(V_{DD}\), GND and \(V_{OUT}\)) and outputs \(V_{OUT} = 0.5\text{ V} + 0.01\text{ V/°C} \times T_A\). At 20 °C that is 0.7 V. If the microcontroller can measure \(V_{OUT}\), it can compute the temperature and display it, log it, or switch a heater or fan.</p>
+
+<h3 id="s-adc-formula">The conversion formula</h3>
+<p>An ideal ADC is linear: the output number is proportional to where the input sits between two reference voltages. The output \(R\) is an integer of \(N\) bits, so the exact value is truncated: this is <strong>quantisation</strong>.</p>
+<div class="eq"><span class="tag">ADC output</span>\[ R = \left\lfloor (2^N - 1)\,\frac{V_{IN} - V_{REF-}}{V_{REF+} - V_{REF-}} \right\rfloor \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(R\)</dt><dd>Converted value, an integer from 0 to \(2^N - 1\).</dd>
+  <dt>\(N\)</dt><dd>Resolution in bits.</dd>
+  <dt>\(V_{IN}\)</dt><dd>Input voltage, which must lie between the references (V).</dd>
+  <dt>\(V_{REF-}\)</dt><dd>Lower reference, the voltage that gives 0 (V). Often 0 V.</dd>
+  <dt>\(V_{REF+}\)</dt><dd>Upper reference, the voltage that gives \(2^N - 1\) (V).</dd>
+</dl>
+</div>
+<p>With \(V_{REF-} = 0\) this reduces to \(R = (2^N - 1) V_{IN}/V_{MAX}\). Going backwards, \(V_{IN} = V_{REF-} + R\,(V_{REF+} - V_{REF-})/(2^N - 1)\).</p>
+<figure>
+<svg viewBox="0 0 640 300" class="fig" role="img" aria-label="Transfer characteristic of a 3-bit ADC from 0 to 3.3 V: output code steps up by one each time the input rises by one LSB, below the ideal straight line">
+<line class="grid" x1="70" y1="15" x2="70" y2="250"/>
+<text class="tk" x="70" y="266" text-anchor="middle">0</text>
+<line class="grid" x1="152.6" y1="15" x2="152.6" y2="250"/>
+<text class="tk" x="152.6" y="266" text-anchor="middle">0.5</text>
+<line class="grid" x1="235.2" y1="15" x2="235.2" y2="250"/>
+<text class="tk" x="235.2" y="266" text-anchor="middle">1</text>
+<line class="grid" x1="317.7" y1="15" x2="317.7" y2="250"/>
+<text class="tk" x="317.7" y="266" text-anchor="middle">1.5</text>
+<line class="grid" x1="400.3" y1="15" x2="400.3" y2="250"/>
+<text class="tk" x="400.3" y="266" text-anchor="middle">2</text>
+<line class="grid" x1="482.9" y1="15" x2="482.9" y2="250"/>
+<text class="tk" x="482.9" y="266" text-anchor="middle">2.5</text>
+<line class="grid" x1="565.5" y1="15" x2="565.5" y2="250"/>
+<text class="tk" x="565.5" y="266" text-anchor="middle">3</text>
+<line class="grid" x1="615" y1="15" x2="615" y2="250"/>
+<text class="tk" x="615" y="266" text-anchor="middle">3.3</text>
+<line class="grid" x1="70" y1="250" x2="615" y2="250"/>
+<text class="tk" x="64" y="254" text-anchor="end">0</text>
+<line class="grid" x1="70" y1="218.7" x2="615" y2="218.7"/>
+<text class="tk" x="64" y="222.7" text-anchor="end">1</text>
+<line class="grid" x1="70" y1="187.3" x2="615" y2="187.3"/>
+<text class="tk" x="64" y="191.3" text-anchor="end">2</text>
+<line class="grid" x1="70" y1="156" x2="615" y2="156"/>
+<text class="tk" x="64" y="160" text-anchor="end">3</text>
+<line class="grid" x1="70" y1="124.7" x2="615" y2="124.7"/>
+<text class="tk" x="64" y="128.7" text-anchor="end">4</text>
+<line class="grid" x1="70" y1="93.3" x2="615" y2="93.3"/>
+<text class="tk" x="64" y="97.3" text-anchor="end">5</text>
+<line class="grid" x1="70" y1="62" x2="615" y2="62"/>
+<text class="tk" x="64" y="66" text-anchor="end">6</text>
+<line class="grid" x1="70" y1="30.7" x2="615" y2="30.7"/>
+<text class="tk" x="64" y="34.7" text-anchor="end">7</text>
+<rect class="frame" x="70" y="15" width="545" height="235"/>
+<text class="lab" x="342.5" y="286" text-anchor="middle">input voltage V<tspan dy="3" font-size="75%">IN</tspan><tspan dy="-3"> </tspan> (V)</text>
+<text class="lab" x="16" y="132.5" text-anchor="middle" transform="rotate(-90 16 132.5)">output code R</text>
+<polyline class="ln c3 thin dash" points="70,250 615,30.7"/>
+<polyline class="ln c1" points="70,250 147.9,250 147.9,218.7 225.7,218.7 225.7,187.3 303.6,187.3 303.6,156 381.4,156 381.4,124.7 459.3,124.7 459.3,93.3 537.1,93.3 537.1,62 615,62 615,30.7 615,30.7"/>
+<text class="tk" x="449.8" y="43.2" text-anchor="start">ideal: R = 7 V<tspan dy="3" font-size="75%">IN</tspan><tspan dy="-3"> </tspan>/3.3</text>
+<text class="tk" x="309.5" y="199.9" text-anchor="start">one LSB = 3.3/7 V</text>
+</svg>
+<figcaption><b>Figure 1.1</b> A 3-bit ADC's staircase against the ideal straight line.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> With \(N = 3\) there are 8 codes over 0 to 3.3 V. Truncation puts each step at or below the ideal line (dashed): every input in one LSB-wide band gives the same code. Code 7 is reached only at exactly 3.3 V. Real ADCs have thousands of steps, but the shape is the same.</p>
+
+<div class="ex"><div class="hd">Worked example 1.1 <span>both directions</span></div><div class="bd">
+<p>(a) A 12-bit ADC with references 0 V and 3.3 V reads 1.25 V. What is \(R\)? What would a 10-bit ADC give? (b) A 12-bit ADC with references −2.5 V and +2.5 V outputs 3000. What is \(V_{IN}\)?</p>
+<div class="step"><i>1</i><div>(a) \(R = \lfloor 4095 \times 1.25/3.3 \rfloor = \lfloor 1551.1 \rfloor = 1551\). With 10 bits: \(\lfloor 1023 \times 1.25/3.3 \rfloor = \lfloor 387.5 \rfloor = 387\).</div></div>
+<div class="step"><i>2</i><div>(b) \(V_{IN} = -2.5 + 3000 \times 5/4095 = -2.5 + 3.663 = 1.163\) V.</div></div>
+<div class="ans">(a) 1551 (12-bit), 387 (10-bit). (b) 1.163 V.</div>
+</div></div>
+
+<h3 id="s-adc-errors">Resolution and errors</h3>
+<p>The number of bits is the <strong>resolution</strong>. Because of quantisation the smallest change the ADC can see, one <strong>LSB</strong>, is:</p>
+<div class="eq"><span class="tag">Size of one LSB</span>\[ \Delta V = \frac{V_{REF+} - V_{REF-}}{2^N - 1} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(\Delta V\)</dt><dd>Voltage step per code, the precision (V/LSB).</dd>
+  <dt>\(V_{REF+} - V_{REF-}\)</dt><dd>Input range (V).</dd>
+  <dt>\(N\)</dt><dd>Resolution (bits).</dd>
+</dl>
+</div>
+<p>A 12-bit ADC over 0 to 5 V resolves 1.22 mV/LSB; over 0 to 3.3 V, 0.806 mV/LSB. Nothing finer can be measured.</p>
+<ul>
+<li><strong>Offset error</strong> and <strong>gain error</strong> shift and tilt the transfer line, as in an amplifier.</li>
+<li><strong>Integral non-linearity (INL)</strong>: the largest deviation of the actual transfer characteristic from a straight line, in LSB.</li>
+<li><strong>Differential non-linearity (DNL)</strong>: the largest deviation of any one step from its ideal size of 1 LSB.</li>
+</ul>
+
+<h3 id="s-adc-types">Types of ADC</h3>
+<div class="tbl"><table><thead><tr><th>Type</th><th>How it works</th><th>For</th><th>Against</th></tr></thead><tbody>
+<tr><td>Flash (direct conversion)</td><td>One comparator per level compares the input with taps on a resistor divider; encoder logic turns the comparator outputs into a binary code.</td><td>Fastest: conversion time is the propagation delay</td><td>Many comparators, large, power hungry</td></tr>
+<tr><td>Integrating (dual-slope)</td><td>The input charges a capacitor for a fixed run-up time; then it discharges through a resistor while a counter counts clock cycles until the voltage reaches zero. The count is the result.</td><td>Few parts, low power, small non-linearity</td><td>Slow</td></tr>
+<tr><td>Successive approximation (SAR)</td><td>A DAC and comparator test one bit at a time from the MSB: set the bit, keep it if the DAC output is not above the input, clear it otherwise.</td><td>Good balance; \(N\) steps for \(N\) bits</td><td>Needs a DAC and sample-and-hold</td></tr>
+</tbody></table></div>
+<div class="box watch"><span class="label">Watch out</span><p>Two slide statements need care. Slide 12 says a flash ADC needs \(2^n\) comparators; an \(n\)-bit flash converter needs \(2^n - 1\) (one per threshold between codes: 255 for 8 bits). Slide 13 says a smaller resistor gives a slower discharge and higher resolution; the discharge time constant is \(RC\), so a <em>larger</em> resistor discharges more slowly, gives more counts (higher resolution) and a longer conversion, and a smaller resistor the reverse.</p></div>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Successive approximation of 2.0 V with a 4-bit converter: trial DAC voltages 1.76, 2.64, 2.20 and 1.98 V against the input">
+<line class="grid" x1="138.1" y1="15" x2="138.1" y2="210"/>
+<text class="tk" x="138.1" y="226" text-anchor="middle">1</text>
+<line class="grid" x1="274.4" y1="15" x2="274.4" y2="210"/>
+<text class="tk" x="274.4" y="226" text-anchor="middle">2</text>
+<line class="grid" x1="410.6" y1="15" x2="410.6" y2="210"/>
+<text class="tk" x="410.6" y="226" text-anchor="middle">3</text>
+<line class="grid" x1="546.9" y1="15" x2="546.9" y2="210"/>
+<text class="tk" x="546.9" y="226" text-anchor="middle">4</text>
+<line class="grid" x1="70" y1="210" x2="615" y2="210"/>
+<text class="tk" x="64" y="214" text-anchor="end">0</text>
+<line class="grid" x1="70" y1="150.9" x2="615" y2="150.9"/>
+<text class="tk" x="64" y="154.9" text-anchor="end">1</text>
+<line class="grid" x1="70" y1="91.8" x2="615" y2="91.8"/>
+<text class="tk" x="64" y="95.8" text-anchor="end">2</text>
+<line class="grid" x1="70" y1="32.7" x2="615" y2="32.7"/>
+<text class="tk" x="64" y="36.7" text-anchor="end">3</text>
+<rect class="frame" x="70" y="15" width="545" height="195"/>
+<text class="lab" x="342.5" y="246" text-anchor="middle">step (bit tested: b3, b2, b1, b0)</text>
+<text class="lab" x="16" y="112.5" text-anchor="middle" transform="rotate(-90 16 112.5)">voltage (V)</text>
+<polyline class="ln c3 dash" points="70,91.8 615,91.8"/>
+<text class="tk" x="76.8" y="85.8" text-anchor="start">V<tspan dy="3" font-size="75%">IN</tspan><tspan dy="-3"> </tspan> = 2.0 V</text>
+<rect class="blkd" x="118.1" y="106" width="40" height="104"/>
+<text class="tk" x="138.1" y="122" text-anchor="middle">1000</text>
+<text class="tk" x="138.1" y="195.2" text-anchor="middle">keep</text>
+<rect class="blk" x="254.4" y="54" width="40" height="156"/>
+<text class="tk" x="274.4" y="70" text-anchor="middle">1100</text>
+<text class="tk" x="274.4" y="195.2" text-anchor="middle">reset</text>
+<rect class="blk" x="390.6" y="80" width="40" height="130"/>
+<text class="tk" x="410.6" y="96" text-anchor="middle">1010</text>
+<text class="tk" x="410.6" y="195.2" text-anchor="middle">reset</text>
+<rect class="blkd" x="526.9" y="93" width="40" height="117"/>
+<text class="tk" x="546.9" y="109" text-anchor="middle">1001</text>
+<text class="tk" x="546.9" y="195.2" text-anchor="middle">keep</text>
+</svg>
+<figcaption><b>Figure 1.2</b> A 4-bit SAR converting 2.0 V with 3.3 V full scale.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.2:</b> The DAC output for code \(k\) is \(k \times 3.3/15\) V. Testing 1000 gives 1.76 V, below 2.0 V, so b3 stays. 1100 gives 2.64 V, too high, so b2 is cleared. 1010 gives 2.20 V, cleared. 1001 gives 1.98 V, kept. The result 1001 = 9 matches \(\lfloor 15 \times 2.0/3.3 \rfloor = 9\).</p>
+<p>Conversion takes time, so the input must not change during it. A <strong>sample-and-hold</strong> circuit (a FET switch, a capacitor and a unity-gain buffer) does this. <em>Sample</em>: the switch closes and the capacitor charges to the input. <em>Hold</em>: the switch opens and the buffer keeps the output equal to the capacitor voltage.</p>
+<figure>
+<svg viewBox="0 0 640 230" class="fig" role="img" aria-label="Sample-and-hold: the held output (amber) jumps to the input at each sample instant and stays constant while the conversion runs">
+<line class="grid" x1="70" y1="15" x2="70" y2="185"/>
+<text class="tk" x="70" y="201" text-anchor="middle">0</text>
+<line class="grid" x1="206.2" y1="15" x2="206.2" y2="185"/>
+<text class="tk" x="206.2" y="201" text-anchor="middle">0.25</text>
+<line class="grid" x1="342.5" y1="15" x2="342.5" y2="185"/>
+<text class="tk" x="342.5" y="201" text-anchor="middle">0.5</text>
+<line class="grid" x1="478.8" y1="15" x2="478.8" y2="185"/>
+<text class="tk" x="478.8" y="201" text-anchor="middle">0.75</text>
+<line class="grid" x1="615" y1="15" x2="615" y2="185"/>
+<text class="tk" x="615" y="201" text-anchor="middle">1</text>
+<line class="grid" x1="70" y1="170.8" x2="615" y2="170.8"/>
+<text class="tk" x="64" y="174.8" text-anchor="end">-1</text>
+<line class="grid" x1="70" y1="100" x2="615" y2="100"/>
+<text class="tk" x="64" y="104" text-anchor="end">0</text>
+<line class="grid" x1="70" y1="29.2" x2="615" y2="29.2"/>
+<text class="tk" x="64" y="33.2" text-anchor="end">1</text>
+<rect class="frame" x="70" y="15" width="545" height="170"/>
+<text class="lab" x="342.5" y="221" text-anchor="middle">time (one signal period)</text>
+<text class="lab" x="16" y="100" text-anchor="middle" transform="rotate(-90 16 100)">voltage</text>
+<polyline class="ln c1" points="70,100 71.4,98.9 72.7,97.8 74.1,96.7 75.5,95.6 76.8,94.4 78.2,93.3 79.5,92.2 80.9,91.1 82.3,90 83.6,88.9 85,87.8 86.3,86.7 87.7,85.6 89.1,84.5 90.4,83.5 91.8,82.4 93.2,81.3 94.5,80.2 95.9,79.2 97.2,78.1 98.6,77.1 100,76 101.3,75 102.7,73.9 104.1,72.9 105.4,71.9 106.8,70.9 108.2,69.8 109.5,68.8 110.9,67.8 112.2,66.9 113.6,65.9 115,64.9 116.3,63.9 117.7,63 119,62 120.4,61.1 121.8,60.2 123.1,59.3 124.5,58.4 125.9,57.5 127.2,56.6 128.6,55.7 129.9,54.8 131.3,54 132.7,53.2 134,52.3 135.4,51.5 136.8,50.7 138.1,49.9 139.5,49.1 140.9,48.4 142.2,47.6 143.6,46.9 144.9,46.1 146.3,45.4 147.7,44.7 149,44 150.4,43.4 151.8,42.7 153.1,42 154.5,41.4 155.8,40.8 157.2,40.2 158.6,39.6 159.9,39 161.3,38.5 162.7,37.9 164,37.4 165.4,36.9 166.7,36.4 168.1,35.9 169.5,35.4 170.8,35 172.2,34.6 173.6,34.1 174.9,33.7 176.3,33.4 177.6,33 179,32.6 180.4,32.3 181.7,32 183.1,31.7 184.4,31.4 185.8,31.1 187.2,30.9 188.5,30.6 189.9,30.4 191.3,30.2 192.6,30 194,29.9 195.4,29.7 196.7,29.6 198.1,29.5 199.4,29.4 200.8,29.3 202.2,29.2 203.5,29.2 204.9,29.2 206.2,29.2 207.6,29.2 209,29.2 210.3,29.2 211.7,29.3 213.1,29.4 214.4,29.5 215.8,29.6 217.2,29.7 218.5,29.9 219.9,30 221.2,30.2 222.6,30.4 224,30.6 225.3,30.9 226.7,31.1 228,31.4 229.4,31.7 230.8,32 232.1,32.3 233.5,32.6 234.9,33 236.2,33.4 237.6,33.7 238.9,34.1 240.3,34.6 241.7,35 243,35.4 244.4,35.9 245.8,36.4 247.1,36.9 248.5,37.4 249.8,37.9 251.2,38.5 252.6,39 253.9,39.6 255.3,40.2 256.7,40.8 258,41.4 259.4,42 260.8,42.7 262.1,43.4 263.5,44 264.8,44.7 266.2,45.4 267.6,46.1 268.9,46.9 270.3,47.6 271.6,48.4 273,49.1 274.4,49.9 275.7,50.7 277.1,51.5 278.5,52.3 279.8,53.2 281.2,54 282.6,54.8 283.9,55.7 285.3,56.6 286.6,57.5 288,58.4 289.4,59.3 290.7,60.2 292.1,61.1 293.4,62 294.8,63 296.2,63.9 297.5,64.9 298.9,65.9 300.3,66.9 301.6,67.8 303,68.8 304.4,69.8 305.7,70.9 307.1,71.9 308.4,72.9 309.8,73.9 311.2,75 312.5,76 313.9,77.1 315.2,78.1 316.6,79.2 318,80.2 319.3,81.3 320.7,82.4 322.1,83.5 323.4,84.5 324.8,85.6 326.1,86.7 327.5,87.8 328.9,88.9 330.2,90 331.6,91.1 333,92.2 334.3,93.3 335.7,94.4 337.1,95.6 338.4,96.7 339.8,97.8 341.1,98.9 342.5,100 343.9,101.1 345.2,102.2 346.6,103.3 347.9,104.4 349.3,105.6 350.7,106.7 352,107.8 353.4,108.9 354.8,110 356.1,111.1 357.5,112.2 358.9,113.3 360.2,114.4 361.6,115.5 362.9,116.5 364.3,117.6 365.7,118.7 367,119.8 368.4,120.8 369.8,121.9 371.1,122.9 372.5,124 373.8,125 375.2,126.1 376.6,127.1 377.9,128.1 379.3,129.1 380.6,130.2 382,131.2 383.4,132.2 384.7,133.1 386.1,134.1 387.5,135.1 388.8,136.1 390.2,137 391.6,138 392.9,138.9 394.3,139.8 395.6,140.7 397,141.6 398.4,142.5 399.7,143.4 401.1,144.3 402.4,145.2 403.8,146 405.2,146.8 406.5,147.7 407.9,148.5 409.3,149.3 410.6,150.1 412,150.9 413.4,151.6 414.7,152.4 416.1,153.1 417.4,153.9 418.8,154.6 420.2,155.3 421.5,156 422.9,156.6 424.2,157.3 425.6,158 427,158.6 428.3,159.2 429.7,159.8 431.1,160.4 432.4,161 433.8,161.5 435.2,162.1 436.5,162.6 437.9,163.1 439.2,163.6 440.6,164.1 442,164.6 443.3,165 444.7,165.4 446,165.9 447.4,166.3 448.8,166.6 450.1,167 451.5,167.4 452.9,167.7 454.2,168 455.6,168.3 456.9,168.6 458.3,168.9 459.7,169.1 461,169.4 462.4,169.6 463.8,169.8 465.1,170 466.5,170.1 467.8,170.3 469.2,170.4 470.6,170.5 471.9,170.6 473.3,170.7 474.7,170.8 476,170.8 477.4,170.8 478.8,170.8 480.1,170.8 481.5,170.8 482.8,170.8 484.2,170.7 485.6,170.6 486.9,170.5 488.3,170.4 489.7,170.3 491,170.1 492.4,170 493.7,169.8 495.1,169.6 496.5,169.4 497.8,169.1 499.2,168.9 500.6,168.6 501.9,168.3 503.3,168 504.6,167.7 506,167.4 507.4,167 508.7,166.6 510.1,166.3 511.5,165.9 512.8,165.4 514.2,165 515.5,164.6 516.9,164.1 518.3,163.6 519.6,163.1 521,162.6 522.3,162.1 523.7,161.5 525.1,161 526.4,160.4 527.8,159.8 529.2,159.2 530.5,158.6 531.9,158 533.2,157.3 534.6,156.6 536,156 537.3,155.3 538.7,154.6 540.1,153.9 541.4,153.1 542.8,152.4 544.1,151.6 545.5,150.9 546.9,150.1 548.2,149.3 549.6,148.5 551,147.7 552.3,146.8 553.7,146 555,145.2 556.4,144.3 557.8,143.4 559.1,142.5 560.5,141.6 561.9,140.7 563.2,139.8 564.6,138.9 566,138 567.3,137 568.7,136.1 570,135.1 571.4,134.1 572.8,133.1 574.1,132.2 575.5,131.2 576.9,130.2 578.2,129.1 579.6,128.1 580.9,127.1 582.3,126.1 583.7,125 585,124 586.4,122.9 587.8,121.9 589.1,120.8 590.5,119.8 591.8,118.7 593.2,117.6 594.6,116.5 595.9,115.5 597.3,114.4 598.6,113.3 600,112.2 601.4,111.1 602.7,110 604.1,108.9 605.5,107.8 606.8,106.7 608.2,105.6 609.5,104.4 610.9,103.3 612.3,102.2 613.6,101.1 615,100"/>
+<circle class="c3f" cx="70" cy="100" r="3"/>
+<circle class="c3f" cx="124.5" cy="58.4" r="3"/>
+<circle class="c3f" cx="179" cy="32.6" r="3"/>
+<circle class="c3f" cx="233.5" cy="32.6" r="3"/>
+<circle class="c3f" cx="288" cy="58.4" r="3"/>
+<circle class="c3f" cx="342.5" cy="100" r="3"/>
+<circle class="c3f" cx="397" cy="141.6" r="3"/>
+<circle class="c3f" cx="451.5" cy="167.4" r="3"/>
+<circle class="c3f" cx="506" cy="167.4" r="3"/>
+<circle class="c3f" cx="560.5" cy="141.6" r="3"/>
+<polyline class="ln c3" points="70,100 124.5,100 124.5,58.4 179,58.4 179,32.6 233.5,32.6 233.5,32.6 288,32.6 288,58.4 342.5,58.4 342.5,100 397,100 397,141.6 451.5,141.6 451.5,167.4 506,167.4 506,167.4 560.5,167.4 560.5,141.6 615,141.6"/>
+</svg>
+<figcaption><b>Figure 1.3</b> Input signal and the held voltage the converter sees.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.3:</b> At each sample instant (dots) the held value (amber) jumps to the input (teal) and then stays flat for the conversion.</p>
+
+<h3 id="s-adc-sampling">Sampling modes and specifications</h3>
+<p><strong>One-shot</strong> conversions suit occasional readings (the current temperature). <strong>Continuous</strong> conversion samples at a fixed rate (audio, signal processing), with the Nyquist limit: sample faster than twice the highest frequency. A timer supplies the sample clock and DMA usually stores the results in an array. One ADC can read several channels through a <strong>multiplexer</strong>, one channel at a time.</p>
+<p>Datasheets give the resolution, the maximum conversion rate (samples per second, SPS) and the non-linearity in LSB. High-speed ADCs exceed 10 MSPS; high-precision ADCs exceed 16 bits.</p>
+</section>
+
+<section id="stm-adc">
+<h2><span class="n">02</span>The STM32F407 ADC</h2>
+<p class="reading"><b>Reading</b> Lecture 22, slides 18 to 23</p>
+<ul>
+<li>Three 12-bit SAR ADCs, 19 multiplexed channels: 16 external, the internal temperature sensor, internal \(V_{REF}\) and \(V_{BAT}\).</li>
+<li>Resolution 12, 10, 8 or 6 bits; single or continuous mode; automatic scan of a channel sequence; trigger from timers or external sources; DMA request after each conversion.</li>
+<li>External channels: 0 to 7 on PA0 to PA7, 8 and 9 on PB0 and PB1, 10 to 15 on PC0 to PC5.</li>
+<li>The ADC clock comes from APB2, divided by 2, 4, 6 or 8. Conversion time is a selectable sampling time plus a fixed number of cycles set by the resolution. The minimums are 3 + 12 = 15 ADCCLK cycles (12 bits), 13 (10 bits), 11 (8 bits) and 9 (6 bits).</li>
+</ul>
+<div class="eq"><span class="tag">Conversion time</span>\[ t_{conv} = \frac{n_{sample} + N}{f_{ADCCLK}}, \qquad f_{ADCCLK} = \frac{f_{APB2}}{2, 4, 6 \text{ or } 8} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(t_{conv}\)</dt><dd>Time for one conversion (s).</dd>
+  <dt>\(n_{sample}\)</dt><dd>Sampling time in ADC clock cycles, at least 3.</dd>
+  <dt>\(N\)</dt><dd>Resolution in bits, which is also the number of SAR cycles.</dd>
+  <dt>\(f_{ADCCLK}\)</dt><dd>ADC clock (Hz).</dd>
+  <dt>\(f_{APB2}\)</dt><dd>APB2 peripheral clock (Hz).</dd>
+</dl>
+</div>
+<p><strong>Channel selection</strong> is a sequence of up to 16 entries. With SCAN = 0 only the first entry is converted; with SCAN = 1 the whole sequence. There is only one data register, so scan mode almost always uses DMA so results are not overwritten.</p>
+<p><strong>CONT = 1</strong> starts a new conversion (or sequence) as soon as the last finishes, as fast as the ADC can go, so the program can read the latest value without waiting. An <strong>injected</strong> group can interrupt the regular sequence for a one-off conversion. Without CONT, a conversion starts from software (a bit in the control register) or from a timer event (update/TRGO or a compare channel), which gives a fixed sample rate.</p>
+<div class="tbl"><table><thead><tr><th>Scenario</th><th>Continuous</th><th>Scan</th><th>DMA</th><th>Timer trigger</th></tr></thead><tbody>
+<tr><td>One sensor, once a second</td><td>No</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>Two sensors, once a second</td><td>No</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>Latest value always ready, one channel</td><td>Yes</td><td>No</td><td>Possibly</td><td>No</td></tr>
+<tr><td>Latest values, several channels</td><td>Yes</td><td>Yes</td><td>Possibly</td><td>No</td></tr>
+<tr><td>Sample at exactly X Hz</td><td>No</td><td>Yes or no</td><td>Yes</td><td>Yes</td></tr>
+</tbody></table></div>
+<div class="ex"><div class="hd">Worked example 2.1 <span>maximum sample rate</span></div><div class="bd">
+<p>APB2 is 84 MHz and the ADC prescaler is 4. Find the shortest 12-bit conversion time and the sample rate, and the rate at 6 bits.</p>
+<div class="step"><i>1</i><div>\(f_{ADCCLK} = 84/4 = 21\) MHz.</div></div>
+<div class="step"><i>2</i><div>12 bits: \(15/21\text{ MHz} = 714\) ns, so 1.4 MSPS.</div></div>
+<div class="step"><i>3</i><div>6 bits: \(21\text{ MHz}/9 = 2.33\) MSPS.</div></div>
+<div class="ans">714 ns and 1.4 MSPS at 12 bits; 2.33 MSPS at 6 bits. Lower resolution buys speed.</div>
+</div></div>
+</section>
+
+<section id="s-dac">
+<h2><span class="n">03</span>Digital-to-analog conversion</h2>
+<p class="reading"><b>Reading</b> Lecture 23, slides 2 to 9</p>
+<p>A <strong>DAC</strong> does the reverse: a number in, a voltage out. A stream of numbers becomes a time-varying signal, used for audio output, software-defined radio and variable-speed motor control. The ideal DAC has the same linear relationship:</p>
+<div class="eq"><span class="tag">DAC output</span>\[ V_{OUT} = V_{REF-} + \frac{R\,(V_{REF+} - V_{REF-})}{2^N - 1} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(V_{OUT}\)</dt><dd>Output voltage (V).</dd>
+  <dt>\(R\)</dt><dd>Digital input value, 0 to \(2^N - 1\).</dd>
+  <dt>\(V_{REF-}, V_{REF+}\)</dt><dd>Output for \(R = 0\) and for \(R = 2^N - 1\) (V).</dd>
+  <dt>\(N\)</dt><dd>Resolution (bits).</dd>
+</dl>
+</div>
+
+<h3 id="s-dac-bw">Binary-weighted and R-2R</h3>
+<p>The <strong>binary-weighted resistor DAC</strong> uses an inverting summing op-amp. Each input's gain is \(-R_f/R_i\), so choosing the resistors as \(R, 2R, 4R, \ldots\) weights each bit by its binary value. Each bit switches its input between 0 V and \(V_{ref}\).</p>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Binary-weighted resistor DAC: four switched inputs through R, 2R, 4R and 8R into an inverting summing amplifier with feedback resistor Rf">
+<polygon class="ln c4 hollow" points="380,100 380,160 440,130"/>
+<text class="lab" x="386" y="120" text-anchor="start">−</text>
+<text class="lab" x="386" y="150" text-anchor="start">+</text>
+<text class="tk" x="40" y="44" text-anchor="start">b3 (MSB)</text>
+<circle class="hollow ln c4" cx="110" cy="40" r="3.5"/>
+<polyline class="ln c4" points="110,40 152,40 156.7,33 166,47 175.3,33 184.7,47 194,33 203.3,47 208,40 250,40"/>
+<text class="lab" x="180" y="28" text-anchor="middle">R</text>
+<polyline class="ln c4" points="250,40 330,40"/>
+<text class="tk" x="40" y="84" text-anchor="start">b2</text>
+<circle class="hollow ln c4" cx="110" cy="80" r="3.5"/>
+<polyline class="ln c4" points="110,80 152,80 156.7,73 166,87 175.3,73 184.7,87 194,73 203.3,87 208,80 250,80"/>
+<text class="lab" x="180" y="68" text-anchor="middle">2R</text>
+<polyline class="ln c4" points="250,80 330,80"/>
+<text class="tk" x="40" y="124" text-anchor="start">b1</text>
+<circle class="hollow ln c4" cx="110" cy="120" r="3.5"/>
+<polyline class="ln c4" points="110,120 152,120 156.7,113 166,127 175.3,113 184.7,127 194,113 203.3,127 208,120 250,120"/>
+<text class="lab" x="180" y="108" text-anchor="middle">4R</text>
+<polyline class="ln c4" points="250,120 330,120"/>
+<text class="tk" x="40" y="164" text-anchor="start">b0</text>
+<circle class="hollow ln c4" cx="110" cy="160" r="3.5"/>
+<polyline class="ln c4" points="110,160 152,160 156.7,153 166,167 175.3,153 184.7,167 194,153 203.3,167 208,160 250,160"/>
+<text class="lab" x="180" y="148" text-anchor="middle">8R</text>
+<polyline class="ln c4" points="250,160 330,160"/>
+<polyline class="ln c4" points="330,40 330,160"/>
+<polyline class="ln c4" points="330,115 380,115"/>
+<circle class="c4f" cx="330" cy="40" r="2.6"/>
+<circle class="c4f" cx="330" cy="80" r="2.6"/>
+<circle class="c4f" cx="330" cy="120" r="2.6"/>
+<circle class="c4f" cx="330" cy="160" r="2.6"/>
+<polyline class="ln c4" points="380,145 360,145 360,200"/>
+<polyline class="ln c4" points="360,200 360,206"/>
+<polyline class="ln c4" points="351,206 369,206"/>
+<polyline class="ln c4" points="355,210 365,210"/>
+<polyline class="ln c4" points="358,214 362,214"/>
+<polyline class="ln c4" points="330,40 330,20 440,20"/>
+<polyline class="ln c4" points="440,20 458,20 460,13 464,27 468,13 472,27 476,13 480,27 482,20 500,20"/>
+<text class="lab" x="470" y="8" text-anchor="middle">R<tspan dy="3" font-size="75%">f</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="500,20 500,130"/>
+<polyline class="ln c4" points="440,130 560,130"/>
+<circle class="hollow ln c4" cx="560" cy="130" r="3.5"/>
+<text class="lab" x="568" y="134" text-anchor="start">V<tspan dy="3" font-size="75%">OUT</tspan><tspan dy="-3"> </tspan></text>
+<circle class="c4f" cx="500" cy="130" r="2.6"/>
+<text class="tk" x="40" y="245" text-anchor="start">each input is 0 V or V<tspan dy="3" font-size="75%">ref</tspan><tspan dy="-3"> </tspan>, set by one bit of the number</text>
+</svg>
+<figcaption><b>Figure 3.1</b> A 4-bit binary-weighted resistor DAC.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> The MSB feeds through \(R\), so it contributes the most current into the virtual-earth node; each lower bit's resistor is double the one above, halving its contribution. All the currents flow through \(R_f\), so the output is their weighted sum, inverted.</p>
+<div class="eq"><span class="tag">Binary-weighted DAC</span>\[ V_{out} = -R_f\left(\frac{V_1}{R} + \frac{V_2}{2R} + \frac{V_3}{4R} + \cdots + \frac{V_n}{2^{n-1}R}\right) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(V_{out}\)</dt><dd>Output voltage (V), negative because the amplifier inverts.</dd>
+  <dt>\(R_f\)</dt><dd>Feedback resistor (Ω).</dd>
+  <dt>\(V_1 \ldots V_n\)</dt><dd>Bit voltages, 0 or \(V_{ref}\); \(V_1\) is the MSB (V).</dd>
+  <dt>\(R\)</dt><dd>Resistor of the MSB input (Ω).</dd>
+</dl>
+</div>
+<p>With \(R_f = R/2\) this gives \(V_{out} = -V_{ref} \times \text{value}/2^N\).</p>
+<div class="ex"><div class="hd">Worked example 3.1 <span>a 4-bit binary-weighted DAC</span></div><div class="bd">
+<p>\(V_{ref} = 3.3\) V, \(R_f = 0.5R\). Find \(V_{out}\) for the input 1101<sub>2</sub> = 13.</p>
+<div class="step"><i>1</i><div>\(V_1 = 3.3, V_2 = 3.3, V_3 = 0, V_4 = 3.3\) V.</div></div>
+<div class="step"><i>2</i><div>\[ V_{out} = -0.5R\left(\frac{3.3}{R} + \frac{3.3}{2R} + \frac{3.3}{8R}\right) = -0.5 \times 3.3 \times 1.625 \]</div></div>
+<div class="step"><i>3</i><div>\(V_{out} = -2.681\) V. Check: \(-3.3 \times 13/16 = -2.681\) V.</div></div>
+<div class="ans">−2.681 V.</div>
+</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>The binary-weighted circuit divides by \(2^N\) (full scale is \(15/16\) of \(V_{ref}\) for 4 bits), while the ideal DAC formula divides by \(2^N - 1\). Use the formula that matches the question: circuit questions use the summing formula.</p></div>
+<p>Drawbacks: many different resistor values over a wide range (each double the last), and resistor tolerances cause inaccuracy. The <strong>R-2R ladder</strong> still uses an inverting summing amplifier but needs only two values, \(R\) and \(2R\), with the same end result.</p>
+
+<h3 id="s-dac-pwm">PWM DAC</h3>
+<p>Not every microcontroller has a DAC, but most have timers with PWM (Week 6). Set the duty cycle to the value to convert (CCR = the number), and the <em>average</em> of the PWM output is the analog value. For a changing signal, load a new CCR every time the timer overflows, using DMA. A low-pass filter averages the PWM into a smooth voltage: a simple RC filter works, but a higher-order filter is better.</p>
+<div class="ex"><div class="hd">Worked example 3.2 <span>PWM DAC resolution against frequency</span></div><div class="bd">
+<p>A timer at 84 MHz (no prescaler) makes a 12-bit PWM DAC (ARR + 1 = 4096). What is the PWM frequency, and is an RC filter with \(R = 1.6\) kΩ, \(C = 100\) nF suitable?</p>
+<div class="step"><i>1</i><div>\(f_{PWM} = 84\text{ MHz}/4096 = 20.5\) kHz.</div></div>
+<div class="step"><i>2</i><div>\(f_c = 1/(2\pi R C) = 1/(2\pi \times 1600 \times 100 \times 10^{-9}) = 995\) Hz.</div></div>
+<div class="ans">20.5 kHz PWM, filtered at about 1 kHz: the carrier is 20 times the cutoff, so a first-order filter passes slow signals but leaves some ripple; an 8-bit DAC (256 steps) would run at 328 kHz and filter far more easily.</div>
+</div></div>
+</section>
+
+<section id="audio">
+<h2><span class="n">04</span>Audio, I2S and PCM</h2>
+<p class="reading"><b>Reading</b> Lecture 23, slides 10 to 16</p>
+<p>Sound is a pressure wave in a medium; an audio signal is that wave as a voltage. Audible frequencies run from 20 Hz to 20 kHz, so by Nyquist good digital audio is sampled above 40 kHz. Mono has one channel, stereo two (left and right), with samples interleaved. The chain is microphone, signal conditioning, ADC, microcontroller or DSP, DAC (or I2S to an audio DAC), amplifier, loudspeaker.</p>
+<p><strong>PCM (pulse code modulation)</strong> samples at uniform intervals and quantises each sample to an integer: for example 16-bit 44.1 kHz, 24-bit 96 kHz or 24-bit 192 kHz. Audio PCM values are <strong>signed, two's complement</strong>, centred on zero.</p>
+<p><strong>I2S (Integrated Inter-IC Sound)</strong>, also from Philips/NXP, is a serial bus for digital audio between audio ADCs, DACs and processors. It is <em>not</em> I2C. It has three lines:</p>
+<ul>
+<li><strong>SCK</strong>, the serial clock (on STM32 the SPI SCK pin);</li>
+<li><strong>WS</strong>, word select: 0 = left, 1 = right. It runs \(n\) times slower than SCK, where \(n\) is the bits per sample (on STM32 the hardware NSS pin);</li>
+<li><strong>SD</strong>, serial data, MSB first; the sample length is not fixed by the standard (on STM32 the MOSI pin).</li>
+</ul>
+<p>Because it is so like SPI, ST uses the same peripheral for both.</p>
+<figure>
+<svg viewBox="0 0 640 200" class="fig" role="img" aria-label="I2S timing: serial clock, word select low for the left channel and high for the right, serial data MSB first, changing one clock after WS">
+<polyline class="ln c4" points="80,50 88,50 88,30 96,30 96,50 104,50 104,30 112,30 112,50 120,50 120,30 128,30 128,50 136,50 136,30 144,30 144,50 152,50 152,30 160,30 160,50 168,50 168,30 176,30 176,50 184,50 184,30 192,30 192,50 200,50 200,30 208,30 208,50 216,50 216,30 224,30 224,50 232,50 232,30 240,30 240,50 248,50 248,30 256,30 256,50 264,50 264,30 272,30 272,50 280,50 280,30 288,30 288,50 296,50 296,30 304,30 304,50 312,50 312,30 320,30 320,50 328,50 328,30 336,30 336,50 344,50 344,30 352,30 352,50 360,50 360,30 368,30 368,50 376,50 376,30 384,30 384,50 392,50 392,30 400,30 400,50 408,50 408,30 416,30 416,50 424,50 424,30 432,30 432,50 440,50 440,30 448,30 448,50 456,50 456,30 464,30 464,50 472,50 472,30 480,30 480,50 488,50 488,30 496,30 496,50 504,50 504,30 512,30 512,50 520,50 520,30 528,30 528,50 536,50 536,30 544,30 544,50 552,50 552,30 560,30 560,50 568,50 568,30 576,30 576,50 584,50 584,30 592,30"/>
+<text class="lab" x="72" y="44" text-anchor="end">SCK</text>
+<polyline class="ln c3" points="64,85 80,85 80,105 96,105 112,105 128,105 144,105 160,105 176,105 192,105 208,105 224,105 240,105 256,105 272,105 288,105 304,105 320,105 336,105 336,85 352,85 368,85 384,85 400,85 416,85 432,85 448,85 464,85 480,85 496,85 512,85 528,85 544,85 560,85 576,85 576,105 592,105"/>
+<text class="lab" x="72" y="99" text-anchor="end">WS</text>
+<polyline class="ln c4 thin" points="80,148 96,148"/>
+<polyline class="ln c4" points="96,148 100,136 348,136 352,148 348,160 100,160 96,148"/>
+<text class="tk" x="224" y="152" text-anchor="middle">left sample, MSB … LSB</text>
+<polyline class="ln c4" points="352,148 356,136 588,136 592,148 588,160 356,160 352,148"/>
+<text class="tk" x="472" y="152" text-anchor="middle">right sample, MSB … LSB</text>
+<text class="lab" x="72" y="152" text-anchor="end">SD</text>
+<text class="tk" x="208" y="80" text-anchor="middle">WS = 0: left</text>
+<text class="tk" x="464" y="80" text-anchor="middle">WS = 1: right</text>
+<text class="tk" x="80" y="190" text-anchor="start">SD lags WS by one SCK period</text>
+</svg>
+<figcaption><b>Figure 4.1</b> One stereo frame on I2S.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.1:</b> WS (amber) is low for the left sample and high for the right. The data (SD) changes one clock after WS, so the MSB of each word follows the WS edge by one SCK period, and the LSB of the previous word sits in the first clock after the edge.</p>
+<div class="eq"><span class="tag">I2S clock rates</span>\[ f_{WS} = f_s \qquad f_{SCK} = n_{ch}\, n\, f_s \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(f_{WS}\)</dt><dd>Word select frequency, one cycle per stereo frame (Hz).</dd>
+  <dt>\(f_s\)</dt><dd>Sample rate (Hz).</dd>
+  <dt>\(f_{SCK}\)</dt><dd>Serial clock, also the bit rate (Hz).</dd>
+  <dt>\(n_{ch}\)</dt><dd>Channels, 2 for stereo.</dd>
+  <dt>\(n\)</dt><dd>Bits per sample.</dd>
+</dl>
+</div>
+<p>CD audio (16-bit, 44.1 kHz stereo): \(f_{SCK} = 2 \times 16 \times 44\,100 = 1.4112\) MHz.</p>
+</section>
+
+<section id="cond">
+<h2><span class="n">05</span>Signal conditioning</h2>
+<p class="reading"><b>Reading</b> Lecture 23, slides 17 to 20</p>
+<p>A microcontroller ADC only accepts 0 V to \(V_{DD}\): it cannot convert negative voltages, and a small signal uses only a few LSB of the range, giving poor precision (the same applies to a DAC's output). <strong>Signal conditioning</strong> scales and shifts the signal to fill the range, usually with an op-amp giving \(V_{out} = m V_{in} + b\).</p>
+<p>The slides use TI's SLOA097 recipe for positive \(m\) and positive \(b\):</p>
+<figure>
+<svg viewBox="0 0 640 260" class="fig" role="img" aria-label="Gain and offset circuit for positive m and b: R1 from Vin and R2 from Vref form the non-inverting input; Rf and Rg set the gain">
+<polygon class="ln c4 hollow" points="360,80 360,140 420,110"/>
+<text class="lab" x="366" y="100" text-anchor="start">+</text>
+<text class="lab" x="366" y="130" text-anchor="start">−</text>
+<circle class="hollow ln c4" cx="60" cy="95" r="3.5"/>
+<text class="lab" x="52" y="99" text-anchor="end">V<tspan dy="3" font-size="75%">in</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="60,95 102,95 106.7,88 116,102 125.3,88 134.7,102 144,88 153.3,102 158,95 200,95"/>
+<text class="lab" x="130" y="83" text-anchor="middle">R<tspan dy="3" font-size="75%">1</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="200,95 360,95"/>
+<circle class="c4f" cx="240" cy="95" r="2.6"/>
+<polyline class="ln c4" points="240,95 240,129.5 247,133.3 233,141 247,148.7 233,156.3 247,164 233,171.7 240,175.5 240,210"/>
+<text class="lab" x="252" y="156.5" text-anchor="start">R<tspan dy="3" font-size="75%">2</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="240,210 60,210"/>
+<circle class="hollow ln c4" cx="60" cy="210" r="3.5"/>
+<text class="lab" x="52" y="214" text-anchor="end">V<tspan dy="3" font-size="75%">ref</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="360,125 330,125 330,170"/>
+<circle class="c4f" cx="330" cy="170" r="2.6"/>
+<polyline class="ln c4" points="330,170 330,191 337,193.3 323,198 337,202.7 323,207.3 337,212 323,216.7 330,219 330,240"/>
+<text class="lab" x="318" y="209" text-anchor="end">R<tspan dy="3" font-size="75%">g</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="330,240 330,246"/>
+<polyline class="ln c4" points="321,246 339,246"/>
+<polyline class="ln c4" points="325,250 335,250"/>
+<polyline class="ln c4" points="328,254 332,254"/>
+<polyline class="ln c4" points="330,170 400,170"/>
+<polyline class="ln c4" points="400,170 421,170 423.3,163 428,177 432.7,163 437.3,177 442,163 446.7,177 449,170 470,170"/>
+<text class="lab" x="435" y="192" text-anchor="middle">R<tspan dy="3" font-size="75%">f</tspan><tspan dy="-3"> </tspan></text>
+<polyline class="ln c4" points="470,170 480,170 480,110"/>
+<polyline class="ln c4" points="420,110 560,110"/>
+<circle class="c4f" cx="480" cy="110" r="2.6"/>
+<circle class="hollow ln c4" cx="560" cy="110" r="3.5"/>
+<text class="lab" x="568" y="114" text-anchor="start">V<tspan dy="3" font-size="75%">out</tspan><tspan dy="-3"> </tspan></text>
+</svg>
+<figcaption><b>Figure 5.1</b> Op-amp gain and offset stage for positive m and b.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 5.1:</b> \(R_1\) and \(R_2\) mix \(V_{in}\) and \(V_{ref}\) at the non-inverting input; \(R_f\) and \(R_g\) set the non-inverting gain \(1 + R_f/R_g\). Other combinations (negative gain, negative offset) use different circuits and formulas in the same application note.</p>
+<div class="eq"><span class="tag">Gain and offset, positive m and b</span>\[ R_2 = \frac{V_{ref}\, R_1\, m}{b} \qquad R_g = \frac{R_2\, R_f}{m\,(R_1 + R_2) - R_2} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(R_1\)</dt><dd>Input resistor, chosen first (Ω).</dd>
+  <dt>\(R_2\)</dt><dd>Resistor from the reference (Ω).</dd>
+  <dt>\(V_{ref}\)</dt><dd>Reference voltage used for the offset (V).</dd>
+  <dt>\(m\)</dt><dd>Desired gain.</dd>
+  <dt>\(b\)</dt><dd>Desired offset (V).</dd>
+  <dt>\(R_f\)</dt><dd>Feedback resistor, chosen (Ω).</dd>
+  <dt>\(R_g\)</dt><dd>Gain resistor to ground (Ω).</dd>
+</dl>
+</div>
+<div class="ex"><div class="hd">Worked example 5.1 <span>mapping 0 to 1 V onto 0.5 to 3.0 V</span></div><div class="bd">
+<p>A sensor gives 0 to 1 V. Map it to 0.5 to 3.0 V for a 3.3 V ADC using \(V_{ref} = 3.3\) V, \(R_1 = R_f = 10\) kΩ.</p>
+<div class="step"><i>1</i><div>\(m = (3.0 - 0.5)/(1 - 0) = 2.5\); \(b = 0.5\) V.</div></div>
+<div class="step"><i>2</i><div>\(R_2 = 3.3 \times 10\text{ k} \times 2.5/0.5 = 165\) kΩ.</div></div>
+<div class="step"><i>3</i><div>\(R_g = 165\text{ k} \times 10\text{ k}/(2.5 \times 175\text{ k} - 165\text{ k}) = 6.055\) kΩ.</div></div>
+<div class="step"><i>4</i><div>Check: \(V_+ = V_{in}\,\frac{165}{175} + 3.3 \times \frac{10}{175}\); times \(1 + 10/6.055 = 2.652\) gives 0.5 V at \(V_{in} = 0\) and 3.0 V at \(V_{in} = 1\) V.</div></div>
+<div class="ans">\(R_2 = 165\) kΩ, \(R_g = 6.055\) kΩ (use the nearest standard value and check the end points again).</div>
+</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>Not all op-amps are equal. A negative output needs a dual-rail supply, and outputs become non-linear near the supply rails, so design the gain and offset to keep the output away from them (which is why the example aims for 0.5 to 3.0 V, not 0 to 3.3 V). Read the datasheet and simulate in SPICE.</p></div>
+</section>
+
+<section id="cal">
+<h2><span class="n">06</span>ADC calibration</h2>
+<p class="reading"><b>Reading</b> Lecture 23, slides 21 to 24</p>
+<p>Combine the ADC formula with the sensor's transfer function to get the measured quantity from \(R\). For the MCP9700, \(T_A = (V_{OUT} - V_{0°C})/T_C\):</p>
+<div class="eq"><span class="tag">MCP9700 through an ADC</span>\[ T_A = \frac{R\,(V_{REF+} - V_{REF-})}{(2^N - 1)\,T_C} + \frac{V_{REF-} - V_{0°C}}{T_C} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(T_A\)</dt><dd>Ambient temperature (°C).</dd>
+  <dt>\(R\)</dt><dd>ADC reading.</dd>
+  <dt>\(V_{REF+}, V_{REF-}\)</dt><dd>ADC references (V).</dd>
+  <dt>\(N\)</dt><dd>ADC resolution (bits).</dd>
+  <dt>\(T_C\)</dt><dd>Sensor temperature coefficient, 0.01 V/°C.</dd>
+  <dt>\(V_{0°C}\)</dt><dd>Sensor output at 0 °C, 0.5 V.</dd>
+</dl>
+</div>
+<p>With 3.3 V, 0 V and 12 bits: \(T_A = 0.0806R - 50\).</p>
+<p>Real measurements are also affected by things outside the ADC: \(V_{REF} = V_{DD}\) may not be exactly 3.3 V, resistors have tolerances, there is offset, and each sensor differs a little. <strong>Calibration</strong> finds the equation and parameters that relate \(R\) to the true quantity. Measuring \(V_{ADC}\) with a voltmeter only fixes half the chain. Better: record many accurate measurements of the quantity itself together with the ADC reading, over the whole range, and <strong>fit</strong> the model to them (least squares).</p>
+<figure>
+<svg viewBox="0 0 640 270" class="fig" role="img" aria-label="Temperature against ADC value for the theoretical MCP9700 relationship and the least-squares calibrated line">
+<line class="grid" x1="70" y1="15" x2="70" y2="220"/>
+<text class="tk" x="70" y="236" text-anchor="middle">700</text>
+<line class="grid" x1="195.8" y1="15" x2="195.8" y2="220"/>
+<text class="tk" x="195.8" y="236" text-anchor="middle">1000</text>
+<line class="grid" x1="405.4" y1="15" x2="405.4" y2="220"/>
+<text class="tk" x="405.4" y="236" text-anchor="middle">1500</text>
+<line class="grid" x1="615" y1="15" x2="615" y2="220"/>
+<text class="tk" x="615" y="236" text-anchor="middle">2000</text>
+<line class="grid" x1="70" y1="220" x2="615" y2="220"/>
+<text class="tk" x="64" y="224" text-anchor="end">0</text>
+<line class="grid" x1="70" y1="185.8" x2="615" y2="185.8"/>
+<text class="tk" x="64" y="189.8" text-anchor="end">20</text>
+<line class="grid" x1="70" y1="151.7" x2="615" y2="151.7"/>
+<text class="tk" x="64" y="155.7" text-anchor="end">40</text>
+<line class="grid" x1="70" y1="117.5" x2="615" y2="117.5"/>
+<text class="tk" x="64" y="121.5" text-anchor="end">60</text>
+<line class="grid" x1="70" y1="83.3" x2="615" y2="83.3"/>
+<text class="tk" x="64" y="87.3" text-anchor="end">80</text>
+<line class="grid" x1="70" y1="49.2" x2="615" y2="49.2"/>
+<text class="tk" x="64" y="53.2" text-anchor="end">100</text>
+<line class="grid" x1="70" y1="15" x2="615" y2="15"/>
+<text class="tk" x="64" y="19" text-anchor="end">120</text>
+<rect class="frame" x="70" y="15" width="545" height="205"/>
+<text class="lab" x="342.5" y="256" text-anchor="middle">ADC value R</text>
+<text class="lab" x="16" y="117.5" text-anchor="middle" transform="rotate(-90 16 117.5)">temperature T<tspan dy="3" font-size="75%">A</tspan><tspan dy="-3"> </tspan> (°C)</text>
+<polyline class="ln c3 dash" points="70,209 615,30.1"/>
+<polyline class="ln c1" points="70,200.8 615,45.7"/>
+<circle class="c3f" cx="279.6" cy="140.2" r="4"/>
+<circle class="c1f" cx="279.6" cy="141.1" r="4"/>
+<text class="tk" x="483.2" y="63.4" text-anchor="end">theoretical</text>
+<text class="tk" x="535.2" y="89.6" text-anchor="start">calibrated</text>
+</svg>
+<figcaption><b>Figure 6.1</b> The theoretical and calibrated MCP9700 lines.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 6.1:</b> In the lecture's data the theoretical line (amber dashed) had a 5.15 °C (1σ) error. A first-order least-squares fit gave \(T_A = 0.06982R - 37.62854\) (teal), reducing the error to 1.23 °C (1σ). At \(R = 1200\) the two lines give 46.70 °C and 46.16 °C. A higher-order polynomial could do better still, and sometimes each device needs its own coefficients.</p>
+<div class="box exam"><span class="label">Exam</span><p>Expect to convert between \(R\) and voltage in both directions, to build a sensor equation like \(T_A = 0.0806R - 50\) from datasheet values, and to explain why and how a calibration fit improves on it.</p></div>
+</section>
+
+<section id="prac7">
+<h2><span class="n">07</span>Practical 7: SPI accelerometer</h2>
+<p class="reading"><b>Reading</b> Practical 7 lecture</p>
+<p>Practical 7 uses SPI (Week 8) to read the LIS3DSH accelerometer on the Discovery board, which only works in SPI mode. The SPI peripheral is configured in CubeMX to the sensor's clock mode, and the HAL blocking, interrupt or DMA functions do the transfers. Assignment 1 prints the readings to a serial terminal (Termite); assignment 2 modulates the board's LEDs (the slides show only the titles and photographs, so the details are in the practical instructions).</p>
+</section>
+
+<section id="practice">
+<h2><span class="n">08</span>Practice problems</h2>
+<div class="ex"><div class="hd">Problem 8.1 <span>reading for a temperature</span></div><div class="bd">
+<p>What 12-bit reading (0 to 3.3 V) does the MCP9700 give at 25 °C?</p>
+<div class="step"><i>1</i><div>\(V_{OUT} = 0.5 + 0.01 \times 25 = 0.75\) V.</div></div>
+<div class="step"><i>2</i><div>\(R = \lfloor 4095 \times 0.75/3.3 \rfloor = \lfloor 930.7 \rfloor = 930\).</div></div>
+<div class="ans">930.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 8.2 <span>precision</span></div><div class="bd">
+<p>What is one LSB for an 8-bit and a 12-bit ADC over 0 to 3.3 V?</p>
+<div class="step"><i>1</i><div>8-bit: \(3.3/255 = 12.94\) mV. 12-bit: \(3.3/4095 = 0.806\) mV.</div></div>
+<div class="ans">12.94 mV and 0.806 mV per LSB.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 8.3 <span>flash converter size</span></div><div class="bd">
+<p>How many comparators does an 8-bit flash ADC need?</p>
+<div class="step"><i>1</i><div>One per threshold between the 256 codes: \(2^8 - 1\).</div></div>
+<div class="ans">255 comparators (the slide's \(2^n\) gives 256).</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 8.4 <span>12-bit DAC</span></div><div class="bd">
+<p>A 12-bit DAC with references 0 V and 3.3 V gets \(R = 2048\). Find \(V_{OUT}\).</p>
+<div class="step"><i>1</i><div>\(V_{OUT} = 2048 \times 3.3/4095 = 1.650\) V.</div></div>
+<div class="ans">1.650 V, just above mid-scale.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 8.5 <span>I2S clocks</span></div><div class="bd">
+<p>Find WS and SCK for 24-bit, 96 kHz stereo audio.</p>
+<div class="step"><i>1</i><div>WS = 96 kHz; SCK \(= 2 \times 24 \times 96\,000 = 4.608\) MHz.</div></div>
+<div class="ans">96 kHz and 4.608 MHz.</div>
+</div></div>
+<div class="ex"><div class="hd">Problem 8.6 <span>calibrated against theoretical</span></div><div class="bd">
+<p>A reading of 1200 arrives. What temperature do the theoretical and calibrated equations give?</p>
+<div class="step"><i>1</i><div>Theoretical: \(0.080586 \times 1200 - 50 = 46.70\) °C.</div></div>
+<div class="step"><i>2</i><div>Calibrated: \(0.06982 \times 1200 - 37.62854 = 46.16\) °C.</div></div>
+<div class="ans">46.70 °C and 46.16 °C; trust the calibrated value, whose error was 1.23 °C (1σ) against 5.15 °C.</div>
+</div></div>
+</section>
+
+<section id="sheet">
+<h2><span class="n">09</span>Formula sheet</h2>
+<div class="sheet">
+<div><h4>ADC</h4>
+<p>\(R = \lfloor (2^N-1)(V_{IN}-V_{REF-})/(V_{REF+}-V_{REF-}) \rfloor\)</p>
+<p>1 LSB \(= (V_{REF+}-V_{REF-})/(2^N-1)\)</p>
+<p>Flash: \(2^N - 1\) comparators</p>
+<p>SAR: \(N\) steps, MSB first</p>
+</div>
+<div><h4>STM32F407 ADC</h4>
+<p>3 × 12-bit SAR, 19 channels</p>
+<p>ADCCLK = APB2/(2, 4, 6, 8)</p>
+<p>\(t_{conv} = (3 + N)\) cycles minimum</p>
+<p>SCAN: sequence; CONT: repeat; DMA for scan</p>
+</div>
+<div><h4>DAC</h4>
+<p>\(V_{OUT} = V_{REF-} + R(V_{REF+}-V_{REF-})/(2^N-1)\)</p>
+<p>Binary weighted: \(V_{out} = -R_f \sum V_i/(2^{i-1}R)\)</p>
+<p>PWM DAC: \(V = D\,V_{high}\), \(f_{PWM} = f_{timer}/2^N\)</p>
+</div>
+<div><h4>Audio, conditioning, calibration</h4>
+<p>\(f_s \gt 2 f_{max}\); \(f_{SCK} = n_{ch}\,n\,f_s\); WS 0 = left</p>
+<p>\(R_2 = V_{ref}R_1 m/b\), \(R_g = R_2R_f/(m(R_1+R_2)-R_2)\)</p>
+<p>MCP9700: \(T_A = 0.0806R - 50\) (12-bit, 3.3 V)</p>
+</div>
+</div>
+</section>
+
+<footer>
+<p>Sources: CS245 Lecture22 ADC.pdf, CS245 Lecture23 DAC.pdf (also in the Week 10 folder; covered only here), CS245 Practical 7 Lecture - SPI.pdf. The datasheet tables, error diagrams, ADC sample-time list, circuit schematics, I2S timing and calibration plots were read from the slide images. The calibration measurement data points are not given numerically on the slides, so Figure 6.1 shows only the two fitted lines. The PWM DAC graph on Lecture 23 slide 8 is unlabelled and was not used.</p>
+</footer>
+</main>
+</div>
+
+<script src="../../assets/ask-gemini.js" data-store="cs245-w9-theory" data-course="CS245 Computer Systems"
+        data-topic="Week 9: ADC formula and quantisation, LSB, offset/gain/INL/DNL, flash, dual-slope and SAR ADCs, sample-and-hold, STM32F407 ADC modes, DAC formula, binary-weighted and R-2R DACs, PWM DAC, audio, I2S, PCM, op-amp gain and offset, calibration"></script>
+</body>
+</html>

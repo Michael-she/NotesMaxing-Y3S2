@@ -404,6 +404,48 @@ window.NOTES_MANIFEST = {
      "week": 5,
      "track": "Theory",
      "href": "CS245-Computer-Systems/theory/week5.html"
+    },
+    {
+     "title": "Timers, output compare and PWM",
+     "week": 6,
+     "track": "Theory",
+     "href": "CS245-Computer-Systems/theory/CS245_Week06_theory_Notes_Timers-Output-Compare-and-PWM.html"
+    },
+    {
+     "title": "Serial communication: UART and I2C",
+     "week": 7,
+     "track": "Theory",
+     "href": "CS245-Computer-Systems/theory/CS245_Week07_theory_Notes_Serial-Communication-UART-and-I2C.html"
+    },
+    {
+     "title": "SPI, SD cards and direct memory access",
+     "week": 8,
+     "track": "Theory",
+     "href": "CS245-Computer-Systems/theory/CS245_Week08_theory_Notes_SPI-SD-Cards-and-DMA.html"
+    },
+    {
+     "title": "ADC, DAC, audio and calibration",
+     "week": 9,
+     "track": "Theory",
+     "href": "CS245-Computer-Systems/theory/CS245_Week09_theory_Notes_ADC-DAC-Audio-and-Calibration.html"
+    },
+    {
+     "title": "Actuation, displays and external memory",
+     "week": 10,
+     "track": "Theory",
+     "href": "CS245-Computer-Systems/theory/CS245_Week10_theory_Notes_Actuation-Displays-and-External-Memory.html"
+    },
+    {
+     "title": "Pull-ups, transmission lines and system design",
+     "week": 11,
+     "track": "Theory",
+     "href": "CS245-Computer-Systems/theory/CS245_Week11_theory_Notes_Pull-Ups-Transmission-Lines-System-Design.html"
+    },
+    {
+     "title": "System examples and A2 revision",
+     "week": 12,
+     "track": "Theory",
+     "href": "CS245-Computer-Systems/theory/CS245_Week12_theory_Notes_System-Examples-and-A2-Revision.html"
     }
    ],
    "exams": [
