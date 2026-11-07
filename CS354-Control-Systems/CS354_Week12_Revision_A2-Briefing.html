@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 12: A2 briefing · CS354 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=cs354">&larr; Control Systems</a>
+  <div class="k">CS354 · Week 12</div>
+  <ol>
+    <li><a href="#s1">1. The A2 paper</a></li>
+    <li><a href="#s2">2. How marks are given</a></li>
+    <li><a href="#s3">3. Term 4: state-space design</a></li>
+    <li class="sub"><a href="#s3-model">Model</a></li>
+    <li class="sub"><a href="#s3-reg">Control law, estimator, compensator</a></li>
+    <li class="sub"><a href="#s3-track">Tracking</a></li>
+    <li><a href="#s4">4. Term 4: digital control</a></li>
+    <li><a href="#s5">5. Practice problems</a></li>
+    <li><a href="#s6">6. Key points</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">CONTROL SYSTEMS 354 · TERM 4 FINAL LECTURE · A2 BRIEFING</div>
+  <h1>A2 Exam Briefing</h1>
+  <p class="lede">At the end of the last lecture the lecturers set out what the A2 paper looks like, how it is marked, and the term 4 work it adds: state-space design and digital control. This page records that briefing and shows, with new numbers, how an answer should be laid out to earn the method marks.</p>
+</header>
+
+<section id="s1">
+<h2><span class="n">01</span>The A2 paper</h2>
+<ul>
+<li><strong>Six questions, 100 marks.</strong></li>
+<li>Difficulty is <strong>similar to A1</strong>.</li>
+<li>Questions look like the <strong>class test (tutorial test) questions</strong>. A class test question checks one design or one performance measure. An A2 question may combine several concepts or several designs.</li>
+<li>Term 4 adds chapters 7 and 8: state-space theory and design, then digital control.</li>
+<li>The scope is the range of content in the tutorials and tutorial tests, all drawn from the chapters worked through. The textbook is the main resource.</li>
+</ul>
+<div class="box exam"><span class="label">Exam</span><p>The paper focuses on <strong>design</strong>. Chapters 1 to 3 will not be asked on their own, but the design questions assume you can get a transfer function from a differential equation, read the s-plane, and relate the frequency-response domain to the s-domain.</p></div>
+<div class="box watch"><span class="label">Not certain</span><p>Near the end of the recording someone says something like “40% … 60% …” about the split of the paper. The audio is too noisy to tell what the split refers to. Term 3 against term 4 is the likely reading, but confirm it before relying on it.</p></div>
+</section>
+
+<section id="s2">
+<h2><span class="n">02</span>How marks are given</h2>
+<p>Many marks are for the process. A correct final answer on its own will not earn full marks, and this cost marks in A1. The lecturer listed four habits.</p>
+<ol>
+<li><strong>Work from first principles.</strong> If you use a shortcut such as an error constant, show how it follows from the first-principles route.</li>
+<li><strong>Say where every equation comes from</strong>, and where every variable you substitute into it comes from.</li>
+<li><strong>Work in variable form first</strong>, then substitute the numbers as you go.</li>
+<li><strong>State what the result means.</strong> If the question asks whether a requirement is met, write the comparison with its symbol and say in words whether it passes.</li>
+</ol>
+<p>The lecturer's own example was steady-state error. Start from the final value theorem, build \(E(s)\) from \(R\) and \(Y\), replace \(Y\) with the closed-loop transfer function \(T\), and only then link the result to the error constant.</p>
+
+<div class="eq"><span class="tag">Steady-state error from first principles</span>\[ e_{ss} = \lim_{s\to0} sE(s), \qquad E(s) = R(s) - Y(s) = \bigl(1 - T(s)\bigr)R(s) \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(e_{ss}\)</dt><dd>Steady-state error: the error left as \(t \to \infty\) (units of the output).</dd>
+  <dt>\(E(s)\)</dt><dd>Laplace transform of the error signal \(e(t) = r(t) - y(t)\).</dd>
+  <dt>\(R(s)\)</dt><dd>Laplace transform of the reference input.</dd>
+  <dt>\(Y(s)\)</dt><dd>Laplace transform of the output.</dd>
+  <dt>\(T(s)\)</dt><dd>Closed-loop transfer function from \(R\) to \(Y\); for unity feedback \(T = G/(1+G)\).</dd>
+</dl>
+</div>
+
+<div class="ex"><div class="hd">Worked example 2.1 <span>a full-marks layout for a ramp-error check</span></div><div class="bd">
+<p>The plant \(G(s) = \dfrac{10}{s(s+2)}\) is in unity feedback. The specification asks for a steady-state error of at most 0.1 to a unit ramp. Is it met?</p>
+<div class="step"><i>1</i><div>Closed loop, unity feedback: \(T(s) = \dfrac{G}{1+G} = \dfrac{10}{s^2 + 2s + 10}\).</div></div>
+<div class="step"><i>2</i><div>Error: \(E(s) = \bigl(1 - T(s)\bigr)R(s)\) with the unit ramp \(R(s) = 1/s^2\), so
+\[ E(s) = \frac{s^2 + 2s}{s^2 + 2s + 10}\cdot\frac{1}{s^2} = \frac{s + 2}{s\,(s^2 + 2s + 10)} \]</div></div>
+<div class="step"><i>3</i><div>Final value theorem (the closed loop is stable, so it applies): \(e_{ss} = \lim_{s\to0} sE(s) = \dfrac{2}{10} = 0.2\).</div></div>
+<div class="step"><i>4</i><div>Link to the error constant: the loop is type 1, so \(e_{ss} = 1/K_v\) with \(K_v = \lim_{s\to0} sG(s) = 10/2 = 5\), giving \(1/5 = 0.2\). Both routes agree.</div></div>
+<div class="ans">\(e_{ss} = 0.2 \gt 0.1\), so the ramp-error requirement is <strong>not met</strong>.</div>
+</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>Step 4's last line is where marks were lost in A1: a number with no comparison and no conclusion does not answer “is it met?”.</p></div>
+</section>
+
+<section id="s3">
+<h2><span class="n">03</span>Term 4: state-space design</h2>
+<p>The second lecturer summarised term 4 as one design flow, illustrated with an inverted-pendulum example in which only the angle \(\theta\) is measured.</p>
+
+<h3 id="s3-model">Model</h3>
+<ol>
+<li>Physics gives a differential equation. Linearise it if it is non-linear; <strong>linearisation itself is not tested</strong>.</li>
+<li>Either arrange it into a state-variable model \((A, B, C, D)\), or Laplace-transform it into a transfer function. You must be able to convert between the two forms.</li>
+</ol>
+<div class="key"><span class="tag">Key idea</span><p>Different choices of state variables give different \((A, B, C, D)\), but converting any of them back gives the same transfer function. If yours differs, there is an error.</p></div>
+
+<h3 id="s3-reg">Control law, estimator, compensator</h3>
+<ol>
+<li><strong>Specifications to desired poles.</strong> Turn the specs into dominant poles and the desired characteristic equation.</li>
+<li><strong>Controllability check.</strong> The controllability matrix must have a non-zero determinant. Check observability the same way before designing an estimator.</li>
+<li><strong>Control law.</strong> Full-state feedback \(u = -\mathbf{K}x\). Expand \(\det(sI - A + B\mathbf{K})\) and match its coefficients with the desired characteristic equation.</li>
+<li><strong>Estimator.</strong> When not every state is measured, design a full-order estimator. Expand \(\det(sI - A + \mathbf{L}C)\) and match coefficients with the desired estimator equation.</li>
+<li><strong>Compensator.</strong> Combine the two. By the separation principle the closed-loop poles are the controller poles together with the estimator poles. Be able to recover the transfer function from \(R\) to \(Y\).</li>
+</ol>
+<div class="box exam"><span class="label">Exam</span><p>Place the estimator poles <strong>2 to 6 times faster</strong> (further left) than the controller poles. The pendulum example used 5 times.</p></div>
+
+<div class="ex"><div class="hd">Worked example 3.1 <span>controller and estimator characteristic equations</span></div><div class="bd">
+<p>A second-order plant must have dominant poles with \(\zeta = 0.707\) and \(\omega_n = 2\) rad/s. The estimator poles are to be 5 times faster. Find both desired characteristic equations.</p>
+<div class="step"><i>1</i><div>Controller poles: \(s = -\zeta\omega_n \pm j\omega_n\sqrt{1-\zeta^2} = -1.414 \pm j1.414\).</div></div>
+<div class="step"><i>2</i><div>Controller equation: \(s^2 + 2\zeta\omega_n s + \omega_n^2 = s^2 + 2.828s + 4\).</div></div>
+<div class="step"><i>3</i><div>Estimator poles, 5 times further out on the same \(\zeta\) line: \(\omega_n = 10\) rad/s, so \(s = -7.071 \pm j7.071\).</div></div>
+<div class="step"><i>4</i><div>Estimator equation: \(s^2 + 2(0.707)(10)s + 10^2 = s^2 + 14.14s + 100\).</div></div>
+<div class="ans">\(\alpha_c(s) = s^2 + 2.828s + 4\) for \(\mathbf{K}\); \(\alpha_e(s) = s^2 + 14.14s + 100\) for \(\mathbf{L}\).</div>
+</div></div>
+
+<h3 id="s3-track">Tracking</h3>
+<p>A regulator drives every state to zero. To make the output follow a reference instead, there are two ways.</p>
+<ol>
+<li><strong>Feedforward gain \(\bar N\).</strong> Scale the reference so the output reaches it. It is simple, but it relies on an exact model: an external disturbance or a model error leaves a steady-state error.</li>
+<li><strong>Integral control.</strong> Add an integrator on the error as an extra state, augment the model, and place the poles of the augmented system.</li>
+</ol>
+<div class="box exam"><span class="label">Exam</span><p>Put the extra integrator pole to the left of the dominant poles, but not too far. Too fast and the control effort becomes large and the actuator saturates easily.</p></div>
+</section>
+
+<section id="s4">
+<h2><span class="n">04</span>Term 4: digital control</h2>
+<ol>
+<li><strong>Design by emulation (the main route).</strong> Design the controller in continuous time, choose the sample period, then discretise it, for example with Tustin, and simplify to \(D(z)\). The lecturer's example was a PI controller whose zero was placed to cancel the slow plant pole, leaving only the gain to find from the specification.</li>
+<li><strong>Implementation.</strong> Write \(D(z) = U(z)/E(z)\), divide top and bottom by the highest power of \(z\) so everything is in negative powers, cross-multiply, and inverse z-transform to get the difference equation the computer runs.</li>
+<li><strong>ZOH equivalent model.</strong> Hold, plant and sampler combine into one z-domain transfer function. You will not derive it from scratch, but you must recognise it and <strong>use the formula if it is given</strong>.</li>
+<li><strong>Discretising a state-space compensator directly</strong> is a further route; awareness only.</li>
+</ol>
+
+<div class="eq"><span class="tag">Tustin (bilinear) substitution</span>\[ s \;\to\; \frac{2}{T}\,\frac{z-1}{z+1} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(s\)</dt><dd>Laplace variable of the continuous controller (1/s).</dd>
+  <dt>\(T\)</dt><dd>Sample period (s).</dd>
+  <dt>\(z\)</dt><dd>z-transform variable; \(z^{-1}\) is a delay of one sample.</dd>
+</dl>
+</div>
+
+<div class="ex"><div class="hd">Worked example 4.1 <span>PI controller to difference equation</span></div><div class="bd">
+<p>Implement \(D(s) = 2\,\dfrac{s+1}{s}\) with Tustin at \(T = 0.1\) s.</p>
+<div class="step"><i>1</i><div>\(2/T = 20\), so \(s \to 20\dfrac{z-1}{z+1}\).</div></div>
+<div class="step"><i>2</i><div>Substitute and multiply top and bottom by \(z+1\):
+\[ D(z) = 2\,\frac{20(z-1) + (z+1)}{20(z-1)} = \frac{2.1z - 1.9}{z - 1} \]</div></div>
+<div class="step"><i>3</i><div>Divide by \(z\): \(\dfrac{U(z)}{E(z)} = \dfrac{2.1 - 1.9z^{-1}}{1 - z^{-1}}\). Cross-multiply: \(U(z)(1 - z^{-1}) = E(z)(2.1 - 1.9z^{-1})\).</div></div>
+<div class="step"><i>4</i><div>Inverse z-transform (\(z^{-1}\) is one sample of delay).</div></div>
+<div class="ans">\(u[k] = u[k-1] + 2.1\,e[k] - 1.9\,e[k-1]\)</div>
+</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>Direct digital design (designing in the z-domain) was again named as something to be aware of, not something you will be asked to do. This matches the Week 12 notes.</p></div>
+</section>
+
+<section id="s5">
+<h2><span class="n">05</span>Practice problems</h2>
+
+<div class="ex"><div class="hd">Problem 5.1 <span>does it meet the spec?</span></div><div class="bd">
+<p>\(G(s) = \dfrac{20}{s(s+4)}\) is in unity feedback. The steady-state error to a unit ramp must be at most 0.25. Lay the answer out for full marks.</p>
+<div class="step"><i>1</i><div>\(T(s) = \dfrac{20}{s^2 + 4s + 20}\).</div></div>
+<div class="step"><i>2</i><div>\(E(s) = (1 - T)\dfrac{1}{s^2} = \dfrac{s + 4}{s\,(s^2 + 4s + 20)}\).</div></div>
+<div class="step"><i>3</i><div>\(e_{ss} = \lim_{s\to0} sE(s) = 4/20 = 0.2\). Check: \(K_v = \lim_{s\to0} sG = 5\), \(1/K_v = 0.2\).</div></div>
+<div class="ans">\(e_{ss} = 0.2 \lt 0.25\), so the requirement <strong>is met</strong>.</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 5.2 <span>estimator poles</span></div><div class="bd">
+<p>The controller poles are set by \(\zeta = 0.6\) and \(\omega_n = 3\) rad/s. Place the estimator poles 4 times faster and give the desired estimator characteristic equation.</p>
+<div class="step"><i>1</i><div>Controller poles: \(-1.8 \pm j2.4\).</div></div>
+<div class="step"><i>2</i><div>Four times further out: \(-7.2 \pm j9.6\), so \(\omega_n = 12\) rad/s with the same \(\zeta\).</div></div>
+<div class="ans">\(\alpha_e(s) = s^2 + 14.4s + 144\)</div>
+</div></div>
+
+<div class="ex"><div class="hd">Problem 5.3 <span>lead compensator to difference equation</span></div><div class="bd">
+<p>Implement \(D(s) = 4\,\dfrac{s+2}{s+8}\) with Tustin at \(T = 0.05\) s, and check the DC gain.</p>
+<div class="step"><i>1</i><div>\(2/T = 40\): \[ D(z) = 4\,\dfrac{40(z-1) + 2(z+1)}{40(z-1) + 8(z+1)} = \dfrac{168z - 152}{48z - 32} = \dfrac{3.5z - 3.167}{z - 0.6667} \]</div></div>
+<div class="step"><i>2</i><div>DC gain at \(z = 1\): \((3.5 - 3.167)/(1 - 0.6667) = 1.0\), equal to \(D(0) = 4 \times 2/8 = 1\).</div></div>
+<div class="step"><i>3</i><div>Divide by \(z\), cross-multiply and inverse transform.</div></div>
+<div class="ans">\(u[k] = 0.6667\,u[k-1] + 3.5\,e[k] - 3.167\,e[k-1]\)</div>
+</div></div>
+</section>
+
+<section id="s6">
+<h2><span class="n">06</span>Key points</h2>
+<div class="sheet">
+<div><h4>The paper</h4>
+<p>6 questions, 100 marks, A1 difficulty.</p>
+<p>Class-test style, but one question may combine several designs.</p>
+<p>Design-focused; chapters 1 to 3 only as tools.</p></div>
+<div><h4>Marking</h4>
+<p>First principles, then link to shortcuts.</p>
+<p>Say where each equation and value comes from.</p>
+<p>Variable form first, then numbers.</p>
+<p>Compare with the spec and conclude in words.</p></div>
+<div><h4>State space</h4>
+<p>\(\det(sI - A + B\mathbf{K}) = \alpha_c(s)\)</p>
+<p>\(\det(sI - A + \mathbf{L}C) = \alpha_e(s)\), estimator 2 to 6 times faster</p>
+<p>Closed-loop poles: controller and estimator poles together</p>
+<p>Integrator pole: left of dominant, not too far</p></div>
+<div><h4>Digital</h4>
+<p>Tustin: \(s \to \tfrac{2}{T}\tfrac{z-1}{z+1}\)</p>
+<p>Negative powers of \(z\), cross-multiply, inverse transform</p>
+<p>ZOH model: use the formula if given</p>
+<p>Direct digital design: awareness only</p></div>
+</div>
+</section>
+
+<footer>
+<p>Sources: the A2 breakdown recording from the last lecture (audio only, about 30 minutes, recorded 23 October 2026), transcribed automatically. The audio is noisy and parts could not be made out, mostly around the pendulum example and the closing questions; nothing on this page comes from those gaps. The slides shown in the lecture were not available, so the pendulum example's numbers are not reproduced. The lecturers also said A1 remark queries are now closed and the revised marking (question B6 was named) is done. Worked examples and practice problems use new numbers, checked by calculation.</p>
+</footer>
+</main>
+</div>
+
+<script src="../assets/ask-gemini.js" data-store="cs354-w12-revision" data-course="CS354 Control Systems"
+        data-topic="Week 12: A2 exam format and marking, first-principles steady-state error, state-space control law and estimator pole placement, feedforward and integral tracking, Tustin emulation and difference equations"></script>
+</body>
+</html>

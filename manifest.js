@@ -74,6 +74,12 @@ window.NOTES_MANIFEST = {
      "href": "CS354-Control-Systems/Week11-Digital-Control/Week11_Digital_Control_Notes.html"
     },
     {
+     "title": "A2 Exam Briefing",
+     "week": 12,
+     "track": "",
+     "href": "CS354-Control-Systems/CS354_Week12_Revision_A2-Briefing.html"
+    },
+    {
      "title": "Hardware, sample-rate selection and discrete design",
      "week": 12,
      "track": "",
