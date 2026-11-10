@@ -49,6 +49,56 @@
 <label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
 <dl class="terms"><dt>\(\mathbf{x}\)</dt><dd>State vector, \(n \times 1\): the smallest set of variables that, with the input, fixes the future of the system.</dd><dt>\(\mathbf{A}\)</dt><dd>System matrix, \(n \times n\).</dd><dt>\(\mathbf{B}\)</dt><dd>Input matrix, \(n \times 1\) for one input.</dd><dt>\(\mathbf{C}\)</dt><dd>Output matrix, \(1 \times n\) for one output.</dd><dt>\(D\)</dt><dd>Direct transmission term, \(1 \times 1\) (usually 0).</dd><dt>\(u,\,y\)</dt><dd>Input and output.</dd></dl>
 </div>
+<figure>
+<svg viewBox="0 0 620 222" class="fig" role="img" aria-label="General state-variable model: B scales the input into the integrators, A feeds the state back, C forms the output and D passes the input straight through">
+<text class="lab" x="16" y="92" text-anchor="middle">u</text>
+<path class="ln c4 thin" d="M10,100L36,100"/>
+<circle class="c4f" cx="36" cy="100" r="2.6"/>
+<path class="ln c4 thin" d="M36,100L80,100"/>
+<path class="c4f" d="M80,100L73.6,102.7L73.6,97.3Z"/>
+<rect class="blk" x="80" y="83" width="50" height="34" rx="3"/><text class="lab b" x="105" y="104.5" text-anchor="middle">B</text>
+<path class="ln c4 thin" d="M130,100L159,100"/>
+<path class="c4f" d="M159,100L152.6,102.7L152.6,97.3Z"/>
+<circle class="blk" cx="170" cy="100" r="11"/><path class="ln c4 thin" d="M162.3,92.3L177.7,107.7M162.3,107.7L177.7,92.3"/>
+<text class="tk b" x="152" y="88" text-anchor="middle">+</text>
+<path class="ln c4 thin" d="M181,100L240,100"/>
+<path class="c4f" d="M240,100L233.6,102.7L233.6,97.3Z"/>
+<text class="lab" x="210" y="92" text-anchor="middle">ẋ</text>
+<rect class="blk" x="240" y="82" width="60" height="36" rx="3"/><text class="lab" x="270" y="104.5" text-anchor="middle">∫ dt</text>
+<path class="ln c4 thin" d="M300,100L340,100"/>
+<circle class="c4f" cx="340" cy="100" r="2.6"/>
+<path class="ln c4 thin" d="M340,100L390,100"/>
+<path class="c4f" d="M390,100L383.6,102.7L383.6,97.3Z"/>
+<text class="lab" x="365" y="92" text-anchor="middle">x</text>
+<rect class="blk" x="390" y="83" width="50" height="34" rx="3"/><text class="lab b" x="415" y="104.5" text-anchor="middle">C</text>
+<path class="ln c4 thin" d="M440,100L489,100"/>
+<path class="c4f" d="M489,100L482.6,102.7L482.6,97.3Z"/>
+<circle class="blk" cx="500" cy="100" r="11"/><path class="ln c4 thin" d="M492.3,92.3L507.7,107.7M492.3,107.7L507.7,92.3"/>
+<text class="tk b" x="484" y="88" text-anchor="middle">+</text>
+<path class="ln c4 thin" d="M511,100L600,100"/>
+<path class="c4f" d="M600,100L593.6,102.7L593.6,97.3Z"/>
+<text class="lab" x="590" y="92" text-anchor="middle">y</text>
+<path class="ln c4 thin" d="M340,100L340,165"/>
+<path class="ln c4 thin" d="M340,165L300,165"/>
+<path class="c4f" d="M300,165L306.4,167.7L306.4,162.3Z"/>
+<rect class="blk" x="240" y="150" width="60" height="30" rx="3"/><text class="lab b" x="270" y="169.5" text-anchor="middle">A</text>
+<path class="ln c4 thin" d="M240,165L170,165"/>
+<path class="ln c4 thin" d="M170,165L170,111"/>
+<path class="c4f" d="M170,111L172.7,117.4L167.3,117.4Z"/>
+<text class="tk b" x="182" y="130" text-anchor="middle">+</text>
+<path class="ln c4 thin" d="M36,100L36,35"/>
+<path class="ln c4 thin" d="M36,35L390,35"/>
+<path class="c4f" d="M390,35L383.6,37.7L383.6,32.3Z"/>
+<rect class="blk" x="390" y="20" width="50" height="30" rx="3"/><text class="lab" x="415" y="39.5" text-anchor="middle">D</text>
+<path class="ln c4 thin" d="M440,35L500,35"/>
+<path class="ln c4 thin" d="M500,35L500,89"/>
+<path class="c4f" d="M500,89L502.7,82.6L497.3,82.6Z"/>
+<text class="tk b" x="512" y="78" text-anchor="middle">+</text>
+<text class="tk" x="300" y="212" text-anchor="middle">ẋ = Ax + Bu,   y = Cx + Du   (the integrator block holds n integrators, one per state)</text>
+</svg>
+<figcaption><b>Figure 1.1</b> Block diagram of the state-variable model.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 1.1:</b> Every state model has this shape. The integrator block holds one integrator per state, so its output is the state vector \(\mathbf{x}\) and its input is \(\dot{\mathbf{x}}\). \(\mathbf{A}\) feeds the state back (it sets the poles), \(\mathbf{B}\) decides how the input drives each state, \(\mathbf{C}\) mixes the states into the output, and \(D\) passes the input straight through (usually zero). The canonical forms below are this diagram with the integrators drawn out one by one.</p>
 
 <p>Taking Laplace transforms with zero initial conditions gives the transfer function, and its poles are the eigenvalues of \(\mathbf{A}\):</p>
 <div class="eq"><span class="tag">Transfer function from a state model (FPE 7.45)</span>\[ G(s) = \mathbf{C}(s\mathbf{I} - \mathbf{A})^{-1}\mathbf{B} + D = \frac{\mathbf{C}\,\mathrm{adj}(s\mathbf{I} - \mathbf{A})\,\mathbf{B}}{\det(s\mathbf{I} - \mathbf{A})} + D \]
@@ -164,6 +214,78 @@
 </div>
 
 <p>Why it works: a scalar transfer function equals its own transpose, so \(H = \mathbf{C}_c(s\mathbf{I} - \mathbf{A}_c)^{-1}\mathbf{B}_c\), which equals \(\mathbf{B}_c^T(s\mathbf{I} - \mathbf{A}_c^T)^{-1}\mathbf{C}_c^T\). In the block diagram the integrator chain runs the other way: the output is the last integrator, the a-gains feed the <em>output</em> back into every integrator, and the b-gains distribute the <em>input</em> to every integrator. The 'observer' name comes from week 8 onwards, where this structure makes estimator design easy.</p>
+<figure>
+<svg viewBox="0 0 660 250" class="fig" role="img" aria-label="Observer canonical form block diagram for a third-order system: the input feeds every integrator through the b-gains and the output is fed back to every integrator through the a-gains">
+<text class="lab" x="16" y="22" text-anchor="middle">u</text>
+<path class="ln c4 thin" d="M10,30L430,30"/>
+<circle class="c4f" cx="70" cy="30" r="2.6"/>
+<path class="ln c4 thin" d="M70,30L70,54"/>
+<rect class="blk" x="50" y="54" width="40" height="26" rx="3"/><text class="lab" x="70" y="71.5" text-anchor="middle">b₃</text>
+<path class="ln c4 thin" d="M70,80L70,109"/>
+<path class="c4f" d="M70,109L72.7,102.6L67.3,102.6Z"/>
+<text class="tk b" x="58" y="104" text-anchor="middle">+</text>
+<circle class="blk" cx="70" cy="120" r="11"/><path class="ln c4 thin" d="M62.3,112.3L77.7,127.7M62.3,127.7L77.7,112.3"/>
+<circle class="c4f" cx="250" cy="30" r="2.6"/>
+<path class="ln c4 thin" d="M250,30L250,54"/>
+<rect class="blk" x="230" y="54" width="40" height="26" rx="3"/><text class="lab" x="250" y="71.5" text-anchor="middle">b₂</text>
+<path class="ln c4 thin" d="M250,80L250,109"/>
+<path class="c4f" d="M250,109L252.7,102.6L247.3,102.6Z"/>
+<text class="tk b" x="238" y="104" text-anchor="middle">+</text>
+<circle class="blk" cx="250" cy="120" r="11"/><path class="ln c4 thin" d="M242.3,112.3L257.7,127.7M242.3,127.7L257.7,112.3"/>
+<path class="ln c4 thin" d="M430,30L430,54"/>
+<rect class="blk" x="410" y="54" width="40" height="26" rx="3"/><text class="lab" x="430" y="71.5" text-anchor="middle">b₁</text>
+<path class="ln c4 thin" d="M430,80L430,109"/>
+<path class="c4f" d="M430,109L432.7,102.6L427.3,102.6Z"/>
+<text class="tk b" x="418" y="104" text-anchor="middle">+</text>
+<circle class="blk" cx="430" cy="120" r="11"/><path class="ln c4 thin" d="M422.3,112.3L437.7,127.7M422.3,127.7L437.7,112.3"/>
+<path class="ln c4 thin" d="M81,120L120,120"/>
+<path class="c4f" d="M120,120L113.6,122.7L113.6,117.3Z"/>
+<text class="lab" x="100.5" y="112" text-anchor="middle">ẋ₃</text>
+<rect class="blk" x="120" y="102" width="50" height="36" rx="3"/><text class="lab" x="145" y="124.5" text-anchor="middle">1/s</text>
+<path class="ln c4 thin" d="M170,120L239,120"/>
+<path class="c4f" d="M239,120L232.6,122.7L232.6,117.3Z"/>
+<text class="lab" x="197" y="112" text-anchor="middle">x₃</text>
+<text class="tk b" x="228" y="112" text-anchor="middle">+</text>
+<path class="ln c4 thin" d="M261,120L300,120"/>
+<path class="c4f" d="M300,120L293.6,122.7L293.6,117.3Z"/>
+<text class="lab" x="280.5" y="112" text-anchor="middle">ẋ₂</text>
+<rect class="blk" x="300" y="102" width="50" height="36" rx="3"/><text class="lab" x="325" y="124.5" text-anchor="middle">1/s</text>
+<path class="ln c4 thin" d="M350,120L419,120"/>
+<path class="c4f" d="M419,120L412.6,122.7L412.6,117.3Z"/>
+<text class="lab" x="377" y="112" text-anchor="middle">x₂</text>
+<text class="tk b" x="408" y="112" text-anchor="middle">+</text>
+<path class="ln c4 thin" d="M441,120L480,120"/>
+<path class="c4f" d="M480,120L473.6,122.7L473.6,117.3Z"/>
+<text class="lab" x="460.5" y="112" text-anchor="middle">ẋ₁</text>
+<rect class="blk" x="480" y="102" width="50" height="36" rx="3"/><text class="lab" x="505" y="124.5" text-anchor="middle">1/s</text>
+<path class="ln c4 thin" d="M530,120L640,120"/>
+<path class="c4f" d="M640,120L633.6,122.7L633.6,117.3Z"/>
+<text class="lab" x="557" y="112" text-anchor="middle">x₁</text>
+<text class="lab" x="630" y="112" text-anchor="middle">y</text>
+<circle class="c4f" cx="585" cy="120" r="2.6"/>
+<path class="ln c4 thin" d="M585,120L585,205L70,205"/>
+<path class="ln c4 thin" d="M70,205L70,181"/>
+<rect class="blk" x="50" y="155" width="40" height="26" rx="3"/><text class="lab" x="70" y="172.5" text-anchor="middle">a₃</text>
+<path class="ln c4 thin" d="M70,155L70,131"/>
+<path class="c4f" d="M70,131L72.7,137.4L67.3,137.4Z"/>
+<text class="tk b" x="84" y="150" text-anchor="middle">−</text>
+<circle class="c4f" cx="250" cy="205" r="2.6"/>
+<path class="ln c4 thin" d="M250,205L250,181"/>
+<rect class="blk" x="230" y="155" width="40" height="26" rx="3"/><text class="lab" x="250" y="172.5" text-anchor="middle">a₂</text>
+<path class="ln c4 thin" d="M250,155L250,131"/>
+<path class="c4f" d="M250,131L252.7,137.4L247.3,137.4Z"/>
+<text class="tk b" x="264" y="150" text-anchor="middle">−</text>
+<circle class="c4f" cx="430" cy="205" r="2.6"/>
+<path class="ln c4 thin" d="M430,205L430,181"/>
+<rect class="blk" x="410" y="155" width="40" height="26" rx="3"/><text class="lab" x="430" y="172.5" text-anchor="middle">a₁</text>
+<path class="ln c4 thin" d="M430,155L430,131"/>
+<path class="c4f" d="M430,131L432.7,137.4L427.3,137.4Z"/>
+<text class="tk b" x="444" y="150" text-anchor="middle">−</text>
+<text class="tk" x="330" y="240" text-anchor="middle">ẋ₁ = −a₁x₁ + x₂ + b₁u,   ẋ₂ = −a₂x₁ + x₃ + b₂u,   ẋ₃ = −a₃x₁ + b₃u,   y = x₁</text>
+</svg>
+<figcaption><b>Figure 3.1</b> Block diagram of the observer canonical form for n = 3.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 3.1:</b> Compare with Figure 2.1. The integrator chain is the same, but the roles of input and output are swapped: the input reaches <em>every</em> integrator through the b-gains (\(\mathbf{B}_o = \mathbf{C}_c^T\)), the output is the last state alone (\(\mathbf{C}_o = [1\;\;0\;\;0]\)), and the output, not the input sum, is fed back to every integrator through the a-gains. Reading the sums gives the rows of \(\mathbf{A}_o\): \(\dot x_1 = -a_1x_1 + x_2 + b_1u\), \(\dot x_2 = -a_2x_1 + x_3 + b_2u\), \(\dot x_3 = -a_3x_1 + b_3u\), which is \(\mathbf{A}_c^T\). Working back from \(y = x_1\) gives \(H(s) = \dfrac{b_1s^2 + b_2s + b_3}{s^3 + a_1s^2 + a_2s + a_3}\), the same transfer function as Figure 2.1.</p>
 <div class="ex"><div class="hd">Worked example 3.1 <span>Observer canonical form</span></div><div class="bd">
 <p>Write the observer canonical form of the \(H(s)\) in example 2.1.</p>
 <div class="step"><i>1</i><div>Transpose: \(\mathbf{A}_o = \mathbf{A}_c^T\), \(\mathbf{B}_o = \mathbf{C}_c^T\), \(\mathbf{C}_o = \mathbf{B}_c^T\).</div></div>
@@ -235,6 +357,80 @@
 <li><strong>Complex poles.</strong> A pair \(\sigma \pm j\omega\) would need complex entries. To stay with real numbers, the pair is replaced by a real \(2 \times 2\) block \(\begin{bmatrix} \sigma & \omega \\ -\omega & \sigma \end{bmatrix}\), whose characteristic polynomial is \((s - \sigma)^2 + \omega^2\). The model is then block-diagonal, not diagonal.</li>
 <li><strong>Repeated poles.</strong> A double pole gives terms \(\dfrac{r_1}{s-p} + \dfrac{r_2}{(s-p)^2}\); the second needs two integrators in series, so the block becomes \(\begin{bmatrix} p & 1 \\ 0 & p \end{bmatrix}\) (a Jordan block) with an off-diagonal 1.</li>
 </ul>
+<figure>
+<svg viewBox="0 0 690 224" class="fig" role="img" aria-label="Left: the real block for a complex pole pair, two first-order states with cross-coupling gains omega and minus omega. Right: a double pole as two first-order blocks in series, with the output a weighted sum of both states">
+<text class="lab" x="16" y="92" text-anchor="middle">u</text>
+<path class="ln c4 thin" d="M10,100L40,100"/>
+<circle class="c4f" cx="40" cy="100" r="2.6"/>
+<path class="ln c4 thin" d="M40,100L40,50"/>
+<path class="ln c4 thin" d="M40,50L69,50"/>
+<path class="c4f" d="M69,50L62.6,52.7L62.6,47.3Z"/>
+<circle class="blk" cx="80" cy="50" r="11"/><path class="ln c4 thin" d="M72.3,42.3L87.7,57.7M72.3,57.7L87.7,42.3"/>
+<text class="tk b" x="62" y="38" text-anchor="middle">+</text>
+<path class="ln c4 thin" d="M91,50L125,50"/>
+<path class="c4f" d="M125,50L118.6,52.7L118.6,47.3Z"/>
+<rect class="blk" x="125" y="33" width="80" height="34" rx="3"/><text class="lab" x="165" y="54.5" text-anchor="middle">1/(s − σ)</text>
+<path class="ln c4 thin" d="M40,100L40,150"/>
+<path class="ln c4 thin" d="M40,150L69,150"/>
+<path class="c4f" d="M69,150L62.6,152.7L62.6,147.3Z"/>
+<circle class="blk" cx="80" cy="150" r="11"/><path class="ln c4 thin" d="M72.3,142.3L87.7,157.7M72.3,157.7L87.7,142.3"/>
+<text class="tk b" x="62" y="138" text-anchor="middle">+</text>
+<path class="ln c4 thin" d="M91,150L125,150"/>
+<path class="c4f" d="M125,150L118.6,152.7L118.6,147.3Z"/>
+<rect class="blk" x="125" y="133" width="80" height="34" rx="3"/><text class="lab" x="165" y="154.5" text-anchor="middle">1/(s − σ)</text>
+<path class="ln c4 thin" d="M205,50L300,50"/>
+<text class="lab" x="290" y="42" text-anchor="middle">z₁</text>
+<path class="ln c4 thin" d="M205,150L300,150"/>
+<text class="lab" x="290" y="168" text-anchor="middle">z₂</text>
+<circle class="c4f" cx="240" cy="50" r="2.6"/>
+<circle class="c4f" cx="260" cy="150" r="2.6"/>
+<path class="ln c4 thin" d="M240,50L240,82"/>
+<rect class="blk" x="223" y="83" width="34" height="24" rx="3"/><text class="lab" x="240" y="99.5" text-anchor="middle">−ω</text>
+<path class="ln c4 thin" d="M240,107L240,122L80,122"/>
+<path class="ln c4 thin" d="M80,122L80,139"/>
+<path class="c4f" d="M80,139L82.7,132.6L77.3,132.6Z"/>
+<path class="ln c4 thin" d="M260,150L260,135"/>
+<path class="ln c4 thin" d="M260,135L275,135L275,78"/>
+<rect class="blk" x="260" y="54" width="30" height="24" rx="3"/><text class="lab" x="275" y="70.5" text-anchor="middle">ω</text>
+<path class="ln c4 thin" d="M275,54L275,22L80,22"/>
+<path class="ln c4 thin" d="M80,22L80,39"/>
+<path class="c4f" d="M80,39L82.7,32.6L77.3,32.6Z"/>
+<text class="tk" x="160" y="196" text-anchor="middle">ż₁ = σz₁ + ωz₂ + u,   ż₂ = −ωz₁ + σz₂ + u</text>
+<text class="lab" x="344" y="92" text-anchor="middle">u</text>
+<path class="ln c4 thin" d="M340,100L365,100"/>
+<path class="c4f" d="M365,100L358.6,102.7L358.6,97.3Z"/>
+<rect class="blk" x="365" y="83" width="80" height="34" rx="3"/><text class="lab" x="405" y="104.5" text-anchor="middle">1/(s − p)</text>
+<path class="ln c4 thin" d="M445,100L460,100"/>
+<circle class="c4f" cx="460" cy="100" r="2.6"/>
+<path class="ln c4 thin" d="M460,100L480,100"/>
+<path class="c4f" d="M480,100L473.6,102.7L473.6,97.3Z"/>
+<text class="lab" x="462" y="120" text-anchor="middle">z₂</text>
+<rect class="blk" x="480" y="83" width="80" height="34" rx="3"/><text class="lab" x="520" y="104.5" text-anchor="middle">1/(s − p)</text>
+<path class="ln c4 thin" d="M560,100L585,100"/>
+<path class="c4f" d="M585,100L578.6,102.7L578.6,97.3Z"/>
+<text class="lab" x="572" y="120" text-anchor="middle">z₁</text>
+<rect class="blk" x="585" y="87" width="30" height="26" rx="3"/><text class="lab" x="600" y="104.5" text-anchor="middle">r₂</text>
+<path class="ln c4 thin" d="M615,100L629,100"/>
+<path class="c4f" d="M629,100L622.6,102.7L622.6,97.3Z"/>
+<circle class="blk" cx="640" cy="100" r="11"/><path class="ln c4 thin" d="M632.3,92.3L647.7,107.7M632.3,107.7L647.7,92.3"/>
+<path class="ln c4 thin" d="M460,100L460,45"/>
+<path class="ln c4 thin" d="M460,45L585,45"/>
+<path class="c4f" d="M585,45L578.6,47.7L578.6,42.3Z"/>
+<rect class="blk" x="585" y="32" width="30" height="26" rx="3"/><text class="lab" x="600" y="49.5" text-anchor="middle">r₁</text>
+<path class="ln c4 thin" d="M615,45L640,45"/>
+<path class="ln c4 thin" d="M640,45L640,89"/>
+<path class="c4f" d="M640,89L642.7,82.6L637.3,82.6Z"/>
+<path class="ln c4 thin" d="M651,100L684,100"/>
+<path class="c4f" d="M684,100L677.6,102.7L677.6,97.3Z"/>
+<text class="lab" x="680" y="92" text-anchor="middle">y</text>
+<text class="tk" x="520" y="196" text-anchor="middle">H = r₁/(s − p) + r₂/(s − p)²</text>
+<text class="lab" x="160" y="214" text-anchor="middle">complex pair σ ± jω</text>
+<text class="lab" x="520" y="214" text-anchor="middle">double pole at p</text>
+</svg>
+<figcaption><b>Figure 4.2</b> Block diagrams of a complex pole pair and of a double pole.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 4.2:</b> Left: the real block \(\begin{bmatrix} \sigma & \omega \ -\omega & \sigma \end{bmatrix}\). Each state is a first-order lag \(1/(s - \sigma)\), and the two are cross-coupled through \(\omega\) and \(-\omega\); that coupling is what makes them oscillate together, and the characteristic polynomial is \((s - \sigma)^2 + \omega^2\). Right: the Jordan block \(\begin{bmatrix} p & 1 \ 0 & p \end{bmatrix}\) with \(\mathbf{B} = [0\;\;1]^T\). Two identical lags in series give \(z_2 = U/(s - p)\) and \(z_1 = U/(s - p)^2\), so \(\mathbf{C} = [r_2\;\;r_1]\) produces the two partial-fraction terms of the repeated pole.</p>
+
 <p class="reading"><b>Reading</b> FPE Ch 7.4.1, Example 7.9; slide 54; Tutorial 5 problem 3</p>
 
 </section>
