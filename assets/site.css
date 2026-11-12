@@ -318,6 +318,7 @@ ul.rows li+li{border-top:1px solid var(--rule)}
 .row .tag{display:inline-block;font-family:var(--f-mono);font-size:10.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;border-radius:6px;padding:1px 7px;margin-left:8px;
   background:var(--wash);color:var(--genoa);vertical-align:1px}
 .row .tag.memo{background:var(--warnwash);color:var(--amber)}
+.row .tag.video{background:var(--wash);color:var(--genoa)}
 p.none{margin:0;padding:12px 16px;border:1px dashed var(--rule);border-radius:var(--r);color:var(--ink-2);font-size:14px;max-width:none}
 p.none code{font-size:.9em}
 
@@ -620,3 +621,16 @@ svg tspan.sub{font-size:.78em}
 .qtags span{font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--genoa);border:1px solid var(--rule);border-radius:6px;padding:1px 7px}
 .qtags span.scope{color:var(--ink-2)}
 section.bq[hidden]{display:none}
+
+/* ---------- Video notes pages (NOTES_GUIDE A11) ---------- */
+.vmeta{display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--f-mono);font-size:12.5px;color:var(--ink-2);margin:12px 0 0;max-width:none}
+.ts{font-family:var(--f-mono);font-size:12px;font-weight:500;color:var(--genoa);background:var(--wash);border-radius:6px;padding:1px 6px;white-space:nowrap;text-decoration:none}
+a.ts:hover,a.ts:focus-visible{background:var(--genoa);color:var(--on-teal);outline:none}
+.vtime{margin:-.4em 0 1em;font-size:13px;color:var(--ink-2);max-width:none}
+.vchap{list-style:none;margin:0 0 1.2em;padding:0;border:1px solid var(--rule);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.vchap li{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;align-items:baseline;padding:9px 14px;max-width:none}
+.vchap li+li{border-top:1px solid var(--rule)}
+.vchap li>a:not(.ts){color:var(--ink);text-decoration:none}
+.vchap li>a:not(.ts):hover{color:var(--genoa)}
+figure.vframe img{display:block;width:100%;max-width:640px;height:auto;margin:0 auto;border:1px solid var(--rule);border-radius:6px}
+figure.vframe figcaption .ts{margin-right:6px}

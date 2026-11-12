@@ -121,6 +121,14 @@ endpoint and key as the Ask Gemini panel.
 - Where a question or its solution needs a diagram, The Lovely Lady adds one. Graphs are drawn by the page
   from the formulas she gives; circuits and block diagrams come as SVG, cleaned and styled by the site.
 
+## Video notes
+
+A video notes page is made from one lecture video: what happens in it, chapter by chapter with
+timestamps, the key frames, the maths and an independent check of the results. `video_notes.py` prepares
+the material (a machine transcript and the frames where the picture changes); the page is written to
+NOTES_GUIDE.md section A11. If the page names an online copy of the video (`<meta name="video-url">`),
+its timestamps open the video at that moment.
+
 ## Random tutorial question
 
 `tuts.html?m=<id>` (under Practice on a module page, for modules with tutorials) throws one tutorial

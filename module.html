@@ -77,8 +77,9 @@
     a.append(el('span', 'w', n.week != null ? 'Week ' + n.week : ''));
     const t = el('span', 't', n.title);
     if (n.track) t.append(el('span', 'tag', n.track));
-    a.append(t, el('span', 'm', ''));
-    a.dataset.find = (n.title + ' week ' + (n.week ?? '') + ' ' + n.track).toLowerCase();
+    if (n.kind === 'video') t.append(el('span', 'tag video', 'Video'));
+    a.append(t, el('span', 'm', n.kind === 'video' ? n.length || '' : ''));
+    a.dataset.find = (n.title + ' week ' + (n.week ?? '') + ' ' + n.track + (n.kind === 'video' ? ' video' : '')).toLowerCase();
     return a;
   }
   function paperRow(p, i){

@@ -30,7 +30,7 @@ a file, give the file name on the first line and the HTML in one code block afte
 | `<MODULE>` | The module code from the table in A3 (or its id if it has no code). | `CS354`, `EL245`, `vibration` |
 | `Week<NN>` | The teaching week, always two digits. A page covering several weeks takes the last of them. | `Week03`, `Week10` |
 | `<track>` | Only for modules split into tracks (A3). Lower case, hyphens between words. Leave the part out otherwise. | `theory`, `programming` |
-| `<Kind>` | Exactly one of `Notes`, `Tutorial`, `Lab`, `Revision`, `Summary`. | `Notes` |
+| `<Kind>` | Exactly one of `Notes`, `Tutorial`, `Lab`, `Revision`, `Summary`, `Video` (a page made from one video, A11). | `Notes` |
 | `<Topic>` | 1 to 6 words in Title Case, joined by hyphens. Letters, digits and hyphens only: no spaces, underscores, accents or punctuation. | `State-Space`, `BJT-Biasing`, `Tut9-Tut10-Solutions` |
 
 Underscores separate the parts and appear nowhere else.
@@ -40,6 +40,7 @@ CS354_Week07_Notes_State-Space.html
 EL245_Week10_Tutorial_Tut9-Tut10-Solutions.html
 CS245_Week03_theory_Notes_Pipelining.html
 vibration_Week02_Notes_Single-Degree-of-Freedom.html
+CS354_Week07_Video_Observer-Canonical-Form-Example.html
 ```
 
 Past papers (PDFs, not written by you) follow the same idea:
@@ -369,6 +370,68 @@ or slide. `class="fig narrow"` suits a tall plot drawn to the same scale on both
    checked.
 6. The footer lists the sources and anything that could not be read.
 
+## A11. Video notes pages
+
+A video notes page is made from **one** lecture video: a theory lecture or a worked example. It gives the
+video's contents with timestamps, the key frames, and the maths, so the reader can revise it without
+watching, or jump to the right minute when they do.
+
+**Prepare the material.** Run
+
+```bash
+python video_notes.py "path/to/video.mp4"
+```
+
+It writes, into `inbox/video/<video name>/` (never committed): a machine transcript with `[mm:ss]` times,
+candidate key frames (one each time new writing or a new slide appears, plus the finished page before
+each change and the last frame), a contact sheet of them, and `info.json`. `--at 07:55,08:12` grabs
+frames at exact times when the automatic pick missed the moment you want. Read the whole transcript and
+look at the contact sheet before writing anything. The transcript is a machine's: check every technical
+word and number against the frames.
+
+**File name and frames.** Kind `Video` (A2), for example `CS354_Week07_Video_Observer-Canonical-Form-Example.html`.
+Copy only the frames the page shows into a folder with the same name plus `_frames`, next to the page in
+`inbox/`, for example `CS354_Week07_Video_Observer-Canonical-Form-Example_frames/f_0148.jpg`. Crop black
+borders, keep them JPEG, at most 1280 px wide and under 100 kB each, and use few (typically 3 to 6: the
+finished state of each board or slide that matters). `ingest.py` moves the folder with the page and
+refuses a page that shows a frame the folder does not have.
+
+**Head.** Add to the skeleton of A4:
+
+```html
+<meta name="page-kind" content="video">
+<meta name="video-length" content="8:29">
+<meta name="video-url" content="https://...">   <!-- only if the reader can open the video online -->
+```
+
+The module page tags the page "Video" and shows its length. With `video-url`, every timestamp on the
+page becomes a link that opens the video at that moment (YouTube links get `?t=`, other links `#t=`).
+
+**Layout.**
+
+- Header: kicker `{CODE} · WEEK {N} · VIDEO NOTES`, an `<h1>` naming what the video does (not the file
+  name), one lede sentence, then `<p class="vmeta">` with the video's file name, its length, whether it
+  is theory or an example, and a link to the week's notes page section it belongs to.
+- First section, *In the video*: the chapters as `<ol class="vchap">`, one `<li>` per chapter holding
+  `<span class="ts">mm:ss</span>` and a link to that chapter's section.
+- One `<section>` per chapter, starting with `<p class="vtime"><span class="ts">00:42</span> to
+  <span class="ts">01:47</span></p>`. Write what is done and why, in your own words, with the usual
+  components: formulas in `.eq` boxes with annotation lists, the working as a `.ex` worked example with
+  steps, `Watch out` boxes for the traps. Never paste the transcript; quote at most a short phrase.
+- Key frames as
+  `<figure class="vframe"><img src="{NAME}_frames/f_0148.jpg" width="574" height="358" alt="what the frame shows"><figcaption><span class="ts">01:48</span> One sentence.</figcaption></figure>`
+  followed by a `fignote` (A9). Give `width` and `height` (the image's own size) so the page does not jump
+  while loading, and an `alt` text that says what is written in the frame.
+- Then *Checks*: redo the result independently (substitute back, compare with the notes' general form) and
+  say so. If the video contains a mistake or uses a different convention from the notes, say so in a
+  `Watch out` box rather than copying it.
+- End with *Takeaways* (a `key` box with the 3 to 5 points to remember) and a link back to the week's notes.
+- Footer: the video file, that the timings come from a machine transcript, and anything that could not be
+  made out.
+
+On the week's notes page, replace any "could not be watched" note about this video with a link to the
+video page.
+
 ---
 
 # Part B: adding the file to the site
@@ -393,7 +456,7 @@ or slide. `class="fig narrow"` suits a tall plot drawn to the same scale on both
 4. Commit the new file and `manifest.js`.
 
 Slides, videos and other course-issued files are not committed. Only PDFs inside a `papers/` folder are
-tracked.
+tracked, and the few key frames a video notes page shows (A11), in its `_frames` folder.
 
 Files from before this convention (for example `Week7-State-Space/Week7_State_Space_Notes.html`) still
 work: the site reads the week number from anywhere in the path and the title from the `<h1>`.

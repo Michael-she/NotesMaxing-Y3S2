@@ -11,7 +11,8 @@ opened directly or hosted as a static site).
 
 What counts as what, inside each module folder listed in modules.json:
     notes   every .html file, except index.html and anything in a folder whose
-            name starts with "_" or "."
+            name starts with "_" or ".". A video notes page (<meta name="page-kind" content="video">)
+            is marked "kind": "video", with its <meta name="video-length">
     papers  every non-empty .pdf inside the module's papers/ folder
     exams   every .html file inside the module's exam-prep/ folder: practice exam papers with memos.
             A page can carry <meta name="exam-scope" content="A1"> and <meta name="exam-marks" content="80">.
@@ -84,12 +85,17 @@ def _notes(folder):
             track = ""
             if len(segments) > 1 and not WEEK_RE.search(segments[0]):
                 track = segments[0].replace("-", " ").replace("_", " ").title()
-            out.append({
-                "title": _page_title(os.path.join(dirpath, name)),
+            full = os.path.join(dirpath, name)
+            entry = {
+                "title": _page_title(full),
                 "week": int(week.group(1)) if week else None,
                 "track": track,
                 "href": _url(folder, rel),
-            })
+            }
+            if (_meta(full, "page-kind") or "").lower() == "video":
+                entry["kind"] = "video"
+                entry["length"] = _meta(full, "video-length") or ""
+            out.append(entry)
     out.sort(key=lambda n: (n["week"] is None, n["week"] or 0, n["track"], n["href"]))
     return out
 

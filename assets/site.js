@@ -166,7 +166,28 @@
     const s = document.createElement('script'); s.async = true; s.src = new URL('annotate.js', here).href; document.head.append(s);
   }
 
-  function init(){ buildThemeButton(); buildMenuToggle(); wireAnnotations(); wireFigureToggles(); wireMathFit(); loadAnnotate(); }
+  // Video notes pages: if the page names its video (<meta name="video-url">), every timestamp chip
+  // (<span class="ts">mm:ss</span>) becomes a link that opens the video at that moment.
+  function linkTimestamps(){
+    const meta = document.querySelector('meta[name="video-url"]');
+    const src = meta && meta.content.trim();
+    if (!src) return;
+    document.querySelectorAll('span.ts').forEach(ts => {
+      const parts = ts.textContent.trim().split(':').map(Number);
+      if (parts.some(isNaN)) return;
+      const secs = parts.reduce((t, p) => t * 60 + p, 0);
+      let href;
+      try{
+        const u = new URL(src, location.href);
+        if (/(^|\.)(youtube\.com|youtu\.be)$/.test(u.hostname)){ u.searchParams.set('t', secs + 's'); href = u.href; }
+        else href = u.href.replace(/#.*$/, '') + '#t=' + secs;
+      }catch(e){ return; }
+      const a = el('a', 'ts', ts.textContent); a.href = href; a.target = '_blank'; a.rel = 'noopener';
+      a.title = 'Open the video at ' + ts.textContent.trim();
+      ts.replaceWith(a);
+    });
+  }
+  function init(){ buildThemeButton(); buildMenuToggle(); wireAnnotations(); wireFigureToggles(); wireMathFit(); linkTimestamps(); loadAnnotate(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();

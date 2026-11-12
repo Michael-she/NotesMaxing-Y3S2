@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="page-kind" content="video">
+<meta name="video-length" content="8:29">
+<title>Video: Observer Canonical Form Example · CS354 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=cs354">&larr; Control Systems</a>
+  <div class="k">CS354 · Week 7 · Video</div>
+  <ol>
+    <li><a href="#contents">1. In the video</a></li>
+    <li><a href="#task">2. The task</a></li>
+    <li><a href="#rearrange">3. Rearranging G(s)</a></li>
+    <li><a href="#signals">4. Signals A and B</a></li>
+    <li><a href="#diagram">5. The block diagram</a></li>
+    <li><a href="#states">6. Choosing the states</a></li>
+    <li><a href="#model">7. State and output model</a></li>
+    <li><a href="#checks">8. Checks</a></li>
+    <li><a href="#takeaways">9. Takeaways</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">CS354 · WEEK 7 · VIDEO NOTES</div>
+  <h1>Example: a transfer function in observer canonical form</h1>
+  <p>How to turn \(G(s) = \dfrac{s+2}{s^2+7s+12}\) into an observer canonical block diagram by algebra alone, and then read the state and output model off the diagram.</p>
+  <p class="vmeta"><span>CS354_Ch7.4_Example_ObserverCanonicalForm.mp4</span><span>8:29</span><span>Worked example, Ch 7.4</span><span>Notes: <a href="Week7-State-Space/Week7_State_Space_Notes.html#ocf">Week 7, section 3</a></span></p>
+</header>
+
+<section id="contents">
+<h2><span class="n">01</span>In the video</h2>
+<ol class="vchap">
+<li><span class="ts">00:00</span><a href="#task">The task: the transfer function to realise</a></li>
+<li><span class="ts">00:42</span><a href="#rearrange">Rearranging \(G(s)\) into powers of \(1/s\)</a></li>
+<li><span class="ts">01:47</span><a href="#signals">Naming the bracketed terms as signals A and B</a></li>
+<li><span class="ts">02:23</span><a href="#diagram">Drawing the block diagram</a></li>
+<li><span class="ts">04:58</span><a href="#states">Choosing the states (in the reverse order to control form)</a></li>
+<li><span class="ts">06:27</span><a href="#model">Writing the state and output model</a></li>
+</ol>
+</section>
+
+<section id="task">
+<h2><span class="n">02</span>The task</h2>
+<p class="vtime"><span class="ts">00:00</span> to <span class="ts">00:42</span></p>
+<p>The video realises the second-order transfer function below in observer canonical form, both as a block diagram and as a state and output model. It shows the finished diagram first (the slide), then builds it by hand.</p>
+<div class="eq"><span class="tag">Transfer function to realise</span>\[ G(s) = \frac{Y(s)}{U(s)} = \frac{s + 2}{s^2 + 7s + 12} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(Y(s),\,U(s)\)</dt><dd>Output and input.</dd><dt>\(s^2 + 7s + 12\)</dt><dd>Denominator: \(a_1 = 7\), \(a_2 = 12\) in the notation of the notes.</dd><dt>\(s + 2\)</dt><dd>Numerator: \(b_1 = 1\), \(b_2 = 2\).</dd></dl>
+</div>
+<figure class="vframe"><img src="CS354_Week07_Video_Observer-Canonical-Form-Example_frames/f_0004.jpg" width="514" height="364" alt="Slide titled Observer canonical form: G(s) = (s+2)/(s^2+7s+12) and its block diagram, with gains 2 and 1 from U, two summing junctions and two 1/s blocks, and feedback gains -12 and -7 from y"><figcaption><span class="ts">00:04</span> The answer, shown first.</figcaption></figure>
+<p class="fignote"><b>Frame 00:04:</b> U feeds both summing junctions (through gains 2 and 1); \(y\) is fed back to both through −12 and −7. The rest of the video derives exactly this picture.</p>
+</section>
+
+<section id="rearrange">
+<h2><span class="n">03</span>Rearranging \(G(s)\) into powers of \(1/s\)</h2>
+<p class="vtime"><span class="ts">00:42</span> to <span class="ts">01:47</span></p>
+<p>The trick behind the observer form: write \(Y\) as integrals (powers of \(1/s\)) of combinations of \(U\) and \(Y\). Each \(1/s\) becomes one integrator in the diagram.</p>
+<div class="ex"><div class="hd">Worked steps <span>as done in the video</span></div><div class="bd">
+<div class="step"><i>1</i><div>Cross-multiply: \((s^2 + 7s + 12)Y = (s + 2)U\), i.e. \(s^2Y + 7sY + 12Y = sU + 2U\).</div></div>
+<div class="step"><i>2</i><div>Make the highest power of \(s\) on \(Y\) the subject: \(s^2Y = sU + 2U - 7sY - 12Y\).</div></div>
+<div class="step"><i>3</i><div>Divide by \(s^2\): \(Y = \dfrac1s U + \dfrac{1}{s^2}2U - \dfrac1s 7Y - \dfrac{1}{s^2}12Y\).</div></div>
+<div class="step"><i>4</i><div>Group terms with the same power of \(1/s\): \(Y = \dfrac1s(U - 7Y) + \dfrac{1}{s^2}(2U - 12Y)\).</div></div>
+<div class="step"><i>5</i><div>Factor out \(1/s\) as far as possible: \(Y = \dfrac1s\Big[(U - 7Y) + \dfrac1s(2U - 12Y)\Big]\).</div></div>
+<div class="ans">\(Y = \dfrac1s\Big[(U - 7Y) + \dfrac1s(2U - 12Y)\Big]\): two nested integrators, so a second-order realisation.</div>
+</div></div>
+</section>
+
+<section id="signals">
+<h2><span class="n">04</span>Naming the signals A and B</h2>
+<p class="vtime"><span class="ts">01:47</span> to <span class="ts">02:23</span></p>
+<p>Each bracket is a signal the diagram has to build. The inner one is called \(A\) and the outer one \(B\):</p>
+<div class="eq"><span class="tag">The two signals</span>\[ A = 2U - 12Y, \qquad B = (U - 7Y) + \frac1s A, \qquad Y = \frac1s B \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(A\)</dt><dd>Output of the first summing junction; it feeds the first integrator.</dd><dt>\(B\)</dt><dd>Output of the second summing junction; it feeds the second integrator.</dd><dt>\(Y = B/s\)</dt><dd>The output is the second integrator's output.</dd></dl>
+</div>
+<figure class="vframe"><img src="CS354_Week07_Video_Observer-Canonical-Form-Example_frames/f_0148.jpg" width="574" height="358" alt="Handwritten working: Y = (1/s)u + (2/s^2)u - (7/s)Y - (12/s^2)Y, then Y = (1/s)(u - 7Y) + (1/s^2)(2u - 12Y), then Y = (1/s)[(u - 7Y) + (1/s)(2u - 12Y)], with the inner bracket marked A and the whole bracket marked B"><figcaption><span class="ts">01:48</span> The grouped expression with A and B marked.</figcaption></figure>
+<p class="fignote"><b>Frame 01:48:</b> The last line is the one to remember: the inner bracket (A) sits inside one more \(1/s\) than the outer one (B), so it is built first, at the far end of the integrator chain from the output.</p>
+</section>
+
+<section id="diagram">
+<h2><span class="n">05</span>Drawing the block diagram</h2>
+<p class="vtime"><span class="ts">02:23</span> to <span class="ts">04:58</span></p>
+<p>Two factors of \(1/s\) mean two integrator blocks, each fed by its own summing junction:</p>
+<ol>
+<li>Draw summing junction 1 → \(1/s\) → summing junction 2 → \(1/s\) → \(y\). Junction 1 produces \(A\), junction 2 produces \(B\), and \(B/s = y\).</li>
+<li>Build \(A = 2U - 12Y\): the input through a gain of 2, and the output fed back through −12, both into junction 1.</li>
+<li>Build \(B = \tfrac1s A + U - 7Y\): the first integrator's output, the input through a gain of 1, and the output fed back through −7, all into junction 2.</li>
+</ol>
+<p>The result is the slide at 00:04. The input is spread over every integrator and the output is fed back to every integrator, which is the observer-form pattern of Figure 3.1 in the notes.</p>
+<figure class="vframe"><img src="CS354_Week07_Video_Observer-Canonical-Form-Example_frames/f_0618.jpg" width="574" height="357" alt="Hand-drawn block diagram: u through gain 2 into a summing junction giving x2 dot, a 1/s block giving x2, a second junction fed also by u through gain 1 giving x1 dot, a 1/s block giving x1 = y, with y fed back through -12 and -7; below it the state equations x1 dot = -7x1 + x2 + u, x2 dot = -12x1 + 2u, y = x1"><figcaption><span class="ts">06:18</span> The finished diagram with the states labelled.</figcaption></figure>
+<p class="fignote"><b>Frame 06:18:</b> The integrator outputs are labelled as the states (section 6). The equations underneath are read straight off the two summing junctions.</p>
+</section>
+
+<section id="states">
+<h2><span class="n">06</span>Choosing the states</h2>
+<p class="vtime"><span class="ts">04:58</span> to <span class="ts">06:27</span></p>
+<p>The states are always the <strong>outputs of the integrators</strong>, and their derivatives are the integrator inputs. In observer canonical form they are numbered in the <strong>reverse</strong> order to control form:</p>
+<ul>
+<li>\(x_1\) is the output of the <em>last</em> integrator, so \(x_1 = y\) and \(\dot x_1 = B\).</li>
+<li>\(x_2\) is the output of the <em>first</em> integrator, so \(\dot x_2 = A\).</li>
+</ul>
+<p>Each state equation may contain only states and the input. Substituting \(y = x_1\):</p>
+<div class="eq"><span class="tag">State and output equations</span>\[ \dot x_1 = -7x_1 + x_2 + u, \qquad \dot x_2 = -12x_1 + 2u, \qquad y = x_1 \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(\dot x_1 = B\)</dt><dd>\(B = \tfrac1sA + U - 7Y\) with \(\tfrac1sA = x_2\) and \(Y = x_1\).</dd><dt>\(\dot x_2 = A\)</dt><dd>\(A = 2U - 12Y\) with \(Y = x_1\).</dd><dt>\(y = x_1\)</dt><dd>The output is the last integrator's output.</dd></dl>
+</div>
+<div class="box watch"><span class="label">Watch out</span><p>Numbering the states the other way round (first integrator as \(x_1\)) gives a valid model, but not the observer canonical form: \(\mathbf{A}\) comes out as \(\mathbf{A}_o\) with its rows and columns swapped, and \(\mathbf{C}\) becomes \([0\;\;1]\).</p></div>
+</section>
+
+<section id="model">
+<h2><span class="n">07</span>The state and output model</h2>
+<p class="vtime"><span class="ts">06:27</span> to <span class="ts">08:29</span></p>
+<p>Write the equations of section 6 in matrix form by inspection: each row of \(\mathbf{A}\) holds the coefficients of \(x_1, x_2\) in one state equation, and \(\mathbf{B}\) the coefficients of \(u\).</p>
+<div class="eq"><span class="tag">Observer canonical model of G(s)</span>\[ \begin{bmatrix} \dot x_1 \\ \dot x_2 \end{bmatrix} = \begin{bmatrix} -7 & 1 \\ -12 & 0 \end{bmatrix}\begin{bmatrix} x_1 \\ x_2 \end{bmatrix} + \begin{bmatrix} 1 \\ 2 \end{bmatrix}u, \qquad y = \begin{bmatrix} 1 & 0 \end{bmatrix}\begin{bmatrix} x_1 \\ x_2 \end{bmatrix} + [\,0\,]u \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms"><dt>\(\mathbf{A}_o\)</dt><dd>First column holds \(-a_1, -a_2\); ones on the superdiagonal.</dd><dt>\(\mathbf{B}_o\)</dt><dd>The numerator coefficients \(b_1, b_2\).</dd><dt>\(\mathbf{C}_o\)</dt><dd>Picks out the last integrator's output.</dd><dt>\(D\)</dt><dd>0: \(G\) is strictly proper.</dd></dl>
+</div>
+<figure class="vframe"><img src="CS354_Week07_Video_Observer-Canonical-Form-Example_frames/f_0812.jpg" width="574" height="357" alt="Handwritten state model [x1 dot; x2 dot] = [-7 1; -12 0][x1; x2] + [1; 2]u and output model y = [1 0][x1; x2] + [0]u"><figcaption><span class="ts">08:12</span> The finished state and output model.</figcaption></figure>
+<p class="fignote"><b>Frame 08:12:</b> The same matrices as in the box above. The video ends here (8:29) after summarising the route: transfer function, block diagram, state and output model.</p>
+</section>
+
+<section id="checks">
+<h2><span class="n">08</span>Checks</h2>
+<div class="ex"><div class="hd">Check <span>the model gives back G(s), and matches the notes</span></div><div class="bd">
+<div class="step"><i>1</i><div>\(s\mathbf{I} - \mathbf{A} = \begin{bmatrix} s+7 & -1 \\ 12 & s \end{bmatrix}\), \(\det = s(s+7) + 12 = s^2 + 7s + 12\) ✓ (the denominator).</div></div>
+<div class="step"><i>2</i><div>\(\mathrm{adj}(s\mathbf{I}-\mathbf{A}) = \begin{bmatrix} s & 1 \\ -12 & s+7 \end{bmatrix}\), so \(\mathbf{C}\,\mathrm{adj}\,\mathbf{B} = [s\;\;1]\begin{bmatrix} 1 \\ 2 \end{bmatrix} = s + 2\) ✓ (the numerator).</div></div>
+<div class="step"><i>3</i><div>Notes, section 3: the control form of this \(G\) is \(\mathbf{A}_c = \begin{bmatrix} -7 & -12 \\ 1 & 0 \end{bmatrix}\), \(\mathbf{B}_c = [1\;\;0]^T\), \(\mathbf{C}_c = [1\;\;2]\). Its transpose is \(\mathbf{A}_c^T = \begin{bmatrix} -7 & 1 \\ -12 & 0 \end{bmatrix}\), \(\mathbf{C}_c^T = [1\;\;2]^T\), \(\mathbf{B}_c^T = [1\;\;0]\) ✓: exactly the video's \(\mathbf{A}\), \(\mathbf{B}\), \(\mathbf{C}\).</div></div>
+<div class="ans">The video's model is correct and follows the same convention as the notes (Figure 3.1: \(y = x_1\), the input spread over every integrator, the output fed back to every integrator).</div>
+</div></div>
+</section>
+
+<section id="takeaways">
+<h2><span class="n">09</span>Takeaways</h2>
+<div class="key"><span class="tag">Key idea</span><p>1. Rearrange \(G(s)\) so that \(Y\) is a nest of \(1/s\) factors around combinations of \(U\) and \(Y\); each \(1/s\) is one integrator. 2. Each bracket is the output of a summing junction. 3. States are the integrator outputs, numbered from the output end (\(x_1 = y\)). 4. Read \(\mathbf{A}\) and \(\mathbf{B}\) off the junctions: the denominator coefficients appear negated in the first column, the numerator coefficients in \(\mathbf{B}\). 5. Check by transposing the control form.</p></div>
+<p>Back to the notes: <a href="Week7-State-Space/Week7_State_Space_Notes.html#ocf">Week 7, section 3, observer canonical form</a>.</p>
+</section>
+
+<footer>Source: CS354_Ch7.4_Example_ObserverCanonicalForm.mp4 (8:29, Week 7 folder). Timings and wording come from a machine transcript (faster-whisper, small model) checked against the frames; the frames are from the video. Every result was re-derived independently (section 8).</footer>
+</main>
+</div>
+
+<script src="../assets/ask-gemini.js" data-store="cs354-w7-video" data-course="CS354 Control Systems"
+        data-topic="Week 7 video example: putting G(s) = (s+2)/(s^2+7s+12) into observer canonical form, the block diagram, choosing the states, and the state and output model"></script>
+</body>
+</html>

@@ -44,6 +44,14 @@ window.NOTES_MANIFEST = {
      "href": "CS354-Control-Systems/Week6-Root-Locus/Week6_Root_Locus_Notes.html"
     },
     {
+     "title": "Example: a transfer function in observer canonical form",
+     "week": 7,
+     "track": "",
+     "href": "CS354-Control-Systems/CS354_Week07_Video_Observer-Canonical-Form-Example.html",
+     "kind": "video",
+     "length": "8:29"
+    },
+    {
      "title": "State-space models, canonical forms and transformations",
      "week": 7,
      "track": "",

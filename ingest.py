@@ -11,6 +11,9 @@ The file name says where a file goes (see NOTES_GUIDE.md, "File names"):
     notes   <MODULE>_Week<NN>[_<track>]_<Kind>_<Topic>.html
             CS354_Week07_Notes_State-Space.html
             CS245_Week03_theory_Notes_Pipelining.html
+            CS354_Week07_Video_Observer-Canonical-Form-Example.html (a video notes page; its key
+            frames sit next to it in inbox/ in a folder named after the page plus _frames, and move
+            with it)
     papers  <MODULE>_<YYYY>_<Assessment>[_Memo][_<Variant>].pdf
             CS354_2026_A1.pdf, CS354_2026_A1_Memo.pdf
 <MODULE> is a module's code or id from modules.json, in any case.
@@ -30,7 +33,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 INBOX = os.path.join(HERE, "inbox")
-KINDS = ("Notes", "Tutorial", "Lab", "Revision", "Summary")
+KINDS = ("Notes", "Tutorial", "Lab", "Revision", "Summary", "Video")
 
 NOTES_RE = re.compile(
     r"^(?P<mod>[A-Za-z0-9]+)_Week(?P<week>\d{1,2})(?:_(?P<track>[a-z][a-z0-9-]*))?"
@@ -135,7 +138,9 @@ def main():
     files = args.files
     if not files:
         os.makedirs(INBOX, exist_ok=True)
-        files = sorted(os.path.join(INBOX, f) for f in os.listdir(INBOX) if not f.startswith("."))
+        # folders in inbox/ are either a video page's frames (moved with the page) or working files
+        files = sorted(os.path.join(INBOX, f) for f in os.listdir(INBOX)
+                       if not f.startswith(".") and os.path.isfile(os.path.join(INBOX, f)))
     if not files:
         print("Nothing to do: inbox/ is empty.")
         return 0
@@ -153,6 +158,18 @@ def main():
             errors = ["the name does not follow the convention in NOTES_GUIDE.md"]
         if dest and os.path.exists(dest) and not args.force:
             errors.append("%s already exists (use --force to replace it)" % os.path.relpath(dest, HERE))
+        frames = os.path.splitext(path)[0] + "_frames"            # a video page's key frames
+        frames_dest = os.path.splitext(dest)[0] + "_frames" if dest else None
+        if dest and os.path.isdir(frames):
+            if os.path.exists(frames_dest) and not args.force:
+                errors.append("%s already exists (use --force to replace it)" % os.path.relpath(frames_dest, HERE))
+            if text is not None:
+                missing = sorted(set(re.findall(r'src="(' + re.escape(os.path.basename(frames)) + r'/[^"]+)"', text))
+                                 - set(os.path.basename(frames) + "/" + f for f in os.listdir(frames)))
+                if missing:
+                    errors.append("the page shows frames that are not in its _frames folder: " + ", ".join(missing))
+        elif text is not None and "_frames/" in text:
+            warnings.append("the page shows key frames but there is no %s folder next to it" % os.path.basename(frames))
         if errors:
             print("  x  %s" % name)
             for e in errors:
@@ -169,8 +186,15 @@ def main():
             else:
                 with open(dest, "w", encoding="utf-8", newline="\n") as fh:
                     fh.write(text)
+            if os.path.isdir(frames):
+                if os.path.exists(frames_dest):
+                    shutil.rmtree(frames_dest)
+                shutil.copytree(frames, frames_dest)
+                print("  -> %s/" % os.path.relpath(frames_dest, HERE).replace(os.sep, "/"))
             if os.path.abspath(os.path.dirname(path)) == os.path.abspath(INBOX):
                 os.remove(path)
+                if os.path.isdir(frames):
+                    shutil.rmtree(frames)
         filed += 1
 
     print("%s %d file(s), skipped %d." % ("Would file" if args.dry_run else "Filed", filed, skipped), flush=True)
