@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 12: A2 and A3 briefing · VN354 · notesmaxing</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <a class="home" href="../module.html?m=vibration">&larr; Vibration and Noise</a>
+  <div class="k">VN354 · Week 12</div>
+  <ol>
+    <li><a href="#format">1. Paper format</a></li>
+    <li><a href="#ga">2. The GA questions</a></li>
+    <li class="sub"><a href="#criteria">The three criteria</a></li>
+    <li class="sub"><a href="#ga-example">A GA-style question worked</a></li>
+    <li><a href="#sheet">3. The formula sheet</a></li>
+    <li class="sub"><a href="#sheet-error">The corrected equation</a></li>
+    <li><a href="#marks">4. How marks are given</a></li>
+    <li><a href="#derive">5. Derivations</a></li>
+    <li><a href="#support">6. Tutorials and the review session</a></li>
+    <li><a href="#summary">7. Key points</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="kicker">VIBRATION AND NOISE · A2 AND A3 ASSESSMENT BRIEFING</div>
+  <h1>A2 and A3: format, the GA rubric and how marks are given</h1>
+  <p class="lede">What the lecturer said about the A2 and A3 papers in the briefing recorded on 14 November 2026: the paper layout, how the graduate attribute (GA) questions are marked, the formula sheet and its corrected equation, and where marks come from. One GA-style question is worked at the end of section 2.</p>
+</header>
+
+<section id="format">
+<h2><span class="n">01</span>Paper format</h2>
+<p>The A2 and A3 use exactly the same format as the A1. You answer every question on the question paper itself, in the space left under each question. Extra pages are available if you run out of space.</p>
+<p>You do not need to memorise everything in the course. The lecturer's summary slides list what you should know, and the formula sheet (section 3) holds the formulas.</p>
+</section>
+
+<section id="ga">
+<h2><span class="n">02</span>The GA questions</h2>
+<div class="box def"><span class="label">Definition</span><p>A <strong>GA question</strong> is a question that is also marked against the graduate attribute rubric for application of engineering knowledge. The rubric result is separate from the question's marks.</p></div>
+<p>Each paper has <strong>two</strong> GA questions. You must pass the rubric on <strong>one</strong> of them, so failing one GA question is acceptable.</p>
+<p>The GA is judged on the rubric, not on the marks you score for the question. A score of 6 out of 10 or 7 out of 12 does not decide the GA outcome by itself. The two are related: full marks almost certainly passes the rubric, and zero almost certainly fails it, but everything between is judged against the rubric's descriptions.</p>
+<div class="box watch"><span class="label">Watch out</span><p>Any question in the paper can be a GA question, and the GA can be set on any section of the work. Do not try to predict where it will be and study only that section. Passing the GA while failing the module still means repeating the module.</p></div>
+
+<h3 id="criteria">The three criteria</h3>
+<p>The whole course is application of engineering knowledge: the maths you already know, applied to one area of dynamics. A GA question differs from an ordinary question mainly in how the information reaches you.</p>
+<div class="tbl"><table>
+<thead><tr><th>Criterion</th><th>What it checks</th><th>How it shows up</th></tr></thead>
+<tbody>
+<tr><td>C</td><td>You can read and apply appropriate empirical information.</td><td>Data comes as a graph, a table or a formula you have not seen before, rather than being stated. There may be more information than you need: the A1 gave five or six peaks when two were enough.</td></tr>
+<tr><td>B</td><td>You understand and apply the first-principle physical laws.</td><td>Newton's laws to get the equation of motion for a single or two degree of freedom system; conservation of energy for energy methods; knowing that a frequency read off a decaying record is the damped natural frequency. Present in every question, not only GA questions.</td></tr>
+<tr><td>A</td><td>The maths is done correctly.</td><td>Correct equations, correct substitution, correct solution. The easiest criterion to satisfy.</td></tr>
+</tbody></table></div>
+<p>A fail on the rubric means something is <strong>fundamentally</strong> wrong. Mixing up the natural frequency and the damped natural frequency is the lecturer's example: it is an error in the first-principle laws (criterion B), however small its effect on the numbers. A slip such as a mistyped calculator entry, where the method is visibly right, will be treated more leniently in the A2 and A3 than it was in the A1.</p>
+
+<h3 id="ga-example">A GA-style question worked</h3>
+<p>The question below is built the way the lecturer described: the data is in a figure and a table, there is more of it than you need, and the trap is the one he named. It uses the logarithmic decrement from <a href="vibration_Week01_Notes_Free-Vibration-and-Measurement.html#logdec">Week 1</a>.</p>
+<figure>
+<svg viewBox="0 0 640 280" class="fig" role="img" aria-label="Free decay of displacement from 10 mm with six numbered peaks; peaks 1 and 6 are highlighted">
+<line class="grid" x1="60" y1="20" x2="60" y2="235"/>
+<text class="tk" x="60" y="251" text-anchor="middle">0.0</text>
+<line class="grid" x1="138.6" y1="20" x2="138.6" y2="235"/>
+<text class="tk" x="138.6" y="251" text-anchor="middle">0.2</text>
+<line class="grid" x1="217.1" y1="20" x2="217.1" y2="235"/>
+<text class="tk" x="217.1" y="251" text-anchor="middle">0.4</text>
+<line class="grid" x1="295.7" y1="20" x2="295.7" y2="235"/>
+<text class="tk" x="295.7" y="251" text-anchor="middle">0.6</text>
+<line class="grid" x1="374.3" y1="20" x2="374.3" y2="235"/>
+<text class="tk" x="374.3" y="251" text-anchor="middle">0.8</text>
+<line class="grid" x1="452.9" y1="20" x2="452.9" y2="235"/>
+<text class="tk" x="452.9" y="251" text-anchor="middle">1.0</text>
+<line class="grid" x1="531.4" y1="20" x2="531.4" y2="235"/>
+<text class="tk" x="531.4" y="251" text-anchor="middle">1.2</text>
+<line class="grid" x1="610" y1="20" x2="610" y2="235"/>
+<text class="tk" x="610" y="251" text-anchor="middle">1.4</text>
+<line class="grid" x1="60" y1="235" x2="610" y2="235"/>
+<text class="tk" x="54" y="239" text-anchor="end">-10</text>
+<line class="grid" x1="60" y1="182.6" x2="610" y2="182.6"/>
+<text class="tk" x="54" y="186.6" text-anchor="end">-5</text>
+<line class="grid" x1="60" y1="130.1" x2="610" y2="130.1"/>
+<text class="tk" x="54" y="134.1" text-anchor="end">0</text>
+<line class="grid" x1="60" y1="77.7" x2="610" y2="77.7"/>
+<text class="tk" x="54" y="81.7" text-anchor="end">5</text>
+<line class="grid" x1="60" y1="25.2" x2="610" y2="25.2"/>
+<text class="tk" x="54" y="29.2" text-anchor="end">10</text>
+<rect class="frame" x="60" y="20" width="550" height="215"/>
+<text class="lab" x="335" y="271" text-anchor="middle">time t (s)</text>
+<text class="lab" x="16" y="127.5" text-anchor="middle" transform="rotate(-90 16 127.5)">x (mm)</text>
+<polyline class="ln c2 thin dash" points="60,24.7 60.8,25.2 61.6,25.8 62.4,26.3 63.1,26.8 63.9,27.3 64.7,27.8 65.5,28.3 66.3,28.9 67.1,29.4 67.9,29.9 68.7,30.4 69.4,30.9 70.2,31.4 71,31.9 71.8,32.3 72.6,32.8 73.4,33.3 74.2,33.8 74.9,34.3 75.7,34.8 76.5,35.2 77.3,35.7 78.1,36.2 78.9,36.7 79.7,37.1 80.5,37.6 81.2,38 82,38.5 82.8,39 83.6,39.4 84.4,39.9 85.2,40.3 86,40.8 86.8,41.2 87.5,41.7 88.3,42.1 89.1,42.5 89.9,43 90.7,43.4 91.5,43.8 92.3,44.3 93,44.7 93.8,45.1 94.6,45.6 95.4,46 96.2,46.4 97,46.8 97.8,47.2 98.6,47.6 99.3,48.1 100.1,48.5 100.9,48.9 101.7,49.3 102.5,49.7 103.3,50.1 104.1,50.5 104.8,50.9 105.6,51.3 106.4,51.7 107.2,52.1 108,52.5 108.8,52.8 109.6,53.2 110.4,53.6 111.1,54 111.9,54.4 112.7,54.8 113.5,55.1 114.3,55.5 115.1,55.9 115.9,56.3 116.7,56.6 117.4,57 118.2,57.4 119,57.7 119.8,58.1 120.6,58.4 121.4,58.8 122.2,59.2 122.9,59.5 123.7,59.9 124.5,60.2 125.3,60.6 126.1,60.9 126.9,61.3 127.7,61.6 128.5,61.9 129.2,62.3 130,62.6 130.8,63 131.6,63.3 132.4,63.6 133.2,64 134,64.3 134.7,64.6 135.5,64.9 136.3,65.3 137.1,65.6 137.9,65.9 138.7,66.2 139.5,66.6 140.3,66.9 141,67.2 141.8,67.5 142.6,67.8 143.4,68.1 144.2,68.4 145,68.7 145.8,69.1 146.6,69.4 147.3,69.7 148.1,70 148.9,70.3 149.7,70.6 150.5,70.9 151.3,71.2 152.1,71.4 152.8,71.7 153.6,72 154.4,72.3 155.2,72.6 156,72.9 156.8,73.2 157.6,73.5 158.4,73.8 159.1,74 159.9,74.3 160.7,74.6 161.5,74.9 162.3,75.1 163.1,75.4 163.9,75.7 164.6,76 165.4,76.2 166.2,76.5 167,76.8 167.8,77 168.6,77.3 169.4,77.6 170.2,77.8 170.9,78.1 171.7,78.4 172.5,78.6 173.3,78.9 174.1,79.1 174.9,79.4 175.7,79.6 176.5,79.9 177.2,80.1 178,80.4 178.8,80.6 179.6,80.9 180.4,81.1 181.2,81.4 182,81.6 182.7,81.9 183.5,82.1 184.3,82.3 185.1,82.6 185.9,82.8 186.7,83.1 187.5,83.3 188.3,83.5 189,83.8 189.8,84 190.6,84.2 191.4,84.4 192.2,84.7 193,84.9 193.8,85.1 194.5,85.3 195.3,85.6 196.1,85.8 196.9,86 197.7,86.2 198.5,86.5 199.3,86.7 200.1,86.9 200.8,87.1 201.6,87.3 202.4,87.5 203.2,87.7 204,88 204.8,88.2 205.6,88.4 206.4,88.6 207.1,88.8 207.9,89 208.7,89.2 209.5,89.4 210.3,89.6 211.1,89.8 211.9,90 212.6,90.2 213.4,90.4 214.2,90.6 215,90.8 215.8,91 216.6,91.2 217.4,91.4 218.2,91.6 218.9,91.8 219.7,92 220.5,92.2 221.3,92.4 222.1,92.5 222.9,92.7 223.7,92.9 224.4,93.1 225.2,93.3 226,93.5 226.8,93.7 227.6,93.8 228.4,94 229.2,94.2 230,94.4 230.7,94.6 231.5,94.7 232.3,94.9 233.1,95.1 233.9,95.3 234.7,95.4 235.5,95.6 236.3,95.8 237,96 237.8,96.1 238.6,96.3 239.4,96.5 240.2,96.6 241,96.8 241.8,97 242.5,97.1 243.3,97.3 244.1,97.5 244.9,97.6 245.7,97.8 246.5,97.9 247.3,98.1 248.1,98.3 248.8,98.4 249.6,98.6 250.4,98.7 251.2,98.9 252,99.1 252.8,99.2 253.6,99.4 254.3,99.5 255.1,99.7 255.9,99.8 256.7,100 257.5,100.1 258.3,100.3 259.1,100.4 259.9,100.6 260.6,100.7 261.4,100.9 262.2,101 263,101.2 263.8,101.3 264.6,101.4 265.4,101.6 266.2,101.7 266.9,101.9 267.7,102 268.5,102.2 269.3,102.3 270.1,102.4 270.9,102.6 271.7,102.7 272.4,102.8 273.2,103 274,103.1 274.8,103.3 275.6,103.4 276.4,103.5 277.2,103.7 278,103.8 278.7,103.9 279.5,104.1 280.3,104.2 281.1,104.3 281.9,104.4 282.7,104.6 283.5,104.7 284.2,104.8 285,104.9 285.8,105.1 286.6,105.2 287.4,105.3 288.2,105.4 289,105.6 289.8,105.7 290.5,105.8 291.3,105.9 292.1,106.1 292.9,106.2 293.7,106.3 294.5,106.4 295.3,106.5 296.1,106.7 296.8,106.8 297.6,106.9 298.4,107 299.2,107.1 300,107.2 300.8,107.3 301.6,107.5 302.3,107.6 303.1,107.7 303.9,107.8 304.7,107.9 305.5,108 306.3,108.1 307.1,108.2 307.9,108.4 308.6,108.5 309.4,108.6 310.2,108.7 311,108.8 311.8,108.9 312.6,109 313.4,109.1 314.1,109.2 314.9,109.3 315.7,109.4 316.5,109.5 317.3,109.6 318.1,109.7 318.9,109.8 319.7,109.9 320.4,110 321.2,110.1 322,110.2 322.8,110.3 323.6,110.4 324.4,110.5 325.2,110.6 326,110.7 326.7,110.8 327.5,110.9 328.3,111 329.1,111.1 329.9,111.2 330.7,111.3 331.5,111.4 332.2,111.5 333,111.6 333.8,111.7 334.6,111.8 335.4,111.9 336.2,111.9 337,112 337.8,112.1 338.5,112.2 339.3,112.3 340.1,112.4 340.9,112.5 341.7,112.6 342.5,112.7 343.3,112.7 344,112.8 344.8,112.9 345.6,113 346.4,113.1 347.2,113.2 348,113.3 348.8,113.3 349.6,113.4 350.3,113.5 351.1,113.6 351.9,113.7 352.7,113.8 353.5,113.8 354.3,113.9 355.1,114 355.9,114.1 356.6,114.2 357.4,114.2 358.2,114.3 359,114.4 359.8,114.5 360.6,114.6 361.4,114.6 362.1,114.7 362.9,114.8 363.7,114.9 364.5,114.9 365.3,115 366.1,115.1 366.9,115.2 367.7,115.2 368.4,115.3 369.2,115.4 370,115.5 370.8,115.5 371.6,115.6 372.4,115.7 373.2,115.8 373.9,115.8 374.7,115.9 375.5,116 376.3,116 377.1,116.1 377.9,116.2 378.7,116.2 379.5,116.3 380.2,116.4 381,116.5 381.8,116.5 382.6,116.6 383.4,116.7 384.2,116.7 385,116.8 385.8,116.9 386.5,116.9 387.3,117 388.1,117.1 388.9,117.1 389.7,117.2 390.5,117.3 391.3,117.3 392,117.4 392.8,117.4 393.6,117.5 394.4,117.6 395.2,117.6 396,117.7 396.8,117.8 397.6,117.8 398.3,117.9 399.1,117.9 399.9,118 400.7,118.1 401.5,118.1 402.3,118.2 403.1,118.2 403.8,118.3 404.6,118.4 405.4,118.4 406.2,118.5 407,118.5 407.8,118.6 408.6,118.7 409.4,118.7 410.1,118.8 410.9,118.8 411.7,118.9 412.5,118.9 413.3,119 414.1,119 414.9,119.1 415.7,119.2 416.4,119.2 417.2,119.3 418,119.3 418.8,119.4 419.6,119.4 420.4,119.5 421.2,119.5 421.9,119.6 422.7,119.6 423.5,119.7 424.3,119.7 425.1,119.8 425.9,119.8 426.7,119.9 427.5,120 428.2,120 429,120.1 429.8,120.1 430.6,120.2 431.4,120.2 432.2,120.3 433,120.3 433.7,120.4 434.5,120.4 435.3,120.4 436.1,120.5 436.9,120.5 437.7,120.6 438.5,120.6 439.3,120.7 440,120.7 440.8,120.8 441.6,120.8 442.4,120.9 443.2,120.9 444,121 444.8,121 445.6,121.1 446.3,121.1 447.1,121.1 447.9,121.2 448.7,121.2 449.5,121.3 450.3,121.3 451.1,121.4 451.8,121.4 452.6,121.5 453.4,121.5 454.2,121.5 455,121.6 455.8,121.6 456.6,121.7 457.4,121.7 458.1,121.8 458.9,121.8 459.7,121.8 460.5,121.9 461.3,121.9 462.1,122 462.9,122 463.6,122 464.4,122.1 465.2,122.1 466,122.2 466.8,122.2 467.6,122.2 468.4,122.3 469.2,122.3 469.9,122.4 470.7,122.4 471.5,122.4 472.3,122.5 473.1,122.5 473.9,122.6 474.7,122.6 475.5,122.6 476.2,122.7 477,122.7 477.8,122.7 478.6,122.8 479.4,122.8 480.2,122.9 481,122.9 481.7,122.9 482.5,123 483.3,123 484.1,123 484.9,123.1 485.7,123.1 486.5,123.1 487.3,123.2 488,123.2 488.8,123.2 489.6,123.3 490.4,123.3 491.2,123.3 492,123.4 492.8,123.4 493.5,123.4 494.3,123.5 495.1,123.5 495.9,123.5 496.7,123.6 497.5,123.6 498.3,123.6 499.1,123.7 499.8,123.7 500.6,123.7 501.4,123.8 502.2,123.8 503,123.8 503.8,123.9 504.6,123.9 505.4,123.9 506.1,124 506.9,124 507.7,124 508.5,124 509.3,124.1 510.1,124.1 510.9,124.1 511.6,124.2 512.4,124.2 513.2,124.2 514,124.3 514.8,124.3 515.6,124.3 516.4,124.3 517.2,124.4 517.9,124.4 518.7,124.4 519.5,124.5 520.3,124.5 521.1,124.5 521.9,124.5 522.7,124.6 523.4,124.6 524.2,124.6 525,124.7 525.8,124.7 526.6,124.7 527.4,124.7 528.2,124.8 529,124.8 529.7,124.8 530.5,124.8 531.3,124.9 532.1,124.9 532.9,124.9 533.7,124.9 534.5,125 535.3,125 536,125 536.8,125.1 537.6,125.1 538.4,125.1 539.2,125.1 540,125.2 540.8,125.2 541.5,125.2 542.3,125.2 543.1,125.3 543.9,125.3 544.7,125.3 545.5,125.3 546.3,125.3 547.1,125.4 547.8,125.4 548.6,125.4 549.4,125.4 550.2,125.5 551,125.5 551.8,125.5 552.6,125.5 553.3,125.6 554.1,125.6 554.9,125.6 555.7,125.6 556.5,125.6 557.3,125.7 558.1,125.7 558.9,125.7 559.6,125.7 560.4,125.8 561.2,125.8 562,125.8 562.8,125.8 563.6,125.8 564.4,125.9 565.2,125.9 565.9,125.9 566.7,125.9 567.5,126 568.3,126 569.1,126 569.9,126 570.7,126 571.4,126.1 572.2,126.1 573,126.1 573.8,126.1 574.6,126.1 575.4,126.2 576.2,126.2 577,126.2 577.7,126.2 578.5,126.2 579.3,126.3 580.1,126.3 580.9,126.3 581.7,126.3 582.5,126.3 583.2,126.3 584,126.4 584.8,126.4 585.6,126.4 586.4,126.4 587.2,126.4 588,126.5 588.8,126.5 589.5,126.5 590.3,126.5 591.1,126.5 591.9,126.6 592.7,126.6 593.5,126.6 594.3,126.6 595.1,126.6 595.8,126.6 596.6,126.7 597.4,126.7 598.2,126.7 599,126.7 599.8,126.7 600.6,126.7 601.3,126.8 602.1,126.8 602.9,126.8 603.7,126.8 604.5,126.8 605.3,126.8 606.1,126.9 606.9,126.9 607.6,126.9 608.4,126.9 609.2,126.9 610,126.9"/>
+<polyline class="ln c1" points="60,25.2 60.8,25.4 61.6,25.8 62.4,26.4 63.1,27.3 63.9,28.5 64.7,29.8 65.5,31.5 66.3,33.3 67.1,35.4 67.9,37.7 68.7,40.2 69.4,42.9 70.2,45.8 71,48.9 71.8,52.1 72.6,55.5 73.4,59.1 74.2,62.8 74.9,66.6 75.7,70.6 76.5,74.6 77.3,78.8 78.1,83 78.9,87.4 79.7,91.7 80.5,96.2 81.2,100.7 82,105.2 82.8,109.7 83.6,114.2 84.4,118.7 85.2,123.2 86,127.7 86.8,132.2 87.5,136.6 88.3,140.9 89.1,145.1 89.9,149.3 90.7,153.4 91.5,157.4 92.3,161.3 93,165.1 93.8,168.7 94.6,172.2 95.4,175.6 96.2,178.8 97,181.9 97.8,184.8 98.6,187.5 99.3,190.1 100.1,192.5 100.9,194.7 101.7,196.8 102.5,198.6 103.3,200.3 104.1,201.8 104.8,203 105.6,204.1 106.4,205 107.2,205.7 108,206.2 108.8,206.5 109.6,206.6 110.4,206.5 111.1,206.2 111.9,205.8 112.7,205.1 113.5,204.3 114.3,203.3 115.1,202.1 115.9,200.8 116.7,199.3 117.4,197.6 118.2,195.8 119,193.8 119.8,191.7 120.6,189.5 121.4,187.2 122.2,184.7 122.9,182.1 123.7,179.4 124.5,176.6 125.3,173.7 126.1,170.8 126.9,167.7 127.7,164.6 128.5,161.5 129.2,158.3 130,155.1 130.8,151.8 131.6,148.5 132.4,145.2 133.2,141.9 134,138.6 134.7,135.3 135.5,132.1 136.3,128.8 137.1,125.6 137.9,122.5 138.7,119.3 139.5,116.3 140.3,113.3 141,110.4 141.8,107.5 142.6,104.8 143.4,102.1 144.2,99.6 145,97.1 145.8,94.7 146.6,92.5 147.3,90.4 148.1,88.4 148.9,86.5 149.7,84.7 150.5,83.1 151.3,81.6 152.1,80.2 152.8,79 153.6,77.9 154.4,77 155.2,76.2 156,75.5 156.8,75 157.6,74.7 158.4,74.4 159.1,74.3 159.9,74.4 160.7,74.6 161.5,74.9 162.3,75.4 163.1,76 163.9,76.7 164.6,77.6 165.4,78.5 166.2,79.6 167,80.8 167.8,82.1 168.6,83.6 169.4,85.1 170.2,86.7 170.9,88.4 171.7,90.2 172.5,92.1 173.3,94.1 174.1,96.1 174.9,98.2 175.7,100.4 176.5,102.6 177.2,104.8 178,107.1 178.8,109.4 179.6,111.8 180.4,114.2 181.2,116.6 182,119 182.7,121.4 183.5,123.8 184.3,126.2 185.1,128.6 185.9,130.9 186.7,133.3 187.5,135.6 188.3,137.9 189,140.1 189.8,142.3 190.6,144.4 191.4,146.5 192.2,148.5 193,150.4 193.8,152.3 194.5,154.1 195.3,155.8 196.1,157.5 196.9,159 197.7,160.5 198.5,161.9 199.3,163.2 200.1,164.4 200.8,165.5 201.6,166.4 202.4,167.3 203.2,168.1 204,168.8 204.8,169.4 205.6,169.9 206.4,170.3 207.1,170.6 207.9,170.7 208.7,170.8 209.5,170.8 210.3,170.6 211.1,170.4 211.9,170.1 212.6,169.6 213.4,169.1 214.2,168.5 215,167.8 215.8,167 216.6,166.1 217.4,165.2 218.2,164.1 218.9,163 219.7,161.8 220.5,160.6 221.3,159.3 222.1,157.9 222.9,156.5 223.7,155 224.4,153.5 225.2,151.9 226,150.3 226.8,148.7 227.6,147 228.4,145.3 229.2,143.6 230,141.9 230.7,140.1 231.5,138.4 232.3,136.6 233.1,134.8 233.9,133.1 234.7,131.4 235.5,129.6 236.3,127.9 237,126.2 237.8,124.6 238.6,123 239.4,121.4 240.2,119.8 241,118.3 241.8,116.8 242.5,115.4 243.3,114 244.1,112.7 244.9,111.5 245.7,110.2 246.5,109.1 247.3,108 248.1,107 248.8,106.1 249.6,105.2 250.4,104.4 251.2,103.7 252,103 252.8,102.4 253.6,101.9 254.3,101.5 255.1,101.1 255.9,100.9 256.7,100.6 257.5,100.5 258.3,100.5 259.1,100.5 259.9,100.6 260.6,100.7 261.4,101 262.2,101.3 263,101.7 263.8,102.1 264.6,102.6 265.4,103.2 266.2,103.8 266.9,104.5 267.7,105.3 268.5,106.1 269.3,106.9 270.1,107.8 270.9,108.8 271.7,109.8 272.4,110.8 273.2,111.9 274,113 274.8,114.2 275.6,115.3 276.4,116.5 277.2,117.7 278,119 278.7,120.2 279.5,121.5 280.3,122.8 281.1,124 281.9,125.3 282.7,126.6 283.5,127.9 284.2,129.1 285,130.4 285.8,131.7 286.6,132.9 287.4,134.1 288.2,135.3 289,136.4 289.8,137.6 290.5,138.7 291.3,139.8 292.1,140.8 292.9,141.8 293.7,142.8 294.5,143.7 295.3,144.6 296.1,145.4 296.8,146.2 297.6,146.9 298.4,147.6 299.2,148.3 300,148.8 300.8,149.4 301.6,149.9 302.3,150.3 303.1,150.7 303.9,151 304.7,151.2 305.5,151.5 306.3,151.6 307.1,151.7 307.9,151.7 308.6,151.7 309.4,151.7 310.2,151.6 311,151.4 311.8,151.2 312.6,150.9 313.4,150.6 314.1,150.2 314.9,149.8 315.7,149.3 316.5,148.8 317.3,148.3 318.1,147.7 318.9,147.1 319.7,146.4 320.4,145.7 321.2,145 322,144.2 322.8,143.5 323.6,142.6 324.4,141.8 325.2,141 326,140.1 326.7,139.2 327.5,138.3 328.3,137.4 329.1,136.5 329.9,135.5 330.7,134.6 331.5,133.7 332.2,132.7 333,131.8 333.8,130.9 334.6,130 335.4,129.1 336.2,128.2 337,127.3 337.8,126.4 338.5,125.6 339.3,124.7 340.1,123.9 340.9,123.1 341.7,122.4 342.5,121.6 343.3,120.9 344,120.3 344.8,119.6 345.6,119 346.4,118.4 347.2,117.9 348,117.4 348.8,116.9 349.6,116.5 350.3,116.1 351.1,115.7 351.9,115.4 352.7,115.2 353.5,114.9 354.3,114.7 355.1,114.6 355.9,114.5 356.6,114.4 357.4,114.4 358.2,114.4 359,114.4 359.8,114.5 360.6,114.6 361.4,114.8 362.1,115 362.9,115.2 363.7,115.5 364.5,115.8 365.3,116.1 366.1,116.5 366.9,116.9 367.7,117.3 368.4,117.7 369.2,118.2 370,118.7 370.8,119.2 371.6,119.8 372.4,120.4 373.2,121 373.9,121.6 374.7,122.2 375.5,122.8 376.3,123.5 377.1,124.1 377.9,124.8 378.7,125.5 379.5,126.1 380.2,126.8 381,127.5 381.8,128.2 382.6,128.9 383.4,129.5 384.2,130.2 385,130.9 385.8,131.5 386.5,132.2 387.3,132.8 388.1,133.4 388.9,134 389.7,134.6 390.5,135.2 391.3,135.7 392,136.3 392.8,136.8 393.6,137.3 394.4,137.7 395.2,138.2 396,138.6 396.8,139 397.6,139.4 398.3,139.7 399.1,140 399.9,140.3 400.7,140.6 401.5,140.8 402.3,141 403.1,141.2 403.8,141.3 404.6,141.5 405.4,141.5 406.2,141.6 407,141.6 407.8,141.6 408.6,141.6 409.4,141.5 410.1,141.4 410.9,141.3 411.7,141.2 412.5,141 413.3,140.8 414.1,140.6 414.9,140.4 415.7,140.1 416.4,139.8 417.2,139.5 418,139.2 418.8,138.8 419.6,138.5 420.4,138.1 421.2,137.7 421.9,137.3 422.7,136.8 423.5,136.4 424.3,135.9 425.1,135.5 425.9,135 426.7,134.5 427.5,134 428.2,133.6 429,133.1 429.8,132.6 430.6,132.1 431.4,131.6 432.2,131.1 433,130.6 433.7,130.1 434.5,129.6 435.3,129.1 436.1,128.7 436.9,128.2 437.7,127.7 438.5,127.3 439.3,126.9 440,126.5 440.8,126.1 441.6,125.7 442.4,125.3 443.2,124.9 444,124.6 444.8,124.3 445.6,123.9 446.3,123.7 447.1,123.4 447.9,123.1 448.7,122.9 449.5,122.7 450.3,122.5 451.1,122.3 451.8,122.2 452.6,122.1 453.4,121.9 454.2,121.9 455,121.8 455.8,121.8 456.6,121.7 457.4,121.7 458.1,121.8 458.9,121.8 459.7,121.9 460.5,121.9 461.3,122 462.1,122.2 462.9,122.3 463.6,122.5 464.4,122.6 465.2,122.8 466,123 466.8,123.3 467.6,123.5 468.4,123.8 469.2,124 469.9,124.3 470.7,124.6 471.5,124.9 472.3,125.2 473.1,125.5 473.9,125.9 474.7,126.2 475.5,126.5 476.2,126.9 477,127.2 477.8,127.6 478.6,128 479.4,128.3 480.2,128.7 481,129 481.7,129.4 482.5,129.8 483.3,130.1 484.1,130.5 484.9,130.8 485.7,131.2 486.5,131.5 487.3,131.8 488,132.2 488.8,132.5 489.6,132.8 490.4,133.1 491.2,133.4 492,133.6 492.8,133.9 493.5,134.1 494.3,134.4 495.1,134.6 495.9,134.8 496.7,135 497.5,135.2 498.3,135.4 499.1,135.5 499.8,135.7 500.6,135.8 501.4,135.9 502.2,136 503,136.1 503.8,136.1 504.6,136.2 505.4,136.2 506.1,136.2 506.9,136.2 507.7,136.2 508.5,136.2 509.3,136.1 510.1,136.1 510.9,136 511.6,135.9 512.4,135.8 513.2,135.7 514,135.6 514.8,135.4 515.6,135.3 516.4,135.1 517.2,135 517.9,134.8 518.7,134.6 519.5,134.4 520.3,134.2 521.1,133.9 521.9,133.7 522.7,133.5 523.4,133.2 524.2,133 525,132.7 525.8,132.5 526.6,132.2 527.4,132 528.2,131.7 529,131.5 529.7,131.2 530.5,130.9 531.3,130.7 532.1,130.4 532.9,130.1 533.7,129.9 534.5,129.6 535.3,129.4 536,129.1 536.8,128.9 537.6,128.7 538.4,128.4 539.2,128.2 540,128 540.8,127.8 541.5,127.6 542.3,127.4 543.1,127.2 543.9,127 544.7,126.9 545.5,126.7 546.3,126.6 547.1,126.4 547.8,126.3 548.6,126.2 549.4,126.1 550.2,126 551,125.9 551.8,125.8 552.6,125.8 553.3,125.7 554.1,125.7 554.9,125.7 555.7,125.7 556.5,125.7 557.3,125.7 558.1,125.7 558.9,125.7 559.6,125.8 560.4,125.8 561.2,125.9 562,126 562.8,126 563.6,126.1 564.4,126.2 565.2,126.3 565.9,126.5 566.7,126.6 567.5,126.7 568.3,126.9 569.1,127 569.9,127.2 570.7,127.3 571.4,127.5 572.2,127.7 573,127.8 573.8,128 574.6,128.2 575.4,128.4 576.2,128.6 577,128.8 577.7,128.9 578.5,129.1 579.3,129.3 580.1,129.5 580.9,129.7 581.7,129.9 582.5,130.1 583.2,130.3 584,130.5 584.8,130.7 585.6,130.8 586.4,131 587.2,131.2 588,131.4 588.8,131.5 589.5,131.7 590.3,131.8 591.1,132 591.9,132.1 592.7,132.2 593.5,132.4 594.3,132.5 595.1,132.6 595.8,132.7 596.6,132.8 597.4,132.9 598.2,133 599,133.1 599.8,133.1 600.6,133.2 601.3,133.2 602.1,133.3 602.9,133.3 603.7,133.3 604.5,133.4 605.3,133.4 606.1,133.4 606.9,133.4 607.6,133.4 608.4,133.3 609.2,133.3 610,133.3"/>
+<circle class="c3f" cx="60" cy="25.2" r="4"/>
+<text class="tk" x="72" y="25.2" text-anchor="middle">1</text>
+<circle class="c4f" cx="159.4" cy="74.3" r="4"/>
+<text class="tk" x="159.4" y="65.3" text-anchor="middle">2</text>
+<circle class="c4f" cx="258.4" cy="100.4" r="4"/>
+<text class="tk" x="258.4" y="91.4" text-anchor="middle">3</text>
+<circle class="c4f" cx="357.8" cy="114.4" r="4"/>
+<text class="tk" x="357.8" y="105.4" text-anchor="middle">4</text>
+<circle class="c4f" cx="456.8" cy="121.7" r="4"/>
+<text class="tk" x="456.8" y="112.7" text-anchor="middle">5</text>
+<circle class="c3f" cx="556.2" cy="125.6" r="4"/>
+<text class="tk" x="556.2" y="116.6" text-anchor="middle">6</text>
+</svg>
+<figcaption><b>Figure 2.1</b> Measured free decay of a 4.0 kg mass released from 10 mm.</figcaption>
+</figure>
+<p class="fignote"><b>Figure 2.1:</b> The solid teal line is the displacement and the dashed line is the decay envelope. The six peaks are numbered; peaks 1 and 6 (amber) are the only two the solution needs. The plot is computed from \(x(t) = Ae^{-\zeta\omega_n t}\sin(\omega_d t + \phi)\) with the values found below.</p>
+
+<div class="eq"><span class="tag">From a decay record to the system parameters</span>\[ T_d = \frac{t_{1+n} - t_1}{n}, \qquad \delta = \frac{1}{n}\ln\frac{x_1}{x_{1+n}}, \qquad \zeta = \frac{\delta}{\sqrt{4\pi^2 + \delta^2}}, \qquad \omega_n = \frac{\omega_d}{\sqrt{1-\zeta^2}} \]
+<label class="annot"><input type="checkbox" autocomplete="off"> Annotate terms</label>
+<dl class="terms">
+  <dt>\(T_d\)</dt><dd>Damped period, the time between successive peaks (s).</dd>
+  <dt>\(t_1, t_{1+n}\)</dt><dd>Times of the first peak used and of the peak \(n\) periods later (s).</dd>
+  <dt>\(n\)</dt><dd>Number of whole periods between the two peaks used.</dd>
+  <dt>\(\delta\)</dt><dd>Logarithmic decrement.</dd>
+  <dt>\(x_1, x_{1+n}\)</dt><dd>Heights of the two peaks used (m or mm, the same for both).</dd>
+  <dt>\(\zeta\)</dt><dd>Damping ratio.</dd>
+  <dt>\(\omega_n\)</dt><dd>Undamped natural frequency (rad/s).</dd>
+  <dt>\(\omega_d\)</dt><dd>Damped natural frequency, \(2\pi/T_d\) (rad/s).</dd>
+</dl>
+</div>
+
+<div class="ex"><div class="hd">Worked example 2.1 <span>stiffness and damping from a decay record</span></div><div class="bd">
+<p>A 4.0 kg mass on a spring and viscous damper is displaced 10 mm and released. Figure 2.1 shows the measured response and the table lists its peaks. Find the stiffness \(k\) and the damping coefficient \(c\).</p>
+<div class="tbl"><table>
+<thead><tr><th>Peak</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr></thead>
+<tbody>
+<tr><td>Time (s)</td><td>0.000</td><td>0.253</td><td>0.505</td><td>0.758</td><td>1.010</td><td>1.263</td></tr>
+<tr><td>Height (mm)</td><td>10.00</td><td>5.32</td><td>2.83</td><td>1.50</td><td>0.80</td><td>0.43</td></tr>
+</tbody></table></div>
+<div class="step"><i>1</i><div>Choose two peaks far apart, so reading errors are spread over several periods: peaks 1 and 6, which are \(n = 5\) periods apart. Peaks 2 to 5 are not needed (criterion C).</div></div>
+<div class="step"><i>2</i><div>Damped period and damped natural frequency:
+\[ T_d = \frac{1.263 - 0.000}{5} = 0.2526\ \text{s}, \qquad \omega_d = \frac{2\pi}{0.2526} = 24.87\ \text{rad/s}. \]</div></div>
+<div class="step"><i>3</i><div>Logarithmic decrement and damping ratio:
+\[ \delta = \frac{1}{5}\ln\frac{10.00}{0.43} = 0.6293, \qquad \zeta = \frac{0.6293}{\sqrt{4\pi^2 + 0.6293^2}} = 0.09966. \]</div></div>
+<div class="step"><i>4</i><div>The period read off the plot belongs to the <em>damped</em> motion (criterion B). Convert it to the undamped natural frequency before using \(\omega_n^2 = k/m\):
+\[ \omega_n = \frac{24.87}{\sqrt{1 - 0.09966^2}} = 25.00\ \text{rad/s}. \]</div></div>
+<div class="step"><i>5</i><div>Stiffness and damping coefficient:
+\[ k = m\omega_n^2 = 4.0 \times 25.00^2 = 2500\ \text{N/m}, \qquad c = 2\zeta m\omega_n = 2 \times 0.09966 \times 4.0 \times 25.00 = 19.93\ \text{N s/m}. \]</div></div>
+<div class="ans">\(k \approx 2.50\) kN/m and \(c \approx 19.9\) N s/m, with \(\zeta \approx 0.100\) and \(\omega_n \approx 25.0\) rad/s.</div>
+</div></div>
+<div class="box watch"><span class="label">Watch out</span><p>Using \(\omega_d = 24.87\) rad/s directly in \(k = m\omega^2\) gives 2475 N/m, only 1% low. The number looks almost right, but on the rubric it is the fundamental error the lecturer described, not a calculation slip.</p></div>
+<div class="note"><span class="tag">Other peak pairs</span><p>Any two peaks give the same answer within the rounding of the table: peaks 1 and 4 give \(k = 2499\) N/m, and peaks 2 and 6 give 2502 N/m.</p></div>
+</section>
+
+<section id="sheet">
+<h2><span class="n">03</span>The formula sheet</h2>
+<p>You get a formula sheet in the A2 and A3. It is already on SUNLearn, near the top of the module page. It includes the beam table, so any beam calculation can be done from it without memorising beam results.</p>
+<p>Any formula that is not on the sheet must be memorised or derived if you want to use it. The lecturer's example is the Euler formulas for converting between the forms of the free response. His advice is not to convert at all: know each form of the solution, use the form a question asks for, and otherwise use whichever form suits the task.</p>
+<div class="box exam"><span class="label">Exam</span><p>To <strong>sketch</strong> a response, use a trigonometric form such as \(Ae^{-\zeta\omega_n t}\sin(\omega_d t + \phi)\): a decaying envelope times a sine is easy to draw. The exponential form \(a_1e^{\lambda_1 t} + a_2e^{\lambda_2 t}\) with complex \(\lambda\) gives no direct picture of the motion.</p></div>
+
+<h3 id="sheet-error">The corrected equation</h3>
+<div class="box watch"><span class="label">Watch out</span><p>An older version of the formula sheet has a sign error in one equation: a negative sign on a term involving the amplitude \(X\) and the force \(f\) is wrong. It was pointed out after the A1, and last year's A2 and A3 papers carried the same mistake (no question on them needed that equation). The sheet for the A2 and A3 is corrected. The recording only shows the lecturer pointing at the equation on screen, so it does not say which one it is. Download the current sheet from SUNLearn rather than using a copy from an old paper, and compare any equation with \(X\) and \(f\) in it against the derivation in the <a href="vibration_Week03_Notes_Harmonic-Excitation.html">Week 3 notes</a>.</p></div>
+</section>
+
+<section id="marks">
+<h2><span class="n">04</span>How marks are given</h2>
+<p>Mark allocation depends on the question, so the safe habit is to write down three things every time: the formula you are using, your working, and the answer. That covers what marks are usually given for. Not every question gives a mark for writing the formula, but some do.</p>
+<p>Free body diagrams can carry marks. The lecturer does not put FBD marks on every question, so that a student who never draws them is not penalised several times for the same habit. In the A1, only one question gave marks for a free body diagram. The paper will not say which question does, so draw one wherever a free body diagram applies.</p>
+<div class="key"><span class="tag">Key idea</span><p>Formula, working, answer, and a free body diagram wherever one applies. You lose nothing by including them and you may lose marks by leaving them out.</p></div>
+</section>
+
+<section id="derive">
+<h2><span class="n">05</span>Derivations</h2>
+<p>If a question asks you to derive something, you will have seen that derivation before: in class, in the lecture notes or in the prescribed content for the course.</p>
+<p>A question may still give you an equation you have not seen before. In that case the equation is provided, and you are expected to work with it using the general theory (this is criterion C in the GA rubric). You will not be asked to derive it. The lecturer's view is that you should be able to derive new results, but not under the time pressure of an assessment.</p>
+</section>
+
+<section id="support">
+<h2><span class="n">06</span>Tutorials and the review session</h2>
+<h3 id="tut-solutions">Tutorial solutions</h3>
+<p>Partial solutions for Tutorials 3 and 4, and for the tutorial set on the day of the briefing, were not yet on SUNLearn at the time. The lecturer said he would post them. Only partial solutions are released, not full memos. They may be based on a different edition of the textbook from yours, so some answers may not match. The answers at the back of the textbook would show the same differences.</p>
+<h3 id="review">Review session</h3>
+<p>The lecturer holds a review session in the weeks before the exam. It will be announced on SUNLearn, in a conference room or a lecture hall depending on how many students are interested. Nothing is prepared in advance: you bring the questions. An A1 question, a tutorial question, or a difficult textbook problem are all suitable, and the questions are worked as a group.</p>
+<h3 id="admin">Marking and feedback</h3>
+<p>The demis were still marking the later practical or tutorial submissions; the plan was to finish by the end of that week, without a promise. The first set of marks should already be on SUNLearn. The module feedback form is open and the lecturer asked for it to be filled in: part of this year's course was changed from last year's feedback.</p>
+</section>
+
+<section id="summary">
+<h2><span class="n">07</span>Key points</h2>
+<div class="sheet">
+<div><h4>Paper</h4>
+<p>Same format as the A1. Answer on the question paper; extra pages are available.</p>
+<p>Formula sheet provided, with the beam table. Use the corrected version from SUNLearn.</p>
+</div>
+<div><h4>GA</h4>
+<p>Two GA questions per paper; pass the rubric on one. Judged on the rubric, not on the question's marks.</p>
+<p>C: read supplied data. B: first-principle laws. A: correct maths. Fundamental errors fail; calculator slips are treated leniently.</p>
+</div>
+<div><h4>Marks</h4>
+<p>Formula, working and answer every time. Free body diagrams sometimes carry marks, without warning.</p>
+</div>
+<div><h4>Derivations</h4>
+<p>Only ones you have seen. Unseen equations are given to you to apply, not to derive.</p>
+</div>
+</div>
+</section>
+
+<footer>
+<p>Sources: <code>WhatsApp_Audio_2026-11-14_at_19.52.04.mp4</code>, an audio recording (19 min 34 s) of the lecturer's A2 and A3 briefing. Times and wording come from a machine transcript, checked a second time with a larger model on the unclear passages. Not made out: the opening lines about the summary slides; which formula sheet equation had the sign error (it was pointed at on screen); and which submissions the demis were still marking (it sounds like the second and third practicals, with the first already marked). The slides shown during the briefing were not available. Worked example 2.1 is new and its numbers were computed, not taken from the recording.</p>
+</footer>
+</main>
+</div>
+
+<script src="../assets/ask-gemini.js" data-store="vibration-w12-revision" data-course="VN354 Vibration and Noise"
+        data-topic="Week 12: A2 and A3 assessment briefing, GA rubric criteria, formula sheet correction, mark allocation, derivations"></script>
+</body>
+</html>

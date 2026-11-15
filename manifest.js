@@ -209,6 +209,12 @@ window.NOTES_MANIFEST = {
      "href": "Vibration-and-Noise/vibration_Week11_Notes_Noise-Fundamentals-and-Standards.html"
     },
     {
+     "title": "A2 and A3: format, the GA rubric and how marks are given",
+     "week": 12,
+     "track": "",
+     "href": "Vibration-and-Noise/VN354_Week12_Revision_A2-A3-Assessment-Briefing.html"
+    },
+    {
      "title": "Sound measurement, with Tutorial 5 worked",
      "week": 12,
      "track": "",
